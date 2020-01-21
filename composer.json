@@ -1,0 +1,24 @@
+{
+    "autoload": {
+        "psr-4": {
+            "Phi\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Phi\\Tests\\": "tests/"
+        }
+    },
+    "require-dev": {
+        "phpunit/phpunit": "^8.0",
+        "phpstan/phpstan": "^0.11.2",
+        "phpstan/phpstan-strict-rules": "^0.11.0"
+    },
+    "scripts": {
+        "build": "composer phpstan && composer phpunit",
+        "generate-nodes": "php meta/_generate_nodes.php",
+        "phpstan": "vendor/bin/phpstan a",
+        "phpunit": "vendor/bin/phpunit --coverage-html coverage/",
+        "phpunit-dev": "PHI_PHPUNIT_AUTOCOMPLETE=1 PHI_DEBUG_COLOR=1 vendor/bin/phpunit --stop-on-error --stop-on-failure"
+    }
+}

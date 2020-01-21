@@ -1,0 +1,21 @@
+includes:
+	- vendor/phpstan/phpstan-strict-rules/rules.neon
+
+parameters:
+    level: max
+    paths:
+        - ./src
+    ignoreErrors:
+        - '{Only booleans are allowed in .+}'
+        -
+            path: src/Parser.php
+            message: '{^Strict comparison using .+ between .+ and .+ will always evaluate to (true|false)\.$}'
+        -
+            path: src/Parser.php
+            message: '{^Else branch is unreachable because .+}'
+        -
+            path: src/Parser.php
+            message: '{^(Right side|Result) of (\|\||&&) is always .+}'
+        -
+            path: src/Nodes/Generated/
+            message: '{^Property .+[(&](Phi\\Nodes\\Base\\(Separated)?NodesList).+ does not accept \1}'
