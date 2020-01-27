@@ -9,36 +9,16 @@ use Phi\Nodes\Base\NodesList;
 use Phi\Nodes\Base\SeparatedNodesList;
 use Phi\Exception\MissingNodeException;
 use Phi\NodeConverter;
-use Phi\Specification;
-use Phi\Optional;
-use Phi\Specifications\And_;
-use Phi\Specifications\Any;
-use Phi\Specifications\IsToken;
-use Phi\Specifications\IsInstanceOf;
-use Phi\Specifications\ValidCompoundNode;
-use Phi\Specifications\EachItem;
-use Phi\Specifications\EachSeparator;
+use Phi\Exception\ValidationException;
 use Phi\Nodes as Nodes;
-use Phi\Specifications as Specs;
 
 abstract class GeneratedUseName extends CompoundNode
 {
-    /** @var Specification[] */
-    private static $specifications;
-    protected static function getSpecifications(): array
-    {
-        return self::$specifications ?? self::$specifications = [
-            new ValidCompoundNode([
-                'name' => new Any,
-                'alias' => new Optional(new Any),
-            ]),
-        ];
-    }
-
     /**
-     * @var Nodes\RegularName|null
+     * @var Nodes\Name|null
      */
     private $name;
+
     /**
      * @var Nodes\UseAlias|null
      */
@@ -48,23 +28,29 @@ abstract class GeneratedUseName extends CompoundNode
      */
     public function __construct()
     {
-        parent::__construct();
     }
 
     /**
-     * @param Nodes\RegularName|null $name
+     * @param int $phpVersion
+     * @param Nodes\Name|null $name
      * @param Nodes\UseAlias|null $alias
      * @return static
      */
-    public static function __instantiateUnchecked($name, $alias)
+    public static function __instantiateUnchecked($phpVersion, $name, $alias)
     {
-        $instance = new static();
+        $instance = new static;
+        $instance->phpVersion = $phpVersion;
         $instance->name = $name;
+        $instance->name->parent = $instance;
         $instance->alias = $alias;
+        if ($alias)
+        {
+            $instance->alias->parent = $instance;
+        }
         return $instance;
     }
 
-    public function &_getNodeRefs(): array
+    protected function &_getNodeRefs(): array
     {
         $refs = [
             'name' => &$this->name,
@@ -73,7 +59,7 @@ abstract class GeneratedUseName extends CompoundNode
         return $refs;
     }
 
-    public function getName(): Nodes\RegularName
+    public function getName(): Nodes\Name
     {
         if ($this->name === null)
         {
@@ -88,15 +74,16 @@ abstract class GeneratedUseName extends CompoundNode
     }
 
     /**
-     * @param Nodes\RegularName|Node|string|null $name
+     * @param Nodes\Name|Node|string|null $name
      */
     public function setName($name): void
     {
         if ($name !== null)
         {
-            /** @var Nodes\RegularName $name */
-            $name = NodeConverter::convert($name, Nodes\RegularName::class, $this->_phpVersion);
-            $name->_attachTo($this);
+            /** @var Nodes\Name $name */
+            $name = NodeConverter::convert($name, Nodes\Name::class, $this->phpVersion);
+            $name->detach();
+            $name->parent = $this;
         }
         if ($this->name !== null)
         {
@@ -123,13 +110,33 @@ abstract class GeneratedUseName extends CompoundNode
         if ($alias !== null)
         {
             /** @var Nodes\UseAlias $alias */
-            $alias = NodeConverter::convert($alias, Nodes\UseAlias::class, $this->_phpVersion);
-            $alias->_attachTo($this);
+            $alias = NodeConverter::convert($alias, Nodes\UseAlias::class, $this->phpVersion);
+            $alias->detach();
+            $alias->parent = $this;
         }
         if ($this->alias !== null)
         {
             $this->alias->detach();
         }
         $this->alias = $alias;
+    }
+
+    protected function _validate(int $flags): void
+    {
+        if ($flags & self::VALIDATE_TYPES)
+        {
+            if ($this->name === null) throw ValidationException::childRequired($this, 'name');
+        }
+        if ($flags & self::VALIDATE_EXPRESSION_CONTEXT)
+        {
+        }
+        if ($flags & self::VALIDATE_TOKENS)
+        {
+        }
+        $this->name->_validate($flags);
+        if ($this->alias)
+        {
+            $this->alias->_validate($flags);
+        }
     }
 }

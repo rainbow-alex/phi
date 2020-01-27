@@ -9,41 +9,21 @@ use Phi\Nodes\Base\NodesList;
 use Phi\Nodes\Base\SeparatedNodesList;
 use Phi\Exception\MissingNodeException;
 use Phi\NodeConverter;
-use Phi\Specification;
-use Phi\Optional;
-use Phi\Specifications\And_;
-use Phi\Specifications\Any;
-use Phi\Specifications\IsToken;
-use Phi\Specifications\IsInstanceOf;
-use Phi\Specifications\ValidCompoundNode;
-use Phi\Specifications\EachItem;
-use Phi\Specifications\EachSeparator;
+use Phi\Exception\ValidationException;
 use Phi\Nodes as Nodes;
-use Phi\Specifications as Specs;
 
 abstract class GeneratedSwitchDefault extends CompoundNode
 {
-    /** @var Specification[] */
-    private static $specifications;
-    protected static function getSpecifications(): array
-    {
-        return self::$specifications ?? self::$specifications = [
-            new ValidCompoundNode([
-                'keyword' => new IsToken(\T_DEFAULT),
-                'colon' => new IsToken(':'),
-                'statements' => new EachItem(new IsInstanceOf(Nodes\Statement::class)),
-            ]),
-        ];
-    }
-
     /**
      * @var Token|null
      */
     private $keyword;
+
     /**
      * @var Token|null
      */
     private $colon;
+
     /**
      * @var NodesList|Nodes\Statement[]
      */
@@ -53,26 +33,30 @@ abstract class GeneratedSwitchDefault extends CompoundNode
      */
     public function __construct()
     {
-        parent::__construct();
         $this->statements = new NodesList();
     }
 
     /**
+     * @param int $phpVersion
      * @param Token|null $keyword
      * @param Token|null $colon
      * @param mixed[] $statements
      * @return static
      */
-    public static function __instantiateUnchecked($keyword, $colon, $statements)
+    public static function __instantiateUnchecked($phpVersion, $keyword, $colon, $statements)
     {
-        $instance = new static();
+        $instance = new static;
+        $instance->phpVersion = $phpVersion;
         $instance->keyword = $keyword;
+        $instance->keyword->parent = $instance;
         $instance->colon = $colon;
+        $instance->colon->parent = $instance;
         $instance->statements->__initUnchecked($statements);
+        $instance->statements->parent = $instance;
         return $instance;
     }
 
-    public function &_getNodeRefs(): array
+    protected function &_getNodeRefs(): array
     {
         $refs = [
             'keyword' => &$this->keyword,
@@ -104,8 +88,9 @@ abstract class GeneratedSwitchDefault extends CompoundNode
         if ($keyword !== null)
         {
             /** @var Token $keyword */
-            $keyword = NodeConverter::convert($keyword, Token::class, $this->_phpVersion);
-            $keyword->_attachTo($this);
+            $keyword = NodeConverter::convert($keyword, Token::class, $this->phpVersion);
+            $keyword->detach();
+            $keyword->parent = $this;
         }
         if ($this->keyword !== null)
         {
@@ -136,8 +121,9 @@ abstract class GeneratedSwitchDefault extends CompoundNode
         if ($colon !== null)
         {
             /** @var Token $colon */
-            $colon = NodeConverter::convert($colon, Token::class, $this->_phpVersion);
-            $colon->_attachTo($this);
+            $colon = NodeConverter::convert($colon, Token::class, $this->phpVersion);
+            $colon->detach();
+            $colon->parent = $this;
         }
         if ($this->colon !== null)
         {
@@ -160,7 +146,23 @@ abstract class GeneratedSwitchDefault extends CompoundNode
     public function addStatement($statement): void
     {
         /** @var Nodes\Statement $statement */
-        $statement = NodeConverter::convert($statement, Nodes\Statement::class);
+        $statement = NodeConverter::convert($statement, Nodes\Statement::class, $this->phpVersion);
         $this->statements->add($statement);
+    }
+
+    protected function _validate(int $flags): void
+    {
+        if ($flags & self::VALIDATE_TYPES)
+        {
+            if ($this->keyword === null) throw ValidationException::childRequired($this, 'keyword');
+            if ($this->colon === null) throw ValidationException::childRequired($this, 'colon');
+        }
+        if ($flags & self::VALIDATE_EXPRESSION_CONTEXT)
+        {
+        }
+        if ($flags & self::VALIDATE_TOKENS)
+        {
+        }
+        $this->statements->_validate($flags);
     }
 }

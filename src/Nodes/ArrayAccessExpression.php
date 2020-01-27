@@ -2,20 +2,41 @@
 
 namespace Phi\Nodes;
 
+use Phi\Exception\ValidationException;
+use Phi\ExpressionClassification;
 use Phi\Nodes\Generated\GeneratedArrayAccessExpression;
 
 class ArrayAccessExpression extends GeneratedArrayAccessExpression
 {
-    public function isConstant(): bool
+    public function validateContext(int $flags): void
     {
-        $index = $this->getIndex();
-        return $this->getAccessee()->isConstant() && $index && $index->isConstant();
-    }
+        // note: this is one of the very few cases where flags are passed as they are
+        // instead of explicitely specifying a new context
+        /** @see Expression::CTX_READ_OR_IMPLICIT_ALIAS_READ */
+        $this->getAccessee()->validateContext($flags);
 
-    public function isTemporary(): bool { return $this->getAccessee()->isTemporary(); }
-    public function isRead(): bool { return $this->getIndex() !== null; }
-    public function isReadOffset(): bool { return $this->getIndex() !== null; }
-    public function isWrite(): bool { return !$this->getAccessee()->isTemporary(); }
-    public function isAliasRead(): bool { return !$this->getAccessee()->isTemporary(); }
-    public function isAliasWrite(): bool { return !$this->getAccessee()->isTemporary(); }
+        if (!ExpressionClassification::isArrayAccessible($this->getAccessee()))
+        {
+            throw new ValidationException(__METHOD__, $this); // TODO
+        }
+
+        if (($flags & self::CTX_WRITE) && ExpressionClassification::isTemporary($this->getAccessee()))
+        {
+            throw new ValidationException(__METHOD__, $this); // TODO
+        }
+
+        if ($this->hasIndex())
+        {
+            $this->getIndex()->validateContext(self::CTX_READ);
+        }
+        else
+        {
+            // if the implicit flag is set, we *ignore* READ
+            // allows for e.g. foo($a[])
+            if ($flags & self::CTX_READ && !($flags & self::CTX_READ_OR_IMPLICIT_ALIAS_READ))
+            {
+                throw ValidationException::expressionContext(self::CTX_READ, $this);
+            }
+        }
+    }
 }

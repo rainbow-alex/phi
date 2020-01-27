@@ -9,36 +9,16 @@ use Phi\Nodes\Base\NodesList;
 use Phi\Nodes\Base\SeparatedNodesList;
 use Phi\Exception\MissingNodeException;
 use Phi\NodeConverter;
-use Phi\Specification;
-use Phi\Optional;
-use Phi\Specifications\And_;
-use Phi\Specifications\Any;
-use Phi\Specifications\IsToken;
-use Phi\Specifications\IsInstanceOf;
-use Phi\Specifications\ValidCompoundNode;
-use Phi\Specifications\EachItem;
-use Phi\Specifications\EachSeparator;
+use Phi\Exception\ValidationException;
 use Phi\Nodes as Nodes;
-use Phi\Specifications as Specs;
 
 abstract class GeneratedArgument extends CompoundNode
 {
-    /** @var Specification[] */
-    private static $specifications;
-    protected static function getSpecifications(): array
-    {
-        return self::$specifications ?? self::$specifications = [
-            new ValidCompoundNode([
-                'unpack' => new Optional(new IsToken(\T_ELLIPSIS)),
-                'expression' => new Specs\IsReadExpression,
-            ]),
-        ];
-    }
-
     /**
      * @var Token|null
      */
     private $unpack;
+
     /**
      * @var Nodes\Expression|null
      */
@@ -49,7 +29,6 @@ abstract class GeneratedArgument extends CompoundNode
      */
     public function __construct($expression = null)
     {
-        parent::__construct();
         if ($expression !== null)
         {
             $this->setExpression($expression);
@@ -57,19 +36,26 @@ abstract class GeneratedArgument extends CompoundNode
     }
 
     /**
+     * @param int $phpVersion
      * @param Token|null $unpack
      * @param Nodes\Expression|null $expression
      * @return static
      */
-    public static function __instantiateUnchecked($unpack, $expression)
+    public static function __instantiateUnchecked($phpVersion, $unpack, $expression)
     {
-        $instance = new static();
+        $instance = new static;
+        $instance->phpVersion = $phpVersion;
         $instance->unpack = $unpack;
+        if ($unpack)
+        {
+            $instance->unpack->parent = $instance;
+        }
         $instance->expression = $expression;
+        $instance->expression->parent = $instance;
         return $instance;
     }
 
-    public function &_getNodeRefs(): array
+    protected function &_getNodeRefs(): array
     {
         $refs = [
             'unpack' => &$this->unpack,
@@ -96,8 +82,9 @@ abstract class GeneratedArgument extends CompoundNode
         if ($unpack !== null)
         {
             /** @var Token $unpack */
-            $unpack = NodeConverter::convert($unpack, Token::class, $this->_phpVersion);
-            $unpack->_attachTo($this);
+            $unpack = NodeConverter::convert($unpack, Token::class, $this->phpVersion);
+            $unpack->detach();
+            $unpack->parent = $this;
         }
         if ($this->unpack !== null)
         {
@@ -128,13 +115,29 @@ abstract class GeneratedArgument extends CompoundNode
         if ($expression !== null)
         {
             /** @var Nodes\Expression $expression */
-            $expression = NodeConverter::convert($expression, Nodes\Expression::class, $this->_phpVersion);
-            $expression->_attachTo($this);
+            $expression = NodeConverter::convert($expression, Nodes\Expression::class, $this->phpVersion);
+            $expression->detach();
+            $expression->parent = $this;
         }
         if ($this->expression !== null)
         {
             $this->expression->detach();
         }
         $this->expression = $expression;
+    }
+
+    protected function _validate(int $flags): void
+    {
+        if ($flags & self::VALIDATE_TYPES)
+        {
+            if ($this->expression === null) throw ValidationException::childRequired($this, 'expression');
+        }
+        if ($flags & self::VALIDATE_EXPRESSION_CONTEXT)
+        {
+        }
+        if ($flags & self::VALIDATE_TOKENS)
+        {
+        }
+        $this->expression->_validate($flags);
     }
 }

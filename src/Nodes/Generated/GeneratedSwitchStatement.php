@@ -9,66 +9,46 @@ use Phi\Nodes\Base\NodesList;
 use Phi\Nodes\Base\SeparatedNodesList;
 use Phi\Exception\MissingNodeException;
 use Phi\NodeConverter;
-use Phi\Specification;
-use Phi\Optional;
-use Phi\Specifications\And_;
-use Phi\Specifications\Any;
-use Phi\Specifications\IsToken;
-use Phi\Specifications\IsInstanceOf;
-use Phi\Specifications\ValidCompoundNode;
-use Phi\Specifications\EachItem;
-use Phi\Specifications\EachSeparator;
+use Phi\Exception\ValidationException;
 use Phi\Nodes as Nodes;
-use Phi\Specifications as Specs;
 
-abstract class GeneratedSwitchStatement extends CompoundNode implements Nodes\Statement
+abstract class GeneratedSwitchStatement extends Nodes\Statement
 {
-    /** @var Specification[] */
-    private static $specifications;
-    protected static function getSpecifications(): array
-    {
-        return self::$specifications ?? self::$specifications = [
-            new ValidCompoundNode([
-                'keyword' => new IsToken(\T_SWITCH),
-                'leftParenthesis' => new IsToken('('),
-                'value' => new Specs\IsReadExpression,
-                'rightParenthesis' => new IsToken(')'),
-                'leftBrace' => new IsToken('{'),
-                'cases' => new EachItem(new IsInstanceOf(Nodes\SwitchCase::class)),
-                'default' => new Optional(new Any),
-                'rightBrace' => new IsToken('}'),
-            ]),
-        ];
-    }
-
     /**
      * @var Token|null
      */
     private $keyword;
+
     /**
      * @var Token|null
      */
     private $leftParenthesis;
+
     /**
      * @var Nodes\Expression|null
      */
     private $value;
+
     /**
      * @var Token|null
      */
     private $rightParenthesis;
+
     /**
      * @var Token|null
      */
     private $leftBrace;
+
     /**
      * @var NodesList|Nodes\SwitchCase[]
      */
     private $cases;
+
     /**
      * @var Nodes\SwitchDefault|null
      */
     private $default;
+
     /**
      * @var Token|null
      */
@@ -78,11 +58,11 @@ abstract class GeneratedSwitchStatement extends CompoundNode implements Nodes\St
      */
     public function __construct()
     {
-        parent::__construct();
         $this->cases = new NodesList();
     }
 
     /**
+     * @param int $phpVersion
      * @param Token|null $keyword
      * @param Token|null $leftParenthesis
      * @param Nodes\Expression|null $value
@@ -93,21 +73,33 @@ abstract class GeneratedSwitchStatement extends CompoundNode implements Nodes\St
      * @param Token|null $rightBrace
      * @return static
      */
-    public static function __instantiateUnchecked($keyword, $leftParenthesis, $value, $rightParenthesis, $leftBrace, $cases, $default, $rightBrace)
+    public static function __instantiateUnchecked($phpVersion, $keyword, $leftParenthesis, $value, $rightParenthesis, $leftBrace, $cases, $default, $rightBrace)
     {
-        $instance = new static();
+        $instance = new static;
+        $instance->phpVersion = $phpVersion;
         $instance->keyword = $keyword;
+        $instance->keyword->parent = $instance;
         $instance->leftParenthesis = $leftParenthesis;
+        $instance->leftParenthesis->parent = $instance;
         $instance->value = $value;
+        $instance->value->parent = $instance;
         $instance->rightParenthesis = $rightParenthesis;
+        $instance->rightParenthesis->parent = $instance;
         $instance->leftBrace = $leftBrace;
+        $instance->leftBrace->parent = $instance;
         $instance->cases->__initUnchecked($cases);
+        $instance->cases->parent = $instance;
         $instance->default = $default;
+        if ($default)
+        {
+            $instance->default->parent = $instance;
+        }
         $instance->rightBrace = $rightBrace;
+        $instance->rightBrace->parent = $instance;
         return $instance;
     }
 
-    public function &_getNodeRefs(): array
+    protected function &_getNodeRefs(): array
     {
         $refs = [
             'keyword' => &$this->keyword,
@@ -144,8 +136,9 @@ abstract class GeneratedSwitchStatement extends CompoundNode implements Nodes\St
         if ($keyword !== null)
         {
             /** @var Token $keyword */
-            $keyword = NodeConverter::convert($keyword, Token::class, $this->_phpVersion);
-            $keyword->_attachTo($this);
+            $keyword = NodeConverter::convert($keyword, Token::class, $this->phpVersion);
+            $keyword->detach();
+            $keyword->parent = $this;
         }
         if ($this->keyword !== null)
         {
@@ -176,8 +169,9 @@ abstract class GeneratedSwitchStatement extends CompoundNode implements Nodes\St
         if ($leftParenthesis !== null)
         {
             /** @var Token $leftParenthesis */
-            $leftParenthesis = NodeConverter::convert($leftParenthesis, Token::class, $this->_phpVersion);
-            $leftParenthesis->_attachTo($this);
+            $leftParenthesis = NodeConverter::convert($leftParenthesis, Token::class, $this->phpVersion);
+            $leftParenthesis->detach();
+            $leftParenthesis->parent = $this;
         }
         if ($this->leftParenthesis !== null)
         {
@@ -208,8 +202,9 @@ abstract class GeneratedSwitchStatement extends CompoundNode implements Nodes\St
         if ($value !== null)
         {
             /** @var Nodes\Expression $value */
-            $value = NodeConverter::convert($value, Nodes\Expression::class, $this->_phpVersion);
-            $value->_attachTo($this);
+            $value = NodeConverter::convert($value, Nodes\Expression::class, $this->phpVersion);
+            $value->detach();
+            $value->parent = $this;
         }
         if ($this->value !== null)
         {
@@ -240,8 +235,9 @@ abstract class GeneratedSwitchStatement extends CompoundNode implements Nodes\St
         if ($rightParenthesis !== null)
         {
             /** @var Token $rightParenthesis */
-            $rightParenthesis = NodeConverter::convert($rightParenthesis, Token::class, $this->_phpVersion);
-            $rightParenthesis->_attachTo($this);
+            $rightParenthesis = NodeConverter::convert($rightParenthesis, Token::class, $this->phpVersion);
+            $rightParenthesis->detach();
+            $rightParenthesis->parent = $this;
         }
         if ($this->rightParenthesis !== null)
         {
@@ -272,8 +268,9 @@ abstract class GeneratedSwitchStatement extends CompoundNode implements Nodes\St
         if ($leftBrace !== null)
         {
             /** @var Token $leftBrace */
-            $leftBrace = NodeConverter::convert($leftBrace, Token::class, $this->_phpVersion);
-            $leftBrace->_attachTo($this);
+            $leftBrace = NodeConverter::convert($leftBrace, Token::class, $this->phpVersion);
+            $leftBrace->detach();
+            $leftBrace->parent = $this;
         }
         if ($this->leftBrace !== null)
         {
@@ -296,7 +293,7 @@ abstract class GeneratedSwitchStatement extends CompoundNode implements Nodes\St
     public function addCas($cas): void
     {
         /** @var Nodes\SwitchCase $cas */
-        $cas = NodeConverter::convert($cas, Nodes\SwitchCase::class);
+        $cas = NodeConverter::convert($cas, Nodes\SwitchCase::class, $this->phpVersion);
         $this->cases->add($cas);
     }
 
@@ -318,8 +315,9 @@ abstract class GeneratedSwitchStatement extends CompoundNode implements Nodes\St
         if ($default !== null)
         {
             /** @var Nodes\SwitchDefault $default */
-            $default = NodeConverter::convert($default, Nodes\SwitchDefault::class, $this->_phpVersion);
-            $default->_attachTo($this);
+            $default = NodeConverter::convert($default, Nodes\SwitchDefault::class, $this->phpVersion);
+            $default->detach();
+            $default->parent = $this;
         }
         if ($this->default !== null)
         {
@@ -350,13 +348,39 @@ abstract class GeneratedSwitchStatement extends CompoundNode implements Nodes\St
         if ($rightBrace !== null)
         {
             /** @var Token $rightBrace */
-            $rightBrace = NodeConverter::convert($rightBrace, Token::class, $this->_phpVersion);
-            $rightBrace->_attachTo($this);
+            $rightBrace = NodeConverter::convert($rightBrace, Token::class, $this->phpVersion);
+            $rightBrace->detach();
+            $rightBrace->parent = $this;
         }
         if ($this->rightBrace !== null)
         {
             $this->rightBrace->detach();
         }
         $this->rightBrace = $rightBrace;
+    }
+
+    protected function _validate(int $flags): void
+    {
+        if ($flags & self::VALIDATE_TYPES)
+        {
+            if ($this->keyword === null) throw ValidationException::childRequired($this, 'keyword');
+            if ($this->leftParenthesis === null) throw ValidationException::childRequired($this, 'leftParenthesis');
+            if ($this->value === null) throw ValidationException::childRequired($this, 'value');
+            if ($this->rightParenthesis === null) throw ValidationException::childRequired($this, 'rightParenthesis');
+            if ($this->leftBrace === null) throw ValidationException::childRequired($this, 'leftBrace');
+            if ($this->rightBrace === null) throw ValidationException::childRequired($this, 'rightBrace');
+        }
+        if ($flags & self::VALIDATE_EXPRESSION_CONTEXT)
+        {
+        }
+        if ($flags & self::VALIDATE_TOKENS)
+        {
+        }
+        $this->value->_validate($flags);
+        $this->cases->_validate($flags);
+        if ($this->default)
+        {
+            $this->default->_validate($flags);
+        }
     }
 }

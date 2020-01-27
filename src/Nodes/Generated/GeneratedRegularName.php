@@ -9,31 +9,11 @@ use Phi\Nodes\Base\NodesList;
 use Phi\Nodes\Base\SeparatedNodesList;
 use Phi\Exception\MissingNodeException;
 use Phi\NodeConverter;
-use Phi\Specification;
-use Phi\Optional;
-use Phi\Specifications\And_;
-use Phi\Specifications\Any;
-use Phi\Specifications\IsToken;
-use Phi\Specifications\IsInstanceOf;
-use Phi\Specifications\ValidCompoundNode;
-use Phi\Specifications\EachItem;
-use Phi\Specifications\EachSeparator;
+use Phi\Exception\ValidationException;
 use Phi\Nodes as Nodes;
-use Phi\Specifications as Specs;
 
-abstract class GeneratedRegularName extends CompoundNode implements Nodes\Name
+abstract class GeneratedRegularName extends Nodes\Name
 {
-    /** @var Specification[] */
-    private static $specifications;
-    protected static function getSpecifications(): array
-    {
-        return self::$specifications ?? self::$specifications = [
-            new ValidCompoundNode([
-                'parts' => new And_(new EachItem(new And_(new IsInstanceOf(Token::class), new IsToken(\T_STRING))), new EachSeparator(new IsToken(\T_NS_SEPARATOR))),
-            ]),
-        ];
-    }
-
     /**
      * @var SeparatedNodesList|Token[]
      */
@@ -43,22 +23,24 @@ abstract class GeneratedRegularName extends CompoundNode implements Nodes\Name
      */
     public function __construct()
     {
-        parent::__construct();
         $this->parts = new SeparatedNodesList();
     }
 
     /**
+     * @param int $phpVersion
      * @param mixed[] $parts
      * @return static
      */
-    public static function __instantiateUnchecked($parts)
+    public static function __instantiateUnchecked($phpVersion, $parts)
     {
-        $instance = new static();
+        $instance = new static;
+        $instance->phpVersion = $phpVersion;
         $instance->parts->__initUnchecked($parts);
+        $instance->parts->parent = $instance;
         return $instance;
     }
 
-    public function &_getNodeRefs(): array
+    protected function &_getNodeRefs(): array
     {
         $refs = [
             'parts' => &$this->parts,
@@ -80,7 +62,20 @@ abstract class GeneratedRegularName extends CompoundNode implements Nodes\Name
     public function addPart($part): void
     {
         /** @var Token $part */
-        $part = NodeConverter::convert($part, Token::class);
+        $part = NodeConverter::convert($part, Token::class, $this->phpVersion);
         $this->parts->add($part);
+    }
+
+    protected function _validate(int $flags): void
+    {
+        if ($flags & self::VALIDATE_TYPES)
+        {
+        }
+        if ($flags & self::VALIDATE_EXPRESSION_CONTEXT)
+        {
+        }
+        if ($flags & self::VALIDATE_TOKENS)
+        {
+        }
     }
 }

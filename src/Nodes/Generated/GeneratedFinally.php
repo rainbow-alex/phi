@@ -9,38 +9,18 @@ use Phi\Nodes\Base\NodesList;
 use Phi\Nodes\Base\SeparatedNodesList;
 use Phi\Exception\MissingNodeException;
 use Phi\NodeConverter;
-use Phi\Specification;
-use Phi\Optional;
-use Phi\Specifications\And_;
-use Phi\Specifications\Any;
-use Phi\Specifications\IsToken;
-use Phi\Specifications\IsInstanceOf;
-use Phi\Specifications\ValidCompoundNode;
-use Phi\Specifications\EachItem;
-use Phi\Specifications\EachSeparator;
+use Phi\Exception\ValidationException;
 use Phi\Nodes as Nodes;
-use Phi\Specifications as Specs;
 
 abstract class GeneratedFinally extends CompoundNode
 {
-    /** @var Specification[] */
-    private static $specifications;
-    protected static function getSpecifications(): array
-    {
-        return self::$specifications ?? self::$specifications = [
-            new ValidCompoundNode([
-                'keyword' => new IsToken(\T_FINALLY),
-                'block' => new Any,
-            ]),
-        ];
-    }
-
     /**
      * @var Token|null
      */
     private $keyword;
+
     /**
-     * @var Nodes\Block|null
+     * @var Nodes\RegularBlock|null
      */
     private $block;
 
@@ -48,23 +28,26 @@ abstract class GeneratedFinally extends CompoundNode
      */
     public function __construct()
     {
-        parent::__construct();
     }
 
     /**
+     * @param int $phpVersion
      * @param Token|null $keyword
-     * @param Nodes\Block|null $block
+     * @param Nodes\RegularBlock|null $block
      * @return static
      */
-    public static function __instantiateUnchecked($keyword, $block)
+    public static function __instantiateUnchecked($phpVersion, $keyword, $block)
     {
-        $instance = new static();
+        $instance = new static;
+        $instance->phpVersion = $phpVersion;
         $instance->keyword = $keyword;
+        $instance->keyword->parent = $instance;
         $instance->block = $block;
+        $instance->block->parent = $instance;
         return $instance;
     }
 
-    public function &_getNodeRefs(): array
+    protected function &_getNodeRefs(): array
     {
         $refs = [
             'keyword' => &$this->keyword,
@@ -95,8 +78,9 @@ abstract class GeneratedFinally extends CompoundNode
         if ($keyword !== null)
         {
             /** @var Token $keyword */
-            $keyword = NodeConverter::convert($keyword, Token::class, $this->_phpVersion);
-            $keyword->_attachTo($this);
+            $keyword = NodeConverter::convert($keyword, Token::class, $this->phpVersion);
+            $keyword->detach();
+            $keyword->parent = $this;
         }
         if ($this->keyword !== null)
         {
@@ -105,7 +89,7 @@ abstract class GeneratedFinally extends CompoundNode
         $this->keyword = $keyword;
     }
 
-    public function getBlock(): Nodes\Block
+    public function getBlock(): Nodes\RegularBlock
     {
         if ($this->block === null)
         {
@@ -120,20 +104,37 @@ abstract class GeneratedFinally extends CompoundNode
     }
 
     /**
-     * @param Nodes\Block|Node|string|null $block
+     * @param Nodes\RegularBlock|Node|string|null $block
      */
     public function setBlock($block): void
     {
         if ($block !== null)
         {
-            /** @var Nodes\Block $block */
-            $block = NodeConverter::convert($block, Nodes\Block::class, $this->_phpVersion);
-            $block->_attachTo($this);
+            /** @var Nodes\RegularBlock $block */
+            $block = NodeConverter::convert($block, Nodes\RegularBlock::class, $this->phpVersion);
+            $block->detach();
+            $block->parent = $this;
         }
         if ($this->block !== null)
         {
             $this->block->detach();
         }
         $this->block = $block;
+    }
+
+    protected function _validate(int $flags): void
+    {
+        if ($flags & self::VALIDATE_TYPES)
+        {
+            if ($this->keyword === null) throw ValidationException::childRequired($this, 'keyword');
+            if ($this->block === null) throw ValidationException::childRequired($this, 'block');
+        }
+        if ($flags & self::VALIDATE_EXPRESSION_CONTEXT)
+        {
+        }
+        if ($flags & self::VALIDATE_TOKENS)
+        {
+        }
+        $this->block->_validate($flags);
     }
 }

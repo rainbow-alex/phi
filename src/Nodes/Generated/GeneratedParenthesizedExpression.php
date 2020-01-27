@@ -9,41 +9,21 @@ use Phi\Nodes\Base\NodesList;
 use Phi\Nodes\Base\SeparatedNodesList;
 use Phi\Exception\MissingNodeException;
 use Phi\NodeConverter;
-use Phi\Specification;
-use Phi\Optional;
-use Phi\Specifications\And_;
-use Phi\Specifications\Any;
-use Phi\Specifications\IsToken;
-use Phi\Specifications\IsInstanceOf;
-use Phi\Specifications\ValidCompoundNode;
-use Phi\Specifications\EachItem;
-use Phi\Specifications\EachSeparator;
+use Phi\Exception\ValidationException;
 use Phi\Nodes as Nodes;
-use Phi\Specifications as Specs;
 
-abstract class GeneratedParenthesizedExpression extends CompoundNode implements Nodes\Expression
+abstract class GeneratedParenthesizedExpression extends Nodes\Expression
 {
-    /** @var Specification[] */
-    private static $specifications;
-    protected static function getSpecifications(): array
-    {
-        return self::$specifications ?? self::$specifications = [
-            new ValidCompoundNode([
-                'leftParenthesis' => new IsToken('('),
-                'expression' => new Specs\IsReadExpression,
-                'rightParenthesis' => new IsToken(')'),
-            ]),
-        ];
-    }
-
     /**
      * @var Token|null
      */
     private $leftParenthesis;
+
     /**
      * @var Nodes\Expression|null
      */
     private $expression;
+
     /**
      * @var Token|null
      */
@@ -54,7 +34,6 @@ abstract class GeneratedParenthesizedExpression extends CompoundNode implements 
      */
     public function __construct($expression = null)
     {
-        parent::__construct();
         if ($expression !== null)
         {
             $this->setExpression($expression);
@@ -62,21 +41,26 @@ abstract class GeneratedParenthesizedExpression extends CompoundNode implements 
     }
 
     /**
+     * @param int $phpVersion
      * @param Token|null $leftParenthesis
      * @param Nodes\Expression|null $expression
      * @param Token|null $rightParenthesis
      * @return static
      */
-    public static function __instantiateUnchecked($leftParenthesis, $expression, $rightParenthesis)
+    public static function __instantiateUnchecked($phpVersion, $leftParenthesis, $expression, $rightParenthesis)
     {
-        $instance = new static();
+        $instance = new static;
+        $instance->phpVersion = $phpVersion;
         $instance->leftParenthesis = $leftParenthesis;
+        $instance->leftParenthesis->parent = $instance;
         $instance->expression = $expression;
+        $instance->expression->parent = $instance;
         $instance->rightParenthesis = $rightParenthesis;
+        $instance->rightParenthesis->parent = $instance;
         return $instance;
     }
 
-    public function &_getNodeRefs(): array
+    protected function &_getNodeRefs(): array
     {
         $refs = [
             'leftParenthesis' => &$this->leftParenthesis,
@@ -108,8 +92,9 @@ abstract class GeneratedParenthesizedExpression extends CompoundNode implements 
         if ($leftParenthesis !== null)
         {
             /** @var Token $leftParenthesis */
-            $leftParenthesis = NodeConverter::convert($leftParenthesis, Token::class, $this->_phpVersion);
-            $leftParenthesis->_attachTo($this);
+            $leftParenthesis = NodeConverter::convert($leftParenthesis, Token::class, $this->phpVersion);
+            $leftParenthesis->detach();
+            $leftParenthesis->parent = $this;
         }
         if ($this->leftParenthesis !== null)
         {
@@ -140,8 +125,9 @@ abstract class GeneratedParenthesizedExpression extends CompoundNode implements 
         if ($expression !== null)
         {
             /** @var Nodes\Expression $expression */
-            $expression = NodeConverter::convert($expression, Nodes\Expression::class, $this->_phpVersion);
-            $expression->_attachTo($this);
+            $expression = NodeConverter::convert($expression, Nodes\Expression::class, $this->phpVersion);
+            $expression->detach();
+            $expression->parent = $this;
         }
         if ($this->expression !== null)
         {
@@ -172,13 +158,31 @@ abstract class GeneratedParenthesizedExpression extends CompoundNode implements 
         if ($rightParenthesis !== null)
         {
             /** @var Token $rightParenthesis */
-            $rightParenthesis = NodeConverter::convert($rightParenthesis, Token::class, $this->_phpVersion);
-            $rightParenthesis->_attachTo($this);
+            $rightParenthesis = NodeConverter::convert($rightParenthesis, Token::class, $this->phpVersion);
+            $rightParenthesis->detach();
+            $rightParenthesis->parent = $this;
         }
         if ($this->rightParenthesis !== null)
         {
             $this->rightParenthesis->detach();
         }
         $this->rightParenthesis = $rightParenthesis;
+    }
+
+    protected function _validate(int $flags): void
+    {
+        if ($flags & self::VALIDATE_TYPES)
+        {
+            if ($this->leftParenthesis === null) throw ValidationException::childRequired($this, 'leftParenthesis');
+            if ($this->expression === null) throw ValidationException::childRequired($this, 'expression');
+            if ($this->rightParenthesis === null) throw ValidationException::childRequired($this, 'rightParenthesis');
+        }
+        if ($flags & self::VALIDATE_EXPRESSION_CONTEXT)
+        {
+        }
+        if ($flags & self::VALIDATE_TOKENS)
+        {
+        }
+        $this->expression->_validate($flags);
     }
 }

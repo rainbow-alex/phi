@@ -2,135 +2,96 @@
 
 namespace Phi\Tests\Parser;
 
-use Phi\Exception\ParseException;
-use Phi\Nodes\ExpressionStatement;
+use Phi\Exception\PhiException;
+use Phi\Nodes\Expression;
 use Phi\Parser;
+use Phi\PhpParserCompat;
 use Phi\PhpVersion;
-use Phi\Tests\Testing\AssertThrows;
-use Phi\Tests\Testing\Stringify;
+use Phi\Tests\Testing\TestRepr;
+use PhpParser\Node as PPNodes;
+use PhpParser\NodeDumper;
 use PHPUnit\Framework\TestCase;
 
 class ParserTest extends TestCase
 {
-    use AssertThrows;
+    // unfortunately overhead seems to be pretty big per test, running things in batches is *much* faster
+    private const BATCH = 20;
+    // case data passed via this static var so phpunit doesn't dump all of it when a test fails
+    private static $cases;
 
-    /** @return iterable|string[] */
-    public function expressionFiles(): iterable
+    public function cases(): iterable
     {
-        foreach (glob(__DIR__ . '/data/expressions/*.php') as $file)
+        self::$cases = \json_decode(\file_get_contents(__DIR__ . '/data/data.json'), true);
+        foreach (self::$cases as $root => $group)
         {
-            yield \basename($file) => [$file];
+            for ($i = 0; $i < count($group); $i += self::BATCH)
+            {
+                yield [$root, $i];
+            }
         }
     }
 
-    /** @dataProvider expressionFiles */
-    public function test_expressions(string $file): void
+    /** @dataProvider cases */
+    public function test(string $root, int $offset): void
     {
-        foreach ($this->lines($file) as &$line)
+        foreach (\array_slice(self::$cases[$root], $offset, self::BATCH) as $case)
         {
-            $parts = explode(' // ', $line, 2);
-            $php = $parts[0];
-            $expected = $parts[1] ?? null;
+            $parser = new Parser(PhpVersion::PHP_7_2);
 
             try
             {
-                $stmt = (new Parser(PhpVersion::PHP_7_2))->parseStatement(ltrim($php, '# '));
-                assert($stmt instanceof ExpressionStatement);
-                $this->assertEquals($php, (string) $stmt);
-                $actual = Stringify::node($stmt->getExpression());
+                $ast = $parser->parseFragment($case['source']);
             }
-            catch (ParseException $e)
+            catch (PhiException $e)
             {
-                $actual = $e->getSourceLine() . ':' . $e->getSourceColumn() . ' - ' . $e->getMessage();
-            }
+                if ($case['php']['valid'])
+                {
+                    self::fail(
+                        "Failed to parse valid code!\n"
+                        . "Got: " . $e->getMessageWithContext() . "\n"
+                        . $case['source']
+                    );
+                }
 
-            if ($expected === null && $this->isAutocompleteEnabled())
-            {
-                $line = $php . ' // ' . $actual;
-            }
-            else
-            {
-                $this->assertEquals($expected, $actual);
-            }
-        }
-    }
-
-    /** @return iterable|string[] */
-    public function statementFiles(): iterable
-    {
-        foreach (\glob(__DIR__ . '/data/statements/*.php') as $file)
-        {
-            yield \basename($file) => [$file];
-        }
-    }
-
-    /** @dataProvider statementFiles */
-    public function test_statements(string $file): void
-    {
-        foreach ($this->lines($file) as &$line)
-        {
-            $parts = explode(' // ', $line, 2);
-            $php = $parts[0];
-            $expected = $parts[1] ?? null;
-
-            try
-            {
-                $stmt = (new Parser(PhpVersion::PHP_7_2))->parseStatement(trim($php, '# '));
-                $this->assertEquals($php, (string) $stmt);
-                $actual = Stringify::node($stmt);
-            }
-            catch (ParseException $e)
-            {
-                $actual = $e->getSourceLine() . ':' . $e->getSourceColumn() . ' - ' . $e->getMessage();
-            }
-
-            if ($expected === null && $this->isAutocompleteEnabled())
-            {
-                $line = $php . ' // ' . $actual;
-            }
-            else
-            {
-                $this->assertEquals($expected, $actual);
-            }
-        }
-    }
-
-    private function &lines(string $filename): \Generator
-    {
-        $lines = explode("\n", \file_get_contents($filename));
-
-        foreach ($lines as &$line)
-        {
-            $line = trim($line);
-
-            if (preg_match('{^($|/\\*|//|<\\?php)}', $line))
-            {
+                // TODO test parse error
+                self::assertTrue(true);
                 continue;
             }
 
-            yield $line;
+            if (!($case['php']['valid']))
+            {
+                self::fail(
+                    "Accepted invalid code!\n"
+                    . "Expected: " . $case['php']['error'] . "\n"
+                    . $case['source']);
+            }
+
+            // test for parsing regressions
+            self::assertTrue($case['phi']['valid']);
+            self::assertSame($case['phi']['repr'], TestRepr::node($ast), $case['source']);
+            self::assertSame($case['source'], (string) $ast);
+
+            if ($ast instanceof Expression)
+            {
+                $nikiDumper = (new NodeDumper());
+                $nikiParser = (new \PhpParser\ParserFactory())->create(\PhpParser\ParserFactory::ONLY_PHP7);
+
+                try
+                {
+                    $nikiAst = $nikiParser->parse('<?php ' . $case['source'] . ' ?>');
+                    self::assertCount(1, $nikiAst);
+                    self::assertInstanceOf(PPNodes\Stmt\Expression::class, $nikiAst[0]);
+                    $expectedNikiDump = $nikiDumper->dump($nikiAst[0]->expr);
+
+                    $actualNikiDump = $nikiDumper->dump(PhpParserCompat::convert($ast));
+
+                    self::assertSame($expectedNikiDump, $actualNikiDump, $case['source']);
+                }
+                catch (\RuntimeException $e)
+                {
+//                    throw $e;
+                }
+            }
         }
-
-        if ($this->isAutocompleteEnabled())
-        {
-            \file_put_contents($filename, implode("\n", $lines));
-        }
-    }
-
-    private function isAutocompleteEnabled(): bool
-    {
-        return getenv('PHI_PHPUNIT_AUTOCOMPLETE');
-    }
-}
-
-class Line
-{
-    public $source;
-    public $expected;
-
-    public function __construct(string $source, string $expected)
-    {
-        $this->source = $source;
-        $this->expected = $expected;
     }
 }

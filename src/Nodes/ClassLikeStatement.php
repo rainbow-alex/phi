@@ -2,6 +2,6 @@
 
 namespace Phi\Nodes;
 
-interface ClassLikeStatement extends Statement
+abstract class ClassLikeStatement extends Statement
 {
 }

@@ -9,31 +9,11 @@ use Phi\Nodes\Base\NodesList;
 use Phi\Nodes\Base\SeparatedNodesList;
 use Phi\Exception\MissingNodeException;
 use Phi\NodeConverter;
-use Phi\Specification;
-use Phi\Optional;
-use Phi\Specifications\And_;
-use Phi\Specifications\Any;
-use Phi\Specifications\IsToken;
-use Phi\Specifications\IsInstanceOf;
-use Phi\Specifications\ValidCompoundNode;
-use Phi\Specifications\EachItem;
-use Phi\Specifications\EachSeparator;
+use Phi\Exception\ValidationException;
 use Phi\Nodes as Nodes;
-use Phi\Specifications as Specs;
 
-abstract class GeneratedSpecialType extends CompoundNode implements Nodes\Type
+abstract class GeneratedSpecialType extends Nodes\Type
 {
-    /** @var Specification[] */
-    private static $specifications;
-    protected static function getSpecifications(): array
-    {
-        return self::$specifications ?? self::$specifications = [
-            new ValidCompoundNode([
-                'token' => new IsToken(\T_ARRAY, \T_CALLABLE),
-            ]),
-        ];
-    }
-
     /**
      * @var Token|null
      */
@@ -44,7 +24,6 @@ abstract class GeneratedSpecialType extends CompoundNode implements Nodes\Type
      */
     public function __construct($token = null)
     {
-        parent::__construct();
         if ($token !== null)
         {
             $this->setToken($token);
@@ -52,17 +31,20 @@ abstract class GeneratedSpecialType extends CompoundNode implements Nodes\Type
     }
 
     /**
+     * @param int $phpVersion
      * @param Token|null $token
      * @return static
      */
-    public static function __instantiateUnchecked($token)
+    public static function __instantiateUnchecked($phpVersion, $token)
     {
-        $instance = new static();
+        $instance = new static;
+        $instance->phpVersion = $phpVersion;
         $instance->token = $token;
+        $instance->token->parent = $instance;
         return $instance;
     }
 
-    public function &_getNodeRefs(): array
+    protected function &_getNodeRefs(): array
     {
         $refs = [
             'token' => &$this->token,
@@ -92,13 +74,28 @@ abstract class GeneratedSpecialType extends CompoundNode implements Nodes\Type
         if ($token !== null)
         {
             /** @var Token $token */
-            $token = NodeConverter::convert($token, Token::class, $this->_phpVersion);
-            $token->_attachTo($this);
+            $token = NodeConverter::convert($token, Token::class, $this->phpVersion);
+            $token->detach();
+            $token->parent = $this;
         }
         if ($this->token !== null)
         {
             $this->token->detach();
         }
         $this->token = $token;
+    }
+
+    protected function _validate(int $flags): void
+    {
+        if ($flags & self::VALIDATE_TYPES)
+        {
+            if ($this->token === null) throw ValidationException::childRequired($this, 'token');
+        }
+        if ($flags & self::VALIDATE_EXPRESSION_CONTEXT)
+        {
+        }
+        if ($flags & self::VALIDATE_TOKENS)
+        {
+        }
     }
 }

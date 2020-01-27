@@ -9,51 +9,31 @@ use Phi\Nodes\Base\NodesList;
 use Phi\Nodes\Base\SeparatedNodesList;
 use Phi\Exception\MissingNodeException;
 use Phi\NodeConverter;
-use Phi\Specification;
-use Phi\Optional;
-use Phi\Specifications\And_;
-use Phi\Specifications\Any;
-use Phi\Specifications\IsToken;
-use Phi\Specifications\IsInstanceOf;
-use Phi\Specifications\ValidCompoundNode;
-use Phi\Specifications\EachItem;
-use Phi\Specifications\EachSeparator;
+use Phi\Exception\ValidationException;
 use Phi\Nodes as Nodes;
-use Phi\Specifications as Specs;
 
 abstract class GeneratedParameter extends CompoundNode
 {
-    /** @var Specification[] */
-    private static $specifications;
-    protected static function getSpecifications(): array
-    {
-        return self::$specifications ?? self::$specifications = [
-            new ValidCompoundNode([
-                'type' => new Optional(new Any),
-                'byReference' => new Optional(new IsToken('&')),
-                'ellipsis' => new Optional(new IsToken(\T_ELLIPSIS)),
-                'variable' => new IsToken(\T_VARIABLE),
-                'default' => new Optional(new Any),
-            ]),
-        ];
-    }
-
     /**
      * @var Nodes\Type|null
      */
     private $type;
+
     /**
      * @var Token|null
      */
     private $byReference;
+
     /**
      * @var Token|null
      */
     private $ellipsis;
+
     /**
      * @var Token|null
      */
     private $variable;
+
     /**
      * @var Nodes\Default_|null
      */
@@ -64,7 +44,6 @@ abstract class GeneratedParameter extends CompoundNode
      */
     public function __construct($variable = null)
     {
-        parent::__construct();
         if ($variable !== null)
         {
             $this->setVariable($variable);
@@ -72,6 +51,7 @@ abstract class GeneratedParameter extends CompoundNode
     }
 
     /**
+     * @param int $phpVersion
      * @param Nodes\Type|null $type
      * @param Token|null $byReference
      * @param Token|null $ellipsis
@@ -79,18 +59,36 @@ abstract class GeneratedParameter extends CompoundNode
      * @param Nodes\Default_|null $default
      * @return static
      */
-    public static function __instantiateUnchecked($type, $byReference, $ellipsis, $variable, $default)
+    public static function __instantiateUnchecked($phpVersion, $type, $byReference, $ellipsis, $variable, $default)
     {
-        $instance = new static();
+        $instance = new static;
+        $instance->phpVersion = $phpVersion;
         $instance->type = $type;
+        if ($type)
+        {
+            $instance->type->parent = $instance;
+        }
         $instance->byReference = $byReference;
+        if ($byReference)
+        {
+            $instance->byReference->parent = $instance;
+        }
         $instance->ellipsis = $ellipsis;
+        if ($ellipsis)
+        {
+            $instance->ellipsis->parent = $instance;
+        }
         $instance->variable = $variable;
+        $instance->variable->parent = $instance;
         $instance->default = $default;
+        if ($default)
+        {
+            $instance->default->parent = $instance;
+        }
         return $instance;
     }
 
-    public function &_getNodeRefs(): array
+    protected function &_getNodeRefs(): array
     {
         $refs = [
             'type' => &$this->type,
@@ -120,8 +118,9 @@ abstract class GeneratedParameter extends CompoundNode
         if ($type !== null)
         {
             /** @var Nodes\Type $type */
-            $type = NodeConverter::convert($type, Nodes\Type::class, $this->_phpVersion);
-            $type->_attachTo($this);
+            $type = NodeConverter::convert($type, Nodes\Type::class, $this->phpVersion);
+            $type->detach();
+            $type->parent = $this;
         }
         if ($this->type !== null)
         {
@@ -148,8 +147,9 @@ abstract class GeneratedParameter extends CompoundNode
         if ($byReference !== null)
         {
             /** @var Token $byReference */
-            $byReference = NodeConverter::convert($byReference, Token::class, $this->_phpVersion);
-            $byReference->_attachTo($this);
+            $byReference = NodeConverter::convert($byReference, Token::class, $this->phpVersion);
+            $byReference->detach();
+            $byReference->parent = $this;
         }
         if ($this->byReference !== null)
         {
@@ -176,8 +176,9 @@ abstract class GeneratedParameter extends CompoundNode
         if ($ellipsis !== null)
         {
             /** @var Token $ellipsis */
-            $ellipsis = NodeConverter::convert($ellipsis, Token::class, $this->_phpVersion);
-            $ellipsis->_attachTo($this);
+            $ellipsis = NodeConverter::convert($ellipsis, Token::class, $this->phpVersion);
+            $ellipsis->detach();
+            $ellipsis->parent = $this;
         }
         if ($this->ellipsis !== null)
         {
@@ -208,8 +209,9 @@ abstract class GeneratedParameter extends CompoundNode
         if ($variable !== null)
         {
             /** @var Token $variable */
-            $variable = NodeConverter::convert($variable, Token::class, $this->_phpVersion);
-            $variable->_attachTo($this);
+            $variable = NodeConverter::convert($variable, Token::class, $this->phpVersion);
+            $variable->detach();
+            $variable->parent = $this;
         }
         if ($this->variable !== null)
         {
@@ -236,13 +238,36 @@ abstract class GeneratedParameter extends CompoundNode
         if ($default !== null)
         {
             /** @var Nodes\Default_ $default */
-            $default = NodeConverter::convert($default, Nodes\Default_::class, $this->_phpVersion);
-            $default->_attachTo($this);
+            $default = NodeConverter::convert($default, Nodes\Default_::class, $this->phpVersion);
+            $default->detach();
+            $default->parent = $this;
         }
         if ($this->default !== null)
         {
             $this->default->detach();
         }
         $this->default = $default;
+    }
+
+    protected function _validate(int $flags): void
+    {
+        if ($flags & self::VALIDATE_TYPES)
+        {
+            if ($this->variable === null) throw ValidationException::childRequired($this, 'variable');
+        }
+        if ($flags & self::VALIDATE_EXPRESSION_CONTEXT)
+        {
+        }
+        if ($flags & self::VALIDATE_TOKENS)
+        {
+        }
+        if ($this->type)
+        {
+            $this->type->_validate($flags);
+        }
+        if ($this->default)
+        {
+            $this->default->_validate($flags);
+        }
     }
 }

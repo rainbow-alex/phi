@@ -12,6 +12,7 @@ class Lexer
 
     public function __construct(int $phpVersion)
     {
+        PhpVersion::validate($phpVersion);
         $this->phpVersion = $phpVersion;
     }
 
@@ -22,16 +23,15 @@ class Lexer
     {
         $tokens = [];
         $whitespace = '';
-        /** @var Token|null $previous */
-        $previous = null;
         $line = 1;
         $column = 1;
         $forceIdentifier = false;
+        $typeMap = Token::getPhpTypeMap();
 
         if ($forcePhp)
         {
             $phpTokens = \token_get_all('<?php ' . $source);
-            array_shift($phpTokens);
+            \array_shift($phpTokens);
         }
         else
         {
@@ -40,48 +40,45 @@ class Lexer
 
         foreach ($phpTokens as $phpToken)
         {
-            try
+            if (\is_array($phpToken))
             {
-                if (is_array($phpToken))
-                {
-                    $type = $phpToken[0];
-                    $source = $phpToken[1];
+                $phpType = $phpToken[0];
+                $source = $phpToken[1];
 
-                    if ($phpToken[0] === \T_WHITESPACE || $phpToken[0] === \T_COMMENT || $phpToken[0] === \T_DOC_COMMENT)
-                    {
-                        $whitespace .= $phpToken[1];
-                        continue;
-                    }
-                }
-                else
+                if ($phpType === \T_WHITESPACE || $phpType === \T_COMMENT || $phpType === \T_DOC_COMMENT)
                 {
-                    $type = $source = $phpToken;
+                    $whitespace .= $source;
+                    goto updateColumnAndLine;
                 }
 
                 if (
                     $forceIdentifier
-                    && $type !== \T_STRING
-                    && \in_array($type, Token::IDENTIFIER_KEYWORDS, true)
+                    && $phpType !== \T_STRING
+                    && \in_array($phpType, Token::IDENTIFIER_KEYWORDS, true)
                 )
                 {
-                    $type = \T_STRING;
+                    $phpType = \T_STRING;
+                    $forceIdentifier = false;
                 }
-
-                $token = new Token($type, $source, $line, $column, $filename, $previous);
-                $token->setLeftWhitespace($whitespace);
-                $tokens[] = $token;
-
-                $forceIdentifier = (
-                    in_array($type, [\T_OBJECT_OPERATOR, \T_DOUBLE_COLON, \T_CONST, \T_FUNCTION], true)
-                    || $forceIdentifier && $type === '&'
-                );
-
-                $whitespace = '';
-                $previous = $token;
+                else
+                {
+                    $forceIdentifier = \in_array($phpType, [\T_OBJECT_OPERATOR, \T_DOUBLE_COLON, \T_CONST, \T_FUNCTION], true);
+                }
             }
-            finally
+            else
             {
-                $c = strrpos($source, "\n");
+                $phpType = $source = $phpToken;
+                $forceIdentifier = ($forceIdentifier && $phpType === '&');
+            }
+
+            $tokens[] = new Token($typeMap[$phpType], $source, $line, $column, $filename, $whitespace);
+            $whitespace = '';
+
+            updateColumnAndLine:
+            // TODO optimize using $phpToken[2]?
+            if (\is_array($phpToken))
+            {
+                $c = \strrpos($source, "\n");
                 if ($c !== false)
                 {
                     $column = \strlen($source) - $c;
@@ -92,11 +89,13 @@ class Lexer
                     $column += \strlen($source);
                 }
             }
+            else
+            {
+                $column += 1;
+            }
         }
 
-        $eof = new Token(Token::EOF, '', $line, $column);
-        $eof->setLeftWhitespace($whitespace);
-        $tokens[] = $eof;
+        $tokens[] = new Token(Token::PH_T_EOF, '', $line, $column, $filename, $whitespace);
 
         return $tokens;
     }

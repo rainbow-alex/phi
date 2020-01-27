@@ -2,8 +2,8 @@
 
 namespace Phi\Nodes;
 
-use Phi\Node;
+use Phi\Nodes\Base\CompoundNode;
 
-interface ClassLikeMember extends Node
+abstract class ClassLikeMember extends CompoundNode
 {
 }

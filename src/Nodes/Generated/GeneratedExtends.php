@@ -9,47 +9,26 @@ use Phi\Nodes\Base\NodesList;
 use Phi\Nodes\Base\SeparatedNodesList;
 use Phi\Exception\MissingNodeException;
 use Phi\NodeConverter;
-use Phi\Specification;
-use Phi\Optional;
-use Phi\Specifications\And_;
-use Phi\Specifications\Any;
-use Phi\Specifications\IsToken;
-use Phi\Specifications\IsInstanceOf;
-use Phi\Specifications\ValidCompoundNode;
-use Phi\Specifications\EachItem;
-use Phi\Specifications\EachSeparator;
+use Phi\Exception\ValidationException;
 use Phi\Nodes as Nodes;
-use Phi\Specifications as Specs;
 
 abstract class GeneratedExtends extends CompoundNode
 {
-    /** @var Specification[] */
-    private static $specifications;
-    protected static function getSpecifications(): array
-    {
-        return self::$specifications ?? self::$specifications = [
-            new ValidCompoundNode([
-                'keyword' => new IsToken(\T_EXTENDS),
-                'names' => new And_(new EachItem(new IsInstanceOf(Nodes\RegularName::class)), new EachSeparator(new IsToken(','))),
-            ]),
-        ];
-    }
-
     /**
      * @var Token|null
      */
     private $keyword;
+
     /**
-     * @var SeparatedNodesList|Nodes\RegularName[]
+     * @var SeparatedNodesList|Nodes\Name[]
      */
     private $names;
 
     /**
-     * @param Nodes\RegularName $name
+     * @param Nodes\Name $name
      */
     public function __construct($name = null)
     {
-        parent::__construct();
         $this->names = new SeparatedNodesList();
         if ($name !== null)
         {
@@ -58,19 +37,23 @@ abstract class GeneratedExtends extends CompoundNode
     }
 
     /**
+     * @param int $phpVersion
      * @param Token|null $keyword
      * @param mixed[] $names
      * @return static
      */
-    public static function __instantiateUnchecked($keyword, $names)
+    public static function __instantiateUnchecked($phpVersion, $keyword, $names)
     {
-        $instance = new static();
+        $instance = new static;
+        $instance->phpVersion = $phpVersion;
         $instance->keyword = $keyword;
+        $instance->keyword->parent = $instance;
         $instance->names->__initUnchecked($names);
+        $instance->names->parent = $instance;
         return $instance;
     }
 
-    public function &_getNodeRefs(): array
+    protected function &_getNodeRefs(): array
     {
         $refs = [
             'keyword' => &$this->keyword,
@@ -101,8 +84,9 @@ abstract class GeneratedExtends extends CompoundNode
         if ($keyword !== null)
         {
             /** @var Token $keyword */
-            $keyword = NodeConverter::convert($keyword, Token::class, $this->_phpVersion);
-            $keyword->_attachTo($this);
+            $keyword = NodeConverter::convert($keyword, Token::class, $this->phpVersion);
+            $keyword->detach();
+            $keyword->parent = $this;
         }
         if ($this->keyword !== null)
         {
@@ -112,7 +96,7 @@ abstract class GeneratedExtends extends CompoundNode
     }
 
     /**
-     * @return SeparatedNodesList|Nodes\RegularName[]
+     * @return SeparatedNodesList|Nodes\Name[]
      */
     public function getNames(): SeparatedNodesList
     {
@@ -120,12 +104,27 @@ abstract class GeneratedExtends extends CompoundNode
     }
 
     /**
-     * @param Nodes\RegularName $name
+     * @param Nodes\Name $name
      */
     public function addName($name): void
     {
-        /** @var Nodes\RegularName $name */
-        $name = NodeConverter::convert($name, Nodes\RegularName::class);
+        /** @var Nodes\Name $name */
+        $name = NodeConverter::convert($name, Nodes\Name::class, $this->phpVersion);
         $this->names->add($name);
+    }
+
+    protected function _validate(int $flags): void
+    {
+        if ($flags & self::VALIDATE_TYPES)
+        {
+            if ($this->keyword === null) throw ValidationException::childRequired($this, 'keyword');
+        }
+        if ($flags & self::VALIDATE_EXPRESSION_CONTEXT)
+        {
+        }
+        if ($flags & self::VALIDATE_TOKENS)
+        {
+        }
+        $this->names->_validate($flags);
     }
 }

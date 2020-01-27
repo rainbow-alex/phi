@@ -9,36 +9,16 @@ use Phi\Nodes\Base\NodesList;
 use Phi\Nodes\Base\SeparatedNodesList;
 use Phi\Exception\MissingNodeException;
 use Phi\NodeConverter;
-use Phi\Specification;
-use Phi\Optional;
-use Phi\Specifications\And_;
-use Phi\Specifications\Any;
-use Phi\Specifications\IsToken;
-use Phi\Specifications\IsInstanceOf;
-use Phi\Specifications\ValidCompoundNode;
-use Phi\Specifications\EachItem;
-use Phi\Specifications\EachSeparator;
+use Phi\Exception\ValidationException;
 use Phi\Nodes as Nodes;
-use Phi\Specifications as Specs;
 
 abstract class GeneratedAnonymousFunctionUseBinding extends CompoundNode
 {
-    /** @var Specification[] */
-    private static $specifications;
-    protected static function getSpecifications(): array
-    {
-        return self::$specifications ?? self::$specifications = [
-            new ValidCompoundNode([
-                'byReference' => new Optional(new IsToken('&')),
-                'variable' => new IsToken(\T_VARIABLE),
-            ]),
-        ];
-    }
-
     /**
      * @var Token|null
      */
     private $byReference;
+
     /**
      * @var Token|null
      */
@@ -48,23 +28,29 @@ abstract class GeneratedAnonymousFunctionUseBinding extends CompoundNode
      */
     public function __construct()
     {
-        parent::__construct();
     }
 
     /**
+     * @param int $phpVersion
      * @param Token|null $byReference
      * @param Token|null $variable
      * @return static
      */
-    public static function __instantiateUnchecked($byReference, $variable)
+    public static function __instantiateUnchecked($phpVersion, $byReference, $variable)
     {
-        $instance = new static();
+        $instance = new static;
+        $instance->phpVersion = $phpVersion;
         $instance->byReference = $byReference;
+        if ($byReference)
+        {
+            $instance->byReference->parent = $instance;
+        }
         $instance->variable = $variable;
+        $instance->variable->parent = $instance;
         return $instance;
     }
 
-    public function &_getNodeRefs(): array
+    protected function &_getNodeRefs(): array
     {
         $refs = [
             'byReference' => &$this->byReference,
@@ -91,8 +77,9 @@ abstract class GeneratedAnonymousFunctionUseBinding extends CompoundNode
         if ($byReference !== null)
         {
             /** @var Token $byReference */
-            $byReference = NodeConverter::convert($byReference, Token::class, $this->_phpVersion);
-            $byReference->_attachTo($this);
+            $byReference = NodeConverter::convert($byReference, Token::class, $this->phpVersion);
+            $byReference->detach();
+            $byReference->parent = $this;
         }
         if ($this->byReference !== null)
         {
@@ -123,13 +110,28 @@ abstract class GeneratedAnonymousFunctionUseBinding extends CompoundNode
         if ($variable !== null)
         {
             /** @var Token $variable */
-            $variable = NodeConverter::convert($variable, Token::class, $this->_phpVersion);
-            $variable->_attachTo($this);
+            $variable = NodeConverter::convert($variable, Token::class, $this->phpVersion);
+            $variable->detach();
+            $variable->parent = $this;
         }
         if ($this->variable !== null)
         {
             $this->variable->detach();
         }
         $this->variable = $variable;
+    }
+
+    protected function _validate(int $flags): void
+    {
+        if ($flags & self::VALIDATE_TYPES)
+        {
+            if ($this->variable === null) throw ValidationException::childRequired($this, 'variable');
+        }
+        if ($flags & self::VALIDATE_EXPRESSION_CONTEXT)
+        {
+        }
+        if ($flags & self::VALIDATE_TOKENS)
+        {
+        }
     }
 }

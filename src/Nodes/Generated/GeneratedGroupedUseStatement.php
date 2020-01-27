@@ -9,61 +9,41 @@ use Phi\Nodes\Base\NodesList;
 use Phi\Nodes\Base\SeparatedNodesList;
 use Phi\Exception\MissingNodeException;
 use Phi\NodeConverter;
-use Phi\Specification;
-use Phi\Optional;
-use Phi\Specifications\And_;
-use Phi\Specifications\Any;
-use Phi\Specifications\IsToken;
-use Phi\Specifications\IsInstanceOf;
-use Phi\Specifications\ValidCompoundNode;
-use Phi\Specifications\EachItem;
-use Phi\Specifications\EachSeparator;
+use Phi\Exception\ValidationException;
 use Phi\Nodes as Nodes;
-use Phi\Specifications as Specs;
 
-abstract class GeneratedGroupedUseStatement extends CompoundNode implements Nodes\UseStatement
+abstract class GeneratedGroupedUseStatement extends Nodes\UseStatement
 {
-    /** @var Specification[] */
-    private static $specifications;
-    protected static function getSpecifications(): array
-    {
-        return self::$specifications ?? self::$specifications = [
-            new ValidCompoundNode([
-                'keyword' => new IsToken(\T_USE),
-                'type' => new Optional(new IsToken(\T_FUNCTION, \T_CONST)),
-                'prefix' => new Optional(new Any),
-                'leftBrace' => new IsToken('{'),
-                'uses' => new And_(new EachItem(new IsInstanceOf(Nodes\UseName::class)), new EachSeparator(new IsToken(','))),
-                'rightBrace' => new IsToken('}'),
-                'semiColon' => new Optional(new IsToken(';')),
-            ]),
-        ];
-    }
-
     /**
      * @var Token|null
      */
     private $keyword;
+
     /**
      * @var Token|null
      */
     private $type;
+
     /**
      * @var Nodes\GroupedUsePrefix|null
      */
     private $prefix;
+
     /**
      * @var Token|null
      */
     private $leftBrace;
+
     /**
      * @var SeparatedNodesList|Nodes\UseName[]
      */
     private $uses;
+
     /**
      * @var Token|null
      */
     private $rightBrace;
+
     /**
      * @var Token|null
      */
@@ -73,11 +53,11 @@ abstract class GeneratedGroupedUseStatement extends CompoundNode implements Node
      */
     public function __construct()
     {
-        parent::__construct();
         $this->uses = new SeparatedNodesList();
     }
 
     /**
+     * @param int $phpVersion
      * @param Token|null $keyword
      * @param Token|null $type
      * @param Nodes\GroupedUsePrefix|null $prefix
@@ -87,20 +67,37 @@ abstract class GeneratedGroupedUseStatement extends CompoundNode implements Node
      * @param Token|null $semiColon
      * @return static
      */
-    public static function __instantiateUnchecked($keyword, $type, $prefix, $leftBrace, $uses, $rightBrace, $semiColon)
+    public static function __instantiateUnchecked($phpVersion, $keyword, $type, $prefix, $leftBrace, $uses, $rightBrace, $semiColon)
     {
-        $instance = new static();
+        $instance = new static;
+        $instance->phpVersion = $phpVersion;
         $instance->keyword = $keyword;
+        $instance->keyword->parent = $instance;
         $instance->type = $type;
+        if ($type)
+        {
+            $instance->type->parent = $instance;
+        }
         $instance->prefix = $prefix;
+        if ($prefix)
+        {
+            $instance->prefix->parent = $instance;
+        }
         $instance->leftBrace = $leftBrace;
+        $instance->leftBrace->parent = $instance;
         $instance->uses->__initUnchecked($uses);
+        $instance->uses->parent = $instance;
         $instance->rightBrace = $rightBrace;
+        $instance->rightBrace->parent = $instance;
         $instance->semiColon = $semiColon;
+        if ($semiColon)
+        {
+            $instance->semiColon->parent = $instance;
+        }
         return $instance;
     }
 
-    public function &_getNodeRefs(): array
+    protected function &_getNodeRefs(): array
     {
         $refs = [
             'keyword' => &$this->keyword,
@@ -136,8 +133,9 @@ abstract class GeneratedGroupedUseStatement extends CompoundNode implements Node
         if ($keyword !== null)
         {
             /** @var Token $keyword */
-            $keyword = NodeConverter::convert($keyword, Token::class, $this->_phpVersion);
-            $keyword->_attachTo($this);
+            $keyword = NodeConverter::convert($keyword, Token::class, $this->phpVersion);
+            $keyword->detach();
+            $keyword->parent = $this;
         }
         if ($this->keyword !== null)
         {
@@ -164,8 +162,9 @@ abstract class GeneratedGroupedUseStatement extends CompoundNode implements Node
         if ($type !== null)
         {
             /** @var Token $type */
-            $type = NodeConverter::convert($type, Token::class, $this->_phpVersion);
-            $type->_attachTo($this);
+            $type = NodeConverter::convert($type, Token::class, $this->phpVersion);
+            $type->detach();
+            $type->parent = $this;
         }
         if ($this->type !== null)
         {
@@ -192,8 +191,9 @@ abstract class GeneratedGroupedUseStatement extends CompoundNode implements Node
         if ($prefix !== null)
         {
             /** @var Nodes\GroupedUsePrefix $prefix */
-            $prefix = NodeConverter::convert($prefix, Nodes\GroupedUsePrefix::class, $this->_phpVersion);
-            $prefix->_attachTo($this);
+            $prefix = NodeConverter::convert($prefix, Nodes\GroupedUsePrefix::class, $this->phpVersion);
+            $prefix->detach();
+            $prefix->parent = $this;
         }
         if ($this->prefix !== null)
         {
@@ -224,8 +224,9 @@ abstract class GeneratedGroupedUseStatement extends CompoundNode implements Node
         if ($leftBrace !== null)
         {
             /** @var Token $leftBrace */
-            $leftBrace = NodeConverter::convert($leftBrace, Token::class, $this->_phpVersion);
-            $leftBrace->_attachTo($this);
+            $leftBrace = NodeConverter::convert($leftBrace, Token::class, $this->phpVersion);
+            $leftBrace->detach();
+            $leftBrace->parent = $this;
         }
         if ($this->leftBrace !== null)
         {
@@ -248,7 +249,7 @@ abstract class GeneratedGroupedUseStatement extends CompoundNode implements Node
     public function addUs($us): void
     {
         /** @var Nodes\UseName $us */
-        $us = NodeConverter::convert($us, Nodes\UseName::class);
+        $us = NodeConverter::convert($us, Nodes\UseName::class, $this->phpVersion);
         $this->uses->add($us);
     }
 
@@ -274,8 +275,9 @@ abstract class GeneratedGroupedUseStatement extends CompoundNode implements Node
         if ($rightBrace !== null)
         {
             /** @var Token $rightBrace */
-            $rightBrace = NodeConverter::convert($rightBrace, Token::class, $this->_phpVersion);
-            $rightBrace->_attachTo($this);
+            $rightBrace = NodeConverter::convert($rightBrace, Token::class, $this->phpVersion);
+            $rightBrace->detach();
+            $rightBrace->parent = $this;
         }
         if ($this->rightBrace !== null)
         {
@@ -302,13 +304,35 @@ abstract class GeneratedGroupedUseStatement extends CompoundNode implements Node
         if ($semiColon !== null)
         {
             /** @var Token $semiColon */
-            $semiColon = NodeConverter::convert($semiColon, Token::class, $this->_phpVersion);
-            $semiColon->_attachTo($this);
+            $semiColon = NodeConverter::convert($semiColon, Token::class, $this->phpVersion);
+            $semiColon->detach();
+            $semiColon->parent = $this;
         }
         if ($this->semiColon !== null)
         {
             $this->semiColon->detach();
         }
         $this->semiColon = $semiColon;
+    }
+
+    protected function _validate(int $flags): void
+    {
+        if ($flags & self::VALIDATE_TYPES)
+        {
+            if ($this->keyword === null) throw ValidationException::childRequired($this, 'keyword');
+            if ($this->leftBrace === null) throw ValidationException::childRequired($this, 'leftBrace');
+            if ($this->rightBrace === null) throw ValidationException::childRequired($this, 'rightBrace');
+        }
+        if ($flags & self::VALIDATE_EXPRESSION_CONTEXT)
+        {
+        }
+        if ($flags & self::VALIDATE_TOKENS)
+        {
+        }
+        if ($this->prefix)
+        {
+            $this->prefix->_validate($flags);
+        }
+        $this->uses->_validate($flags);
     }
 }

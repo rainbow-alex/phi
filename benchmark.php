@@ -1,6 +1,7 @@
 #!/usr/bin/env php
 <?php
 
+use Phi\PhpVersion;
 use Symfony\Component\Finder\Finder;
 
 require __DIR__ . '/vendor/autoload.php';
@@ -14,55 +15,65 @@ foreach (array_slice($argv, 1) ?: ['nodes'] as $suite)
     switch ($suite)
     {
         case 'nodes':
-            $files = (new Finder())->in(__DIR__ . '/src/Nodes/')->filter(function (\SplFileInfo $p)
+            $fileNames = (new Finder())->in(__DIR__ . '/src/Nodes/')->filter(function (\SplFileInfo $p)
             {
                 return $p->getExtension() === 'php';
             });
+            $fileNames = array_map('strval', iterator_to_array($fileNames));
             $reps = 10;
             break;
         case 'nested':
-            $files = [__DIR__ . '/benchmarks/nested.php'];
+            $fileNames = [__DIR__ . '/benchmarks/nested.php'];
             $reps = 100;
             break;
         default:
             throw new \RuntimeException("Unknown suite: $suite");
     }
 
+    $files = [];
+    foreach ($fileNames as $fileName)
+    {
+        $files[$fileName] = file_get_contents($fileName);
+    }
+
     echo "\e[1m$suite:\e[0m\n";
-    echo count($files) . ' file(s), ' . $reps . " rep(s)\n";
+    echo count($fileNames) . ' file(s), ' . $reps . " rep(s)\n";
 
     gc_collect_cycles();
 
-    echo "phi (no validation)... ";
-    $lexer = new \Phi\Lexer();
-    $parser = new \Phi\Parser();
+    //*
+    echo "phi (minimal validation)... ";
+    $lexer = new \Phi\Lexer(PhpVersion::PHP_7_2);
+    $parser = new \Phi\Parser(PhpVersion::PHP_7_2);
     $maxMemory = 0;
 
     $start = microtime(true);
     for ($i = 0; $i < $reps; $i++)
     {
-        foreach ($files as $file)
+        foreach ($files as $fileName => $contents)
         {
-            $ast = $parser->parse($file, file_get_contents($file));
+            $ast = $parser->parse($fileName, $contents);
             $maxMemory = max($maxMemory, memory_get_usage());
             unset($ast);
         }
     }
     $time = microtime(true) - $start;
     echo number_format($time, 3) . "s, " . number_format($maxMemory / 1e6, 2) . "MB\n";
+    //*/
 
     gc_collect_cycles();
 
-    echo "phi... ";
-    $lexer = new \Phi\Lexer();
-    $parser = new \Phi\Parser();
+    //*
+    echo "phi (full revalidation)... ";
+    $lexer = new \Phi\Lexer(PhpVersion::PHP_7_2);
+    $parser = new \Phi\Parser(PhpVersion::PHP_7_2);
     $maxMemory = 0;
     $start = microtime(true);
     for ($i = 0; $i < $reps; $i++)
     {
-        foreach ($files as $file)
+        foreach ($files as $fileName => $contents)
         {
-            $ast = $parser->parse($file, file_get_contents($file));
+            $ast = $parser->parse($fileName, $contents);
             $ast->validate();
             $maxMemory = max($maxMemory, memory_get_usage());
             unset($ast);
@@ -70,24 +81,27 @@ foreach (array_slice($argv, 1) ?: ['nodes'] as $suite)
     }
     $time = microtime(true) - $start;
     echo number_format($time, 3) . "s, " . number_format($maxMemory / 1e6, 2) . "MB\n";
+    //*/
 
     gc_collect_cycles();
 
+    //*
     echo "nikic/php-parser... ";
     $parser = (new \PhpParser\ParserFactory())->create(\PhpParser\ParserFactory::PREFER_PHP7);
     $maxMemory = 0;
     $start = microtime(true);
     for ($i = 0; $i < $reps; $i++)
     {
-        foreach ($files as $file)
+        foreach ($files as $fileName => $contents)
         {
-            $ast = $parser->parse(file_get_contents($file));
+            $ast = $parser->parse($contents);
             $maxMemory = max($maxMemory, memory_get_usage());
             unset($ast);
         }
     }
     $time = microtime(true) - $start;
     echo number_format($time, 3) . "s, " . number_format($maxMemory / 1e6, 2) . "MB\n";
+    //*/
 
     /*
     echo "microsoft/tolerant-php-parser... ";
@@ -96,9 +110,9 @@ foreach (array_slice($argv, 1) ?: ['nodes'] as $suite)
     $start = microtime(true);
     for ($i = 0; $i < $reps; $i++)
     {
-        foreach ($files as $file)
+        foreach ($files as $fileName => $contents)
         {
-            $parser->parseSourceFile(file_get_contents($file));
+            $parser->parseSourceFile($contents);
             $maxMemory = max($maxMemory, memory_get_usage());
         }
     }

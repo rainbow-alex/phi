@@ -9,41 +9,21 @@ use Phi\Nodes\Base\NodesList;
 use Phi\Nodes\Base\SeparatedNodesList;
 use Phi\Exception\MissingNodeException;
 use Phi\NodeConverter;
-use Phi\Specification;
-use Phi\Optional;
-use Phi\Specifications\And_;
-use Phi\Specifications\Any;
-use Phi\Specifications\IsToken;
-use Phi\Specifications\IsInstanceOf;
-use Phi\Specifications\ValidCompoundNode;
-use Phi\Specifications\EachItem;
-use Phi\Specifications\EachSeparator;
+use Phi\Exception\ValidationException;
 use Phi\Nodes as Nodes;
-use Phi\Specifications as Specs;
 
-abstract class GeneratedStaticVariableDeclaration extends CompoundNode implements Nodes\Statement
+abstract class GeneratedStaticVariableDeclaration extends Nodes\Statement
 {
-    /** @var Specification[] */
-    private static $specifications;
-    protected static function getSpecifications(): array
-    {
-        return self::$specifications ?? self::$specifications = [
-            new ValidCompoundNode([
-                'keyword' => new IsToken(\T_STATIC),
-                'variables' => new And_(new EachItem(new IsInstanceOf(Nodes\StaticVariable::class)), new EachSeparator(new IsToken(','))),
-                'semiColon' => new Optional(new IsToken(';')),
-            ]),
-        ];
-    }
-
     /**
      * @var Token|null
      */
     private $keyword;
+
     /**
      * @var SeparatedNodesList|Nodes\StaticVariable[]
      */
     private $variables;
+
     /**
      * @var Token|null
      */
@@ -53,26 +33,33 @@ abstract class GeneratedStaticVariableDeclaration extends CompoundNode implement
      */
     public function __construct()
     {
-        parent::__construct();
         $this->variables = new SeparatedNodesList();
     }
 
     /**
+     * @param int $phpVersion
      * @param Token|null $keyword
      * @param mixed[] $variables
      * @param Token|null $semiColon
      * @return static
      */
-    public static function __instantiateUnchecked($keyword, $variables, $semiColon)
+    public static function __instantiateUnchecked($phpVersion, $keyword, $variables, $semiColon)
     {
-        $instance = new static();
+        $instance = new static;
+        $instance->phpVersion = $phpVersion;
         $instance->keyword = $keyword;
+        $instance->keyword->parent = $instance;
         $instance->variables->__initUnchecked($variables);
+        $instance->variables->parent = $instance;
         $instance->semiColon = $semiColon;
+        if ($semiColon)
+        {
+            $instance->semiColon->parent = $instance;
+        }
         return $instance;
     }
 
-    public function &_getNodeRefs(): array
+    protected function &_getNodeRefs(): array
     {
         $refs = [
             'keyword' => &$this->keyword,
@@ -104,8 +91,9 @@ abstract class GeneratedStaticVariableDeclaration extends CompoundNode implement
         if ($keyword !== null)
         {
             /** @var Token $keyword */
-            $keyword = NodeConverter::convert($keyword, Token::class, $this->_phpVersion);
-            $keyword->_attachTo($this);
+            $keyword = NodeConverter::convert($keyword, Token::class, $this->phpVersion);
+            $keyword->detach();
+            $keyword->parent = $this;
         }
         if ($this->keyword !== null)
         {
@@ -128,7 +116,7 @@ abstract class GeneratedStaticVariableDeclaration extends CompoundNode implement
     public function addVariabl($variabl): void
     {
         /** @var Nodes\StaticVariable $variabl */
-        $variabl = NodeConverter::convert($variabl, Nodes\StaticVariable::class);
+        $variabl = NodeConverter::convert($variabl, Nodes\StaticVariable::class, $this->phpVersion);
         $this->variables->add($variabl);
     }
 
@@ -150,13 +138,29 @@ abstract class GeneratedStaticVariableDeclaration extends CompoundNode implement
         if ($semiColon !== null)
         {
             /** @var Token $semiColon */
-            $semiColon = NodeConverter::convert($semiColon, Token::class, $this->_phpVersion);
-            $semiColon->_attachTo($this);
+            $semiColon = NodeConverter::convert($semiColon, Token::class, $this->phpVersion);
+            $semiColon->detach();
+            $semiColon->parent = $this;
         }
         if ($this->semiColon !== null)
         {
             $this->semiColon->detach();
         }
         $this->semiColon = $semiColon;
+    }
+
+    protected function _validate(int $flags): void
+    {
+        if ($flags & self::VALIDATE_TYPES)
+        {
+            if ($this->keyword === null) throw ValidationException::childRequired($this, 'keyword');
+        }
+        if ($flags & self::VALIDATE_EXPRESSION_CONTEXT)
+        {
+        }
+        if ($flags & self::VALIDATE_TOKENS)
+        {
+        }
+        $this->variables->_validate($flags);
     }
 }

@@ -9,36 +9,16 @@ use Phi\Nodes\Base\NodesList;
 use Phi\Nodes\Base\SeparatedNodesList;
 use Phi\Exception\MissingNodeException;
 use Phi\NodeConverter;
-use Phi\Specification;
-use Phi\Optional;
-use Phi\Specifications\And_;
-use Phi\Specifications\Any;
-use Phi\Specifications\IsToken;
-use Phi\Specifications\IsInstanceOf;
-use Phi\Specifications\ValidCompoundNode;
-use Phi\Specifications\EachItem;
-use Phi\Specifications\EachSeparator;
+use Phi\Exception\ValidationException;
 use Phi\Nodes as Nodes;
-use Phi\Specifications as Specs;
 
-abstract class GeneratedPostDecrementExpression extends CompoundNode implements Nodes\Expression
+abstract class GeneratedPostDecrementExpression extends Nodes\CrementExpression
 {
-    /** @var Specification[] */
-    private static $specifications;
-    protected static function getSpecifications(): array
-    {
-        return self::$specifications ?? self::$specifications = [
-            new ValidCompoundNode([
-                'expression' => new And_(new Specs\IsReadExpression, new Specs\IsWriteExpression),
-                'operator' => new IsToken(\T_DEC),
-            ]),
-        ];
-    }
-
     /**
      * @var Nodes\Expression|null
      */
     private $expression;
+
     /**
      * @var Token|null
      */
@@ -49,7 +29,6 @@ abstract class GeneratedPostDecrementExpression extends CompoundNode implements 
      */
     public function __construct($expression = null)
     {
-        parent::__construct();
         if ($expression !== null)
         {
             $this->setExpression($expression);
@@ -57,19 +36,23 @@ abstract class GeneratedPostDecrementExpression extends CompoundNode implements 
     }
 
     /**
+     * @param int $phpVersion
      * @param Nodes\Expression|null $expression
      * @param Token|null $operator
      * @return static
      */
-    public static function __instantiateUnchecked($expression, $operator)
+    public static function __instantiateUnchecked($phpVersion, $expression, $operator)
     {
-        $instance = new static();
+        $instance = new static;
+        $instance->phpVersion = $phpVersion;
         $instance->expression = $expression;
+        $instance->expression->parent = $instance;
         $instance->operator = $operator;
+        $instance->operator->parent = $instance;
         return $instance;
     }
 
-    public function &_getNodeRefs(): array
+    protected function &_getNodeRefs(): array
     {
         $refs = [
             'expression' => &$this->expression,
@@ -100,8 +83,9 @@ abstract class GeneratedPostDecrementExpression extends CompoundNode implements 
         if ($expression !== null)
         {
             /** @var Nodes\Expression $expression */
-            $expression = NodeConverter::convert($expression, Nodes\Expression::class, $this->_phpVersion);
-            $expression->_attachTo($this);
+            $expression = NodeConverter::convert($expression, Nodes\Expression::class, $this->phpVersion);
+            $expression->detach();
+            $expression->parent = $this;
         }
         if ($this->expression !== null)
         {
@@ -132,13 +116,30 @@ abstract class GeneratedPostDecrementExpression extends CompoundNode implements 
         if ($operator !== null)
         {
             /** @var Token $operator */
-            $operator = NodeConverter::convert($operator, Token::class, $this->_phpVersion);
-            $operator->_attachTo($this);
+            $operator = NodeConverter::convert($operator, Token::class, $this->phpVersion);
+            $operator->detach();
+            $operator->parent = $this;
         }
         if ($this->operator !== null)
         {
             $this->operator->detach();
         }
         $this->operator = $operator;
+    }
+
+    protected function _validate(int $flags): void
+    {
+        if ($flags & self::VALIDATE_TYPES)
+        {
+            if ($this->expression === null) throw ValidationException::childRequired($this, 'expression');
+            if ($this->operator === null) throw ValidationException::childRequired($this, 'operator');
+        }
+        if ($flags & self::VALIDATE_EXPRESSION_CONTEXT)
+        {
+        }
+        if ($flags & self::VALIDATE_TOKENS)
+        {
+        }
+        $this->expression->_validate($flags);
     }
 }

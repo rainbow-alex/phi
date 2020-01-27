@@ -9,41 +9,21 @@ use Phi\Nodes\Base\NodesList;
 use Phi\Nodes\Base\SeparatedNodesList;
 use Phi\Exception\MissingNodeException;
 use Phi\NodeConverter;
-use Phi\Specification;
-use Phi\Optional;
-use Phi\Specifications\And_;
-use Phi\Specifications\Any;
-use Phi\Specifications\IsToken;
-use Phi\Specifications\IsInstanceOf;
-use Phi\Specifications\ValidCompoundNode;
-use Phi\Specifications\EachItem;
-use Phi\Specifications\EachSeparator;
+use Phi\Exception\ValidationException;
 use Phi\Nodes as Nodes;
-use Phi\Specifications as Specs;
 
-abstract class GeneratedComplexInterpolatedStringExpression extends CompoundNode implements Nodes\InterpolatedStringExpression
+abstract class GeneratedComplexInterpolatedStringExpression extends Nodes\CInterpolatedStringExpression
 {
-    /** @var Specification[] */
-    private static $specifications;
-    protected static function getSpecifications(): array
-    {
-        return self::$specifications ?? self::$specifications = [
-            new ValidCompoundNode([
-                'leftBrace' => new IsToken(\T_CURLY_OPEN),
-                'expression' => new Specs\IsReadExpression,
-                'rightBrace' => new IsToken('}'),
-            ]),
-        ];
-    }
-
     /**
      * @var Token|null
      */
     private $leftBrace;
+
     /**
      * @var Nodes\Expression|null
      */
     private $expression;
+
     /**
      * @var Token|null
      */
@@ -54,7 +34,6 @@ abstract class GeneratedComplexInterpolatedStringExpression extends CompoundNode
      */
     public function __construct($expression = null)
     {
-        parent::__construct();
         if ($expression !== null)
         {
             $this->setExpression($expression);
@@ -62,21 +41,26 @@ abstract class GeneratedComplexInterpolatedStringExpression extends CompoundNode
     }
 
     /**
+     * @param int $phpVersion
      * @param Token|null $leftBrace
      * @param Nodes\Expression|null $expression
      * @param Token|null $rightBrace
      * @return static
      */
-    public static function __instantiateUnchecked($leftBrace, $expression, $rightBrace)
+    public static function __instantiateUnchecked($phpVersion, $leftBrace, $expression, $rightBrace)
     {
-        $instance = new static();
+        $instance = new static;
+        $instance->phpVersion = $phpVersion;
         $instance->leftBrace = $leftBrace;
+        $instance->leftBrace->parent = $instance;
         $instance->expression = $expression;
+        $instance->expression->parent = $instance;
         $instance->rightBrace = $rightBrace;
+        $instance->rightBrace->parent = $instance;
         return $instance;
     }
 
-    public function &_getNodeRefs(): array
+    protected function &_getNodeRefs(): array
     {
         $refs = [
             'leftBrace' => &$this->leftBrace,
@@ -108,8 +92,9 @@ abstract class GeneratedComplexInterpolatedStringExpression extends CompoundNode
         if ($leftBrace !== null)
         {
             /** @var Token $leftBrace */
-            $leftBrace = NodeConverter::convert($leftBrace, Token::class, $this->_phpVersion);
-            $leftBrace->_attachTo($this);
+            $leftBrace = NodeConverter::convert($leftBrace, Token::class, $this->phpVersion);
+            $leftBrace->detach();
+            $leftBrace->parent = $this;
         }
         if ($this->leftBrace !== null)
         {
@@ -140,8 +125,9 @@ abstract class GeneratedComplexInterpolatedStringExpression extends CompoundNode
         if ($expression !== null)
         {
             /** @var Nodes\Expression $expression */
-            $expression = NodeConverter::convert($expression, Nodes\Expression::class, $this->_phpVersion);
-            $expression->_attachTo($this);
+            $expression = NodeConverter::convert($expression, Nodes\Expression::class, $this->phpVersion);
+            $expression->detach();
+            $expression->parent = $this;
         }
         if ($this->expression !== null)
         {
@@ -172,13 +158,31 @@ abstract class GeneratedComplexInterpolatedStringExpression extends CompoundNode
         if ($rightBrace !== null)
         {
             /** @var Token $rightBrace */
-            $rightBrace = NodeConverter::convert($rightBrace, Token::class, $this->_phpVersion);
-            $rightBrace->_attachTo($this);
+            $rightBrace = NodeConverter::convert($rightBrace, Token::class, $this->phpVersion);
+            $rightBrace->detach();
+            $rightBrace->parent = $this;
         }
         if ($this->rightBrace !== null)
         {
             $this->rightBrace->detach();
         }
         $this->rightBrace = $rightBrace;
+    }
+
+    protected function _validate(int $flags): void
+    {
+        if ($flags & self::VALIDATE_TYPES)
+        {
+            if ($this->leftBrace === null) throw ValidationException::childRequired($this, 'leftBrace');
+            if ($this->expression === null) throw ValidationException::childRequired($this, 'expression');
+            if ($this->rightBrace === null) throw ValidationException::childRequired($this, 'rightBrace');
+        }
+        if ($flags & self::VALIDATE_EXPRESSION_CONTEXT)
+        {
+        }
+        if ($flags & self::VALIDATE_TOKENS)
+        {
+        }
+        $this->expression->_validate($flags);
     }
 }

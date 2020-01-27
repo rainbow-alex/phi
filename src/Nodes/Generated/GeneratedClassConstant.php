@@ -9,56 +9,36 @@ use Phi\Nodes\Base\NodesList;
 use Phi\Nodes\Base\SeparatedNodesList;
 use Phi\Exception\MissingNodeException;
 use Phi\NodeConverter;
-use Phi\Specification;
-use Phi\Optional;
-use Phi\Specifications\And_;
-use Phi\Specifications\Any;
-use Phi\Specifications\IsToken;
-use Phi\Specifications\IsInstanceOf;
-use Phi\Specifications\ValidCompoundNode;
-use Phi\Specifications\EachItem;
-use Phi\Specifications\EachSeparator;
+use Phi\Exception\ValidationException;
 use Phi\Nodes as Nodes;
-use Phi\Specifications as Specs;
 
-abstract class GeneratedClassConstant extends CompoundNode implements Nodes\ClassLikeMember
+abstract class GeneratedClassConstant extends Nodes\ClassLikeMember
 {
-    /** @var Specification[] */
-    private static $specifications;
-    protected static function getSpecifications(): array
-    {
-        return self::$specifications ?? self::$specifications = [
-            new ValidCompoundNode([
-                'modifiers' => new EachItem(new IsToken(\T_PUBLIC, \T_PROTECTED, \T_PRIVATE)),
-                'keyword' => new IsToken(\T_CONST),
-                'name' => new IsToken(\T_STRING),
-                'equals' => new IsToken('='),
-                'value' => new Any,
-                'semiColon' => new IsToken(';'),
-            ]),
-        ];
-    }
-
     /**
      * @var NodesList|Token[]
      */
     private $modifiers;
+
     /**
      * @var Token|null
      */
     private $keyword;
+
     /**
      * @var Token|null
      */
     private $name;
+
     /**
      * @var Token|null
      */
     private $equals;
+
     /**
      * @var Nodes\Expression|null
      */
     private $value;
+
     /**
      * @var Token|null
      */
@@ -70,7 +50,6 @@ abstract class GeneratedClassConstant extends CompoundNode implements Nodes\Clas
      */
     public function __construct($name = null, $value = null)
     {
-        parent::__construct();
         $this->modifiers = new NodesList();
         if ($name !== null)
         {
@@ -83,6 +62,7 @@ abstract class GeneratedClassConstant extends CompoundNode implements Nodes\Clas
     }
 
     /**
+     * @param int $phpVersion
      * @param mixed[] $modifiers
      * @param Token|null $keyword
      * @param Token|null $name
@@ -91,19 +71,26 @@ abstract class GeneratedClassConstant extends CompoundNode implements Nodes\Clas
      * @param Token|null $semiColon
      * @return static
      */
-    public static function __instantiateUnchecked($modifiers, $keyword, $name, $equals, $value, $semiColon)
+    public static function __instantiateUnchecked($phpVersion, $modifiers, $keyword, $name, $equals, $value, $semiColon)
     {
-        $instance = new static();
+        $instance = new static;
+        $instance->phpVersion = $phpVersion;
         $instance->modifiers->__initUnchecked($modifiers);
+        $instance->modifiers->parent = $instance;
         $instance->keyword = $keyword;
+        $instance->keyword->parent = $instance;
         $instance->name = $name;
+        $instance->name->parent = $instance;
         $instance->equals = $equals;
+        $instance->equals->parent = $instance;
         $instance->value = $value;
+        $instance->value->parent = $instance;
         $instance->semiColon = $semiColon;
+        $instance->semiColon->parent = $instance;
         return $instance;
     }
 
-    public function &_getNodeRefs(): array
+    protected function &_getNodeRefs(): array
     {
         $refs = [
             'modifiers' => &$this->modifiers,
@@ -130,7 +117,7 @@ abstract class GeneratedClassConstant extends CompoundNode implements Nodes\Clas
     public function addModifier($modifier): void
     {
         /** @var Token $modifier */
-        $modifier = NodeConverter::convert($modifier, Token::class);
+        $modifier = NodeConverter::convert($modifier, Token::class, $this->phpVersion);
         $this->modifiers->add($modifier);
     }
 
@@ -156,8 +143,9 @@ abstract class GeneratedClassConstant extends CompoundNode implements Nodes\Clas
         if ($keyword !== null)
         {
             /** @var Token $keyword */
-            $keyword = NodeConverter::convert($keyword, Token::class, $this->_phpVersion);
-            $keyword->_attachTo($this);
+            $keyword = NodeConverter::convert($keyword, Token::class, $this->phpVersion);
+            $keyword->detach();
+            $keyword->parent = $this;
         }
         if ($this->keyword !== null)
         {
@@ -188,8 +176,9 @@ abstract class GeneratedClassConstant extends CompoundNode implements Nodes\Clas
         if ($name !== null)
         {
             /** @var Token $name */
-            $name = NodeConverter::convert($name, Token::class, $this->_phpVersion);
-            $name->_attachTo($this);
+            $name = NodeConverter::convert($name, Token::class, $this->phpVersion);
+            $name->detach();
+            $name->parent = $this;
         }
         if ($this->name !== null)
         {
@@ -220,8 +209,9 @@ abstract class GeneratedClassConstant extends CompoundNode implements Nodes\Clas
         if ($equals !== null)
         {
             /** @var Token $equals */
-            $equals = NodeConverter::convert($equals, Token::class, $this->_phpVersion);
-            $equals->_attachTo($this);
+            $equals = NodeConverter::convert($equals, Token::class, $this->phpVersion);
+            $equals->detach();
+            $equals->parent = $this;
         }
         if ($this->equals !== null)
         {
@@ -252,8 +242,9 @@ abstract class GeneratedClassConstant extends CompoundNode implements Nodes\Clas
         if ($value !== null)
         {
             /** @var Nodes\Expression $value */
-            $value = NodeConverter::convert($value, Nodes\Expression::class, $this->_phpVersion);
-            $value->_attachTo($this);
+            $value = NodeConverter::convert($value, Nodes\Expression::class, $this->phpVersion);
+            $value->detach();
+            $value->parent = $this;
         }
         if ($this->value !== null)
         {
@@ -284,13 +275,33 @@ abstract class GeneratedClassConstant extends CompoundNode implements Nodes\Clas
         if ($semiColon !== null)
         {
             /** @var Token $semiColon */
-            $semiColon = NodeConverter::convert($semiColon, Token::class, $this->_phpVersion);
-            $semiColon->_attachTo($this);
+            $semiColon = NodeConverter::convert($semiColon, Token::class, $this->phpVersion);
+            $semiColon->detach();
+            $semiColon->parent = $this;
         }
         if ($this->semiColon !== null)
         {
             $this->semiColon->detach();
         }
         $this->semiColon = $semiColon;
+    }
+
+    protected function _validate(int $flags): void
+    {
+        if ($flags & self::VALIDATE_TYPES)
+        {
+            if ($this->keyword === null) throw ValidationException::childRequired($this, 'keyword');
+            if ($this->name === null) throw ValidationException::childRequired($this, 'name');
+            if ($this->equals === null) throw ValidationException::childRequired($this, 'equals');
+            if ($this->value === null) throw ValidationException::childRequired($this, 'value');
+            if ($this->semiColon === null) throw ValidationException::childRequired($this, 'semiColon');
+        }
+        if ($flags & self::VALIDATE_EXPRESSION_CONTEXT)
+        {
+        }
+        if ($flags & self::VALIDATE_TOKENS)
+        {
+        }
+        $this->value->_validate($flags);
     }
 }

@@ -9,41 +9,21 @@ use Phi\Nodes\Base\NodesList;
 use Phi\Nodes\Base\SeparatedNodesList;
 use Phi\Exception\MissingNodeException;
 use Phi\NodeConverter;
-use Phi\Specification;
-use Phi\Optional;
-use Phi\Specifications\And_;
-use Phi\Specifications\Any;
-use Phi\Specifications\IsToken;
-use Phi\Specifications\IsInstanceOf;
-use Phi\Specifications\ValidCompoundNode;
-use Phi\Specifications\EachItem;
-use Phi\Specifications\EachSeparator;
+use Phi\Exception\ValidationException;
 use Phi\Nodes as Nodes;
-use Phi\Specifications as Specs;
 
-abstract class GeneratedInstanceofExpression extends CompoundNode implements Nodes\Expression
+abstract class GeneratedInstanceofExpression extends Nodes\Expression
 {
-    /** @var Specification[] */
-    private static $specifications;
-    protected static function getSpecifications(): array
-    {
-        return self::$specifications ?? self::$specifications = [
-            new ValidCompoundNode([
-                'value' => new Specs\IsReadExpression,
-                'operator' => new IsToken(\T_INSTANCEOF),
-                'type' => new Specs\IsReadExpression,
-            ]),
-        ];
-    }
-
     /**
      * @var Nodes\Expression|null
      */
     private $value;
+
     /**
      * @var Token|null
      */
     private $operator;
+
     /**
      * @var Nodes\Expression|null
      */
@@ -55,7 +35,6 @@ abstract class GeneratedInstanceofExpression extends CompoundNode implements Nod
      */
     public function __construct($value = null, $type = null)
     {
-        parent::__construct();
         if ($value !== null)
         {
             $this->setValue($value);
@@ -67,21 +46,26 @@ abstract class GeneratedInstanceofExpression extends CompoundNode implements Nod
     }
 
     /**
+     * @param int $phpVersion
      * @param Nodes\Expression|null $value
      * @param Token|null $operator
      * @param Nodes\Expression|null $type
      * @return static
      */
-    public static function __instantiateUnchecked($value, $operator, $type)
+    public static function __instantiateUnchecked($phpVersion, $value, $operator, $type)
     {
-        $instance = new static();
+        $instance = new static;
+        $instance->phpVersion = $phpVersion;
         $instance->value = $value;
+        $instance->value->parent = $instance;
         $instance->operator = $operator;
+        $instance->operator->parent = $instance;
         $instance->type = $type;
+        $instance->type->parent = $instance;
         return $instance;
     }
 
-    public function &_getNodeRefs(): array
+    protected function &_getNodeRefs(): array
     {
         $refs = [
             'value' => &$this->value,
@@ -113,8 +97,9 @@ abstract class GeneratedInstanceofExpression extends CompoundNode implements Nod
         if ($value !== null)
         {
             /** @var Nodes\Expression $value */
-            $value = NodeConverter::convert($value, Nodes\Expression::class, $this->_phpVersion);
-            $value->_attachTo($this);
+            $value = NodeConverter::convert($value, Nodes\Expression::class, $this->phpVersion);
+            $value->detach();
+            $value->parent = $this;
         }
         if ($this->value !== null)
         {
@@ -145,8 +130,9 @@ abstract class GeneratedInstanceofExpression extends CompoundNode implements Nod
         if ($operator !== null)
         {
             /** @var Token $operator */
-            $operator = NodeConverter::convert($operator, Token::class, $this->_phpVersion);
-            $operator->_attachTo($this);
+            $operator = NodeConverter::convert($operator, Token::class, $this->phpVersion);
+            $operator->detach();
+            $operator->parent = $this;
         }
         if ($this->operator !== null)
         {
@@ -177,13 +163,32 @@ abstract class GeneratedInstanceofExpression extends CompoundNode implements Nod
         if ($type !== null)
         {
             /** @var Nodes\Expression $type */
-            $type = NodeConverter::convert($type, Nodes\Expression::class, $this->_phpVersion);
-            $type->_attachTo($this);
+            $type = NodeConverter::convert($type, Nodes\Expression::class, $this->phpVersion);
+            $type->detach();
+            $type->parent = $this;
         }
         if ($this->type !== null)
         {
             $this->type->detach();
         }
         $this->type = $type;
+    }
+
+    protected function _validate(int $flags): void
+    {
+        if ($flags & self::VALIDATE_TYPES)
+        {
+            if ($this->value === null) throw ValidationException::childRequired($this, 'value');
+            if ($this->operator === null) throw ValidationException::childRequired($this, 'operator');
+            if ($this->type === null) throw ValidationException::childRequired($this, 'type');
+        }
+        if ($flags & self::VALIDATE_EXPRESSION_CONTEXT)
+        {
+        }
+        if ($flags & self::VALIDATE_TOKENS)
+        {
+        }
+        $this->value->_validate($flags);
+        $this->type->_validate($flags);
     }
 }

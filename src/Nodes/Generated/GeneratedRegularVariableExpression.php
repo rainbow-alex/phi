@@ -9,31 +9,11 @@ use Phi\Nodes\Base\NodesList;
 use Phi\Nodes\Base\SeparatedNodesList;
 use Phi\Exception\MissingNodeException;
 use Phi\NodeConverter;
-use Phi\Specification;
-use Phi\Optional;
-use Phi\Specifications\And_;
-use Phi\Specifications\Any;
-use Phi\Specifications\IsToken;
-use Phi\Specifications\IsInstanceOf;
-use Phi\Specifications\ValidCompoundNode;
-use Phi\Specifications\EachItem;
-use Phi\Specifications\EachSeparator;
+use Phi\Exception\ValidationException;
 use Phi\Nodes as Nodes;
-use Phi\Specifications as Specs;
 
-abstract class GeneratedRegularVariableExpression extends CompoundNode implements Nodes\Expression
+abstract class GeneratedRegularVariableExpression extends Nodes\Variable
 {
-    /** @var Specification[] */
-    private static $specifications;
-    protected static function getSpecifications(): array
-    {
-        return self::$specifications ?? self::$specifications = [
-            new ValidCompoundNode([
-                'variable' => new IsToken(\T_VARIABLE),
-            ]),
-        ];
-    }
-
     /**
      * @var Token|null
      */
@@ -44,7 +24,6 @@ abstract class GeneratedRegularVariableExpression extends CompoundNode implement
      */
     public function __construct($variable = null)
     {
-        parent::__construct();
         if ($variable !== null)
         {
             $this->setVariable($variable);
@@ -52,17 +31,20 @@ abstract class GeneratedRegularVariableExpression extends CompoundNode implement
     }
 
     /**
+     * @param int $phpVersion
      * @param Token|null $variable
      * @return static
      */
-    public static function __instantiateUnchecked($variable)
+    public static function __instantiateUnchecked($phpVersion, $variable)
     {
-        $instance = new static();
+        $instance = new static;
+        $instance->phpVersion = $phpVersion;
         $instance->variable = $variable;
+        $instance->variable->parent = $instance;
         return $instance;
     }
 
-    public function &_getNodeRefs(): array
+    protected function &_getNodeRefs(): array
     {
         $refs = [
             'variable' => &$this->variable,
@@ -92,13 +74,28 @@ abstract class GeneratedRegularVariableExpression extends CompoundNode implement
         if ($variable !== null)
         {
             /** @var Token $variable */
-            $variable = NodeConverter::convert($variable, Token::class, $this->_phpVersion);
-            $variable->_attachTo($this);
+            $variable = NodeConverter::convert($variable, Token::class, $this->phpVersion);
+            $variable->detach();
+            $variable->parent = $this;
         }
         if ($this->variable !== null)
         {
             $this->variable->detach();
         }
         $this->variable = $variable;
+    }
+
+    protected function _validate(int $flags): void
+    {
+        if ($flags & self::VALIDATE_TYPES)
+        {
+            if ($this->variable === null) throw ValidationException::childRequired($this, 'variable');
+        }
+        if ($flags & self::VALIDATE_EXPRESSION_CONTEXT)
+        {
+        }
+        if ($flags & self::VALIDATE_TOKENS)
+        {
+        }
     }
 }

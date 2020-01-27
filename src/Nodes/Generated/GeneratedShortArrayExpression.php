@@ -9,41 +9,21 @@ use Phi\Nodes\Base\NodesList;
 use Phi\Nodes\Base\SeparatedNodesList;
 use Phi\Exception\MissingNodeException;
 use Phi\NodeConverter;
-use Phi\Specification;
-use Phi\Optional;
-use Phi\Specifications\And_;
-use Phi\Specifications\Any;
-use Phi\Specifications\IsToken;
-use Phi\Specifications\IsInstanceOf;
-use Phi\Specifications\ValidCompoundNode;
-use Phi\Specifications\EachItem;
-use Phi\Specifications\EachSeparator;
+use Phi\Exception\ValidationException;
 use Phi\Nodes as Nodes;
-use Phi\Specifications as Specs;
 
-abstract class GeneratedShortArrayExpression extends CompoundNode implements Nodes\ArrayExpression
+abstract class GeneratedShortArrayExpression extends Nodes\Expression
 {
-    /** @var Specification[] */
-    private static $specifications;
-    protected static function getSpecifications(): array
-    {
-        return self::$specifications ?? self::$specifications = [
-            new ValidCompoundNode([
-                'leftBracket' => new IsToken('['),
-                'items' => new And_(new EachItem(new IsInstanceOf(Nodes\ArrayItem::class)), new EachSeparator(new IsToken(','))),
-                'rightBracket' => new IsToken(']'),
-            ]),
-        ];
-    }
-
     /**
      * @var Token|null
      */
     private $leftBracket;
+
     /**
      * @var SeparatedNodesList|Nodes\ArrayItem[]
      */
     private $items;
+
     /**
      * @var Token|null
      */
@@ -54,7 +34,6 @@ abstract class GeneratedShortArrayExpression extends CompoundNode implements Nod
      */
     public function __construct($item = null)
     {
-        parent::__construct();
         $this->items = new SeparatedNodesList();
         if ($item !== null)
         {
@@ -63,21 +42,26 @@ abstract class GeneratedShortArrayExpression extends CompoundNode implements Nod
     }
 
     /**
+     * @param int $phpVersion
      * @param Token|null $leftBracket
      * @param mixed[] $items
      * @param Token|null $rightBracket
      * @return static
      */
-    public static function __instantiateUnchecked($leftBracket, $items, $rightBracket)
+    public static function __instantiateUnchecked($phpVersion, $leftBracket, $items, $rightBracket)
     {
-        $instance = new static();
+        $instance = new static;
+        $instance->phpVersion = $phpVersion;
         $instance->leftBracket = $leftBracket;
+        $instance->leftBracket->parent = $instance;
         $instance->items->__initUnchecked($items);
+        $instance->items->parent = $instance;
         $instance->rightBracket = $rightBracket;
+        $instance->rightBracket->parent = $instance;
         return $instance;
     }
 
-    public function &_getNodeRefs(): array
+    protected function &_getNodeRefs(): array
     {
         $refs = [
             'leftBracket' => &$this->leftBracket,
@@ -109,8 +93,9 @@ abstract class GeneratedShortArrayExpression extends CompoundNode implements Nod
         if ($leftBracket !== null)
         {
             /** @var Token $leftBracket */
-            $leftBracket = NodeConverter::convert($leftBracket, Token::class, $this->_phpVersion);
-            $leftBracket->_attachTo($this);
+            $leftBracket = NodeConverter::convert($leftBracket, Token::class, $this->phpVersion);
+            $leftBracket->detach();
+            $leftBracket->parent = $this;
         }
         if ($this->leftBracket !== null)
         {
@@ -133,7 +118,7 @@ abstract class GeneratedShortArrayExpression extends CompoundNode implements Nod
     public function addItem($item): void
     {
         /** @var Nodes\ArrayItem $item */
-        $item = NodeConverter::convert($item, Nodes\ArrayItem::class);
+        $item = NodeConverter::convert($item, Nodes\ArrayItem::class, $this->phpVersion);
         $this->items->add($item);
     }
 
@@ -159,13 +144,30 @@ abstract class GeneratedShortArrayExpression extends CompoundNode implements Nod
         if ($rightBracket !== null)
         {
             /** @var Token $rightBracket */
-            $rightBracket = NodeConverter::convert($rightBracket, Token::class, $this->_phpVersion);
-            $rightBracket->_attachTo($this);
+            $rightBracket = NodeConverter::convert($rightBracket, Token::class, $this->phpVersion);
+            $rightBracket->detach();
+            $rightBracket->parent = $this;
         }
         if ($this->rightBracket !== null)
         {
             $this->rightBracket->detach();
         }
         $this->rightBracket = $rightBracket;
+    }
+
+    protected function _validate(int $flags): void
+    {
+        if ($flags & self::VALIDATE_TYPES)
+        {
+            if ($this->leftBracket === null) throw ValidationException::childRequired($this, 'leftBracket');
+            if ($this->rightBracket === null) throw ValidationException::childRequired($this, 'rightBracket');
+        }
+        if ($flags & self::VALIDATE_EXPRESSION_CONTEXT)
+        {
+        }
+        if ($flags & self::VALIDATE_TOKENS)
+        {
+        }
+        $this->items->_validate($flags);
     }
 }

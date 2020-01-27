@@ -9,76 +9,56 @@ use Phi\Nodes\Base\NodesList;
 use Phi\Nodes\Base\SeparatedNodesList;
 use Phi\Exception\MissingNodeException;
 use Phi\NodeConverter;
-use Phi\Specification;
-use Phi\Optional;
-use Phi\Specifications\And_;
-use Phi\Specifications\Any;
-use Phi\Specifications\IsToken;
-use Phi\Specifications\IsInstanceOf;
-use Phi\Specifications\ValidCompoundNode;
-use Phi\Specifications\EachItem;
-use Phi\Specifications\EachSeparator;
+use Phi\Exception\ValidationException;
 use Phi\Nodes as Nodes;
-use Phi\Specifications as Specs;
 
-abstract class GeneratedMethod extends CompoundNode implements Nodes\ClassLikeMember
+abstract class GeneratedMethod extends Nodes\ClassLikeMember
 {
-    /** @var Specification[] */
-    private static $specifications;
-    protected static function getSpecifications(): array
-    {
-        return self::$specifications ?? self::$specifications = [
-            new ValidCompoundNode([
-                'modifiers' => new EachItem(new IsToken(\T_ABSTRACT, \T_FINAL, \T_PUBLIC, \T_PROTECTED, \T_PRIVATE, \T_STATIC)),
-                'keyword' => new IsToken(\T_FUNCTION),
-                'byReference' => new Optional(new IsToken('&')),
-                'name' => new IsToken(\T_STRING),
-                'leftParenthesis' => new IsToken('('),
-                'parameters' => new And_(new EachItem(new IsInstanceOf(Nodes\Parameter::class)), new EachSeparator(new IsToken(','))),
-                'rightParenthesis' => new IsToken(')'),
-                'returnType' => new Optional(new Any),
-                'body' => new Optional(new Any),
-                'semiColon' => new Optional(new IsToken(';')),
-            ]),
-        ];
-    }
-
     /**
      * @var NodesList|Token[]
      */
     private $modifiers;
+
     /**
      * @var Token|null
      */
     private $keyword;
+
     /**
      * @var Token|null
      */
     private $byReference;
+
     /**
      * @var Token|null
      */
     private $name;
+
     /**
      * @var Token|null
      */
     private $leftParenthesis;
+
     /**
      * @var SeparatedNodesList|Nodes\Parameter[]
      */
     private $parameters;
+
     /**
      * @var Token|null
      */
     private $rightParenthesis;
+
     /**
      * @var Nodes\ReturnType|null
      */
     private $returnType;
+
     /**
-     * @var Nodes\Block|null
+     * @var Nodes\RegularBlock|null
      */
     private $body;
+
     /**
      * @var Token|null
      */
@@ -89,7 +69,6 @@ abstract class GeneratedMethod extends CompoundNode implements Nodes\ClassLikeMe
      */
     public function __construct($name = null)
     {
-        parent::__construct();
         $this->modifiers = new NodesList();
         if ($name !== null)
         {
@@ -99,6 +78,7 @@ abstract class GeneratedMethod extends CompoundNode implements Nodes\ClassLikeMe
     }
 
     /**
+     * @param int $phpVersion
      * @param mixed[] $modifiers
      * @param Token|null $keyword
      * @param Token|null $byReference
@@ -107,27 +87,50 @@ abstract class GeneratedMethod extends CompoundNode implements Nodes\ClassLikeMe
      * @param mixed[] $parameters
      * @param Token|null $rightParenthesis
      * @param Nodes\ReturnType|null $returnType
-     * @param Nodes\Block|null $body
+     * @param Nodes\RegularBlock|null $body
      * @param Token|null $semiColon
      * @return static
      */
-    public static function __instantiateUnchecked($modifiers, $keyword, $byReference, $name, $leftParenthesis, $parameters, $rightParenthesis, $returnType, $body, $semiColon)
+    public static function __instantiateUnchecked($phpVersion, $modifiers, $keyword, $byReference, $name, $leftParenthesis, $parameters, $rightParenthesis, $returnType, $body, $semiColon)
     {
-        $instance = new static();
+        $instance = new static;
+        $instance->phpVersion = $phpVersion;
         $instance->modifiers->__initUnchecked($modifiers);
+        $instance->modifiers->parent = $instance;
         $instance->keyword = $keyword;
+        $instance->keyword->parent = $instance;
         $instance->byReference = $byReference;
+        if ($byReference)
+        {
+            $instance->byReference->parent = $instance;
+        }
         $instance->name = $name;
+        $instance->name->parent = $instance;
         $instance->leftParenthesis = $leftParenthesis;
+        $instance->leftParenthesis->parent = $instance;
         $instance->parameters->__initUnchecked($parameters);
+        $instance->parameters->parent = $instance;
         $instance->rightParenthesis = $rightParenthesis;
+        $instance->rightParenthesis->parent = $instance;
         $instance->returnType = $returnType;
+        if ($returnType)
+        {
+            $instance->returnType->parent = $instance;
+        }
         $instance->body = $body;
+        if ($body)
+        {
+            $instance->body->parent = $instance;
+        }
         $instance->semiColon = $semiColon;
+        if ($semiColon)
+        {
+            $instance->semiColon->parent = $instance;
+        }
         return $instance;
     }
 
-    public function &_getNodeRefs(): array
+    protected function &_getNodeRefs(): array
     {
         $refs = [
             'modifiers' => &$this->modifiers,
@@ -158,7 +161,7 @@ abstract class GeneratedMethod extends CompoundNode implements Nodes\ClassLikeMe
     public function addModifier($modifier): void
     {
         /** @var Token $modifier */
-        $modifier = NodeConverter::convert($modifier, Token::class);
+        $modifier = NodeConverter::convert($modifier, Token::class, $this->phpVersion);
         $this->modifiers->add($modifier);
     }
 
@@ -184,8 +187,9 @@ abstract class GeneratedMethod extends CompoundNode implements Nodes\ClassLikeMe
         if ($keyword !== null)
         {
             /** @var Token $keyword */
-            $keyword = NodeConverter::convert($keyword, Token::class, $this->_phpVersion);
-            $keyword->_attachTo($this);
+            $keyword = NodeConverter::convert($keyword, Token::class, $this->phpVersion);
+            $keyword->detach();
+            $keyword->parent = $this;
         }
         if ($this->keyword !== null)
         {
@@ -212,8 +216,9 @@ abstract class GeneratedMethod extends CompoundNode implements Nodes\ClassLikeMe
         if ($byReference !== null)
         {
             /** @var Token $byReference */
-            $byReference = NodeConverter::convert($byReference, Token::class, $this->_phpVersion);
-            $byReference->_attachTo($this);
+            $byReference = NodeConverter::convert($byReference, Token::class, $this->phpVersion);
+            $byReference->detach();
+            $byReference->parent = $this;
         }
         if ($this->byReference !== null)
         {
@@ -244,8 +249,9 @@ abstract class GeneratedMethod extends CompoundNode implements Nodes\ClassLikeMe
         if ($name !== null)
         {
             /** @var Token $name */
-            $name = NodeConverter::convert($name, Token::class, $this->_phpVersion);
-            $name->_attachTo($this);
+            $name = NodeConverter::convert($name, Token::class, $this->phpVersion);
+            $name->detach();
+            $name->parent = $this;
         }
         if ($this->name !== null)
         {
@@ -276,8 +282,9 @@ abstract class GeneratedMethod extends CompoundNode implements Nodes\ClassLikeMe
         if ($leftParenthesis !== null)
         {
             /** @var Token $leftParenthesis */
-            $leftParenthesis = NodeConverter::convert($leftParenthesis, Token::class, $this->_phpVersion);
-            $leftParenthesis->_attachTo($this);
+            $leftParenthesis = NodeConverter::convert($leftParenthesis, Token::class, $this->phpVersion);
+            $leftParenthesis->detach();
+            $leftParenthesis->parent = $this;
         }
         if ($this->leftParenthesis !== null)
         {
@@ -300,7 +307,7 @@ abstract class GeneratedMethod extends CompoundNode implements Nodes\ClassLikeMe
     public function addParameter($parameter): void
     {
         /** @var Nodes\Parameter $parameter */
-        $parameter = NodeConverter::convert($parameter, Nodes\Parameter::class);
+        $parameter = NodeConverter::convert($parameter, Nodes\Parameter::class, $this->phpVersion);
         $this->parameters->add($parameter);
     }
 
@@ -326,8 +333,9 @@ abstract class GeneratedMethod extends CompoundNode implements Nodes\ClassLikeMe
         if ($rightParenthesis !== null)
         {
             /** @var Token $rightParenthesis */
-            $rightParenthesis = NodeConverter::convert($rightParenthesis, Token::class, $this->_phpVersion);
-            $rightParenthesis->_attachTo($this);
+            $rightParenthesis = NodeConverter::convert($rightParenthesis, Token::class, $this->phpVersion);
+            $rightParenthesis->detach();
+            $rightParenthesis->parent = $this;
         }
         if ($this->rightParenthesis !== null)
         {
@@ -354,8 +362,9 @@ abstract class GeneratedMethod extends CompoundNode implements Nodes\ClassLikeMe
         if ($returnType !== null)
         {
             /** @var Nodes\ReturnType $returnType */
-            $returnType = NodeConverter::convert($returnType, Nodes\ReturnType::class, $this->_phpVersion);
-            $returnType->_attachTo($this);
+            $returnType = NodeConverter::convert($returnType, Nodes\ReturnType::class, $this->phpVersion);
+            $returnType->detach();
+            $returnType->parent = $this;
         }
         if ($this->returnType !== null)
         {
@@ -364,7 +373,7 @@ abstract class GeneratedMethod extends CompoundNode implements Nodes\ClassLikeMe
         $this->returnType = $returnType;
     }
 
-    public function getBody(): ?Nodes\Block
+    public function getBody(): ?Nodes\RegularBlock
     {
         return $this->body;
     }
@@ -375,15 +384,16 @@ abstract class GeneratedMethod extends CompoundNode implements Nodes\ClassLikeMe
     }
 
     /**
-     * @param Nodes\Block|Node|string|null $body
+     * @param Nodes\RegularBlock|Node|string|null $body
      */
     public function setBody($body): void
     {
         if ($body !== null)
         {
-            /** @var Nodes\Block $body */
-            $body = NodeConverter::convert($body, Nodes\Block::class, $this->_phpVersion);
-            $body->_attachTo($this);
+            /** @var Nodes\RegularBlock $body */
+            $body = NodeConverter::convert($body, Nodes\RegularBlock::class, $this->phpVersion);
+            $body->detach();
+            $body->parent = $this;
         }
         if ($this->body !== null)
         {
@@ -410,13 +420,40 @@ abstract class GeneratedMethod extends CompoundNode implements Nodes\ClassLikeMe
         if ($semiColon !== null)
         {
             /** @var Token $semiColon */
-            $semiColon = NodeConverter::convert($semiColon, Token::class, $this->_phpVersion);
-            $semiColon->_attachTo($this);
+            $semiColon = NodeConverter::convert($semiColon, Token::class, $this->phpVersion);
+            $semiColon->detach();
+            $semiColon->parent = $this;
         }
         if ($this->semiColon !== null)
         {
             $this->semiColon->detach();
         }
         $this->semiColon = $semiColon;
+    }
+
+    protected function _validate(int $flags): void
+    {
+        if ($flags & self::VALIDATE_TYPES)
+        {
+            if ($this->keyword === null) throw ValidationException::childRequired($this, 'keyword');
+            if ($this->name === null) throw ValidationException::childRequired($this, 'name');
+            if ($this->leftParenthesis === null) throw ValidationException::childRequired($this, 'leftParenthesis');
+            if ($this->rightParenthesis === null) throw ValidationException::childRequired($this, 'rightParenthesis');
+        }
+        if ($flags & self::VALIDATE_EXPRESSION_CONTEXT)
+        {
+        }
+        if ($flags & self::VALIDATE_TOKENS)
+        {
+        }
+        $this->parameters->_validate($flags);
+        if ($this->returnType)
+        {
+            $this->returnType->_validate($flags);
+        }
+        if ($this->body)
+        {
+            $this->body->_validate($flags);
+        }
     }
 }

@@ -9,31 +9,11 @@ use Phi\Nodes\Base\NodesList;
 use Phi\Nodes\Base\SeparatedNodesList;
 use Phi\Exception\MissingNodeException;
 use Phi\NodeConverter;
-use Phi\Specification;
-use Phi\Optional;
-use Phi\Specifications\And_;
-use Phi\Specifications\Any;
-use Phi\Specifications\IsToken;
-use Phi\Specifications\IsInstanceOf;
-use Phi\Specifications\ValidCompoundNode;
-use Phi\Specifications\EachItem;
-use Phi\Specifications\EachSeparator;
+use Phi\Exception\ValidationException;
 use Phi\Nodes as Nodes;
-use Phi\Specifications as Specs;
 
-abstract class GeneratedConstantStringLiteral extends CompoundNode implements Nodes\Expression
+abstract class GeneratedConstantStringLiteral extends Nodes\Expression
 {
-    /** @var Specification[] */
-    private static $specifications;
-    protected static function getSpecifications(): array
-    {
-        return self::$specifications ?? self::$specifications = [
-            new ValidCompoundNode([
-                'source' => new IsToken(\T_CONSTANT_ENCAPSED_STRING),
-            ]),
-        ];
-    }
-
     /**
      * @var Token|null
      */
@@ -44,7 +24,6 @@ abstract class GeneratedConstantStringLiteral extends CompoundNode implements No
      */
     public function __construct($source = null)
     {
-        parent::__construct();
         if ($source !== null)
         {
             $this->setSource($source);
@@ -52,17 +31,20 @@ abstract class GeneratedConstantStringLiteral extends CompoundNode implements No
     }
 
     /**
+     * @param int $phpVersion
      * @param Token|null $source
      * @return static
      */
-    public static function __instantiateUnchecked($source)
+    public static function __instantiateUnchecked($phpVersion, $source)
     {
-        $instance = new static();
+        $instance = new static;
+        $instance->phpVersion = $phpVersion;
         $instance->source = $source;
+        $instance->source->parent = $instance;
         return $instance;
     }
 
-    public function &_getNodeRefs(): array
+    protected function &_getNodeRefs(): array
     {
         $refs = [
             'source' => &$this->source,
@@ -92,13 +74,28 @@ abstract class GeneratedConstantStringLiteral extends CompoundNode implements No
         if ($source !== null)
         {
             /** @var Token $source */
-            $source = NodeConverter::convert($source, Token::class, $this->_phpVersion);
-            $source->_attachTo($this);
+            $source = NodeConverter::convert($source, Token::class, $this->phpVersion);
+            $source->detach();
+            $source->parent = $this;
         }
         if ($this->source !== null)
         {
             $this->source->detach();
         }
         $this->source = $source;
+    }
+
+    protected function _validate(int $flags): void
+    {
+        if ($flags & self::VALIDATE_TYPES)
+        {
+            if ($this->source === null) throw ValidationException::childRequired($this, 'source');
+        }
+        if ($flags & self::VALIDATE_EXPRESSION_CONTEXT)
+        {
+        }
+        if ($flags & self::VALIDATE_TOKENS)
+        {
+        }
     }
 }

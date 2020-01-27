@@ -9,31 +9,11 @@ use Phi\Nodes\Base\NodesList;
 use Phi\Nodes\Base\SeparatedNodesList;
 use Phi\Exception\MissingNodeException;
 use Phi\NodeConverter;
-use Phi\Specification;
-use Phi\Optional;
-use Phi\Specifications\And_;
-use Phi\Specifications\Any;
-use Phi\Specifications\IsToken;
-use Phi\Specifications\IsInstanceOf;
-use Phi\Specifications\ValidCompoundNode;
-use Phi\Specifications\EachItem;
-use Phi\Specifications\EachSeparator;
+use Phi\Exception\ValidationException;
 use Phi\Nodes as Nodes;
-use Phi\Specifications as Specs;
 
-abstract class GeneratedNameExpression extends CompoundNode implements Nodes\Expression
+abstract class GeneratedNameExpression extends Nodes\Expression
 {
-    /** @var Specification[] */
-    private static $specifications;
-    protected static function getSpecifications(): array
-    {
-        return self::$specifications ?? self::$specifications = [
-            new ValidCompoundNode([
-                'name' => new Any,
-            ]),
-        ];
-    }
-
     /**
      * @var Nodes\Name|null
      */
@@ -44,7 +24,6 @@ abstract class GeneratedNameExpression extends CompoundNode implements Nodes\Exp
      */
     public function __construct($name = null)
     {
-        parent::__construct();
         if ($name !== null)
         {
             $this->setName($name);
@@ -52,17 +31,20 @@ abstract class GeneratedNameExpression extends CompoundNode implements Nodes\Exp
     }
 
     /**
+     * @param int $phpVersion
      * @param Nodes\Name|null $name
      * @return static
      */
-    public static function __instantiateUnchecked($name)
+    public static function __instantiateUnchecked($phpVersion, $name)
     {
-        $instance = new static();
+        $instance = new static;
+        $instance->phpVersion = $phpVersion;
         $instance->name = $name;
+        $instance->name->parent = $instance;
         return $instance;
     }
 
-    public function &_getNodeRefs(): array
+    protected function &_getNodeRefs(): array
     {
         $refs = [
             'name' => &$this->name,
@@ -92,13 +74,29 @@ abstract class GeneratedNameExpression extends CompoundNode implements Nodes\Exp
         if ($name !== null)
         {
             /** @var Nodes\Name $name */
-            $name = NodeConverter::convert($name, Nodes\Name::class, $this->_phpVersion);
-            $name->_attachTo($this);
+            $name = NodeConverter::convert($name, Nodes\Name::class, $this->phpVersion);
+            $name->detach();
+            $name->parent = $this;
         }
         if ($this->name !== null)
         {
             $this->name->detach();
         }
         $this->name = $name;
+    }
+
+    protected function _validate(int $flags): void
+    {
+        if ($flags & self::VALIDATE_TYPES)
+        {
+            if ($this->name === null) throw ValidationException::childRequired($this, 'name');
+        }
+        if ($flags & self::VALIDATE_EXPRESSION_CONTEXT)
+        {
+        }
+        if ($flags & self::VALIDATE_TOKENS)
+        {
+        }
+        $this->name->_validate($flags);
     }
 }

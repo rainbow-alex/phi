@@ -9,36 +9,16 @@ use Phi\Nodes\Base\NodesList;
 use Phi\Nodes\Base\SeparatedNodesList;
 use Phi\Exception\MissingNodeException;
 use Phi\NodeConverter;
-use Phi\Specification;
-use Phi\Optional;
-use Phi\Specifications\And_;
-use Phi\Specifications\Any;
-use Phi\Specifications\IsToken;
-use Phi\Specifications\IsInstanceOf;
-use Phi\Specifications\ValidCompoundNode;
-use Phi\Specifications\EachItem;
-use Phi\Specifications\EachSeparator;
+use Phi\Exception\ValidationException;
 use Phi\Nodes as Nodes;
-use Phi\Specifications as Specs;
 
-abstract class GeneratedCastExpression extends CompoundNode implements Nodes\Expression
+abstract class GeneratedCastExpression extends Nodes\Expression
 {
-    /** @var Specification[] */
-    private static $specifications;
-    protected static function getSpecifications(): array
-    {
-        return self::$specifications ?? self::$specifications = [
-            new ValidCompoundNode([
-                'cast' => new IsToken(\T_ARRAY_CAST, \T_BOOL_CAST, \T_DOUBLE_CAST, \T_INT_CAST, \T_OBJECT_CAST, \T_STRING_CAST, \T_UNSET_CAST),
-                'expression' => new Specs\IsReadExpression,
-            ]),
-        ];
-    }
-
     /**
      * @var Token|null
      */
     private $cast;
+
     /**
      * @var Nodes\Expression|null
      */
@@ -50,7 +30,6 @@ abstract class GeneratedCastExpression extends CompoundNode implements Nodes\Exp
      */
     public function __construct($cast = null, $expression = null)
     {
-        parent::__construct();
         if ($cast !== null)
         {
             $this->setCast($cast);
@@ -62,19 +41,23 @@ abstract class GeneratedCastExpression extends CompoundNode implements Nodes\Exp
     }
 
     /**
+     * @param int $phpVersion
      * @param Token|null $cast
      * @param Nodes\Expression|null $expression
      * @return static
      */
-    public static function __instantiateUnchecked($cast, $expression)
+    public static function __instantiateUnchecked($phpVersion, $cast, $expression)
     {
-        $instance = new static();
+        $instance = new static;
+        $instance->phpVersion = $phpVersion;
         $instance->cast = $cast;
+        $instance->cast->parent = $instance;
         $instance->expression = $expression;
+        $instance->expression->parent = $instance;
         return $instance;
     }
 
-    public function &_getNodeRefs(): array
+    protected function &_getNodeRefs(): array
     {
         $refs = [
             'cast' => &$this->cast,
@@ -105,8 +88,9 @@ abstract class GeneratedCastExpression extends CompoundNode implements Nodes\Exp
         if ($cast !== null)
         {
             /** @var Token $cast */
-            $cast = NodeConverter::convert($cast, Token::class, $this->_phpVersion);
-            $cast->_attachTo($this);
+            $cast = NodeConverter::convert($cast, Token::class, $this->phpVersion);
+            $cast->detach();
+            $cast->parent = $this;
         }
         if ($this->cast !== null)
         {
@@ -137,13 +121,30 @@ abstract class GeneratedCastExpression extends CompoundNode implements Nodes\Exp
         if ($expression !== null)
         {
             /** @var Nodes\Expression $expression */
-            $expression = NodeConverter::convert($expression, Nodes\Expression::class, $this->_phpVersion);
-            $expression->_attachTo($this);
+            $expression = NodeConverter::convert($expression, Nodes\Expression::class, $this->phpVersion);
+            $expression->detach();
+            $expression->parent = $this;
         }
         if ($this->expression !== null)
         {
             $this->expression->detach();
         }
         $this->expression = $expression;
+    }
+
+    protected function _validate(int $flags): void
+    {
+        if ($flags & self::VALIDATE_TYPES)
+        {
+            if ($this->cast === null) throw ValidationException::childRequired($this, 'cast');
+            if ($this->expression === null) throw ValidationException::childRequired($this, 'expression');
+        }
+        if ($flags & self::VALIDATE_EXPRESSION_CONTEXT)
+        {
+        }
+        if ($flags & self::VALIDATE_TOKENS)
+        {
+        }
+        $this->expression->_validate($flags);
     }
 }

@@ -9,68 +9,48 @@ use Phi\Nodes\Base\NodesList;
 use Phi\Nodes\Base\SeparatedNodesList;
 use Phi\Exception\MissingNodeException;
 use Phi\NodeConverter;
-use Phi\Specification;
-use Phi\Optional;
-use Phi\Specifications\And_;
-use Phi\Specifications\Any;
-use Phi\Specifications\IsToken;
-use Phi\Specifications\IsInstanceOf;
-use Phi\Specifications\ValidCompoundNode;
-use Phi\Specifications\EachItem;
-use Phi\Specifications\EachSeparator;
+use Phi\Exception\ValidationException;
 use Phi\Nodes as Nodes;
-use Phi\Specifications as Specs;
 
-abstract class GeneratedFunctionStatement extends CompoundNode implements Nodes\Statement
+abstract class GeneratedFunctionStatement extends Nodes\Statement
 {
-    /** @var Specification[] */
-    private static $specifications;
-    protected static function getSpecifications(): array
-    {
-        return self::$specifications ?? self::$specifications = [
-            new ValidCompoundNode([
-                'keyword' => new IsToken(\T_FUNCTION),
-                'byReference' => new Optional(new IsToken('&')),
-                'name' => new IsToken(\T_STRING),
-                'leftParenthesis' => new IsToken('('),
-                'parameters' => new And_(new EachItem(new IsInstanceOf(Nodes\Parameter::class)), new EachSeparator(new IsToken(','))),
-                'rightParenthesis' => new IsToken(')'),
-                'returnType' => new Optional(new Any),
-                'body' => new Any,
-            ]),
-        ];
-    }
-
     /**
      * @var Token|null
      */
     private $keyword;
+
     /**
      * @var Token|null
      */
     private $byReference;
+
     /**
      * @var Token|null
      */
     private $name;
+
     /**
      * @var Token|null
      */
     private $leftParenthesis;
+
     /**
      * @var SeparatedNodesList|Nodes\Parameter[]
      */
     private $parameters;
+
     /**
      * @var Token|null
      */
     private $rightParenthesis;
+
     /**
      * @var Nodes\ReturnType|null
      */
     private $returnType;
+
     /**
-     * @var Nodes\Block|null
+     * @var Nodes\RegularBlock|null
      */
     private $body;
 
@@ -78,11 +58,11 @@ abstract class GeneratedFunctionStatement extends CompoundNode implements Nodes\
      */
     public function __construct()
     {
-        parent::__construct();
         $this->parameters = new SeparatedNodesList();
     }
 
     /**
+     * @param int $phpVersion
      * @param Token|null $keyword
      * @param Token|null $byReference
      * @param Token|null $name
@@ -90,24 +70,39 @@ abstract class GeneratedFunctionStatement extends CompoundNode implements Nodes\
      * @param mixed[] $parameters
      * @param Token|null $rightParenthesis
      * @param Nodes\ReturnType|null $returnType
-     * @param Nodes\Block|null $body
+     * @param Nodes\RegularBlock|null $body
      * @return static
      */
-    public static function __instantiateUnchecked($keyword, $byReference, $name, $leftParenthesis, $parameters, $rightParenthesis, $returnType, $body)
+    public static function __instantiateUnchecked($phpVersion, $keyword, $byReference, $name, $leftParenthesis, $parameters, $rightParenthesis, $returnType, $body)
     {
-        $instance = new static();
+        $instance = new static;
+        $instance->phpVersion = $phpVersion;
         $instance->keyword = $keyword;
+        $instance->keyword->parent = $instance;
         $instance->byReference = $byReference;
+        if ($byReference)
+        {
+            $instance->byReference->parent = $instance;
+        }
         $instance->name = $name;
+        $instance->name->parent = $instance;
         $instance->leftParenthesis = $leftParenthesis;
+        $instance->leftParenthesis->parent = $instance;
         $instance->parameters->__initUnchecked($parameters);
+        $instance->parameters->parent = $instance;
         $instance->rightParenthesis = $rightParenthesis;
+        $instance->rightParenthesis->parent = $instance;
         $instance->returnType = $returnType;
+        if ($returnType)
+        {
+            $instance->returnType->parent = $instance;
+        }
         $instance->body = $body;
+        $instance->body->parent = $instance;
         return $instance;
     }
 
-    public function &_getNodeRefs(): array
+    protected function &_getNodeRefs(): array
     {
         $refs = [
             'keyword' => &$this->keyword,
@@ -144,8 +139,9 @@ abstract class GeneratedFunctionStatement extends CompoundNode implements Nodes\
         if ($keyword !== null)
         {
             /** @var Token $keyword */
-            $keyword = NodeConverter::convert($keyword, Token::class, $this->_phpVersion);
-            $keyword->_attachTo($this);
+            $keyword = NodeConverter::convert($keyword, Token::class, $this->phpVersion);
+            $keyword->detach();
+            $keyword->parent = $this;
         }
         if ($this->keyword !== null)
         {
@@ -172,8 +168,9 @@ abstract class GeneratedFunctionStatement extends CompoundNode implements Nodes\
         if ($byReference !== null)
         {
             /** @var Token $byReference */
-            $byReference = NodeConverter::convert($byReference, Token::class, $this->_phpVersion);
-            $byReference->_attachTo($this);
+            $byReference = NodeConverter::convert($byReference, Token::class, $this->phpVersion);
+            $byReference->detach();
+            $byReference->parent = $this;
         }
         if ($this->byReference !== null)
         {
@@ -204,8 +201,9 @@ abstract class GeneratedFunctionStatement extends CompoundNode implements Nodes\
         if ($name !== null)
         {
             /** @var Token $name */
-            $name = NodeConverter::convert($name, Token::class, $this->_phpVersion);
-            $name->_attachTo($this);
+            $name = NodeConverter::convert($name, Token::class, $this->phpVersion);
+            $name->detach();
+            $name->parent = $this;
         }
         if ($this->name !== null)
         {
@@ -236,8 +234,9 @@ abstract class GeneratedFunctionStatement extends CompoundNode implements Nodes\
         if ($leftParenthesis !== null)
         {
             /** @var Token $leftParenthesis */
-            $leftParenthesis = NodeConverter::convert($leftParenthesis, Token::class, $this->_phpVersion);
-            $leftParenthesis->_attachTo($this);
+            $leftParenthesis = NodeConverter::convert($leftParenthesis, Token::class, $this->phpVersion);
+            $leftParenthesis->detach();
+            $leftParenthesis->parent = $this;
         }
         if ($this->leftParenthesis !== null)
         {
@@ -260,7 +259,7 @@ abstract class GeneratedFunctionStatement extends CompoundNode implements Nodes\
     public function addParameter($parameter): void
     {
         /** @var Nodes\Parameter $parameter */
-        $parameter = NodeConverter::convert($parameter, Nodes\Parameter::class);
+        $parameter = NodeConverter::convert($parameter, Nodes\Parameter::class, $this->phpVersion);
         $this->parameters->add($parameter);
     }
 
@@ -286,8 +285,9 @@ abstract class GeneratedFunctionStatement extends CompoundNode implements Nodes\
         if ($rightParenthesis !== null)
         {
             /** @var Token $rightParenthesis */
-            $rightParenthesis = NodeConverter::convert($rightParenthesis, Token::class, $this->_phpVersion);
-            $rightParenthesis->_attachTo($this);
+            $rightParenthesis = NodeConverter::convert($rightParenthesis, Token::class, $this->phpVersion);
+            $rightParenthesis->detach();
+            $rightParenthesis->parent = $this;
         }
         if ($this->rightParenthesis !== null)
         {
@@ -314,8 +314,9 @@ abstract class GeneratedFunctionStatement extends CompoundNode implements Nodes\
         if ($returnType !== null)
         {
             /** @var Nodes\ReturnType $returnType */
-            $returnType = NodeConverter::convert($returnType, Nodes\ReturnType::class, $this->_phpVersion);
-            $returnType->_attachTo($this);
+            $returnType = NodeConverter::convert($returnType, Nodes\ReturnType::class, $this->phpVersion);
+            $returnType->detach();
+            $returnType->parent = $this;
         }
         if ($this->returnType !== null)
         {
@@ -324,7 +325,7 @@ abstract class GeneratedFunctionStatement extends CompoundNode implements Nodes\
         $this->returnType = $returnType;
     }
 
-    public function getBody(): Nodes\Block
+    public function getBody(): Nodes\RegularBlock
     {
         if ($this->body === null)
         {
@@ -339,20 +340,45 @@ abstract class GeneratedFunctionStatement extends CompoundNode implements Nodes\
     }
 
     /**
-     * @param Nodes\Block|Node|string|null $body
+     * @param Nodes\RegularBlock|Node|string|null $body
      */
     public function setBody($body): void
     {
         if ($body !== null)
         {
-            /** @var Nodes\Block $body */
-            $body = NodeConverter::convert($body, Nodes\Block::class, $this->_phpVersion);
-            $body->_attachTo($this);
+            /** @var Nodes\RegularBlock $body */
+            $body = NodeConverter::convert($body, Nodes\RegularBlock::class, $this->phpVersion);
+            $body->detach();
+            $body->parent = $this;
         }
         if ($this->body !== null)
         {
             $this->body->detach();
         }
         $this->body = $body;
+    }
+
+    protected function _validate(int $flags): void
+    {
+        if ($flags & self::VALIDATE_TYPES)
+        {
+            if ($this->keyword === null) throw ValidationException::childRequired($this, 'keyword');
+            if ($this->name === null) throw ValidationException::childRequired($this, 'name');
+            if ($this->leftParenthesis === null) throw ValidationException::childRequired($this, 'leftParenthesis');
+            if ($this->rightParenthesis === null) throw ValidationException::childRequired($this, 'rightParenthesis');
+            if ($this->body === null) throw ValidationException::childRequired($this, 'body');
+        }
+        if ($flags & self::VALIDATE_EXPRESSION_CONTEXT)
+        {
+        }
+        if ($flags & self::VALIDATE_TOKENS)
+        {
+        }
+        $this->parameters->_validate($flags);
+        if ($this->returnType)
+        {
+            $this->returnType->_validate($flags);
+        }
+        $this->body->_validate($flags);
     }
 }

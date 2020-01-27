@@ -9,46 +9,26 @@ use Phi\Nodes\Base\NodesList;
 use Phi\Nodes\Base\SeparatedNodesList;
 use Phi\Exception\MissingNodeException;
 use Phi\NodeConverter;
-use Phi\Specification;
-use Phi\Optional;
-use Phi\Specifications\And_;
-use Phi\Specifications\Any;
-use Phi\Specifications\IsToken;
-use Phi\Specifications\IsInstanceOf;
-use Phi\Specifications\ValidCompoundNode;
-use Phi\Specifications\EachItem;
-use Phi\Specifications\EachSeparator;
+use Phi\Exception\ValidationException;
 use Phi\Nodes as Nodes;
-use Phi\Specifications as Specs;
 
-abstract class GeneratedRegularUseStatement extends CompoundNode implements Nodes\UseStatement
+abstract class GeneratedRegularUseStatement extends Nodes\UseStatement
 {
-    /** @var Specification[] */
-    private static $specifications;
-    protected static function getSpecifications(): array
-    {
-        return self::$specifications ?? self::$specifications = [
-            new ValidCompoundNode([
-                'keyword' => new IsToken(\T_USE),
-                'type' => new Optional(new IsToken(\T_FUNCTION, \T_CONST)),
-                'names' => new And_(new EachItem(new IsInstanceOf(Nodes\UseName::class)), new EachSeparator(new IsToken(','))),
-                'semiColon' => new Optional(new IsToken(';')),
-            ]),
-        ];
-    }
-
     /**
      * @var Token|null
      */
     private $keyword;
+
     /**
      * @var Token|null
      */
     private $type;
+
     /**
      * @var SeparatedNodesList|Nodes\UseName[]
      */
     private $names;
+
     /**
      * @var Token|null
      */
@@ -59,7 +39,6 @@ abstract class GeneratedRegularUseStatement extends CompoundNode implements Node
      */
     public function __construct($name = null)
     {
-        parent::__construct();
         $this->names = new SeparatedNodesList();
         if ($name !== null)
         {
@@ -68,23 +47,35 @@ abstract class GeneratedRegularUseStatement extends CompoundNode implements Node
     }
 
     /**
+     * @param int $phpVersion
      * @param Token|null $keyword
      * @param Token|null $type
      * @param mixed[] $names
      * @param Token|null $semiColon
      * @return static
      */
-    public static function __instantiateUnchecked($keyword, $type, $names, $semiColon)
+    public static function __instantiateUnchecked($phpVersion, $keyword, $type, $names, $semiColon)
     {
-        $instance = new static();
+        $instance = new static;
+        $instance->phpVersion = $phpVersion;
         $instance->keyword = $keyword;
+        $instance->keyword->parent = $instance;
         $instance->type = $type;
+        if ($type)
+        {
+            $instance->type->parent = $instance;
+        }
         $instance->names->__initUnchecked($names);
+        $instance->names->parent = $instance;
         $instance->semiColon = $semiColon;
+        if ($semiColon)
+        {
+            $instance->semiColon->parent = $instance;
+        }
         return $instance;
     }
 
-    public function &_getNodeRefs(): array
+    protected function &_getNodeRefs(): array
     {
         $refs = [
             'keyword' => &$this->keyword,
@@ -117,8 +108,9 @@ abstract class GeneratedRegularUseStatement extends CompoundNode implements Node
         if ($keyword !== null)
         {
             /** @var Token $keyword */
-            $keyword = NodeConverter::convert($keyword, Token::class, $this->_phpVersion);
-            $keyword->_attachTo($this);
+            $keyword = NodeConverter::convert($keyword, Token::class, $this->phpVersion);
+            $keyword->detach();
+            $keyword->parent = $this;
         }
         if ($this->keyword !== null)
         {
@@ -145,8 +137,9 @@ abstract class GeneratedRegularUseStatement extends CompoundNode implements Node
         if ($type !== null)
         {
             /** @var Token $type */
-            $type = NodeConverter::convert($type, Token::class, $this->_phpVersion);
-            $type->_attachTo($this);
+            $type = NodeConverter::convert($type, Token::class, $this->phpVersion);
+            $type->detach();
+            $type->parent = $this;
         }
         if ($this->type !== null)
         {
@@ -169,7 +162,7 @@ abstract class GeneratedRegularUseStatement extends CompoundNode implements Node
     public function addName($name): void
     {
         /** @var Nodes\UseName $name */
-        $name = NodeConverter::convert($name, Nodes\UseName::class);
+        $name = NodeConverter::convert($name, Nodes\UseName::class, $this->phpVersion);
         $this->names->add($name);
     }
 
@@ -191,13 +184,29 @@ abstract class GeneratedRegularUseStatement extends CompoundNode implements Node
         if ($semiColon !== null)
         {
             /** @var Token $semiColon */
-            $semiColon = NodeConverter::convert($semiColon, Token::class, $this->_phpVersion);
-            $semiColon->_attachTo($this);
+            $semiColon = NodeConverter::convert($semiColon, Token::class, $this->phpVersion);
+            $semiColon->detach();
+            $semiColon->parent = $this;
         }
         if ($this->semiColon !== null)
         {
             $this->semiColon->detach();
         }
         $this->semiColon = $semiColon;
+    }
+
+    protected function _validate(int $flags): void
+    {
+        if ($flags & self::VALIDATE_TYPES)
+        {
+            if ($this->keyword === null) throw ValidationException::childRequired($this, 'keyword');
+        }
+        if ($flags & self::VALIDATE_EXPRESSION_CONTEXT)
+        {
+        }
+        if ($flags & self::VALIDATE_TOKENS)
+        {
+        }
+        $this->names->_validate($flags);
     }
 }

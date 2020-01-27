@@ -9,56 +9,36 @@ use Phi\Nodes\Base\NodesList;
 use Phi\Nodes\Base\SeparatedNodesList;
 use Phi\Exception\MissingNodeException;
 use Phi\NodeConverter;
-use Phi\Specification;
-use Phi\Optional;
-use Phi\Specifications\And_;
-use Phi\Specifications\Any;
-use Phi\Specifications\IsToken;
-use Phi\Specifications\IsInstanceOf;
-use Phi\Specifications\ValidCompoundNode;
-use Phi\Specifications\EachItem;
-use Phi\Specifications\EachSeparator;
+use Phi\Exception\ValidationException;
 use Phi\Nodes as Nodes;
-use Phi\Specifications as Specs;
 
-abstract class GeneratedDeclareStatement extends CompoundNode implements Nodes\Statement
+abstract class GeneratedDeclareStatement extends Nodes\Statement
 {
-    /** @var Specification[] */
-    private static $specifications;
-    protected static function getSpecifications(): array
-    {
-        return self::$specifications ?? self::$specifications = [
-            new ValidCompoundNode([
-                'keyword' => new IsToken(\T_DECLARE),
-                'leftParenthesis' => new IsToken('('),
-                'directives' => new And_(new EachItem(new IsInstanceOf(Nodes\DeclareDirective::class)), new EachSeparator(new IsToken(','))),
-                'rightParenthesis' => new IsToken(')'),
-                'block' => new Optional(new Any),
-                'semiColon' => new Optional(new IsToken(';')),
-            ]),
-        ];
-    }
-
     /**
      * @var Token|null
      */
     private $keyword;
+
     /**
      * @var Token|null
      */
     private $leftParenthesis;
+
     /**
      * @var SeparatedNodesList|Nodes\DeclareDirective[]
      */
     private $directives;
+
     /**
      * @var Token|null
      */
     private $rightParenthesis;
+
     /**
      * @var Nodes\Block|null
      */
     private $block;
+
     /**
      * @var Token|null
      */
@@ -68,11 +48,11 @@ abstract class GeneratedDeclareStatement extends CompoundNode implements Nodes\S
      */
     public function __construct()
     {
-        parent::__construct();
         $this->directives = new SeparatedNodesList();
     }
 
     /**
+     * @param int $phpVersion
      * @param Token|null $keyword
      * @param Token|null $leftParenthesis
      * @param mixed[] $directives
@@ -81,19 +61,32 @@ abstract class GeneratedDeclareStatement extends CompoundNode implements Nodes\S
      * @param Token|null $semiColon
      * @return static
      */
-    public static function __instantiateUnchecked($keyword, $leftParenthesis, $directives, $rightParenthesis, $block, $semiColon)
+    public static function __instantiateUnchecked($phpVersion, $keyword, $leftParenthesis, $directives, $rightParenthesis, $block, $semiColon)
     {
-        $instance = new static();
+        $instance = new static;
+        $instance->phpVersion = $phpVersion;
         $instance->keyword = $keyword;
+        $instance->keyword->parent = $instance;
         $instance->leftParenthesis = $leftParenthesis;
+        $instance->leftParenthesis->parent = $instance;
         $instance->directives->__initUnchecked($directives);
+        $instance->directives->parent = $instance;
         $instance->rightParenthesis = $rightParenthesis;
+        $instance->rightParenthesis->parent = $instance;
         $instance->block = $block;
+        if ($block)
+        {
+            $instance->block->parent = $instance;
+        }
         $instance->semiColon = $semiColon;
+        if ($semiColon)
+        {
+            $instance->semiColon->parent = $instance;
+        }
         return $instance;
     }
 
-    public function &_getNodeRefs(): array
+    protected function &_getNodeRefs(): array
     {
         $refs = [
             'keyword' => &$this->keyword,
@@ -128,8 +121,9 @@ abstract class GeneratedDeclareStatement extends CompoundNode implements Nodes\S
         if ($keyword !== null)
         {
             /** @var Token $keyword */
-            $keyword = NodeConverter::convert($keyword, Token::class, $this->_phpVersion);
-            $keyword->_attachTo($this);
+            $keyword = NodeConverter::convert($keyword, Token::class, $this->phpVersion);
+            $keyword->detach();
+            $keyword->parent = $this;
         }
         if ($this->keyword !== null)
         {
@@ -160,8 +154,9 @@ abstract class GeneratedDeclareStatement extends CompoundNode implements Nodes\S
         if ($leftParenthesis !== null)
         {
             /** @var Token $leftParenthesis */
-            $leftParenthesis = NodeConverter::convert($leftParenthesis, Token::class, $this->_phpVersion);
-            $leftParenthesis->_attachTo($this);
+            $leftParenthesis = NodeConverter::convert($leftParenthesis, Token::class, $this->phpVersion);
+            $leftParenthesis->detach();
+            $leftParenthesis->parent = $this;
         }
         if ($this->leftParenthesis !== null)
         {
@@ -184,7 +179,7 @@ abstract class GeneratedDeclareStatement extends CompoundNode implements Nodes\S
     public function addDirectiv($directiv): void
     {
         /** @var Nodes\DeclareDirective $directiv */
-        $directiv = NodeConverter::convert($directiv, Nodes\DeclareDirective::class);
+        $directiv = NodeConverter::convert($directiv, Nodes\DeclareDirective::class, $this->phpVersion);
         $this->directives->add($directiv);
     }
 
@@ -210,8 +205,9 @@ abstract class GeneratedDeclareStatement extends CompoundNode implements Nodes\S
         if ($rightParenthesis !== null)
         {
             /** @var Token $rightParenthesis */
-            $rightParenthesis = NodeConverter::convert($rightParenthesis, Token::class, $this->_phpVersion);
-            $rightParenthesis->_attachTo($this);
+            $rightParenthesis = NodeConverter::convert($rightParenthesis, Token::class, $this->phpVersion);
+            $rightParenthesis->detach();
+            $rightParenthesis->parent = $this;
         }
         if ($this->rightParenthesis !== null)
         {
@@ -238,8 +234,9 @@ abstract class GeneratedDeclareStatement extends CompoundNode implements Nodes\S
         if ($block !== null)
         {
             /** @var Nodes\Block $block */
-            $block = NodeConverter::convert($block, Nodes\Block::class, $this->_phpVersion);
-            $block->_attachTo($this);
+            $block = NodeConverter::convert($block, Nodes\Block::class, $this->phpVersion);
+            $block->detach();
+            $block->parent = $this;
         }
         if ($this->block !== null)
         {
@@ -266,13 +263,35 @@ abstract class GeneratedDeclareStatement extends CompoundNode implements Nodes\S
         if ($semiColon !== null)
         {
             /** @var Token $semiColon */
-            $semiColon = NodeConverter::convert($semiColon, Token::class, $this->_phpVersion);
-            $semiColon->_attachTo($this);
+            $semiColon = NodeConverter::convert($semiColon, Token::class, $this->phpVersion);
+            $semiColon->detach();
+            $semiColon->parent = $this;
         }
         if ($this->semiColon !== null)
         {
             $this->semiColon->detach();
         }
         $this->semiColon = $semiColon;
+    }
+
+    protected function _validate(int $flags): void
+    {
+        if ($flags & self::VALIDATE_TYPES)
+        {
+            if ($this->keyword === null) throw ValidationException::childRequired($this, 'keyword');
+            if ($this->leftParenthesis === null) throw ValidationException::childRequired($this, 'leftParenthesis');
+            if ($this->rightParenthesis === null) throw ValidationException::childRequired($this, 'rightParenthesis');
+        }
+        if ($flags & self::VALIDATE_EXPRESSION_CONTEXT)
+        {
+        }
+        if ($flags & self::VALIDATE_TOKENS)
+        {
+        }
+        $this->directives->_validate($flags);
+        if ($this->block)
+        {
+            $this->block->_validate($flags);
+        }
     }
 }

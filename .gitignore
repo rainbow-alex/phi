@@ -1,5 +1,6 @@
 /.idea/
-/coverage/
+/meta/bin/.php-l-cache
 /vendor/
 /composer.lock
+
 .phpunit.result.cache

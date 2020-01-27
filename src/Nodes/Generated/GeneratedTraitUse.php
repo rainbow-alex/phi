@@ -9,56 +9,36 @@ use Phi\Nodes\Base\NodesList;
 use Phi\Nodes\Base\SeparatedNodesList;
 use Phi\Exception\MissingNodeException;
 use Phi\NodeConverter;
-use Phi\Specification;
-use Phi\Optional;
-use Phi\Specifications\And_;
-use Phi\Specifications\Any;
-use Phi\Specifications\IsToken;
-use Phi\Specifications\IsInstanceOf;
-use Phi\Specifications\ValidCompoundNode;
-use Phi\Specifications\EachItem;
-use Phi\Specifications\EachSeparator;
+use Phi\Exception\ValidationException;
 use Phi\Nodes as Nodes;
-use Phi\Specifications as Specs;
 
-abstract class GeneratedTraitUse extends CompoundNode implements Nodes\ClassLikeMember
+abstract class GeneratedTraitUse extends Nodes\ClassLikeMember
 {
-    /** @var Specification[] */
-    private static $specifications;
-    protected static function getSpecifications(): array
-    {
-        return self::$specifications ?? self::$specifications = [
-            new ValidCompoundNode([
-                'keyword' => new IsToken(\T_USE),
-                'traits' => new And_(new EachItem(new IsInstanceOf(Nodes\Name::class)), new EachSeparator(new IsToken(','))),
-                'leftBrace' => new Optional(new IsToken('{')),
-                'modifications' => new EachItem(new IsInstanceOf(Nodes\TraitUseModification::class)),
-                'rightBrace' => new Optional(new IsToken('{')),
-                'semiColon' => new Optional(new IsToken(';')),
-            ]),
-        ];
-    }
-
     /**
      * @var Token|null
      */
     private $keyword;
+
     /**
      * @var SeparatedNodesList|Nodes\Name[]
      */
     private $traits;
+
     /**
      * @var Token|null
      */
     private $leftBrace;
+
     /**
      * @var NodesList|Nodes\TraitUseModification[]
      */
     private $modifications;
+
     /**
      * @var Token|null
      */
     private $rightBrace;
+
     /**
      * @var Token|null
      */
@@ -68,12 +48,12 @@ abstract class GeneratedTraitUse extends CompoundNode implements Nodes\ClassLike
      */
     public function __construct()
     {
-        parent::__construct();
         $this->traits = new SeparatedNodesList();
         $this->modifications = new NodesList();
     }
 
     /**
+     * @param int $phpVersion
      * @param Token|null $keyword
      * @param mixed[] $traits
      * @param Token|null $leftBrace
@@ -82,19 +62,35 @@ abstract class GeneratedTraitUse extends CompoundNode implements Nodes\ClassLike
      * @param Token|null $semiColon
      * @return static
      */
-    public static function __instantiateUnchecked($keyword, $traits, $leftBrace, $modifications, $rightBrace, $semiColon)
+    public static function __instantiateUnchecked($phpVersion, $keyword, $traits, $leftBrace, $modifications, $rightBrace, $semiColon)
     {
-        $instance = new static();
+        $instance = new static;
+        $instance->phpVersion = $phpVersion;
         $instance->keyword = $keyword;
+        $instance->keyword->parent = $instance;
         $instance->traits->__initUnchecked($traits);
+        $instance->traits->parent = $instance;
         $instance->leftBrace = $leftBrace;
+        if ($leftBrace)
+        {
+            $instance->leftBrace->parent = $instance;
+        }
         $instance->modifications->__initUnchecked($modifications);
+        $instance->modifications->parent = $instance;
         $instance->rightBrace = $rightBrace;
+        if ($rightBrace)
+        {
+            $instance->rightBrace->parent = $instance;
+        }
         $instance->semiColon = $semiColon;
+        if ($semiColon)
+        {
+            $instance->semiColon->parent = $instance;
+        }
         return $instance;
     }
 
-    public function &_getNodeRefs(): array
+    protected function &_getNodeRefs(): array
     {
         $refs = [
             'keyword' => &$this->keyword,
@@ -129,8 +125,9 @@ abstract class GeneratedTraitUse extends CompoundNode implements Nodes\ClassLike
         if ($keyword !== null)
         {
             /** @var Token $keyword */
-            $keyword = NodeConverter::convert($keyword, Token::class, $this->_phpVersion);
-            $keyword->_attachTo($this);
+            $keyword = NodeConverter::convert($keyword, Token::class, $this->phpVersion);
+            $keyword->detach();
+            $keyword->parent = $this;
         }
         if ($this->keyword !== null)
         {
@@ -153,7 +150,7 @@ abstract class GeneratedTraitUse extends CompoundNode implements Nodes\ClassLike
     public function addTrait($trait): void
     {
         /** @var Nodes\Name $trait */
-        $trait = NodeConverter::convert($trait, Nodes\Name::class);
+        $trait = NodeConverter::convert($trait, Nodes\Name::class, $this->phpVersion);
         $this->traits->add($trait);
     }
 
@@ -175,8 +172,9 @@ abstract class GeneratedTraitUse extends CompoundNode implements Nodes\ClassLike
         if ($leftBrace !== null)
         {
             /** @var Token $leftBrace */
-            $leftBrace = NodeConverter::convert($leftBrace, Token::class, $this->_phpVersion);
-            $leftBrace->_attachTo($this);
+            $leftBrace = NodeConverter::convert($leftBrace, Token::class, $this->phpVersion);
+            $leftBrace->detach();
+            $leftBrace->parent = $this;
         }
         if ($this->leftBrace !== null)
         {
@@ -199,7 +197,7 @@ abstract class GeneratedTraitUse extends CompoundNode implements Nodes\ClassLike
     public function addModification($modification): void
     {
         /** @var Nodes\TraitUseModification $modification */
-        $modification = NodeConverter::convert($modification, Nodes\TraitUseModification::class);
+        $modification = NodeConverter::convert($modification, Nodes\TraitUseModification::class, $this->phpVersion);
         $this->modifications->add($modification);
     }
 
@@ -221,8 +219,9 @@ abstract class GeneratedTraitUse extends CompoundNode implements Nodes\ClassLike
         if ($rightBrace !== null)
         {
             /** @var Token $rightBrace */
-            $rightBrace = NodeConverter::convert($rightBrace, Token::class, $this->_phpVersion);
-            $rightBrace->_attachTo($this);
+            $rightBrace = NodeConverter::convert($rightBrace, Token::class, $this->phpVersion);
+            $rightBrace->detach();
+            $rightBrace->parent = $this;
         }
         if ($this->rightBrace !== null)
         {
@@ -249,13 +248,30 @@ abstract class GeneratedTraitUse extends CompoundNode implements Nodes\ClassLike
         if ($semiColon !== null)
         {
             /** @var Token $semiColon */
-            $semiColon = NodeConverter::convert($semiColon, Token::class, $this->_phpVersion);
-            $semiColon->_attachTo($this);
+            $semiColon = NodeConverter::convert($semiColon, Token::class, $this->phpVersion);
+            $semiColon->detach();
+            $semiColon->parent = $this;
         }
         if ($this->semiColon !== null)
         {
             $this->semiColon->detach();
         }
         $this->semiColon = $semiColon;
+    }
+
+    protected function _validate(int $flags): void
+    {
+        if ($flags & self::VALIDATE_TYPES)
+        {
+            if ($this->keyword === null) throw ValidationException::childRequired($this, 'keyword');
+        }
+        if ($flags & self::VALIDATE_EXPRESSION_CONTEXT)
+        {
+        }
+        if ($flags & self::VALIDATE_TOKENS)
+        {
+        }
+        $this->traits->_validate($flags);
+        $this->modifications->_validate($flags);
     }
 }

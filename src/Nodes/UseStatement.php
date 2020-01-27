@@ -2,6 +2,6 @@
 
 namespace Phi\Nodes;
 
-interface UseStatement extends Statement
+abstract class UseStatement extends Statement
 {
 }

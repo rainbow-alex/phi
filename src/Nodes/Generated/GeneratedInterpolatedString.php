@@ -9,41 +9,21 @@ use Phi\Nodes\Base\NodesList;
 use Phi\Nodes\Base\SeparatedNodesList;
 use Phi\Exception\MissingNodeException;
 use Phi\NodeConverter;
-use Phi\Specification;
-use Phi\Optional;
-use Phi\Specifications\And_;
-use Phi\Specifications\Any;
-use Phi\Specifications\IsToken;
-use Phi\Specifications\IsInstanceOf;
-use Phi\Specifications\ValidCompoundNode;
-use Phi\Specifications\EachItem;
-use Phi\Specifications\EachSeparator;
+use Phi\Exception\ValidationException;
 use Phi\Nodes as Nodes;
-use Phi\Specifications as Specs;
 
-abstract class GeneratedInterpolatedString extends CompoundNode implements Nodes\Expression
+abstract class GeneratedInterpolatedString extends Nodes\Expression
 {
-    /** @var Specification[] */
-    private static $specifications;
-    protected static function getSpecifications(): array
-    {
-        return self::$specifications ?? self::$specifications = [
-            new ValidCompoundNode([
-                'leftDelimiter' => new IsToken('"', \T_START_HEREDOC),
-                'parts' => new EachItem(new IsInstanceOf(Nodes\InterpolatedStringPart::class)),
-                'rightDelimiter' => new IsToken('"', \T_END_HEREDOC),
-            ]),
-        ];
-    }
-
     /**
      * @var Token|null
      */
     private $leftDelimiter;
+
     /**
-     * @var NodesList|Nodes\InterpolatedStringPart[]
+     * @var NodesList|Nodes\CInterpolatedStringPart[]
      */
     private $parts;
+
     /**
      * @var Token|null
      */
@@ -53,26 +33,30 @@ abstract class GeneratedInterpolatedString extends CompoundNode implements Nodes
      */
     public function __construct()
     {
-        parent::__construct();
         $this->parts = new NodesList();
     }
 
     /**
+     * @param int $phpVersion
      * @param Token|null $leftDelimiter
      * @param mixed[] $parts
      * @param Token|null $rightDelimiter
      * @return static
      */
-    public static function __instantiateUnchecked($leftDelimiter, $parts, $rightDelimiter)
+    public static function __instantiateUnchecked($phpVersion, $leftDelimiter, $parts, $rightDelimiter)
     {
-        $instance = new static();
+        $instance = new static;
+        $instance->phpVersion = $phpVersion;
         $instance->leftDelimiter = $leftDelimiter;
+        $instance->leftDelimiter->parent = $instance;
         $instance->parts->__initUnchecked($parts);
+        $instance->parts->parent = $instance;
         $instance->rightDelimiter = $rightDelimiter;
+        $instance->rightDelimiter->parent = $instance;
         return $instance;
     }
 
-    public function &_getNodeRefs(): array
+    protected function &_getNodeRefs(): array
     {
         $refs = [
             'leftDelimiter' => &$this->leftDelimiter,
@@ -104,8 +88,9 @@ abstract class GeneratedInterpolatedString extends CompoundNode implements Nodes
         if ($leftDelimiter !== null)
         {
             /** @var Token $leftDelimiter */
-            $leftDelimiter = NodeConverter::convert($leftDelimiter, Token::class, $this->_phpVersion);
-            $leftDelimiter->_attachTo($this);
+            $leftDelimiter = NodeConverter::convert($leftDelimiter, Token::class, $this->phpVersion);
+            $leftDelimiter->detach();
+            $leftDelimiter->parent = $this;
         }
         if ($this->leftDelimiter !== null)
         {
@@ -115,7 +100,7 @@ abstract class GeneratedInterpolatedString extends CompoundNode implements Nodes
     }
 
     /**
-     * @return NodesList|Nodes\InterpolatedStringPart[]
+     * @return NodesList|Nodes\CInterpolatedStringPart[]
      */
     public function getParts(): NodesList
     {
@@ -123,12 +108,12 @@ abstract class GeneratedInterpolatedString extends CompoundNode implements Nodes
     }
 
     /**
-     * @param Nodes\InterpolatedStringPart $part
+     * @param Nodes\CInterpolatedStringPart $part
      */
     public function addPart($part): void
     {
-        /** @var Nodes\InterpolatedStringPart $part */
-        $part = NodeConverter::convert($part, Nodes\InterpolatedStringPart::class);
+        /** @var Nodes\CInterpolatedStringPart $part */
+        $part = NodeConverter::convert($part, Nodes\CInterpolatedStringPart::class, $this->phpVersion);
         $this->parts->add($part);
     }
 
@@ -154,13 +139,30 @@ abstract class GeneratedInterpolatedString extends CompoundNode implements Nodes
         if ($rightDelimiter !== null)
         {
             /** @var Token $rightDelimiter */
-            $rightDelimiter = NodeConverter::convert($rightDelimiter, Token::class, $this->_phpVersion);
-            $rightDelimiter->_attachTo($this);
+            $rightDelimiter = NodeConverter::convert($rightDelimiter, Token::class, $this->phpVersion);
+            $rightDelimiter->detach();
+            $rightDelimiter->parent = $this;
         }
         if ($this->rightDelimiter !== null)
         {
             $this->rightDelimiter->detach();
         }
         $this->rightDelimiter = $rightDelimiter;
+    }
+
+    protected function _validate(int $flags): void
+    {
+        if ($flags & self::VALIDATE_TYPES)
+        {
+            if ($this->leftDelimiter === null) throw ValidationException::childRequired($this, 'leftDelimiter');
+            if ($this->rightDelimiter === null) throw ValidationException::childRequired($this, 'rightDelimiter');
+        }
+        if ($flags & self::VALIDATE_EXPRESSION_CONTEXT)
+        {
+        }
+        if ($flags & self::VALIDATE_TOKENS)
+        {
+        }
+        $this->parts->_validate($flags);
     }
 }

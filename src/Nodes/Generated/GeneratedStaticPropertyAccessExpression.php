@@ -9,53 +9,32 @@ use Phi\Nodes\Base\NodesList;
 use Phi\Nodes\Base\SeparatedNodesList;
 use Phi\Exception\MissingNodeException;
 use Phi\NodeConverter;
-use Phi\Specification;
-use Phi\Optional;
-use Phi\Specifications\And_;
-use Phi\Specifications\Any;
-use Phi\Specifications\IsToken;
-use Phi\Specifications\IsInstanceOf;
-use Phi\Specifications\ValidCompoundNode;
-use Phi\Specifications\EachItem;
-use Phi\Specifications\EachSeparator;
+use Phi\Exception\ValidationException;
 use Phi\Nodes as Nodes;
-use Phi\Specifications as Specs;
 
-abstract class GeneratedStaticPropertyAccessExpression extends CompoundNode implements Nodes\Expression
+abstract class GeneratedStaticPropertyAccessExpression extends Nodes\Expression
 {
-    /** @var Specification[] */
-    private static $specifications;
-    protected static function getSpecifications(): array
-    {
-        return self::$specifications ?? self::$specifications = [
-            new ValidCompoundNode([
-                'accessee' => new Specs\IsReadExpression,
-                'operator' => new IsToken(\T_DOUBLE_COLON),
-                'name' => new IsToken(\T_VARIABLE),
-            ]),
-        ];
-    }
-
     /**
      * @var Nodes\Expression|null
      */
     private $accessee;
+
     /**
      * @var Token|null
      */
     private $operator;
+
     /**
-     * @var Token|null
+     * @var Nodes\Variable|null
      */
     private $name;
 
     /**
      * @param Nodes\Expression|Node|string|null $accessee
-     * @param Token|Node|string|null $name
+     * @param Nodes\Variable|Node|string|null $name
      */
     public function __construct($accessee = null, $name = null)
     {
-        parent::__construct();
         if ($accessee !== null)
         {
             $this->setAccessee($accessee);
@@ -67,21 +46,26 @@ abstract class GeneratedStaticPropertyAccessExpression extends CompoundNode impl
     }
 
     /**
+     * @param int $phpVersion
      * @param Nodes\Expression|null $accessee
      * @param Token|null $operator
-     * @param Token|null $name
+     * @param Nodes\Variable|null $name
      * @return static
      */
-    public static function __instantiateUnchecked($accessee, $operator, $name)
+    public static function __instantiateUnchecked($phpVersion, $accessee, $operator, $name)
     {
-        $instance = new static();
+        $instance = new static;
+        $instance->phpVersion = $phpVersion;
         $instance->accessee = $accessee;
+        $instance->accessee->parent = $instance;
         $instance->operator = $operator;
+        $instance->operator->parent = $instance;
         $instance->name = $name;
+        $instance->name->parent = $instance;
         return $instance;
     }
 
-    public function &_getNodeRefs(): array
+    protected function &_getNodeRefs(): array
     {
         $refs = [
             'accessee' => &$this->accessee,
@@ -113,8 +97,9 @@ abstract class GeneratedStaticPropertyAccessExpression extends CompoundNode impl
         if ($accessee !== null)
         {
             /** @var Nodes\Expression $accessee */
-            $accessee = NodeConverter::convert($accessee, Nodes\Expression::class, $this->_phpVersion);
-            $accessee->_attachTo($this);
+            $accessee = NodeConverter::convert($accessee, Nodes\Expression::class, $this->phpVersion);
+            $accessee->detach();
+            $accessee->parent = $this;
         }
         if ($this->accessee !== null)
         {
@@ -145,8 +130,9 @@ abstract class GeneratedStaticPropertyAccessExpression extends CompoundNode impl
         if ($operator !== null)
         {
             /** @var Token $operator */
-            $operator = NodeConverter::convert($operator, Token::class, $this->_phpVersion);
-            $operator->_attachTo($this);
+            $operator = NodeConverter::convert($operator, Token::class, $this->phpVersion);
+            $operator->detach();
+            $operator->parent = $this;
         }
         if ($this->operator !== null)
         {
@@ -155,7 +141,7 @@ abstract class GeneratedStaticPropertyAccessExpression extends CompoundNode impl
         $this->operator = $operator;
     }
 
-    public function getName(): Token
+    public function getName(): Nodes\Variable
     {
         if ($this->name === null)
         {
@@ -170,20 +156,39 @@ abstract class GeneratedStaticPropertyAccessExpression extends CompoundNode impl
     }
 
     /**
-     * @param Token|Node|string|null $name
+     * @param Nodes\Variable|Node|string|null $name
      */
     public function setName($name): void
     {
         if ($name !== null)
         {
-            /** @var Token $name */
-            $name = NodeConverter::convert($name, Token::class, $this->_phpVersion);
-            $name->_attachTo($this);
+            /** @var Nodes\Variable $name */
+            $name = NodeConverter::convert($name, Nodes\Variable::class, $this->phpVersion);
+            $name->detach();
+            $name->parent = $this;
         }
         if ($this->name !== null)
         {
             $this->name->detach();
         }
         $this->name = $name;
+    }
+
+    protected function _validate(int $flags): void
+    {
+        if ($flags & self::VALIDATE_TYPES)
+        {
+            if ($this->accessee === null) throw ValidationException::childRequired($this, 'accessee');
+            if ($this->operator === null) throw ValidationException::childRequired($this, 'operator');
+            if ($this->name === null) throw ValidationException::childRequired($this, 'name');
+        }
+        if ($flags & self::VALIDATE_EXPRESSION_CONTEXT)
+        {
+        }
+        if ($flags & self::VALIDATE_TOKENS)
+        {
+        }
+        $this->accessee->_validate($flags);
+        $this->name->_validate($flags);
     }
 }

@@ -2,15 +2,22 @@
 
 namespace Phi\Nodes;
 
-use Phi\Nodes\Base\ReadOnlyExpression;
+use Phi\Exception\ValidationException;
 use Phi\Nodes\Generated\GeneratedParenthesizedExpression;
 
 class ParenthesizedExpression extends GeneratedParenthesizedExpression
 {
-    public function isConstant(): bool
+    public function validateContext(int $flags): void
     {
-        return $this->getExpression()->isConstant();
-    }
+        $never = self::CTX_WRITE|self::CTX_ALIAS;
+        if ($flags & $never)
+        {
+            throw ValidationException::expressionContext($flags & $never, $this);
+        }
 
-    use ReadOnlyExpression;
+        // note: this is one of the very few cases where flags are passed as they are
+        // instead of explicitely specifying a new context
+        /** @see Expression::CTX_READ_OR_IMPLICIT_ALIAS_READ */
+        $this->getExpression()->validateContext($flags);
+    }
 }

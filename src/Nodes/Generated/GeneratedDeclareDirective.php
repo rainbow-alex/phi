@@ -9,41 +9,21 @@ use Phi\Nodes\Base\NodesList;
 use Phi\Nodes\Base\SeparatedNodesList;
 use Phi\Exception\MissingNodeException;
 use Phi\NodeConverter;
-use Phi\Specification;
-use Phi\Optional;
-use Phi\Specifications\And_;
-use Phi\Specifications\Any;
-use Phi\Specifications\IsToken;
-use Phi\Specifications\IsInstanceOf;
-use Phi\Specifications\ValidCompoundNode;
-use Phi\Specifications\EachItem;
-use Phi\Specifications\EachSeparator;
+use Phi\Exception\ValidationException;
 use Phi\Nodes as Nodes;
-use Phi\Specifications as Specs;
 
 abstract class GeneratedDeclareDirective extends CompoundNode
 {
-    /** @var Specification[] */
-    private static $specifications;
-    protected static function getSpecifications(): array
-    {
-        return self::$specifications ?? self::$specifications = [
-            new ValidCompoundNode([
-                'key' => new IsToken(\T_STRING),
-                'equals' => new IsToken('='),
-                'value' => new Any,
-            ]),
-        ];
-    }
-
     /**
      * @var Token|null
      */
     private $key;
+
     /**
      * @var Token|null
      */
     private $equals;
+
     /**
      * @var Nodes\Expression|null
      */
@@ -53,25 +33,29 @@ abstract class GeneratedDeclareDirective extends CompoundNode
      */
     public function __construct()
     {
-        parent::__construct();
     }
 
     /**
+     * @param int $phpVersion
      * @param Token|null $key
      * @param Token|null $equals
      * @param Nodes\Expression|null $value
      * @return static
      */
-    public static function __instantiateUnchecked($key, $equals, $value)
+    public static function __instantiateUnchecked($phpVersion, $key, $equals, $value)
     {
-        $instance = new static();
+        $instance = new static;
+        $instance->phpVersion = $phpVersion;
         $instance->key = $key;
+        $instance->key->parent = $instance;
         $instance->equals = $equals;
+        $instance->equals->parent = $instance;
         $instance->value = $value;
+        $instance->value->parent = $instance;
         return $instance;
     }
 
-    public function &_getNodeRefs(): array
+    protected function &_getNodeRefs(): array
     {
         $refs = [
             'key' => &$this->key,
@@ -103,8 +87,9 @@ abstract class GeneratedDeclareDirective extends CompoundNode
         if ($key !== null)
         {
             /** @var Token $key */
-            $key = NodeConverter::convert($key, Token::class, $this->_phpVersion);
-            $key->_attachTo($this);
+            $key = NodeConverter::convert($key, Token::class, $this->phpVersion);
+            $key->detach();
+            $key->parent = $this;
         }
         if ($this->key !== null)
         {
@@ -135,8 +120,9 @@ abstract class GeneratedDeclareDirective extends CompoundNode
         if ($equals !== null)
         {
             /** @var Token $equals */
-            $equals = NodeConverter::convert($equals, Token::class, $this->_phpVersion);
-            $equals->_attachTo($this);
+            $equals = NodeConverter::convert($equals, Token::class, $this->phpVersion);
+            $equals->detach();
+            $equals->parent = $this;
         }
         if ($this->equals !== null)
         {
@@ -167,13 +153,31 @@ abstract class GeneratedDeclareDirective extends CompoundNode
         if ($value !== null)
         {
             /** @var Nodes\Expression $value */
-            $value = NodeConverter::convert($value, Nodes\Expression::class, $this->_phpVersion);
-            $value->_attachTo($this);
+            $value = NodeConverter::convert($value, Nodes\Expression::class, $this->phpVersion);
+            $value->detach();
+            $value->parent = $this;
         }
         if ($this->value !== null)
         {
             $this->value->detach();
         }
         $this->value = $value;
+    }
+
+    protected function _validate(int $flags): void
+    {
+        if ($flags & self::VALIDATE_TYPES)
+        {
+            if ($this->key === null) throw ValidationException::childRequired($this, 'key');
+            if ($this->equals === null) throw ValidationException::childRequired($this, 'equals');
+            if ($this->value === null) throw ValidationException::childRequired($this, 'value');
+        }
+        if ($flags & self::VALIDATE_EXPRESSION_CONTEXT)
+        {
+        }
+        if ($flags & self::VALIDATE_TOKENS)
+        {
+        }
+        $this->value->_validate($flags);
     }
 }

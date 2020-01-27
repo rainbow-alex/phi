@@ -9,41 +9,21 @@ use Phi\Nodes\Base\NodesList;
 use Phi\Nodes\Base\SeparatedNodesList;
 use Phi\Exception\MissingNodeException;
 use Phi\NodeConverter;
-use Phi\Specification;
-use Phi\Optional;
-use Phi\Specifications\And_;
-use Phi\Specifications\Any;
-use Phi\Specifications\IsToken;
-use Phi\Specifications\IsInstanceOf;
-use Phi\Specifications\ValidCompoundNode;
-use Phi\Specifications\EachItem;
-use Phi\Specifications\EachSeparator;
+use Phi\Exception\ValidationException;
 use Phi\Nodes as Nodes;
-use Phi\Specifications as Specs;
 
-abstract class GeneratedCombinedAssignmentExpression extends CompoundNode implements Nodes\Expression
+abstract class GeneratedCombinedAssignmentExpression extends Nodes\Expression
 {
-    /** @var Specification[] */
-    private static $specifications;
-    protected static function getSpecifications(): array
-    {
-        return self::$specifications ?? self::$specifications = [
-            new ValidCompoundNode([
-                'lvalue' => new And_(new Specs\IsReadExpression, new Specs\IsWriteExpression),
-                'operator' => new IsToken(\T_PLUS_EQUAL, \T_MINUS_EQUAL, \T_MUL_EQUAL, \T_POW_EQUAL, \T_DIV_EQUAL, \T_CONCAT_EQUAL, \T_MOD_EQUAL, \T_AND_EQUAL, \T_OR_EQUAL, \T_XOR_EQUAL, \T_SL_EQUAL, \T_SR_EQUAL),
-                'value' => new Specs\IsReadExpression,
-            ]),
-        ];
-    }
-
     /**
      * @var Nodes\Expression|null
      */
     private $lvalue;
+
     /**
      * @var Token|null
      */
     private $operator;
+
     /**
      * @var Nodes\Expression|null
      */
@@ -55,7 +35,6 @@ abstract class GeneratedCombinedAssignmentExpression extends CompoundNode implem
      */
     public function __construct($lvalue = null, $value = null)
     {
-        parent::__construct();
         if ($lvalue !== null)
         {
             $this->setLvalue($lvalue);
@@ -67,21 +46,26 @@ abstract class GeneratedCombinedAssignmentExpression extends CompoundNode implem
     }
 
     /**
+     * @param int $phpVersion
      * @param Nodes\Expression|null $lvalue
      * @param Token|null $operator
      * @param Nodes\Expression|null $value
      * @return static
      */
-    public static function __instantiateUnchecked($lvalue, $operator, $value)
+    public static function __instantiateUnchecked($phpVersion, $lvalue, $operator, $value)
     {
-        $instance = new static();
+        $instance = new static;
+        $instance->phpVersion = $phpVersion;
         $instance->lvalue = $lvalue;
+        $instance->lvalue->parent = $instance;
         $instance->operator = $operator;
+        $instance->operator->parent = $instance;
         $instance->value = $value;
+        $instance->value->parent = $instance;
         return $instance;
     }
 
-    public function &_getNodeRefs(): array
+    protected function &_getNodeRefs(): array
     {
         $refs = [
             'lvalue' => &$this->lvalue,
@@ -113,8 +97,9 @@ abstract class GeneratedCombinedAssignmentExpression extends CompoundNode implem
         if ($lvalue !== null)
         {
             /** @var Nodes\Expression $lvalue */
-            $lvalue = NodeConverter::convert($lvalue, Nodes\Expression::class, $this->_phpVersion);
-            $lvalue->_attachTo($this);
+            $lvalue = NodeConverter::convert($lvalue, Nodes\Expression::class, $this->phpVersion);
+            $lvalue->detach();
+            $lvalue->parent = $this;
         }
         if ($this->lvalue !== null)
         {
@@ -145,8 +130,9 @@ abstract class GeneratedCombinedAssignmentExpression extends CompoundNode implem
         if ($operator !== null)
         {
             /** @var Token $operator */
-            $operator = NodeConverter::convert($operator, Token::class, $this->_phpVersion);
-            $operator->_attachTo($this);
+            $operator = NodeConverter::convert($operator, Token::class, $this->phpVersion);
+            $operator->detach();
+            $operator->parent = $this;
         }
         if ($this->operator !== null)
         {
@@ -177,13 +163,32 @@ abstract class GeneratedCombinedAssignmentExpression extends CompoundNode implem
         if ($value !== null)
         {
             /** @var Nodes\Expression $value */
-            $value = NodeConverter::convert($value, Nodes\Expression::class, $this->_phpVersion);
-            $value->_attachTo($this);
+            $value = NodeConverter::convert($value, Nodes\Expression::class, $this->phpVersion);
+            $value->detach();
+            $value->parent = $this;
         }
         if ($this->value !== null)
         {
             $this->value->detach();
         }
         $this->value = $value;
+    }
+
+    protected function _validate(int $flags): void
+    {
+        if ($flags & self::VALIDATE_TYPES)
+        {
+            if ($this->lvalue === null) throw ValidationException::childRequired($this, 'lvalue');
+            if ($this->operator === null) throw ValidationException::childRequired($this, 'operator');
+            if ($this->value === null) throw ValidationException::childRequired($this, 'value');
+        }
+        if ($flags & self::VALIDATE_EXPRESSION_CONTEXT)
+        {
+        }
+        if ($flags & self::VALIDATE_TOKENS)
+        {
+        }
+        $this->lvalue->_validate($flags);
+        $this->value->_validate($flags);
     }
 }

@@ -13,4 +13,9 @@ class PhpVersion
     {
         return self::PHP_7_2; // TODO!!
     }
+
+    public static function validate(int $phpVersion): void
+    {
+        // TODO
+    }
 }

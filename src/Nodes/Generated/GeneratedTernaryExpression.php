@@ -9,51 +9,31 @@ use Phi\Nodes\Base\NodesList;
 use Phi\Nodes\Base\SeparatedNodesList;
 use Phi\Exception\MissingNodeException;
 use Phi\NodeConverter;
-use Phi\Specification;
-use Phi\Optional;
-use Phi\Specifications\And_;
-use Phi\Specifications\Any;
-use Phi\Specifications\IsToken;
-use Phi\Specifications\IsInstanceOf;
-use Phi\Specifications\ValidCompoundNode;
-use Phi\Specifications\EachItem;
-use Phi\Specifications\EachSeparator;
+use Phi\Exception\ValidationException;
 use Phi\Nodes as Nodes;
-use Phi\Specifications as Specs;
 
-abstract class GeneratedTernaryExpression extends CompoundNode implements Nodes\Expression
+abstract class GeneratedTernaryExpression extends Nodes\Expression
 {
-    /** @var Specification[] */
-    private static $specifications;
-    protected static function getSpecifications(): array
-    {
-        return self::$specifications ?? self::$specifications = [
-            new ValidCompoundNode([
-                'test' => new Specs\IsReadExpression,
-                'questionMark' => new IsToken('?'),
-                'then' => new Optional(new Specs\IsReadExpression),
-                'colon' => new IsToken(':'),
-                'else' => new Specs\IsReadExpression,
-            ]),
-        ];
-    }
-
     /**
      * @var Nodes\Expression|null
      */
     private $test;
+
     /**
      * @var Token|null
      */
     private $questionMark;
+
     /**
      * @var Nodes\Expression|null
      */
     private $then;
+
     /**
      * @var Token|null
      */
     private $colon;
+
     /**
      * @var Nodes\Expression|null
      */
@@ -66,7 +46,6 @@ abstract class GeneratedTernaryExpression extends CompoundNode implements Nodes\
      */
     public function __construct($test = null, $then = null, $else = null)
     {
-        parent::__construct();
         if ($test !== null)
         {
             $this->setTest($test);
@@ -82,6 +61,7 @@ abstract class GeneratedTernaryExpression extends CompoundNode implements Nodes\
     }
 
     /**
+     * @param int $phpVersion
      * @param Nodes\Expression|null $test
      * @param Token|null $questionMark
      * @param Nodes\Expression|null $then
@@ -89,18 +69,27 @@ abstract class GeneratedTernaryExpression extends CompoundNode implements Nodes\
      * @param Nodes\Expression|null $else
      * @return static
      */
-    public static function __instantiateUnchecked($test, $questionMark, $then, $colon, $else)
+    public static function __instantiateUnchecked($phpVersion, $test, $questionMark, $then, $colon, $else)
     {
-        $instance = new static();
+        $instance = new static;
+        $instance->phpVersion = $phpVersion;
         $instance->test = $test;
+        $instance->test->parent = $instance;
         $instance->questionMark = $questionMark;
+        $instance->questionMark->parent = $instance;
         $instance->then = $then;
+        if ($then)
+        {
+            $instance->then->parent = $instance;
+        }
         $instance->colon = $colon;
+        $instance->colon->parent = $instance;
         $instance->else = $else;
+        $instance->else->parent = $instance;
         return $instance;
     }
 
-    public function &_getNodeRefs(): array
+    protected function &_getNodeRefs(): array
     {
         $refs = [
             'test' => &$this->test,
@@ -134,8 +123,9 @@ abstract class GeneratedTernaryExpression extends CompoundNode implements Nodes\
         if ($test !== null)
         {
             /** @var Nodes\Expression $test */
-            $test = NodeConverter::convert($test, Nodes\Expression::class, $this->_phpVersion);
-            $test->_attachTo($this);
+            $test = NodeConverter::convert($test, Nodes\Expression::class, $this->phpVersion);
+            $test->detach();
+            $test->parent = $this;
         }
         if ($this->test !== null)
         {
@@ -166,8 +156,9 @@ abstract class GeneratedTernaryExpression extends CompoundNode implements Nodes\
         if ($questionMark !== null)
         {
             /** @var Token $questionMark */
-            $questionMark = NodeConverter::convert($questionMark, Token::class, $this->_phpVersion);
-            $questionMark->_attachTo($this);
+            $questionMark = NodeConverter::convert($questionMark, Token::class, $this->phpVersion);
+            $questionMark->detach();
+            $questionMark->parent = $this;
         }
         if ($this->questionMark !== null)
         {
@@ -194,8 +185,9 @@ abstract class GeneratedTernaryExpression extends CompoundNode implements Nodes\
         if ($then !== null)
         {
             /** @var Nodes\Expression $then */
-            $then = NodeConverter::convert($then, Nodes\Expression::class, $this->_phpVersion);
-            $then->_attachTo($this);
+            $then = NodeConverter::convert($then, Nodes\Expression::class, $this->phpVersion);
+            $then->detach();
+            $then->parent = $this;
         }
         if ($this->then !== null)
         {
@@ -226,8 +218,9 @@ abstract class GeneratedTernaryExpression extends CompoundNode implements Nodes\
         if ($colon !== null)
         {
             /** @var Token $colon */
-            $colon = NodeConverter::convert($colon, Token::class, $this->_phpVersion);
-            $colon->_attachTo($this);
+            $colon = NodeConverter::convert($colon, Token::class, $this->phpVersion);
+            $colon->detach();
+            $colon->parent = $this;
         }
         if ($this->colon !== null)
         {
@@ -258,13 +251,37 @@ abstract class GeneratedTernaryExpression extends CompoundNode implements Nodes\
         if ($else !== null)
         {
             /** @var Nodes\Expression $else */
-            $else = NodeConverter::convert($else, Nodes\Expression::class, $this->_phpVersion);
-            $else->_attachTo($this);
+            $else = NodeConverter::convert($else, Nodes\Expression::class, $this->phpVersion);
+            $else->detach();
+            $else->parent = $this;
         }
         if ($this->else !== null)
         {
             $this->else->detach();
         }
         $this->else = $else;
+    }
+
+    protected function _validate(int $flags): void
+    {
+        if ($flags & self::VALIDATE_TYPES)
+        {
+            if ($this->test === null) throw ValidationException::childRequired($this, 'test');
+            if ($this->questionMark === null) throw ValidationException::childRequired($this, 'questionMark');
+            if ($this->colon === null) throw ValidationException::childRequired($this, 'colon');
+            if ($this->else === null) throw ValidationException::childRequired($this, 'else');
+        }
+        if ($flags & self::VALIDATE_EXPRESSION_CONTEXT)
+        {
+        }
+        if ($flags & self::VALIDATE_TOKENS)
+        {
+        }
+        $this->test->_validate($flags);
+        if ($this->then)
+        {
+            $this->then->_validate($flags);
+        }
+        $this->else->_validate($flags);
     }
 }

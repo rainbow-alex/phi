@@ -9,41 +9,21 @@ use Phi\Nodes\Base\NodesList;
 use Phi\Nodes\Base\SeparatedNodesList;
 use Phi\Exception\MissingNodeException;
 use Phi\NodeConverter;
-use Phi\Specification;
-use Phi\Optional;
-use Phi\Specifications\And_;
-use Phi\Specifications\Any;
-use Phi\Specifications\IsToken;
-use Phi\Specifications\IsInstanceOf;
-use Phi\Specifications\ValidCompoundNode;
-use Phi\Specifications\EachItem;
-use Phi\Specifications\EachSeparator;
+use Phi\Exception\ValidationException;
 use Phi\Nodes as Nodes;
-use Phi\Specifications as Specs;
 
-abstract class GeneratedClassNameResolutionExpression extends CompoundNode implements Nodes\Expression
+abstract class GeneratedClassNameResolutionExpression extends Nodes\Expression
 {
-    /** @var Specification[] */
-    private static $specifications;
-    protected static function getSpecifications(): array
-    {
-        return self::$specifications ?? self::$specifications = [
-            new ValidCompoundNode([
-                'class' => new Specs\IsReadExpression,
-                'operator' => new IsToken(\T_DOUBLE_COLON),
-                'keyword' => new IsToken(\T_CLASS),
-            ]),
-        ];
-    }
-
     /**
      * @var Nodes\Expression|null
      */
     private $class;
+
     /**
      * @var Token|null
      */
     private $operator;
+
     /**
      * @var Token|null
      */
@@ -54,7 +34,6 @@ abstract class GeneratedClassNameResolutionExpression extends CompoundNode imple
      */
     public function __construct($class = null)
     {
-        parent::__construct();
         if ($class !== null)
         {
             $this->setClass($class);
@@ -62,21 +41,26 @@ abstract class GeneratedClassNameResolutionExpression extends CompoundNode imple
     }
 
     /**
+     * @param int $phpVersion
      * @param Nodes\Expression|null $class
      * @param Token|null $operator
      * @param Token|null $keyword
      * @return static
      */
-    public static function __instantiateUnchecked($class, $operator, $keyword)
+    public static function __instantiateUnchecked($phpVersion, $class, $operator, $keyword)
     {
-        $instance = new static();
+        $instance = new static;
+        $instance->phpVersion = $phpVersion;
         $instance->class = $class;
+        $instance->class->parent = $instance;
         $instance->operator = $operator;
+        $instance->operator->parent = $instance;
         $instance->keyword = $keyword;
+        $instance->keyword->parent = $instance;
         return $instance;
     }
 
-    public function &_getNodeRefs(): array
+    protected function &_getNodeRefs(): array
     {
         $refs = [
             'class' => &$this->class,
@@ -108,8 +92,9 @@ abstract class GeneratedClassNameResolutionExpression extends CompoundNode imple
         if ($class !== null)
         {
             /** @var Nodes\Expression $class */
-            $class = NodeConverter::convert($class, Nodes\Expression::class, $this->_phpVersion);
-            $class->_attachTo($this);
+            $class = NodeConverter::convert($class, Nodes\Expression::class, $this->phpVersion);
+            $class->detach();
+            $class->parent = $this;
         }
         if ($this->class !== null)
         {
@@ -140,8 +125,9 @@ abstract class GeneratedClassNameResolutionExpression extends CompoundNode imple
         if ($operator !== null)
         {
             /** @var Token $operator */
-            $operator = NodeConverter::convert($operator, Token::class, $this->_phpVersion);
-            $operator->_attachTo($this);
+            $operator = NodeConverter::convert($operator, Token::class, $this->phpVersion);
+            $operator->detach();
+            $operator->parent = $this;
         }
         if ($this->operator !== null)
         {
@@ -172,13 +158,31 @@ abstract class GeneratedClassNameResolutionExpression extends CompoundNode imple
         if ($keyword !== null)
         {
             /** @var Token $keyword */
-            $keyword = NodeConverter::convert($keyword, Token::class, $this->_phpVersion);
-            $keyword->_attachTo($this);
+            $keyword = NodeConverter::convert($keyword, Token::class, $this->phpVersion);
+            $keyword->detach();
+            $keyword->parent = $this;
         }
         if ($this->keyword !== null)
         {
             $this->keyword->detach();
         }
         $this->keyword = $keyword;
+    }
+
+    protected function _validate(int $flags): void
+    {
+        if ($flags & self::VALIDATE_TYPES)
+        {
+            if ($this->class === null) throw ValidationException::childRequired($this, 'class');
+            if ($this->operator === null) throw ValidationException::childRequired($this, 'operator');
+            if ($this->keyword === null) throw ValidationException::childRequired($this, 'keyword');
+        }
+        if ($flags & self::VALIDATE_EXPRESSION_CONTEXT)
+        {
+        }
+        if ($flags & self::VALIDATE_TOKENS)
+        {
+        }
+        $this->class->_validate($flags);
     }
 }

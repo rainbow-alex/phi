@@ -3,20 +3,20 @@
 namespace Phi\Nodes\Base;
 
 use Phi\Node;
-use Phi\Nodes\ClassLikeMember;
 use Phi\Nodes\Expression;
+use Phi\Nodes\ClassLikeMember;
 use Phi\Nodes\Statement;
 use Phi\Util\Console;
 
-abstract class CompoundNode extends AbstractNode
+abstract class CompoundNode extends Node
 {
     /**
      * @return array<Node|null>
      * @internal
      */
-    abstract public function &_getNodeRefs(): array;
+    abstract protected function &_getNodeRefs(): array;
 
-    public function _detachChild(Node $childToDetach): void
+    protected function detachChild(Node $childToDetach): void
     {
         foreach ($this->_getNodeRefs() as &$child)
         {
@@ -58,7 +58,29 @@ abstract class CompoundNode extends AbstractNode
         return $lastNode ? $lastNode->getRightWhitespace() : '';
     }
 
-    public function __toString(): string
+    private function firstNode(): ?Node
+    {
+        foreach ($this->_getNodeRefs() as $node)
+        {
+            if ($node)
+            {
+                return $node;
+            }
+        }
+        return null;
+    }
+
+    private function lastNode(): ?Node
+    {
+        $lastNode = null;
+        foreach ($this->_getNodeRefs() as $node)
+        {
+            $lastNode = $node ?? $lastNode;
+        }
+        return $lastNode;
+    }
+
+    public function toPhp(): string
     {
         $php = '';
         foreach ($this->_getNodeRefs() as $child)
@@ -90,27 +112,5 @@ abstract class CompoundNode extends AbstractNode
         }
 
         echo $indent . "}\n";
-    }
-
-    private function firstNode(): ?Node
-    {
-        foreach ($this->_getNodeRefs() as $node)
-        {
-            if ($node)
-            {
-                return $node;
-            }
-        }
-        return null;
-    }
-
-    private function lastNode(): ?Node
-    {
-        $lastNode = null;
-        foreach ($this->_getNodeRefs() as $node)
-        {
-            $lastNode = $node ?? $lastNode;
-        }
-        return $lastNode;
     }
 }

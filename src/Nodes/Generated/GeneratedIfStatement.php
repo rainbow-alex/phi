@@ -9,61 +9,41 @@ use Phi\Nodes\Base\NodesList;
 use Phi\Nodes\Base\SeparatedNodesList;
 use Phi\Exception\MissingNodeException;
 use Phi\NodeConverter;
-use Phi\Specification;
-use Phi\Optional;
-use Phi\Specifications\And_;
-use Phi\Specifications\Any;
-use Phi\Specifications\IsToken;
-use Phi\Specifications\IsInstanceOf;
-use Phi\Specifications\ValidCompoundNode;
-use Phi\Specifications\EachItem;
-use Phi\Specifications\EachSeparator;
+use Phi\Exception\ValidationException;
 use Phi\Nodes as Nodes;
-use Phi\Specifications as Specs;
 
-abstract class GeneratedIfStatement extends CompoundNode implements Nodes\Statement
+abstract class GeneratedIfStatement extends Nodes\Statement
 {
-    /** @var Specification[] */
-    private static $specifications;
-    protected static function getSpecifications(): array
-    {
-        return self::$specifications ?? self::$specifications = [
-            new ValidCompoundNode([
-                'keyword' => new IsToken(\T_IF),
-                'leftParenthesis' => new IsToken('('),
-                'test' => new Specs\IsReadExpression,
-                'rightParenthesis' => new IsToken(')'),
-                'block' => new Any,
-                'elseifs' => new EachItem(new IsInstanceOf(Nodes\Elseif_::class)),
-                'else' => new Optional(new Any),
-            ]),
-        ];
-    }
-
     /**
      * @var Token|null
      */
     private $keyword;
+
     /**
      * @var Token|null
      */
     private $leftParenthesis;
+
     /**
      * @var Nodes\Expression|null
      */
     private $test;
+
     /**
      * @var Token|null
      */
     private $rightParenthesis;
+
     /**
-     * @var Nodes\Statement|null
+     * @var Nodes\Block|null
      */
     private $block;
+
     /**
      * @var NodesList|Nodes\Elseif_[]
      */
     private $elseifs;
+
     /**
      * @var Nodes\Else_|null
      */
@@ -73,34 +53,45 @@ abstract class GeneratedIfStatement extends CompoundNode implements Nodes\Statem
      */
     public function __construct()
     {
-        parent::__construct();
         $this->elseifs = new NodesList();
     }
 
     /**
+     * @param int $phpVersion
      * @param Token|null $keyword
      * @param Token|null $leftParenthesis
      * @param Nodes\Expression|null $test
      * @param Token|null $rightParenthesis
-     * @param Nodes\Statement|null $block
+     * @param Nodes\Block|null $block
      * @param mixed[] $elseifs
      * @param Nodes\Else_|null $else
      * @return static
      */
-    public static function __instantiateUnchecked($keyword, $leftParenthesis, $test, $rightParenthesis, $block, $elseifs, $else)
+    public static function __instantiateUnchecked($phpVersion, $keyword, $leftParenthesis, $test, $rightParenthesis, $block, $elseifs, $else)
     {
-        $instance = new static();
+        $instance = new static;
+        $instance->phpVersion = $phpVersion;
         $instance->keyword = $keyword;
+        $instance->keyword->parent = $instance;
         $instance->leftParenthesis = $leftParenthesis;
+        $instance->leftParenthesis->parent = $instance;
         $instance->test = $test;
+        $instance->test->parent = $instance;
         $instance->rightParenthesis = $rightParenthesis;
+        $instance->rightParenthesis->parent = $instance;
         $instance->block = $block;
+        $instance->block->parent = $instance;
         $instance->elseifs->__initUnchecked($elseifs);
+        $instance->elseifs->parent = $instance;
         $instance->else = $else;
+        if ($else)
+        {
+            $instance->else->parent = $instance;
+        }
         return $instance;
     }
 
-    public function &_getNodeRefs(): array
+    protected function &_getNodeRefs(): array
     {
         $refs = [
             'keyword' => &$this->keyword,
@@ -136,8 +127,9 @@ abstract class GeneratedIfStatement extends CompoundNode implements Nodes\Statem
         if ($keyword !== null)
         {
             /** @var Token $keyword */
-            $keyword = NodeConverter::convert($keyword, Token::class, $this->_phpVersion);
-            $keyword->_attachTo($this);
+            $keyword = NodeConverter::convert($keyword, Token::class, $this->phpVersion);
+            $keyword->detach();
+            $keyword->parent = $this;
         }
         if ($this->keyword !== null)
         {
@@ -168,8 +160,9 @@ abstract class GeneratedIfStatement extends CompoundNode implements Nodes\Statem
         if ($leftParenthesis !== null)
         {
             /** @var Token $leftParenthesis */
-            $leftParenthesis = NodeConverter::convert($leftParenthesis, Token::class, $this->_phpVersion);
-            $leftParenthesis->_attachTo($this);
+            $leftParenthesis = NodeConverter::convert($leftParenthesis, Token::class, $this->phpVersion);
+            $leftParenthesis->detach();
+            $leftParenthesis->parent = $this;
         }
         if ($this->leftParenthesis !== null)
         {
@@ -200,8 +193,9 @@ abstract class GeneratedIfStatement extends CompoundNode implements Nodes\Statem
         if ($test !== null)
         {
             /** @var Nodes\Expression $test */
-            $test = NodeConverter::convert($test, Nodes\Expression::class, $this->_phpVersion);
-            $test->_attachTo($this);
+            $test = NodeConverter::convert($test, Nodes\Expression::class, $this->phpVersion);
+            $test->detach();
+            $test->parent = $this;
         }
         if ($this->test !== null)
         {
@@ -232,8 +226,9 @@ abstract class GeneratedIfStatement extends CompoundNode implements Nodes\Statem
         if ($rightParenthesis !== null)
         {
             /** @var Token $rightParenthesis */
-            $rightParenthesis = NodeConverter::convert($rightParenthesis, Token::class, $this->_phpVersion);
-            $rightParenthesis->_attachTo($this);
+            $rightParenthesis = NodeConverter::convert($rightParenthesis, Token::class, $this->phpVersion);
+            $rightParenthesis->detach();
+            $rightParenthesis->parent = $this;
         }
         if ($this->rightParenthesis !== null)
         {
@@ -242,7 +237,7 @@ abstract class GeneratedIfStatement extends CompoundNode implements Nodes\Statem
         $this->rightParenthesis = $rightParenthesis;
     }
 
-    public function getBlock(): Nodes\Statement
+    public function getBlock(): Nodes\Block
     {
         if ($this->block === null)
         {
@@ -257,15 +252,16 @@ abstract class GeneratedIfStatement extends CompoundNode implements Nodes\Statem
     }
 
     /**
-     * @param Nodes\Statement|Node|string|null $block
+     * @param Nodes\Block|Node|string|null $block
      */
     public function setBlock($block): void
     {
         if ($block !== null)
         {
-            /** @var Nodes\Statement $block */
-            $block = NodeConverter::convert($block, Nodes\Statement::class, $this->_phpVersion);
-            $block->_attachTo($this);
+            /** @var Nodes\Block $block */
+            $block = NodeConverter::convert($block, Nodes\Block::class, $this->phpVersion);
+            $block->detach();
+            $block->parent = $this;
         }
         if ($this->block !== null)
         {
@@ -288,7 +284,7 @@ abstract class GeneratedIfStatement extends CompoundNode implements Nodes\Statem
     public function addElseif($elseif): void
     {
         /** @var Nodes\Elseif_ $elseif */
-        $elseif = NodeConverter::convert($elseif, Nodes\Elseif_::class);
+        $elseif = NodeConverter::convert($elseif, Nodes\Elseif_::class, $this->phpVersion);
         $this->elseifs->add($elseif);
     }
 
@@ -310,13 +306,39 @@ abstract class GeneratedIfStatement extends CompoundNode implements Nodes\Statem
         if ($else !== null)
         {
             /** @var Nodes\Else_ $else */
-            $else = NodeConverter::convert($else, Nodes\Else_::class, $this->_phpVersion);
-            $else->_attachTo($this);
+            $else = NodeConverter::convert($else, Nodes\Else_::class, $this->phpVersion);
+            $else->detach();
+            $else->parent = $this;
         }
         if ($this->else !== null)
         {
             $this->else->detach();
         }
         $this->else = $else;
+    }
+
+    protected function _validate(int $flags): void
+    {
+        if ($flags & self::VALIDATE_TYPES)
+        {
+            if ($this->keyword === null) throw ValidationException::childRequired($this, 'keyword');
+            if ($this->leftParenthesis === null) throw ValidationException::childRequired($this, 'leftParenthesis');
+            if ($this->test === null) throw ValidationException::childRequired($this, 'test');
+            if ($this->rightParenthesis === null) throw ValidationException::childRequired($this, 'rightParenthesis');
+            if ($this->block === null) throw ValidationException::childRequired($this, 'block');
+        }
+        if ($flags & self::VALIDATE_EXPRESSION_CONTEXT)
+        {
+        }
+        if ($flags & self::VALIDATE_TOKENS)
+        {
+        }
+        $this->test->_validate($flags);
+        $this->block->_validate($flags);
+        $this->elseifs->_validate($flags);
+        if ($this->else)
+        {
+            $this->else->_validate($flags);
+        }
     }
 }

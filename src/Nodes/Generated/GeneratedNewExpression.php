@@ -9,51 +9,31 @@ use Phi\Nodes\Base\NodesList;
 use Phi\Nodes\Base\SeparatedNodesList;
 use Phi\Exception\MissingNodeException;
 use Phi\NodeConverter;
-use Phi\Specification;
-use Phi\Optional;
-use Phi\Specifications\And_;
-use Phi\Specifications\Any;
-use Phi\Specifications\IsToken;
-use Phi\Specifications\IsInstanceOf;
-use Phi\Specifications\ValidCompoundNode;
-use Phi\Specifications\EachItem;
-use Phi\Specifications\EachSeparator;
+use Phi\Exception\ValidationException;
 use Phi\Nodes as Nodes;
-use Phi\Specifications as Specs;
 
-abstract class GeneratedNewExpression extends CompoundNode implements Nodes\Expression
+abstract class GeneratedNewExpression extends Nodes\Expression
 {
-    /** @var Specification[] */
-    private static $specifications;
-    protected static function getSpecifications(): array
-    {
-        return self::$specifications ?? self::$specifications = [
-            new ValidCompoundNode([
-                'keyword' => new IsToken(\T_NEW),
-                'class' => new Specs\IsReadExpression,
-                'leftParenthesis' => new Optional(new IsToken('(')),
-                'arguments' => new And_(new EachItem(new IsInstanceOf(Nodes\Argument::class)), new EachSeparator(new IsToken(','))),
-                'rightParenthesis' => new Optional(new IsToken(')')),
-            ]),
-        ];
-    }
-
     /**
      * @var Token|null
      */
     private $keyword;
+
     /**
      * @var Nodes\Expression|null
      */
     private $class;
+
     /**
      * @var Token|null
      */
     private $leftParenthesis;
+
     /**
      * @var SeparatedNodesList|Nodes\Argument[]
      */
     private $arguments;
+
     /**
      * @var Token|null
      */
@@ -64,7 +44,6 @@ abstract class GeneratedNewExpression extends CompoundNode implements Nodes\Expr
      */
     public function __construct($class = null)
     {
-        parent::__construct();
         if ($class !== null)
         {
             $this->setClass($class);
@@ -73,6 +52,7 @@ abstract class GeneratedNewExpression extends CompoundNode implements Nodes\Expr
     }
 
     /**
+     * @param int $phpVersion
      * @param Token|null $keyword
      * @param Nodes\Expression|null $class
      * @param Token|null $leftParenthesis
@@ -80,18 +60,30 @@ abstract class GeneratedNewExpression extends CompoundNode implements Nodes\Expr
      * @param Token|null $rightParenthesis
      * @return static
      */
-    public static function __instantiateUnchecked($keyword, $class, $leftParenthesis, $arguments, $rightParenthesis)
+    public static function __instantiateUnchecked($phpVersion, $keyword, $class, $leftParenthesis, $arguments, $rightParenthesis)
     {
-        $instance = new static();
+        $instance = new static;
+        $instance->phpVersion = $phpVersion;
         $instance->keyword = $keyword;
+        $instance->keyword->parent = $instance;
         $instance->class = $class;
+        $instance->class->parent = $instance;
         $instance->leftParenthesis = $leftParenthesis;
+        if ($leftParenthesis)
+        {
+            $instance->leftParenthesis->parent = $instance;
+        }
         $instance->arguments->__initUnchecked($arguments);
+        $instance->arguments->parent = $instance;
         $instance->rightParenthesis = $rightParenthesis;
+        if ($rightParenthesis)
+        {
+            $instance->rightParenthesis->parent = $instance;
+        }
         return $instance;
     }
 
-    public function &_getNodeRefs(): array
+    protected function &_getNodeRefs(): array
     {
         $refs = [
             'keyword' => &$this->keyword,
@@ -125,8 +117,9 @@ abstract class GeneratedNewExpression extends CompoundNode implements Nodes\Expr
         if ($keyword !== null)
         {
             /** @var Token $keyword */
-            $keyword = NodeConverter::convert($keyword, Token::class, $this->_phpVersion);
-            $keyword->_attachTo($this);
+            $keyword = NodeConverter::convert($keyword, Token::class, $this->phpVersion);
+            $keyword->detach();
+            $keyword->parent = $this;
         }
         if ($this->keyword !== null)
         {
@@ -157,8 +150,9 @@ abstract class GeneratedNewExpression extends CompoundNode implements Nodes\Expr
         if ($class !== null)
         {
             /** @var Nodes\Expression $class */
-            $class = NodeConverter::convert($class, Nodes\Expression::class, $this->_phpVersion);
-            $class->_attachTo($this);
+            $class = NodeConverter::convert($class, Nodes\Expression::class, $this->phpVersion);
+            $class->detach();
+            $class->parent = $this;
         }
         if ($this->class !== null)
         {
@@ -185,8 +179,9 @@ abstract class GeneratedNewExpression extends CompoundNode implements Nodes\Expr
         if ($leftParenthesis !== null)
         {
             /** @var Token $leftParenthesis */
-            $leftParenthesis = NodeConverter::convert($leftParenthesis, Token::class, $this->_phpVersion);
-            $leftParenthesis->_attachTo($this);
+            $leftParenthesis = NodeConverter::convert($leftParenthesis, Token::class, $this->phpVersion);
+            $leftParenthesis->detach();
+            $leftParenthesis->parent = $this;
         }
         if ($this->leftParenthesis !== null)
         {
@@ -209,7 +204,7 @@ abstract class GeneratedNewExpression extends CompoundNode implements Nodes\Expr
     public function addArgument($argument): void
     {
         /** @var Nodes\Argument $argument */
-        $argument = NodeConverter::convert($argument, Nodes\Argument::class);
+        $argument = NodeConverter::convert($argument, Nodes\Argument::class, $this->phpVersion);
         $this->arguments->add($argument);
     }
 
@@ -231,13 +226,31 @@ abstract class GeneratedNewExpression extends CompoundNode implements Nodes\Expr
         if ($rightParenthesis !== null)
         {
             /** @var Token $rightParenthesis */
-            $rightParenthesis = NodeConverter::convert($rightParenthesis, Token::class, $this->_phpVersion);
-            $rightParenthesis->_attachTo($this);
+            $rightParenthesis = NodeConverter::convert($rightParenthesis, Token::class, $this->phpVersion);
+            $rightParenthesis->detach();
+            $rightParenthesis->parent = $this;
         }
         if ($this->rightParenthesis !== null)
         {
             $this->rightParenthesis->detach();
         }
         $this->rightParenthesis = $rightParenthesis;
+    }
+
+    protected function _validate(int $flags): void
+    {
+        if ($flags & self::VALIDATE_TYPES)
+        {
+            if ($this->keyword === null) throw ValidationException::childRequired($this, 'keyword');
+            if ($this->class === null) throw ValidationException::childRequired($this, 'class');
+        }
+        if ($flags & self::VALIDATE_EXPRESSION_CONTEXT)
+        {
+        }
+        if ($flags & self::VALIDATE_TOKENS)
+        {
+        }
+        $this->class->_validate($flags);
+        $this->arguments->_validate($flags);
     }
 }

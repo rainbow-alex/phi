@@ -9,51 +9,31 @@ use Phi\Nodes\Base\NodesList;
 use Phi\Nodes\Base\SeparatedNodesList;
 use Phi\Exception\MissingNodeException;
 use Phi\NodeConverter;
-use Phi\Specification;
-use Phi\Optional;
-use Phi\Specifications\And_;
-use Phi\Specifications\Any;
-use Phi\Specifications\IsToken;
-use Phi\Specifications\IsInstanceOf;
-use Phi\Specifications\ValidCompoundNode;
-use Phi\Specifications\EachItem;
-use Phi\Specifications\EachSeparator;
+use Phi\Exception\ValidationException;
 use Phi\Nodes as Nodes;
-use Phi\Specifications as Specs;
 
-abstract class GeneratedTraitStatement extends CompoundNode implements Nodes\Statement
+abstract class GeneratedTraitStatement extends Nodes\ClassLikeStatement
 {
-    /** @var Specification[] */
-    private static $specifications;
-    protected static function getSpecifications(): array
-    {
-        return self::$specifications ?? self::$specifications = [
-            new ValidCompoundNode([
-                'keyword' => new IsToken(\T_TRAIT),
-                'name' => new IsToken(\T_STRING),
-                'leftBrace' => new IsToken('{'),
-                'members' => new EachItem(new IsInstanceOf(Nodes\ClassLikeMember::class)),
-                'rightBrace' => new IsToken('}'),
-            ]),
-        ];
-    }
-
     /**
      * @var Token|null
      */
     private $keyword;
+
     /**
      * @var Token|null
      */
     private $name;
+
     /**
      * @var Token|null
      */
     private $leftBrace;
+
     /**
      * @var NodesList|Nodes\ClassLikeMember[]
      */
     private $members;
+
     /**
      * @var Token|null
      */
@@ -63,11 +43,11 @@ abstract class GeneratedTraitStatement extends CompoundNode implements Nodes\Sta
      */
     public function __construct()
     {
-        parent::__construct();
         $this->members = new NodesList();
     }
 
     /**
+     * @param int $phpVersion
      * @param Token|null $keyword
      * @param Token|null $name
      * @param Token|null $leftBrace
@@ -75,18 +55,24 @@ abstract class GeneratedTraitStatement extends CompoundNode implements Nodes\Sta
      * @param Token|null $rightBrace
      * @return static
      */
-    public static function __instantiateUnchecked($keyword, $name, $leftBrace, $members, $rightBrace)
+    public static function __instantiateUnchecked($phpVersion, $keyword, $name, $leftBrace, $members, $rightBrace)
     {
-        $instance = new static();
+        $instance = new static;
+        $instance->phpVersion = $phpVersion;
         $instance->keyword = $keyword;
+        $instance->keyword->parent = $instance;
         $instance->name = $name;
+        $instance->name->parent = $instance;
         $instance->leftBrace = $leftBrace;
+        $instance->leftBrace->parent = $instance;
         $instance->members->__initUnchecked($members);
+        $instance->members->parent = $instance;
         $instance->rightBrace = $rightBrace;
+        $instance->rightBrace->parent = $instance;
         return $instance;
     }
 
-    public function &_getNodeRefs(): array
+    protected function &_getNodeRefs(): array
     {
         $refs = [
             'keyword' => &$this->keyword,
@@ -120,8 +106,9 @@ abstract class GeneratedTraitStatement extends CompoundNode implements Nodes\Sta
         if ($keyword !== null)
         {
             /** @var Token $keyword */
-            $keyword = NodeConverter::convert($keyword, Token::class, $this->_phpVersion);
-            $keyword->_attachTo($this);
+            $keyword = NodeConverter::convert($keyword, Token::class, $this->phpVersion);
+            $keyword->detach();
+            $keyword->parent = $this;
         }
         if ($this->keyword !== null)
         {
@@ -152,8 +139,9 @@ abstract class GeneratedTraitStatement extends CompoundNode implements Nodes\Sta
         if ($name !== null)
         {
             /** @var Token $name */
-            $name = NodeConverter::convert($name, Token::class, $this->_phpVersion);
-            $name->_attachTo($this);
+            $name = NodeConverter::convert($name, Token::class, $this->phpVersion);
+            $name->detach();
+            $name->parent = $this;
         }
         if ($this->name !== null)
         {
@@ -184,8 +172,9 @@ abstract class GeneratedTraitStatement extends CompoundNode implements Nodes\Sta
         if ($leftBrace !== null)
         {
             /** @var Token $leftBrace */
-            $leftBrace = NodeConverter::convert($leftBrace, Token::class, $this->_phpVersion);
-            $leftBrace->_attachTo($this);
+            $leftBrace = NodeConverter::convert($leftBrace, Token::class, $this->phpVersion);
+            $leftBrace->detach();
+            $leftBrace->parent = $this;
         }
         if ($this->leftBrace !== null)
         {
@@ -208,7 +197,7 @@ abstract class GeneratedTraitStatement extends CompoundNode implements Nodes\Sta
     public function addMember($member): void
     {
         /** @var Nodes\ClassLikeMember $member */
-        $member = NodeConverter::convert($member, Nodes\ClassLikeMember::class);
+        $member = NodeConverter::convert($member, Nodes\ClassLikeMember::class, $this->phpVersion);
         $this->members->add($member);
     }
 
@@ -234,13 +223,32 @@ abstract class GeneratedTraitStatement extends CompoundNode implements Nodes\Sta
         if ($rightBrace !== null)
         {
             /** @var Token $rightBrace */
-            $rightBrace = NodeConverter::convert($rightBrace, Token::class, $this->_phpVersion);
-            $rightBrace->_attachTo($this);
+            $rightBrace = NodeConverter::convert($rightBrace, Token::class, $this->phpVersion);
+            $rightBrace->detach();
+            $rightBrace->parent = $this;
         }
         if ($this->rightBrace !== null)
         {
             $this->rightBrace->detach();
         }
         $this->rightBrace = $rightBrace;
+    }
+
+    protected function _validate(int $flags): void
+    {
+        if ($flags & self::VALIDATE_TYPES)
+        {
+            if ($this->keyword === null) throw ValidationException::childRequired($this, 'keyword');
+            if ($this->name === null) throw ValidationException::childRequired($this, 'name');
+            if ($this->leftBrace === null) throw ValidationException::childRequired($this, 'leftBrace');
+            if ($this->rightBrace === null) throw ValidationException::childRequired($this, 'rightBrace');
+        }
+        if ($flags & self::VALIDATE_EXPRESSION_CONTEXT)
+        {
+        }
+        if ($flags & self::VALIDATE_TOKENS)
+        {
+        }
+        $this->members->_validate($flags);
     }
 }

@@ -9,31 +9,11 @@ use Phi\Nodes\Base\NodesList;
 use Phi\Nodes\Base\SeparatedNodesList;
 use Phi\Exception\MissingNodeException;
 use Phi\NodeConverter;
-use Phi\Specification;
-use Phi\Optional;
-use Phi\Specifications\And_;
-use Phi\Specifications\Any;
-use Phi\Specifications\IsToken;
-use Phi\Specifications\IsInstanceOf;
-use Phi\Specifications\ValidCompoundNode;
-use Phi\Specifications\EachItem;
-use Phi\Specifications\EachSeparator;
+use Phi\Exception\ValidationException;
 use Phi\Nodes as Nodes;
-use Phi\Specifications as Specs;
 
-abstract class GeneratedSimpleInterpolatedStringExpression extends CompoundNode implements Nodes\InterpolatedStringExpression
+abstract class GeneratedSimpleInterpolatedStringExpression extends Nodes\CInterpolatedStringExpression
 {
-    /** @var Specification[] */
-    private static $specifications;
-    protected static function getSpecifications(): array
-    {
-        return self::$specifications ?? self::$specifications = [
-            new ValidCompoundNode([
-                'expression' => new Specs\IsReadExpression,
-            ]),
-        ];
-    }
-
     /**
      * @var Nodes\Expression|null
      */
@@ -44,7 +24,6 @@ abstract class GeneratedSimpleInterpolatedStringExpression extends CompoundNode 
      */
     public function __construct($expression = null)
     {
-        parent::__construct();
         if ($expression !== null)
         {
             $this->setExpression($expression);
@@ -52,17 +31,20 @@ abstract class GeneratedSimpleInterpolatedStringExpression extends CompoundNode 
     }
 
     /**
+     * @param int $phpVersion
      * @param Nodes\Expression|null $expression
      * @return static
      */
-    public static function __instantiateUnchecked($expression)
+    public static function __instantiateUnchecked($phpVersion, $expression)
     {
-        $instance = new static();
+        $instance = new static;
+        $instance->phpVersion = $phpVersion;
         $instance->expression = $expression;
+        $instance->expression->parent = $instance;
         return $instance;
     }
 
-    public function &_getNodeRefs(): array
+    protected function &_getNodeRefs(): array
     {
         $refs = [
             'expression' => &$this->expression,
@@ -92,13 +74,29 @@ abstract class GeneratedSimpleInterpolatedStringExpression extends CompoundNode 
         if ($expression !== null)
         {
             /** @var Nodes\Expression $expression */
-            $expression = NodeConverter::convert($expression, Nodes\Expression::class, $this->_phpVersion);
-            $expression->_attachTo($this);
+            $expression = NodeConverter::convert($expression, Nodes\Expression::class, $this->phpVersion);
+            $expression->detach();
+            $expression->parent = $this;
         }
         if ($this->expression !== null)
         {
             $this->expression->detach();
         }
         $this->expression = $expression;
+    }
+
+    protected function _validate(int $flags): void
+    {
+        if ($flags & self::VALIDATE_TYPES)
+        {
+            if ($this->expression === null) throw ValidationException::childRequired($this, 'expression');
+        }
+        if ($flags & self::VALIDATE_EXPRESSION_CONTEXT)
+        {
+        }
+        if ($flags & self::VALIDATE_TOKENS)
+        {
+        }
+        $this->expression->_validate($flags);
     }
 }

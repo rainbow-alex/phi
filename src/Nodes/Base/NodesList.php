@@ -4,11 +4,11 @@ namespace Phi\Nodes\Base;
 
 use ArrayIterator;
 use Countable;
-use Phi\Node;
 use Iterator;
 use IteratorAggregate;
+use Phi\Node;
 
-class NodesList extends AbstractNode implements Countable, IteratorAggregate
+class NodesList extends Node implements Countable, IteratorAggregate
 {
     /**
      * @var Node[]
@@ -22,9 +22,13 @@ class NodesList extends AbstractNode implements Countable, IteratorAggregate
     public function __initUnchecked(array $nodes): void
     {
         $this->_nodes = $nodes;
+        foreach ($nodes as $n)
+        {
+            $n->parent = $this;
+        }
     }
 
-    public function _detachChild(Node $childToDetach): void
+    protected function detachChild(Node $childToDetach): void
     {
         $i = \array_search($childToDetach, $this->_nodes, true);
 
@@ -59,7 +63,15 @@ class NodesList extends AbstractNode implements Countable, IteratorAggregate
         return $this->_nodes ? $this->_nodes[count($this->_nodes) - 1]->getRightWhitespace() : '';
     }
 
-    public function __toString(): string
+    protected function _validate(int $flags): void
+    {
+        foreach ($this->_nodes as $node)
+        {
+            $node->_validate($flags);
+        }
+    }
+
+    public function toPhp(): string
     {
         $php = '';
         foreach ($this->_nodes as $node)

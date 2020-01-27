@@ -2,12 +2,16 @@
 
 namespace Phi\Nodes;
 
-use Phi\Nodes\Base\ConstantExpression;
-use Phi\Nodes\Base\ReadOnlyExpression;
-use Phi\Nodes\Generated\GeneratedNumberLiteral;
+use Phi\Exception\ValidationException;
 
-class NumberLiteral extends GeneratedNumberLiteral
+abstract class NumberLiteral extends Expression
 {
-    use ConstantExpression;
-    use ReadOnlyExpression;
+    public function validateContext(int $flags): void
+    {
+        $never = self::CTX_WRITE|self::CTX_ALIAS;
+        if ($flags & $never)
+        {
+            throw ValidationException::expressionContext($flags & $never, $this);
+        }
+    }
 }

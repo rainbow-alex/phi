@@ -9,41 +9,21 @@ use Phi\Nodes\Base\NodesList;
 use Phi\Nodes\Base\SeparatedNodesList;
 use Phi\Exception\MissingNodeException;
 use Phi\NodeConverter;
-use Phi\Specification;
-use Phi\Optional;
-use Phi\Specifications\And_;
-use Phi\Specifications\Any;
-use Phi\Specifications\IsToken;
-use Phi\Specifications\IsInstanceOf;
-use Phi\Specifications\ValidCompoundNode;
-use Phi\Specifications\EachItem;
-use Phi\Specifications\EachSeparator;
+use Phi\Exception\ValidationException;
 use Phi\Nodes as Nodes;
-use Phi\Specifications as Specs;
 
 abstract class GeneratedArrayItem extends CompoundNode
 {
-    /** @var Specification[] */
-    private static $specifications;
-    protected static function getSpecifications(): array
-    {
-        return self::$specifications ?? self::$specifications = [
-            new ValidCompoundNode([
-                'key' => new Optional(new Any),
-                'byReference' => new Optional(new IsToken('&')),
-                'value' => new Optional(new Any),
-            ]),
-        ];
-    }
-
     /**
      * @var Nodes\Key|null
      */
     private $key;
+
     /**
      * @var Token|null
      */
     private $byReference;
+
     /**
      * @var Nodes\Expression|null
      */
@@ -54,7 +34,6 @@ abstract class GeneratedArrayItem extends CompoundNode
      */
     public function __construct($value = null)
     {
-        parent::__construct();
         if ($value !== null)
         {
             $this->setValue($value);
@@ -62,21 +41,35 @@ abstract class GeneratedArrayItem extends CompoundNode
     }
 
     /**
+     * @param int $phpVersion
      * @param Nodes\Key|null $key
      * @param Token|null $byReference
      * @param Nodes\Expression|null $value
      * @return static
      */
-    public static function __instantiateUnchecked($key, $byReference, $value)
+    public static function __instantiateUnchecked($phpVersion, $key, $byReference, $value)
     {
-        $instance = new static();
+        $instance = new static;
+        $instance->phpVersion = $phpVersion;
         $instance->key = $key;
+        if ($key)
+        {
+            $instance->key->parent = $instance;
+        }
         $instance->byReference = $byReference;
+        if ($byReference)
+        {
+            $instance->byReference->parent = $instance;
+        }
         $instance->value = $value;
+        if ($value)
+        {
+            $instance->value->parent = $instance;
+        }
         return $instance;
     }
 
-    public function &_getNodeRefs(): array
+    protected function &_getNodeRefs(): array
     {
         $refs = [
             'key' => &$this->key,
@@ -104,8 +97,9 @@ abstract class GeneratedArrayItem extends CompoundNode
         if ($key !== null)
         {
             /** @var Nodes\Key $key */
-            $key = NodeConverter::convert($key, Nodes\Key::class, $this->_phpVersion);
-            $key->_attachTo($this);
+            $key = NodeConverter::convert($key, Nodes\Key::class, $this->phpVersion);
+            $key->detach();
+            $key->parent = $this;
         }
         if ($this->key !== null)
         {
@@ -132,8 +126,9 @@ abstract class GeneratedArrayItem extends CompoundNode
         if ($byReference !== null)
         {
             /** @var Token $byReference */
-            $byReference = NodeConverter::convert($byReference, Token::class, $this->_phpVersion);
-            $byReference->_attachTo($this);
+            $byReference = NodeConverter::convert($byReference, Token::class, $this->phpVersion);
+            $byReference->detach();
+            $byReference->parent = $this;
         }
         if ($this->byReference !== null)
         {
@@ -160,13 +155,35 @@ abstract class GeneratedArrayItem extends CompoundNode
         if ($value !== null)
         {
             /** @var Nodes\Expression $value */
-            $value = NodeConverter::convert($value, Nodes\Expression::class, $this->_phpVersion);
-            $value->_attachTo($this);
+            $value = NodeConverter::convert($value, Nodes\Expression::class, $this->phpVersion);
+            $value->detach();
+            $value->parent = $this;
         }
         if ($this->value !== null)
         {
             $this->value->detach();
         }
         $this->value = $value;
+    }
+
+    protected function _validate(int $flags): void
+    {
+        if ($flags & self::VALIDATE_TYPES)
+        {
+        }
+        if ($flags & self::VALIDATE_EXPRESSION_CONTEXT)
+        {
+        }
+        if ($flags & self::VALIDATE_TOKENS)
+        {
+        }
+        if ($this->key)
+        {
+            $this->key->_validate($flags);
+        }
+        if ($this->value)
+        {
+            $this->value->_validate($flags);
+        }
     }
 }

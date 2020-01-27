@@ -2,8 +2,8 @@
 
 namespace Phi\Nodes;
 
-use Phi\Node;
+use Phi\Nodes\Base\CompoundNode;
 
-interface TraitUseModification extends Node
+abstract class TraitUseModification extends CompoundNode
 {
 }

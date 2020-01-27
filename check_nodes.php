@@ -3,6 +3,8 @@
 
 /** @noinspection PhpComposerExtensionStubsInspection */
 
+use Phi\Nodes\RootNode;
+use Phi\PhpParserCompat;
 use Phi\PhpVersion;
 
 require __DIR__ . '/vendor/autoload.php';
@@ -11,14 +13,16 @@ if (count($argv) > 1)
 {
     foreach (array_slice($argv, 1) as $arg)
     {
+        echo $arg . "\n";
+
         echo "\e[45mphp -l\e[0m\n";
-        system('echo ' . escapeshellarg('<?php ' . $arg . ';') . ' | php -l');
+        system('echo ' . escapeshellarg('<?php ' . $arg) . ' | php -l');
 
         echo "\e[45mnikic/php-parser\e[0m\n";
         try
         {
             $parser1 = (new \PhpParser\ParserFactory())->create(\PhpParser\ParserFactory::PREFER_PHP7);
-            $ast1 = $parser1->parse('<?php ' . $arg . ';');
+            $ast1 = $parser1->parse('<?php ' . $arg);
             echo (new \PhpParser\NodeDumper())->dump($ast1) . "\n";
         }
         catch (\Throwable $t)
@@ -29,8 +33,20 @@ if (count($argv) > 1)
         echo "\e[45mphi\e[0m\n";
         try
         {
-            $ast2 = (new \Phi\Parser(PhpVersion::DEFAULT()))->parseStatement($arg . ';');
+            $ast2 = (new \Phi\Parser(PhpVersion::PHP_7_2))->parseStatement($arg);
             $ast2->debugDump();
+
+            echo "\e[45mphi (php-parser compat)\e[0m\n";
+            try
+            {
+                $ast3 = new RootNode();
+                $ast3->addStatement($ast2);
+                echo (new \PhpParser\NodeDumper())->dump(PhpParserCompat::convert($ast3));
+            }
+            catch (\RuntimeException $e)
+            {
+                echo $e->getMessage() . "\n";
+            }
         }
         catch (\Throwable $t)
         {

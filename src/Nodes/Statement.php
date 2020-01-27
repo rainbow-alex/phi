@@ -2,8 +2,8 @@
 
 namespace Phi\Nodes;
 
-use Phi\Node;
+use Phi\Nodes\Base\CompoundNode;
 
-interface Statement extends Node
+abstract class Statement extends CompoundNode
 {
 }

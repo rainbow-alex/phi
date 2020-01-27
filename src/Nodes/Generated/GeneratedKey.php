@@ -9,36 +9,16 @@ use Phi\Nodes\Base\NodesList;
 use Phi\Nodes\Base\SeparatedNodesList;
 use Phi\Exception\MissingNodeException;
 use Phi\NodeConverter;
-use Phi\Specification;
-use Phi\Optional;
-use Phi\Specifications\And_;
-use Phi\Specifications\Any;
-use Phi\Specifications\IsToken;
-use Phi\Specifications\IsInstanceOf;
-use Phi\Specifications\ValidCompoundNode;
-use Phi\Specifications\EachItem;
-use Phi\Specifications\EachSeparator;
+use Phi\Exception\ValidationException;
 use Phi\Nodes as Nodes;
-use Phi\Specifications as Specs;
 
 abstract class GeneratedKey extends CompoundNode
 {
-    /** @var Specification[] */
-    private static $specifications;
-    protected static function getSpecifications(): array
-    {
-        return self::$specifications ?? self::$specifications = [
-            new ValidCompoundNode([
-                'value' => new Any,
-                'arrow' => new IsToken(\T_DOUBLE_ARROW),
-            ]),
-        ];
-    }
-
     /**
      * @var Nodes\Expression|null
      */
     private $value;
+
     /**
      * @var Token|null
      */
@@ -49,7 +29,6 @@ abstract class GeneratedKey extends CompoundNode
      */
     public function __construct($value = null)
     {
-        parent::__construct();
         if ($value !== null)
         {
             $this->setValue($value);
@@ -57,19 +36,23 @@ abstract class GeneratedKey extends CompoundNode
     }
 
     /**
+     * @param int $phpVersion
      * @param Nodes\Expression|null $value
      * @param Token|null $arrow
      * @return static
      */
-    public static function __instantiateUnchecked($value, $arrow)
+    public static function __instantiateUnchecked($phpVersion, $value, $arrow)
     {
-        $instance = new static();
+        $instance = new static;
+        $instance->phpVersion = $phpVersion;
         $instance->value = $value;
+        $instance->value->parent = $instance;
         $instance->arrow = $arrow;
+        $instance->arrow->parent = $instance;
         return $instance;
     }
 
-    public function &_getNodeRefs(): array
+    protected function &_getNodeRefs(): array
     {
         $refs = [
             'value' => &$this->value,
@@ -100,8 +83,9 @@ abstract class GeneratedKey extends CompoundNode
         if ($value !== null)
         {
             /** @var Nodes\Expression $value */
-            $value = NodeConverter::convert($value, Nodes\Expression::class, $this->_phpVersion);
-            $value->_attachTo($this);
+            $value = NodeConverter::convert($value, Nodes\Expression::class, $this->phpVersion);
+            $value->detach();
+            $value->parent = $this;
         }
         if ($this->value !== null)
         {
@@ -132,13 +116,30 @@ abstract class GeneratedKey extends CompoundNode
         if ($arrow !== null)
         {
             /** @var Token $arrow */
-            $arrow = NodeConverter::convert($arrow, Token::class, $this->_phpVersion);
-            $arrow->_attachTo($this);
+            $arrow = NodeConverter::convert($arrow, Token::class, $this->phpVersion);
+            $arrow->detach();
+            $arrow->parent = $this;
         }
         if ($this->arrow !== null)
         {
             $this->arrow->detach();
         }
         $this->arrow = $arrow;
+    }
+
+    protected function _validate(int $flags): void
+    {
+        if ($flags & self::VALIDATE_TYPES)
+        {
+            if ($this->value === null) throw ValidationException::childRequired($this, 'value');
+            if ($this->arrow === null) throw ValidationException::childRequired($this, 'arrow');
+        }
+        if ($flags & self::VALIDATE_EXPRESSION_CONTEXT)
+        {
+        }
+        if ($flags & self::VALIDATE_TOKENS)
+        {
+        }
+        $this->value->_validate($flags);
     }
 }

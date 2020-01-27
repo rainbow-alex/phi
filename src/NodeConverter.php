@@ -3,24 +3,37 @@
 namespace Phi;
 
 use Phi\Exception\ConversionException;
-use Phi\Nodes\Block;
+use Phi\Exception\ValidationException;
+use Phi\Nodes\Statement;
+use Phi\Nodes\RegularBlock;
 use Phi\Nodes\Expression;
 use Phi\Nodes\ExpressionStatement;
-use Phi\Nodes\NumberLiteral;
-use Phi\Nodes\Statement;
+use Phi\Nodes\IntegerLiteral;
 
 class NodeConverter
 {
     /**
      * @param Node|string $value
      */
-    public static function convert($value, string $target, ?int $phpVersion = null): Node // TODO make version required?
+    public static function convert($value, string $target, ?int $phpVersion): Node
     {
+        if (!($value instanceof Node || \is_string($value)))
+        {
+            throw new \InvalidArgumentException(); // TODO message
+        }
+
         $result = self::tryConvert($value, $target, $phpVersion ?? PhpVersion::DEFAULT());
 
         if (!$result)
         {
-            throw new ConversionException('Failed to convert to ' . $target, $value);
+            if ($value instanceof Node)
+            {
+                throw new ConversionException('Failed to convert ' . $value->repr() . ' to ' . $target, $value);
+            }
+            else
+            {
+                throw new ConversionException('Failed to convert ' . \var_export($value, true) . ' to ' . $target, null);
+            }
         }
 
         assert($result instanceof $target);
@@ -45,20 +58,31 @@ class NodeConverter
             return $value;
         }
 
-        if ($target === Block::class)
+        if ($target === RegularBlock::class)
         {
-            if ($asStatement = self::tryConvert($value, Statement::class, $phpVersion))
+            /** @var Statement|null $asStatement */
+            $asStatement = self::tryConvert($value, Statement::class, $phpVersion);
+            if ($asStatement)
             {
-                return new Block($asStatement);
+                return new RegularBlock($asStatement);
             }
         }
 
         if ($target === Statement::class)
         {
+            /** @var Expression|null $asExpression */
             $asExpression = self::tryConvert($value, Expression::class, $phpVersion);
-            if ($asExpression && $asExpression->isRead())
+            if ($asExpression)
             {
-                return new ExpressionStatement($value);
+                try
+                {
+                    $asExpression->validateContext(Expression::CTX_READ);
+                    return new ExpressionStatement($asExpression);
+                }
+                catch (ValidationException $e)
+                {
+                    // conversion not applicable
+                }
             }
         }
 
@@ -71,9 +95,9 @@ class NodeConverter
 
             if ($value instanceof Token)
             {
-                if ($value->getType() === \T_LNUMBER)
+                if ($value->getType() === Token::PH_T_LNUMBER)
                 {
-                    return new NumberLiteral($value);
+                    return new IntegerLiteral($value);
                 }
             }
         }

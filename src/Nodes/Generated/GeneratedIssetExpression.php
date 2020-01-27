@@ -9,46 +9,26 @@ use Phi\Nodes\Base\NodesList;
 use Phi\Nodes\Base\SeparatedNodesList;
 use Phi\Exception\MissingNodeException;
 use Phi\NodeConverter;
-use Phi\Specification;
-use Phi\Optional;
-use Phi\Specifications\And_;
-use Phi\Specifications\Any;
-use Phi\Specifications\IsToken;
-use Phi\Specifications\IsInstanceOf;
-use Phi\Specifications\ValidCompoundNode;
-use Phi\Specifications\EachItem;
-use Phi\Specifications\EachSeparator;
+use Phi\Exception\ValidationException;
 use Phi\Nodes as Nodes;
-use Phi\Specifications as Specs;
 
-abstract class GeneratedIssetExpression extends CompoundNode implements Nodes\Expression
+abstract class GeneratedIssetExpression extends Nodes\Expression
 {
-    /** @var Specification[] */
-    private static $specifications;
-    protected static function getSpecifications(): array
-    {
-        return self::$specifications ?? self::$specifications = [
-            new ValidCompoundNode([
-                'keyword' => new IsToken(\T_ISSET),
-                'leftParenthesis' => new IsToken('('),
-                'expressions' => new And_(new EachItem(new And_(new IsInstanceOf(Nodes\Expression::class), new Specs\IsReadExpression)), new EachSeparator(new IsToken(','))),
-                'rightParenthesis' => new IsToken(')'),
-            ]),
-        ];
-    }
-
     /**
      * @var Token|null
      */
     private $keyword;
+
     /**
      * @var Token|null
      */
     private $leftParenthesis;
+
     /**
      * @var SeparatedNodesList|Nodes\Expression[]
      */
     private $expressions;
+
     /**
      * @var Token|null
      */
@@ -59,7 +39,6 @@ abstract class GeneratedIssetExpression extends CompoundNode implements Nodes\Ex
      */
     public function __construct($expression = null)
     {
-        parent::__construct();
         $this->expressions = new SeparatedNodesList();
         if ($expression !== null)
         {
@@ -68,23 +47,29 @@ abstract class GeneratedIssetExpression extends CompoundNode implements Nodes\Ex
     }
 
     /**
+     * @param int $phpVersion
      * @param Token|null $keyword
      * @param Token|null $leftParenthesis
      * @param mixed[] $expressions
      * @param Token|null $rightParenthesis
      * @return static
      */
-    public static function __instantiateUnchecked($keyword, $leftParenthesis, $expressions, $rightParenthesis)
+    public static function __instantiateUnchecked($phpVersion, $keyword, $leftParenthesis, $expressions, $rightParenthesis)
     {
-        $instance = new static();
+        $instance = new static;
+        $instance->phpVersion = $phpVersion;
         $instance->keyword = $keyword;
+        $instance->keyword->parent = $instance;
         $instance->leftParenthesis = $leftParenthesis;
+        $instance->leftParenthesis->parent = $instance;
         $instance->expressions->__initUnchecked($expressions);
+        $instance->expressions->parent = $instance;
         $instance->rightParenthesis = $rightParenthesis;
+        $instance->rightParenthesis->parent = $instance;
         return $instance;
     }
 
-    public function &_getNodeRefs(): array
+    protected function &_getNodeRefs(): array
     {
         $refs = [
             'keyword' => &$this->keyword,
@@ -117,8 +102,9 @@ abstract class GeneratedIssetExpression extends CompoundNode implements Nodes\Ex
         if ($keyword !== null)
         {
             /** @var Token $keyword */
-            $keyword = NodeConverter::convert($keyword, Token::class, $this->_phpVersion);
-            $keyword->_attachTo($this);
+            $keyword = NodeConverter::convert($keyword, Token::class, $this->phpVersion);
+            $keyword->detach();
+            $keyword->parent = $this;
         }
         if ($this->keyword !== null)
         {
@@ -149,8 +135,9 @@ abstract class GeneratedIssetExpression extends CompoundNode implements Nodes\Ex
         if ($leftParenthesis !== null)
         {
             /** @var Token $leftParenthesis */
-            $leftParenthesis = NodeConverter::convert($leftParenthesis, Token::class, $this->_phpVersion);
-            $leftParenthesis->_attachTo($this);
+            $leftParenthesis = NodeConverter::convert($leftParenthesis, Token::class, $this->phpVersion);
+            $leftParenthesis->detach();
+            $leftParenthesis->parent = $this;
         }
         if ($this->leftParenthesis !== null)
         {
@@ -173,7 +160,7 @@ abstract class GeneratedIssetExpression extends CompoundNode implements Nodes\Ex
     public function addExpression($expression): void
     {
         /** @var Nodes\Expression $expression */
-        $expression = NodeConverter::convert($expression, Nodes\Expression::class);
+        $expression = NodeConverter::convert($expression, Nodes\Expression::class, $this->phpVersion);
         $this->expressions->add($expression);
     }
 
@@ -199,13 +186,31 @@ abstract class GeneratedIssetExpression extends CompoundNode implements Nodes\Ex
         if ($rightParenthesis !== null)
         {
             /** @var Token $rightParenthesis */
-            $rightParenthesis = NodeConverter::convert($rightParenthesis, Token::class, $this->_phpVersion);
-            $rightParenthesis->_attachTo($this);
+            $rightParenthesis = NodeConverter::convert($rightParenthesis, Token::class, $this->phpVersion);
+            $rightParenthesis->detach();
+            $rightParenthesis->parent = $this;
         }
         if ($this->rightParenthesis !== null)
         {
             $this->rightParenthesis->detach();
         }
         $this->rightParenthesis = $rightParenthesis;
+    }
+
+    protected function _validate(int $flags): void
+    {
+        if ($flags & self::VALIDATE_TYPES)
+        {
+            if ($this->keyword === null) throw ValidationException::childRequired($this, 'keyword');
+            if ($this->leftParenthesis === null) throw ValidationException::childRequired($this, 'leftParenthesis');
+            if ($this->rightParenthesis === null) throw ValidationException::childRequired($this, 'rightParenthesis');
+        }
+        if ($flags & self::VALIDATE_EXPRESSION_CONTEXT)
+        {
+        }
+        if ($flags & self::VALIDATE_TOKENS)
+        {
+        }
+        $this->expressions->_validate($flags);
     }
 }

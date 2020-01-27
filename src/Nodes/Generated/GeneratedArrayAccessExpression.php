@@ -9,46 +9,26 @@ use Phi\Nodes\Base\NodesList;
 use Phi\Nodes\Base\SeparatedNodesList;
 use Phi\Exception\MissingNodeException;
 use Phi\NodeConverter;
-use Phi\Specification;
-use Phi\Optional;
-use Phi\Specifications\And_;
-use Phi\Specifications\Any;
-use Phi\Specifications\IsToken;
-use Phi\Specifications\IsInstanceOf;
-use Phi\Specifications\ValidCompoundNode;
-use Phi\Specifications\EachItem;
-use Phi\Specifications\EachSeparator;
+use Phi\Exception\ValidationException;
 use Phi\Nodes as Nodes;
-use Phi\Specifications as Specs;
 
-abstract class GeneratedArrayAccessExpression extends CompoundNode implements Nodes\Expression
+abstract class GeneratedArrayAccessExpression extends Nodes\Expression
 {
-    /** @var Specification[] */
-    private static $specifications;
-    protected static function getSpecifications(): array
-    {
-        return self::$specifications ?? self::$specifications = [
-            new ValidCompoundNode([
-                'accessee' => new Specs\IsReadExpression,
-                'leftBracket' => new IsToken('['),
-                'index' => new Optional(new Specs\IsReadExpression),
-                'rightBracket' => new IsToken(']'),
-            ]),
-        ];
-    }
-
     /**
      * @var Nodes\Expression|null
      */
     private $accessee;
+
     /**
      * @var Token|null
      */
     private $leftBracket;
+
     /**
      * @var Nodes\Expression|null
      */
     private $index;
+
     /**
      * @var Token|null
      */
@@ -60,7 +40,6 @@ abstract class GeneratedArrayAccessExpression extends CompoundNode implements No
      */
     public function __construct($accessee = null, $index = null)
     {
-        parent::__construct();
         if ($accessee !== null)
         {
             $this->setAccessee($accessee);
@@ -72,23 +51,32 @@ abstract class GeneratedArrayAccessExpression extends CompoundNode implements No
     }
 
     /**
+     * @param int $phpVersion
      * @param Nodes\Expression|null $accessee
      * @param Token|null $leftBracket
      * @param Nodes\Expression|null $index
      * @param Token|null $rightBracket
      * @return static
      */
-    public static function __instantiateUnchecked($accessee, $leftBracket, $index, $rightBracket)
+    public static function __instantiateUnchecked($phpVersion, $accessee, $leftBracket, $index, $rightBracket)
     {
-        $instance = new static();
+        $instance = new static;
+        $instance->phpVersion = $phpVersion;
         $instance->accessee = $accessee;
+        $instance->accessee->parent = $instance;
         $instance->leftBracket = $leftBracket;
+        $instance->leftBracket->parent = $instance;
         $instance->index = $index;
+        if ($index)
+        {
+            $instance->index->parent = $instance;
+        }
         $instance->rightBracket = $rightBracket;
+        $instance->rightBracket->parent = $instance;
         return $instance;
     }
 
-    public function &_getNodeRefs(): array
+    protected function &_getNodeRefs(): array
     {
         $refs = [
             'accessee' => &$this->accessee,
@@ -121,8 +109,9 @@ abstract class GeneratedArrayAccessExpression extends CompoundNode implements No
         if ($accessee !== null)
         {
             /** @var Nodes\Expression $accessee */
-            $accessee = NodeConverter::convert($accessee, Nodes\Expression::class, $this->_phpVersion);
-            $accessee->_attachTo($this);
+            $accessee = NodeConverter::convert($accessee, Nodes\Expression::class, $this->phpVersion);
+            $accessee->detach();
+            $accessee->parent = $this;
         }
         if ($this->accessee !== null)
         {
@@ -153,8 +142,9 @@ abstract class GeneratedArrayAccessExpression extends CompoundNode implements No
         if ($leftBracket !== null)
         {
             /** @var Token $leftBracket */
-            $leftBracket = NodeConverter::convert($leftBracket, Token::class, $this->_phpVersion);
-            $leftBracket->_attachTo($this);
+            $leftBracket = NodeConverter::convert($leftBracket, Token::class, $this->phpVersion);
+            $leftBracket->detach();
+            $leftBracket->parent = $this;
         }
         if ($this->leftBracket !== null)
         {
@@ -181,8 +171,9 @@ abstract class GeneratedArrayAccessExpression extends CompoundNode implements No
         if ($index !== null)
         {
             /** @var Nodes\Expression $index */
-            $index = NodeConverter::convert($index, Nodes\Expression::class, $this->_phpVersion);
-            $index->_attachTo($this);
+            $index = NodeConverter::convert($index, Nodes\Expression::class, $this->phpVersion);
+            $index->detach();
+            $index->parent = $this;
         }
         if ($this->index !== null)
         {
@@ -213,13 +204,35 @@ abstract class GeneratedArrayAccessExpression extends CompoundNode implements No
         if ($rightBracket !== null)
         {
             /** @var Token $rightBracket */
-            $rightBracket = NodeConverter::convert($rightBracket, Token::class, $this->_phpVersion);
-            $rightBracket->_attachTo($this);
+            $rightBracket = NodeConverter::convert($rightBracket, Token::class, $this->phpVersion);
+            $rightBracket->detach();
+            $rightBracket->parent = $this;
         }
         if ($this->rightBracket !== null)
         {
             $this->rightBracket->detach();
         }
         $this->rightBracket = $rightBracket;
+    }
+
+    protected function _validate(int $flags): void
+    {
+        if ($flags & self::VALIDATE_TYPES)
+        {
+            if ($this->accessee === null) throw ValidationException::childRequired($this, 'accessee');
+            if ($this->leftBracket === null) throw ValidationException::childRequired($this, 'leftBracket');
+            if ($this->rightBracket === null) throw ValidationException::childRequired($this, 'rightBracket');
+        }
+        if ($flags & self::VALIDATE_EXPRESSION_CONTEXT)
+        {
+        }
+        if ($flags & self::VALIDATE_TOKENS)
+        {
+        }
+        $this->accessee->_validate($flags);
+        if ($this->index)
+        {
+            $this->index->_validate($flags);
+        }
     }
 }

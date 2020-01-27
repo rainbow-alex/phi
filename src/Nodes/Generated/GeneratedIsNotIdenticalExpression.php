@@ -9,41 +9,21 @@ use Phi\Nodes\Base\NodesList;
 use Phi\Nodes\Base\SeparatedNodesList;
 use Phi\Exception\MissingNodeException;
 use Phi\NodeConverter;
-use Phi\Specification;
-use Phi\Optional;
-use Phi\Specifications\And_;
-use Phi\Specifications\Any;
-use Phi\Specifications\IsToken;
-use Phi\Specifications\IsInstanceOf;
-use Phi\Specifications\ValidCompoundNode;
-use Phi\Specifications\EachItem;
-use Phi\Specifications\EachSeparator;
+use Phi\Exception\ValidationException;
 use Phi\Nodes as Nodes;
-use Phi\Specifications as Specs;
 
-abstract class GeneratedIsNotIdenticalExpression extends CompoundNode implements Nodes\Expression
+abstract class GeneratedIsNotIdenticalExpression extends Nodes\BinopExpression
 {
-    /** @var Specification[] */
-    private static $specifications;
-    protected static function getSpecifications(): array
-    {
-        return self::$specifications ?? self::$specifications = [
-            new ValidCompoundNode([
-                'left' => new Specs\IsReadExpression,
-                'operator' => new IsToken(\T_IS_NOT_IDENTICAL),
-                'right' => new Specs\IsReadExpression,
-            ]),
-        ];
-    }
-
     /**
      * @var Nodes\Expression|null
      */
     private $left;
+
     /**
      * @var Token|null
      */
     private $operator;
+
     /**
      * @var Nodes\Expression|null
      */
@@ -55,7 +35,6 @@ abstract class GeneratedIsNotIdenticalExpression extends CompoundNode implements
      */
     public function __construct($left = null, $right = null)
     {
-        parent::__construct();
         if ($left !== null)
         {
             $this->setLeft($left);
@@ -67,21 +46,26 @@ abstract class GeneratedIsNotIdenticalExpression extends CompoundNode implements
     }
 
     /**
+     * @param int $phpVersion
      * @param Nodes\Expression|null $left
      * @param Token|null $operator
      * @param Nodes\Expression|null $right
      * @return static
      */
-    public static function __instantiateUnchecked($left, $operator, $right)
+    public static function __instantiateUnchecked($phpVersion, $left, $operator, $right)
     {
-        $instance = new static();
+        $instance = new static;
+        $instance->phpVersion = $phpVersion;
         $instance->left = $left;
+        $instance->left->parent = $instance;
         $instance->operator = $operator;
+        $instance->operator->parent = $instance;
         $instance->right = $right;
+        $instance->right->parent = $instance;
         return $instance;
     }
 
-    public function &_getNodeRefs(): array
+    protected function &_getNodeRefs(): array
     {
         $refs = [
             'left' => &$this->left,
@@ -113,8 +97,9 @@ abstract class GeneratedIsNotIdenticalExpression extends CompoundNode implements
         if ($left !== null)
         {
             /** @var Nodes\Expression $left */
-            $left = NodeConverter::convert($left, Nodes\Expression::class, $this->_phpVersion);
-            $left->_attachTo($this);
+            $left = NodeConverter::convert($left, Nodes\Expression::class, $this->phpVersion);
+            $left->detach();
+            $left->parent = $this;
         }
         if ($this->left !== null)
         {
@@ -145,8 +130,9 @@ abstract class GeneratedIsNotIdenticalExpression extends CompoundNode implements
         if ($operator !== null)
         {
             /** @var Token $operator */
-            $operator = NodeConverter::convert($operator, Token::class, $this->_phpVersion);
-            $operator->_attachTo($this);
+            $operator = NodeConverter::convert($operator, Token::class, $this->phpVersion);
+            $operator->detach();
+            $operator->parent = $this;
         }
         if ($this->operator !== null)
         {
@@ -177,13 +163,32 @@ abstract class GeneratedIsNotIdenticalExpression extends CompoundNode implements
         if ($right !== null)
         {
             /** @var Nodes\Expression $right */
-            $right = NodeConverter::convert($right, Nodes\Expression::class, $this->_phpVersion);
-            $right->_attachTo($this);
+            $right = NodeConverter::convert($right, Nodes\Expression::class, $this->phpVersion);
+            $right->detach();
+            $right->parent = $this;
         }
         if ($this->right !== null)
         {
             $this->right->detach();
         }
         $this->right = $right;
+    }
+
+    protected function _validate(int $flags): void
+    {
+        if ($flags & self::VALIDATE_TYPES)
+        {
+            if ($this->left === null) throw ValidationException::childRequired($this, 'left');
+            if ($this->operator === null) throw ValidationException::childRequired($this, 'operator');
+            if ($this->right === null) throw ValidationException::childRequired($this, 'right');
+        }
+        if ($flags & self::VALIDATE_EXPRESSION_CONTEXT)
+        {
+        }
+        if ($flags & self::VALIDATE_TOKENS)
+        {
+        }
+        $this->left->_validate($flags);
+        $this->right->_validate($flags);
     }
 }

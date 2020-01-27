@@ -9,31 +9,11 @@ use Phi\Nodes\Base\NodesList;
 use Phi\Nodes\Base\SeparatedNodesList;
 use Phi\Exception\MissingNodeException;
 use Phi\NodeConverter;
-use Phi\Specification;
-use Phi\Optional;
-use Phi\Specifications\And_;
-use Phi\Specifications\Any;
-use Phi\Specifications\IsToken;
-use Phi\Specifications\IsInstanceOf;
-use Phi\Specifications\ValidCompoundNode;
-use Phi\Specifications\EachItem;
-use Phi\Specifications\EachSeparator;
+use Phi\Exception\ValidationException;
 use Phi\Nodes as Nodes;
-use Phi\Specifications as Specs;
 
-abstract class GeneratedConstantInterpolatedStringPart extends CompoundNode implements Nodes\InterpolatedStringPart
+abstract class GeneratedConstantInterpolatedStringPart extends Nodes\CInterpolatedStringPart
 {
-    /** @var Specification[] */
-    private static $specifications;
-    protected static function getSpecifications(): array
-    {
-        return self::$specifications ?? self::$specifications = [
-            new ValidCompoundNode([
-                'content' => new IsToken(\T_ENCAPSED_AND_WHITESPACE),
-            ]),
-        ];
-    }
-
     /**
      * @var Token|null
      */
@@ -44,7 +24,6 @@ abstract class GeneratedConstantInterpolatedStringPart extends CompoundNode impl
      */
     public function __construct($content = null)
     {
-        parent::__construct();
         if ($content !== null)
         {
             $this->setContent($content);
@@ -52,17 +31,20 @@ abstract class GeneratedConstantInterpolatedStringPart extends CompoundNode impl
     }
 
     /**
+     * @param int $phpVersion
      * @param Token|null $content
      * @return static
      */
-    public static function __instantiateUnchecked($content)
+    public static function __instantiateUnchecked($phpVersion, $content)
     {
-        $instance = new static();
+        $instance = new static;
+        $instance->phpVersion = $phpVersion;
         $instance->content = $content;
+        $instance->content->parent = $instance;
         return $instance;
     }
 
-    public function &_getNodeRefs(): array
+    protected function &_getNodeRefs(): array
     {
         $refs = [
             'content' => &$this->content,
@@ -92,13 +74,28 @@ abstract class GeneratedConstantInterpolatedStringPart extends CompoundNode impl
         if ($content !== null)
         {
             /** @var Token $content */
-            $content = NodeConverter::convert($content, Token::class, $this->_phpVersion);
-            $content->_attachTo($this);
+            $content = NodeConverter::convert($content, Token::class, $this->phpVersion);
+            $content->detach();
+            $content->parent = $this;
         }
         if ($this->content !== null)
         {
             $this->content->detach();
         }
         $this->content = $content;
+    }
+
+    protected function _validate(int $flags): void
+    {
+        if ($flags & self::VALIDATE_TYPES)
+        {
+            if ($this->content === null) throw ValidationException::childRequired($this, 'content');
+        }
+        if ($flags & self::VALIDATE_EXPRESSION_CONTEXT)
+        {
+        }
+        if ($flags & self::VALIDATE_TOKENS)
+        {
+        }
     }
 }

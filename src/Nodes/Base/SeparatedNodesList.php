@@ -3,46 +3,52 @@
 namespace Phi\Nodes\Base;
 
 use ArrayIterator;
-use Phi\Node;
 use Iterator;
 use IteratorAggregate;
+use Phi\Node;
 
-class SeparatedNodesList extends AbstractNode implements IteratorAggregate
+class SeparatedNodesList extends Node implements IteratorAggregate
 {
     /**
      * @var array<Node|null>
-     * @internal
      */
-    public $_nodes = [];
+    private $nodes = [];
 
     /**
      * @param array<Node|null> $nodes
      */
     public function __initUnchecked(array $nodes): void
     {
-        $this->_nodes = $nodes;
+        $this->nodes = $nodes;
+        foreach ($nodes as $n)
+        {
+            if ($n)
+            {
+                $n->parent = $this;
+            }
+        }
     }
 
-    public function _detachChild(Node $childToDetach): void
+    protected function detachChild(Node $childToDetach): void
     {
-        $i = \array_search($childToDetach, $this->_nodes, true);
+        $i = \array_search($childToDetach, $this->nodes, true);
 
         if ($i === false)
         {
             throw new \RuntimeException("$childToDetach is not attached to $this");
         }
 
-        \array_splice($this->_nodes, $i, 1);
+        \array_splice($this->nodes, $i, 1);
     }
 
     public function childNodes(): array
     {
-        return \array_values(\array_filter($this->_nodes));
+        return \array_values(\array_filter($this->nodes));
     }
 
     public function tokens(): iterable
     {
-        foreach ($this->_nodes as $node)
+        foreach ($this->nodes as $node)
         {
             if ($node)
             {
@@ -53,7 +59,7 @@ class SeparatedNodesList extends AbstractNode implements IteratorAggregate
 
     public function getLeftWhitespace(): string
     {
-        foreach ($this->_nodes as $node)
+        foreach ($this->nodes as $node)
         {
             if ($node)
             {
@@ -65,9 +71,9 @@ class SeparatedNodesList extends AbstractNode implements IteratorAggregate
 
     public function getRightWhitespace(): string
     {
-        for ($i = count($this->_nodes) - 1; $i >= 0; $i--)
+        for ($i = count($this->nodes) - 1; $i >= 0; $i--)
         {
-            $node = $this->_nodes[$i];
+            $node = $this->nodes[$i];
             if ($node)
             {
                 return $node->getRightWhitespace();
@@ -76,10 +82,22 @@ class SeparatedNodesList extends AbstractNode implements IteratorAggregate
         return '';
     }
 
-    public function __toString(): string
+    public function _validate(int $flags): void
+    {
+        // TODO do only compound nodes need this?
+        foreach ($this->nodes as $i => $node)
+        {
+            if ($node && $i % 2 === 1)
+            {
+                $node->_validate($flags);
+            }
+        }
+    }
+
+    public function toPhp(): string
     {
         $php = '';
-        foreach ($this->_nodes as $node)
+        foreach ($this->nodes as $node)
         {
             if ($node)
             {
@@ -93,7 +111,7 @@ class SeparatedNodesList extends AbstractNode implements IteratorAggregate
     {
         echo $indent . $this->repr() . " [\n", null;
 
-        foreach ($this->_nodes as $node)
+        foreach ($this->nodes as $node)
         {
             if ($node)
             {
@@ -114,7 +132,7 @@ class SeparatedNodesList extends AbstractNode implements IteratorAggregate
     public function getItems(): array
     {
         $items = [];
-        foreach ($this->_nodes as $i => $node)
+        foreach ($this->nodes as $i => $node)
         {
             if ($node && $i % 2 === 1)
             {
@@ -128,7 +146,7 @@ class SeparatedNodesList extends AbstractNode implements IteratorAggregate
     public function getSeparators(): array
     {
         $separators = [];
-        foreach ($this->_nodes as $i => $node)
+        foreach ($this->nodes as $i => $node)
         {
             if ($node && $i % 2 === 0)
             {
@@ -140,12 +158,13 @@ class SeparatedNodesList extends AbstractNode implements IteratorAggregate
 
     public function add(Node $node): void
     {
-        if (count($this->_nodes) % 2 === 0)
+        if (count($this->nodes) % 2 === 0)
         {
-            $this->_nodes[] = null;
+            $this->nodes[] = null;
         }
 
-        $node->_attachTo($this);
-        $this->_nodes[] = $node;
+        $node->detach();
+        $node->parent = $this;
+        $this->nodes[] = $node;
     }
 }

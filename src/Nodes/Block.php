@@ -2,8 +2,8 @@
 
 namespace Phi\Nodes;
 
-use Phi\Nodes\Generated\GeneratedBlock;
+use Phi\Nodes\Base\CompoundNode;
 
-class Block extends GeneratedBlock
+abstract class Block extends CompoundNode
 {
 }

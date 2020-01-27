@@ -8,25 +8,28 @@ use Exception;
 
 abstract class PhiException extends Exception
 {
-    /** @var Node */
+    /** @var Node|null */
     private $node;
 
-    public function __construct(string $message, Node $node)
+    public function __construct(string $message, ?Node $node)
     {
         parent::__construct($message);
         $this->node = $node;
     }
 
-    public function getNode(): Node
+    public function getNode(): ?Node
     {
         return $this->node;
     }
 
     private function token(): ?Token
     {
-        foreach ($this->node->tokens() as $token)
+        if ($this->node)
         {
-            return $token;
+            foreach ($this->node->tokens() as $token)
+            {
+                return $token;
+            }
         }
 
         return null;

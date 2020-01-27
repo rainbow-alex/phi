@@ -6,19 +6,20 @@
     },
     "autoload-dev": {
         "psr-4": {
-            "Phi\\Tests\\": "tests/"
+            "Phi\\Tests\\": "tests/",
+            "Phi\\Meta\\": "meta/"
         }
     },
     "require-dev": {
+        "ext-json": "*",
         "phpunit/phpunit": "^8.0",
         "phpstan/phpstan": "^0.11.2",
         "phpstan/phpstan-strict-rules": "^0.11.0"
     },
     "scripts": {
-        "build": "composer phpstan && composer phpunit",
-        "generate-nodes": "php meta/_generate_nodes.php",
+        "build": "composer phpstan && ",
+        "generate": "php meta/bin/generate_nodes.php; php meta/bin/optimize_parser.php; php meta/bin/generate_parser_tests.php",
         "phpstan": "vendor/bin/phpstan a",
-        "phpunit": "vendor/bin/phpunit --coverage-html coverage/",
-        "phpunit-dev": "PHI_PHPUNIT_AUTOCOMPLETE=1 PHI_DEBUG_COLOR=1 vendor/bin/phpunit --stop-on-error --stop-on-failure"
+        "phpunit": "vendor/bin/phpunit --stop-on-error --stop-on-failure"
     }
 }

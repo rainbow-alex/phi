@@ -9,36 +9,16 @@ use Phi\Nodes\Base\NodesList;
 use Phi\Nodes\Base\SeparatedNodesList;
 use Phi\Exception\MissingNodeException;
 use Phi\NodeConverter;
-use Phi\Specification;
-use Phi\Optional;
-use Phi\Specifications\And_;
-use Phi\Specifications\Any;
-use Phi\Specifications\IsToken;
-use Phi\Specifications\IsInstanceOf;
-use Phi\Specifications\ValidCompoundNode;
-use Phi\Specifications\EachItem;
-use Phi\Specifications\EachSeparator;
+use Phi\Exception\ValidationException;
 use Phi\Nodes as Nodes;
-use Phi\Specifications as Specs;
 
 abstract class GeneratedDefault extends CompoundNode
 {
-    /** @var Specification[] */
-    private static $specifications;
-    protected static function getSpecifications(): array
-    {
-        return self::$specifications ?? self::$specifications = [
-            new ValidCompoundNode([
-                'symbol' => new IsToken('='),
-                'value' => new Any,
-            ]),
-        ];
-    }
-
     /**
      * @var Token|null
      */
     private $symbol;
+
     /**
      * @var Nodes\Expression|null
      */
@@ -49,7 +29,6 @@ abstract class GeneratedDefault extends CompoundNode
      */
     public function __construct($value = null)
     {
-        parent::__construct();
         if ($value !== null)
         {
             $this->setValue($value);
@@ -57,19 +36,23 @@ abstract class GeneratedDefault extends CompoundNode
     }
 
     /**
+     * @param int $phpVersion
      * @param Token|null $symbol
      * @param Nodes\Expression|null $value
      * @return static
      */
-    public static function __instantiateUnchecked($symbol, $value)
+    public static function __instantiateUnchecked($phpVersion, $symbol, $value)
     {
-        $instance = new static();
+        $instance = new static;
+        $instance->phpVersion = $phpVersion;
         $instance->symbol = $symbol;
+        $instance->symbol->parent = $instance;
         $instance->value = $value;
+        $instance->value->parent = $instance;
         return $instance;
     }
 
-    public function &_getNodeRefs(): array
+    protected function &_getNodeRefs(): array
     {
         $refs = [
             'symbol' => &$this->symbol,
@@ -100,8 +83,9 @@ abstract class GeneratedDefault extends CompoundNode
         if ($symbol !== null)
         {
             /** @var Token $symbol */
-            $symbol = NodeConverter::convert($symbol, Token::class, $this->_phpVersion);
-            $symbol->_attachTo($this);
+            $symbol = NodeConverter::convert($symbol, Token::class, $this->phpVersion);
+            $symbol->detach();
+            $symbol->parent = $this;
         }
         if ($this->symbol !== null)
         {
@@ -132,13 +116,30 @@ abstract class GeneratedDefault extends CompoundNode
         if ($value !== null)
         {
             /** @var Nodes\Expression $value */
-            $value = NodeConverter::convert($value, Nodes\Expression::class, $this->_phpVersion);
-            $value->_attachTo($this);
+            $value = NodeConverter::convert($value, Nodes\Expression::class, $this->phpVersion);
+            $value->detach();
+            $value->parent = $this;
         }
         if ($this->value !== null)
         {
             $this->value->detach();
         }
         $this->value = $value;
+    }
+
+    protected function _validate(int $flags): void
+    {
+        if ($flags & self::VALIDATE_TYPES)
+        {
+            if ($this->symbol === null) throw ValidationException::childRequired($this, 'symbol');
+            if ($this->value === null) throw ValidationException::childRequired($this, 'value');
+        }
+        if ($flags & self::VALIDATE_EXPRESSION_CONTEXT)
+        {
+        }
+        if ($flags & self::VALIDATE_TOKENS)
+        {
+        }
+        $this->value->_validate($flags);
     }
 }

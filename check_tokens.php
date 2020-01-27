@@ -3,6 +3,8 @@
 
 /** @noinspection PhpComposerExtensionStubsInspection */
 
+use Phi\PhpVersion;
+
 require __DIR__ . '/vendor/autoload.php';
 
 if (count($argv) > 1)
@@ -10,7 +12,22 @@ if (count($argv) > 1)
     foreach (array_slice($argv, 1) as $arg)
     {
         echo "\e[45mphp -l\e[0m\n";
-        system('echo ' . escapeshellarg('<?php ' . $arg . ';') . ' | php -l');
+        system('echo ' . escapeshellarg('<?php ' . $arg . ';') . ' | php -l', $r);
+        if ($r === 0)
+        {
+            $tokens = token_get_all('<?php ' . $arg . ';');
+            foreach ($tokens as $t)
+            {
+                if (is_array($t))
+                {
+                    echo token_name($t[0]) . ": " . var_export($t[1], true) . "\n";
+                }
+                else
+                {
+                    echo var_export($t) . "\n";
+                }
+            }
+        }
 
         echo "\e[45mnikic/php-parser\e[0m\n";
         try
@@ -35,7 +52,7 @@ if (count($argv) > 1)
         echo "\e[45mphi\e[0m\n";
         try
         {
-            $tokens2 = (new \Phi\Lexer())->lex(null, '<?php ' . $arg);
+            $tokens2 = (new \Phi\Lexer(PhpVersion::PHP_7_2))->lex(null, '<?php ' . $arg);
             foreach ($tokens2 as $t)
             {
                 $t->debugDump();

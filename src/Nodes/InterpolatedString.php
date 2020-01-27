@@ -2,12 +2,22 @@
 
 namespace Phi\Nodes;
 
-use Phi\Nodes\Base\DynamicExpression;
-use Phi\Nodes\Base\ReadOnlyExpression;
+use Phi\Exception\ValidationException;
 use Phi\Nodes\Generated\GeneratedInterpolatedString;
 
 class InterpolatedString extends GeneratedInterpolatedString
 {
-    use DynamicExpression;
-    use ReadOnlyExpression;
+    public function validateContext(int $flags): void
+    {
+        $never = self::CTX_WRITE|self::CTX_ALIAS;
+        if ($flags & $never)
+        {
+            throw ValidationException::expressionContext($flags & $never, $this);
+        }
+
+        foreach ($this->getParts() as $part)
+        {
+            // TODO part
+        }
+    }
 }

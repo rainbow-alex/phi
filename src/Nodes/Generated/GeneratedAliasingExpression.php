@@ -9,46 +9,26 @@ use Phi\Nodes\Base\NodesList;
 use Phi\Nodes\Base\SeparatedNodesList;
 use Phi\Exception\MissingNodeException;
 use Phi\NodeConverter;
-use Phi\Specification;
-use Phi\Optional;
-use Phi\Specifications\And_;
-use Phi\Specifications\Any;
-use Phi\Specifications\IsToken;
-use Phi\Specifications\IsInstanceOf;
-use Phi\Specifications\ValidCompoundNode;
-use Phi\Specifications\EachItem;
-use Phi\Specifications\EachSeparator;
+use Phi\Exception\ValidationException;
 use Phi\Nodes as Nodes;
-use Phi\Specifications as Specs;
 
-abstract class GeneratedAliasingExpression extends CompoundNode implements Nodes\Expression
+abstract class GeneratedAliasingExpression extends Nodes\Expression
 {
-    /** @var Specification[] */
-    private static $specifications;
-    protected static function getSpecifications(): array
-    {
-        return self::$specifications ?? self::$specifications = [
-            new ValidCompoundNode([
-                'alias' => new Specs\IsAliasWriteExpression,
-                'operator1' => new IsToken('='),
-                'operator2' => new IsToken('&'),
-                'value' => new Specs\IsAliasReadExpression,
-            ]),
-        ];
-    }
-
     /**
      * @var Nodes\Expression|null
      */
     private $alias;
+
     /**
      * @var Token|null
      */
     private $operator1;
+
     /**
      * @var Token|null
      */
     private $operator2;
+
     /**
      * @var Nodes\Expression|null
      */
@@ -60,7 +40,6 @@ abstract class GeneratedAliasingExpression extends CompoundNode implements Nodes
      */
     public function __construct($alias = null, $value = null)
     {
-        parent::__construct();
         if ($alias !== null)
         {
             $this->setAlias($alias);
@@ -72,23 +51,29 @@ abstract class GeneratedAliasingExpression extends CompoundNode implements Nodes
     }
 
     /**
+     * @param int $phpVersion
      * @param Nodes\Expression|null $alias
      * @param Token|null $operator1
      * @param Token|null $operator2
      * @param Nodes\Expression|null $value
      * @return static
      */
-    public static function __instantiateUnchecked($alias, $operator1, $operator2, $value)
+    public static function __instantiateUnchecked($phpVersion, $alias, $operator1, $operator2, $value)
     {
-        $instance = new static();
+        $instance = new static;
+        $instance->phpVersion = $phpVersion;
         $instance->alias = $alias;
+        $instance->alias->parent = $instance;
         $instance->operator1 = $operator1;
+        $instance->operator1->parent = $instance;
         $instance->operator2 = $operator2;
+        $instance->operator2->parent = $instance;
         $instance->value = $value;
+        $instance->value->parent = $instance;
         return $instance;
     }
 
-    public function &_getNodeRefs(): array
+    protected function &_getNodeRefs(): array
     {
         $refs = [
             'alias' => &$this->alias,
@@ -121,8 +106,9 @@ abstract class GeneratedAliasingExpression extends CompoundNode implements Nodes
         if ($alias !== null)
         {
             /** @var Nodes\Expression $alias */
-            $alias = NodeConverter::convert($alias, Nodes\Expression::class, $this->_phpVersion);
-            $alias->_attachTo($this);
+            $alias = NodeConverter::convert($alias, Nodes\Expression::class, $this->phpVersion);
+            $alias->detach();
+            $alias->parent = $this;
         }
         if ($this->alias !== null)
         {
@@ -153,8 +139,9 @@ abstract class GeneratedAliasingExpression extends CompoundNode implements Nodes
         if ($operator1 !== null)
         {
             /** @var Token $operator1 */
-            $operator1 = NodeConverter::convert($operator1, Token::class, $this->_phpVersion);
-            $operator1->_attachTo($this);
+            $operator1 = NodeConverter::convert($operator1, Token::class, $this->phpVersion);
+            $operator1->detach();
+            $operator1->parent = $this;
         }
         if ($this->operator1 !== null)
         {
@@ -185,8 +172,9 @@ abstract class GeneratedAliasingExpression extends CompoundNode implements Nodes
         if ($operator2 !== null)
         {
             /** @var Token $operator2 */
-            $operator2 = NodeConverter::convert($operator2, Token::class, $this->_phpVersion);
-            $operator2->_attachTo($this);
+            $operator2 = NodeConverter::convert($operator2, Token::class, $this->phpVersion);
+            $operator2->detach();
+            $operator2->parent = $this;
         }
         if ($this->operator2 !== null)
         {
@@ -217,13 +205,33 @@ abstract class GeneratedAliasingExpression extends CompoundNode implements Nodes
         if ($value !== null)
         {
             /** @var Nodes\Expression $value */
-            $value = NodeConverter::convert($value, Nodes\Expression::class, $this->_phpVersion);
-            $value->_attachTo($this);
+            $value = NodeConverter::convert($value, Nodes\Expression::class, $this->phpVersion);
+            $value->detach();
+            $value->parent = $this;
         }
         if ($this->value !== null)
         {
             $this->value->detach();
         }
         $this->value = $value;
+    }
+
+    protected function _validate(int $flags): void
+    {
+        if ($flags & self::VALIDATE_TYPES)
+        {
+            if ($this->alias === null) throw ValidationException::childRequired($this, 'alias');
+            if ($this->operator1 === null) throw ValidationException::childRequired($this, 'operator1');
+            if ($this->operator2 === null) throw ValidationException::childRequired($this, 'operator2');
+            if ($this->value === null) throw ValidationException::childRequired($this, 'value');
+        }
+        if ($flags & self::VALIDATE_EXPRESSION_CONTEXT)
+        {
+        }
+        if ($flags & self::VALIDATE_TOKENS)
+        {
+        }
+        $this->alias->_validate($flags);
+        $this->value->_validate($flags);
     }
 }

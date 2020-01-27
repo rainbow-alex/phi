@@ -9,41 +9,21 @@ use Phi\Nodes\Base\NodesList;
 use Phi\Nodes\Base\SeparatedNodesList;
 use Phi\Exception\MissingNodeException;
 use Phi\NodeConverter;
-use Phi\Specification;
-use Phi\Optional;
-use Phi\Specifications\And_;
-use Phi\Specifications\Any;
-use Phi\Specifications\IsToken;
-use Phi\Specifications\IsInstanceOf;
-use Phi\Specifications\ValidCompoundNode;
-use Phi\Specifications\EachItem;
-use Phi\Specifications\EachSeparator;
+use Phi\Exception\ValidationException;
 use Phi\Nodes as Nodes;
-use Phi\Specifications as Specs;
 
-abstract class GeneratedContinueStatement extends CompoundNode implements Nodes\Statement
+abstract class GeneratedContinueStatement extends Nodes\Statement
 {
-    /** @var Specification[] */
-    private static $specifications;
-    protected static function getSpecifications(): array
-    {
-        return self::$specifications ?? self::$specifications = [
-            new ValidCompoundNode([
-                'keyword' => new IsToken(\T_CONTINUE),
-                'levels' => new Optional(new Any),
-                'semiColon' => new Optional(new IsToken(';')),
-            ]),
-        ];
-    }
-
     /**
      * @var Token|null
      */
     private $keyword;
+
     /**
-     * @var Nodes\Expression|null
+     * @var Nodes\IntegerLiteral|null
      */
     private $levels;
+
     /**
      * @var Token|null
      */
@@ -53,25 +33,35 @@ abstract class GeneratedContinueStatement extends CompoundNode implements Nodes\
      */
     public function __construct()
     {
-        parent::__construct();
     }
 
     /**
+     * @param int $phpVersion
      * @param Token|null $keyword
-     * @param Nodes\Expression|null $levels
+     * @param Nodes\IntegerLiteral|null $levels
      * @param Token|null $semiColon
      * @return static
      */
-    public static function __instantiateUnchecked($keyword, $levels, $semiColon)
+    public static function __instantiateUnchecked($phpVersion, $keyword, $levels, $semiColon)
     {
-        $instance = new static();
+        $instance = new static;
+        $instance->phpVersion = $phpVersion;
         $instance->keyword = $keyword;
+        $instance->keyword->parent = $instance;
         $instance->levels = $levels;
+        if ($levels)
+        {
+            $instance->levels->parent = $instance;
+        }
         $instance->semiColon = $semiColon;
+        if ($semiColon)
+        {
+            $instance->semiColon->parent = $instance;
+        }
         return $instance;
     }
 
-    public function &_getNodeRefs(): array
+    protected function &_getNodeRefs(): array
     {
         $refs = [
             'keyword' => &$this->keyword,
@@ -103,8 +93,9 @@ abstract class GeneratedContinueStatement extends CompoundNode implements Nodes\
         if ($keyword !== null)
         {
             /** @var Token $keyword */
-            $keyword = NodeConverter::convert($keyword, Token::class, $this->_phpVersion);
-            $keyword->_attachTo($this);
+            $keyword = NodeConverter::convert($keyword, Token::class, $this->phpVersion);
+            $keyword->detach();
+            $keyword->parent = $this;
         }
         if ($this->keyword !== null)
         {
@@ -113,7 +104,7 @@ abstract class GeneratedContinueStatement extends CompoundNode implements Nodes\
         $this->keyword = $keyword;
     }
 
-    public function getLevels(): ?Nodes\Expression
+    public function getLevels(): ?Nodes\IntegerLiteral
     {
         return $this->levels;
     }
@@ -124,15 +115,16 @@ abstract class GeneratedContinueStatement extends CompoundNode implements Nodes\
     }
 
     /**
-     * @param Nodes\Expression|Node|string|null $levels
+     * @param Nodes\IntegerLiteral|Node|string|null $levels
      */
     public function setLevels($levels): void
     {
         if ($levels !== null)
         {
-            /** @var Nodes\Expression $levels */
-            $levels = NodeConverter::convert($levels, Nodes\Expression::class, $this->_phpVersion);
-            $levels->_attachTo($this);
+            /** @var Nodes\IntegerLiteral $levels */
+            $levels = NodeConverter::convert($levels, Nodes\IntegerLiteral::class, $this->phpVersion);
+            $levels->detach();
+            $levels->parent = $this;
         }
         if ($this->levels !== null)
         {
@@ -159,13 +151,32 @@ abstract class GeneratedContinueStatement extends CompoundNode implements Nodes\
         if ($semiColon !== null)
         {
             /** @var Token $semiColon */
-            $semiColon = NodeConverter::convert($semiColon, Token::class, $this->_phpVersion);
-            $semiColon->_attachTo($this);
+            $semiColon = NodeConverter::convert($semiColon, Token::class, $this->phpVersion);
+            $semiColon->detach();
+            $semiColon->parent = $this;
         }
         if ($this->semiColon !== null)
         {
             $this->semiColon->detach();
         }
         $this->semiColon = $semiColon;
+    }
+
+    protected function _validate(int $flags): void
+    {
+        if ($flags & self::VALIDATE_TYPES)
+        {
+            if ($this->keyword === null) throw ValidationException::childRequired($this, 'keyword');
+        }
+        if ($flags & self::VALIDATE_EXPRESSION_CONTEXT)
+        {
+        }
+        if ($flags & self::VALIDATE_TOKENS)
+        {
+        }
+        if ($this->levels)
+        {
+            $this->levels->_validate($flags);
+        }
     }
 }

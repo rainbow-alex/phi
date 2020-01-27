@@ -9,51 +9,31 @@ use Phi\Nodes\Base\NodesList;
 use Phi\Nodes\Base\SeparatedNodesList;
 use Phi\Exception\MissingNodeException;
 use Phi\NodeConverter;
-use Phi\Specification;
-use Phi\Optional;
-use Phi\Specifications\And_;
-use Phi\Specifications\Any;
-use Phi\Specifications\IsToken;
-use Phi\Specifications\IsInstanceOf;
-use Phi\Specifications\ValidCompoundNode;
-use Phi\Specifications\EachItem;
-use Phi\Specifications\EachSeparator;
+use Phi\Exception\ValidationException;
 use Phi\Nodes as Nodes;
-use Phi\Specifications as Specs;
 
-abstract class GeneratedTraitUseAs extends CompoundNode implements Nodes\TraitUseModification
+abstract class GeneratedTraitUseAs extends Nodes\TraitUseModification
 {
-    /** @var Specification[] */
-    private static $specifications;
-    protected static function getSpecifications(): array
-    {
-        return self::$specifications ?? self::$specifications = [
-            new ValidCompoundNode([
-                'trait' => new Any,
-                'doubleColon' => new IsToken(\T_DOUBLE_COLON),
-                'member' => new IsToken(\T_STRING),
-                'as' => new IsToken(\T_AS),
-                'alias' => new IsToken(\T_STRING),
-            ]),
-        ];
-    }
-
     /**
      * @var Nodes\Name|null
      */
     private $trait;
+
     /**
      * @var Token|null
      */
     private $doubleColon;
+
     /**
      * @var Token|null
      */
     private $member;
+
     /**
      * @var Token|null
      */
     private $as;
+
     /**
      * @var Token|null
      */
@@ -63,10 +43,10 @@ abstract class GeneratedTraitUseAs extends CompoundNode implements Nodes\TraitUs
      */
     public function __construct()
     {
-        parent::__construct();
     }
 
     /**
+     * @param int $phpVersion
      * @param Nodes\Name|null $trait
      * @param Token|null $doubleColon
      * @param Token|null $member
@@ -74,18 +54,24 @@ abstract class GeneratedTraitUseAs extends CompoundNode implements Nodes\TraitUs
      * @param Token|null $alias
      * @return static
      */
-    public static function __instantiateUnchecked($trait, $doubleColon, $member, $as, $alias)
+    public static function __instantiateUnchecked($phpVersion, $trait, $doubleColon, $member, $as, $alias)
     {
-        $instance = new static();
+        $instance = new static;
+        $instance->phpVersion = $phpVersion;
         $instance->trait = $trait;
+        $instance->trait->parent = $instance;
         $instance->doubleColon = $doubleColon;
+        $instance->doubleColon->parent = $instance;
         $instance->member = $member;
+        $instance->member->parent = $instance;
         $instance->as = $as;
+        $instance->as->parent = $instance;
         $instance->alias = $alias;
+        $instance->alias->parent = $instance;
         return $instance;
     }
 
-    public function &_getNodeRefs(): array
+    protected function &_getNodeRefs(): array
     {
         $refs = [
             'trait' => &$this->trait,
@@ -119,8 +105,9 @@ abstract class GeneratedTraitUseAs extends CompoundNode implements Nodes\TraitUs
         if ($trait !== null)
         {
             /** @var Nodes\Name $trait */
-            $trait = NodeConverter::convert($trait, Nodes\Name::class, $this->_phpVersion);
-            $trait->_attachTo($this);
+            $trait = NodeConverter::convert($trait, Nodes\Name::class, $this->phpVersion);
+            $trait->detach();
+            $trait->parent = $this;
         }
         if ($this->trait !== null)
         {
@@ -151,8 +138,9 @@ abstract class GeneratedTraitUseAs extends CompoundNode implements Nodes\TraitUs
         if ($doubleColon !== null)
         {
             /** @var Token $doubleColon */
-            $doubleColon = NodeConverter::convert($doubleColon, Token::class, $this->_phpVersion);
-            $doubleColon->_attachTo($this);
+            $doubleColon = NodeConverter::convert($doubleColon, Token::class, $this->phpVersion);
+            $doubleColon->detach();
+            $doubleColon->parent = $this;
         }
         if ($this->doubleColon !== null)
         {
@@ -183,8 +171,9 @@ abstract class GeneratedTraitUseAs extends CompoundNode implements Nodes\TraitUs
         if ($member !== null)
         {
             /** @var Token $member */
-            $member = NodeConverter::convert($member, Token::class, $this->_phpVersion);
-            $member->_attachTo($this);
+            $member = NodeConverter::convert($member, Token::class, $this->phpVersion);
+            $member->detach();
+            $member->parent = $this;
         }
         if ($this->member !== null)
         {
@@ -215,8 +204,9 @@ abstract class GeneratedTraitUseAs extends CompoundNode implements Nodes\TraitUs
         if ($as !== null)
         {
             /** @var Token $as */
-            $as = NodeConverter::convert($as, Token::class, $this->_phpVersion);
-            $as->_attachTo($this);
+            $as = NodeConverter::convert($as, Token::class, $this->phpVersion);
+            $as->detach();
+            $as->parent = $this;
         }
         if ($this->as !== null)
         {
@@ -247,13 +237,33 @@ abstract class GeneratedTraitUseAs extends CompoundNode implements Nodes\TraitUs
         if ($alias !== null)
         {
             /** @var Token $alias */
-            $alias = NodeConverter::convert($alias, Token::class, $this->_phpVersion);
-            $alias->_attachTo($this);
+            $alias = NodeConverter::convert($alias, Token::class, $this->phpVersion);
+            $alias->detach();
+            $alias->parent = $this;
         }
         if ($this->alias !== null)
         {
             $this->alias->detach();
         }
         $this->alias = $alias;
+    }
+
+    protected function _validate(int $flags): void
+    {
+        if ($flags & self::VALIDATE_TYPES)
+        {
+            if ($this->trait === null) throw ValidationException::childRequired($this, 'trait');
+            if ($this->doubleColon === null) throw ValidationException::childRequired($this, 'doubleColon');
+            if ($this->member === null) throw ValidationException::childRequired($this, 'member');
+            if ($this->as === null) throw ValidationException::childRequired($this, 'as');
+            if ($this->alias === null) throw ValidationException::childRequired($this, 'alias');
+        }
+        if ($flags & self::VALIDATE_EXPRESSION_CONTEXT)
+        {
+        }
+        if ($flags & self::VALIDATE_TOKENS)
+        {
+        }
+        $this->trait->_validate($flags);
     }
 }

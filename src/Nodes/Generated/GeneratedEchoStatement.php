@@ -9,41 +9,21 @@ use Phi\Nodes\Base\NodesList;
 use Phi\Nodes\Base\SeparatedNodesList;
 use Phi\Exception\MissingNodeException;
 use Phi\NodeConverter;
-use Phi\Specification;
-use Phi\Optional;
-use Phi\Specifications\And_;
-use Phi\Specifications\Any;
-use Phi\Specifications\IsToken;
-use Phi\Specifications\IsInstanceOf;
-use Phi\Specifications\ValidCompoundNode;
-use Phi\Specifications\EachItem;
-use Phi\Specifications\EachSeparator;
+use Phi\Exception\ValidationException;
 use Phi\Nodes as Nodes;
-use Phi\Specifications as Specs;
 
-abstract class GeneratedEchoStatement extends CompoundNode implements Nodes\Statement
+abstract class GeneratedEchoStatement extends Nodes\Statement
 {
-    /** @var Specification[] */
-    private static $specifications;
-    protected static function getSpecifications(): array
-    {
-        return self::$specifications ?? self::$specifications = [
-            new ValidCompoundNode([
-                'keyword' => new IsToken(\T_ECHO),
-                'expressions' => new And_(new EachItem(new And_(new IsInstanceOf(Nodes\Expression::class), new Specs\IsReadExpression)), new EachSeparator(new IsToken(','))),
-                'semiColon' => new Optional(new IsToken(';')),
-            ]),
-        ];
-    }
-
     /**
      * @var Token|null
      */
     private $keyword;
+
     /**
      * @var SeparatedNodesList|Nodes\Expression[]
      */
     private $expressions;
+
     /**
      * @var Token|null
      */
@@ -53,26 +33,33 @@ abstract class GeneratedEchoStatement extends CompoundNode implements Nodes\Stat
      */
     public function __construct()
     {
-        parent::__construct();
         $this->expressions = new SeparatedNodesList();
     }
 
     /**
+     * @param int $phpVersion
      * @param Token|null $keyword
      * @param mixed[] $expressions
      * @param Token|null $semiColon
      * @return static
      */
-    public static function __instantiateUnchecked($keyword, $expressions, $semiColon)
+    public static function __instantiateUnchecked($phpVersion, $keyword, $expressions, $semiColon)
     {
-        $instance = new static();
+        $instance = new static;
+        $instance->phpVersion = $phpVersion;
         $instance->keyword = $keyword;
+        $instance->keyword->parent = $instance;
         $instance->expressions->__initUnchecked($expressions);
+        $instance->expressions->parent = $instance;
         $instance->semiColon = $semiColon;
+        if ($semiColon)
+        {
+            $instance->semiColon->parent = $instance;
+        }
         return $instance;
     }
 
-    public function &_getNodeRefs(): array
+    protected function &_getNodeRefs(): array
     {
         $refs = [
             'keyword' => &$this->keyword,
@@ -104,8 +91,9 @@ abstract class GeneratedEchoStatement extends CompoundNode implements Nodes\Stat
         if ($keyword !== null)
         {
             /** @var Token $keyword */
-            $keyword = NodeConverter::convert($keyword, Token::class, $this->_phpVersion);
-            $keyword->_attachTo($this);
+            $keyword = NodeConverter::convert($keyword, Token::class, $this->phpVersion);
+            $keyword->detach();
+            $keyword->parent = $this;
         }
         if ($this->keyword !== null)
         {
@@ -128,7 +116,7 @@ abstract class GeneratedEchoStatement extends CompoundNode implements Nodes\Stat
     public function addExpression($expression): void
     {
         /** @var Nodes\Expression $expression */
-        $expression = NodeConverter::convert($expression, Nodes\Expression::class);
+        $expression = NodeConverter::convert($expression, Nodes\Expression::class, $this->phpVersion);
         $this->expressions->add($expression);
     }
 
@@ -150,13 +138,29 @@ abstract class GeneratedEchoStatement extends CompoundNode implements Nodes\Stat
         if ($semiColon !== null)
         {
             /** @var Token $semiColon */
-            $semiColon = NodeConverter::convert($semiColon, Token::class, $this->_phpVersion);
-            $semiColon->_attachTo($this);
+            $semiColon = NodeConverter::convert($semiColon, Token::class, $this->phpVersion);
+            $semiColon->detach();
+            $semiColon->parent = $this;
         }
         if ($this->semiColon !== null)
         {
             $this->semiColon->detach();
         }
         $this->semiColon = $semiColon;
+    }
+
+    protected function _validate(int $flags): void
+    {
+        if ($flags & self::VALIDATE_TYPES)
+        {
+            if ($this->keyword === null) throw ValidationException::childRequired($this, 'keyword');
+        }
+        if ($flags & self::VALIDATE_EXPRESSION_CONTEXT)
+        {
+        }
+        if ($flags & self::VALIDATE_TOKENS)
+        {
+        }
+        $this->expressions->_validate($flags);
     }
 }

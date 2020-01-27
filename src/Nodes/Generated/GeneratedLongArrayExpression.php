@@ -9,46 +9,26 @@ use Phi\Nodes\Base\NodesList;
 use Phi\Nodes\Base\SeparatedNodesList;
 use Phi\Exception\MissingNodeException;
 use Phi\NodeConverter;
-use Phi\Specification;
-use Phi\Optional;
-use Phi\Specifications\And_;
-use Phi\Specifications\Any;
-use Phi\Specifications\IsToken;
-use Phi\Specifications\IsInstanceOf;
-use Phi\Specifications\ValidCompoundNode;
-use Phi\Specifications\EachItem;
-use Phi\Specifications\EachSeparator;
+use Phi\Exception\ValidationException;
 use Phi\Nodes as Nodes;
-use Phi\Specifications as Specs;
 
-abstract class GeneratedLongArrayExpression extends CompoundNode implements Nodes\ArrayExpression
+abstract class GeneratedLongArrayExpression extends CompoundNode
 {
-    /** @var Specification[] */
-    private static $specifications;
-    protected static function getSpecifications(): array
-    {
-        return self::$specifications ?? self::$specifications = [
-            new ValidCompoundNode([
-                'keyword' => new IsToken(\T_ARRAY),
-                'leftParenthesis' => new IsToken('('),
-                'items' => new And_(new EachItem(new IsInstanceOf(Nodes\ArrayItem::class)), new EachSeparator(new IsToken(','))),
-                'rightParenthesis' => new IsToken(')'),
-            ]),
-        ];
-    }
-
     /**
      * @var Token|null
      */
     private $keyword;
+
     /**
      * @var Token|null
      */
     private $leftParenthesis;
+
     /**
      * @var SeparatedNodesList|Nodes\ArrayItem[]
      */
     private $items;
+
     /**
      * @var Token|null
      */
@@ -58,28 +38,33 @@ abstract class GeneratedLongArrayExpression extends CompoundNode implements Node
      */
     public function __construct()
     {
-        parent::__construct();
         $this->items = new SeparatedNodesList();
     }
 
     /**
+     * @param int $phpVersion
      * @param Token|null $keyword
      * @param Token|null $leftParenthesis
      * @param mixed[] $items
      * @param Token|null $rightParenthesis
      * @return static
      */
-    public static function __instantiateUnchecked($keyword, $leftParenthesis, $items, $rightParenthesis)
+    public static function __instantiateUnchecked($phpVersion, $keyword, $leftParenthesis, $items, $rightParenthesis)
     {
-        $instance = new static();
+        $instance = new static;
+        $instance->phpVersion = $phpVersion;
         $instance->keyword = $keyword;
+        $instance->keyword->parent = $instance;
         $instance->leftParenthesis = $leftParenthesis;
+        $instance->leftParenthesis->parent = $instance;
         $instance->items->__initUnchecked($items);
+        $instance->items->parent = $instance;
         $instance->rightParenthesis = $rightParenthesis;
+        $instance->rightParenthesis->parent = $instance;
         return $instance;
     }
 
-    public function &_getNodeRefs(): array
+    protected function &_getNodeRefs(): array
     {
         $refs = [
             'keyword' => &$this->keyword,
@@ -112,8 +97,9 @@ abstract class GeneratedLongArrayExpression extends CompoundNode implements Node
         if ($keyword !== null)
         {
             /** @var Token $keyword */
-            $keyword = NodeConverter::convert($keyword, Token::class, $this->_phpVersion);
-            $keyword->_attachTo($this);
+            $keyword = NodeConverter::convert($keyword, Token::class, $this->phpVersion);
+            $keyword->detach();
+            $keyword->parent = $this;
         }
         if ($this->keyword !== null)
         {
@@ -144,8 +130,9 @@ abstract class GeneratedLongArrayExpression extends CompoundNode implements Node
         if ($leftParenthesis !== null)
         {
             /** @var Token $leftParenthesis */
-            $leftParenthesis = NodeConverter::convert($leftParenthesis, Token::class, $this->_phpVersion);
-            $leftParenthesis->_attachTo($this);
+            $leftParenthesis = NodeConverter::convert($leftParenthesis, Token::class, $this->phpVersion);
+            $leftParenthesis->detach();
+            $leftParenthesis->parent = $this;
         }
         if ($this->leftParenthesis !== null)
         {
@@ -168,7 +155,7 @@ abstract class GeneratedLongArrayExpression extends CompoundNode implements Node
     public function addItem($item): void
     {
         /** @var Nodes\ArrayItem $item */
-        $item = NodeConverter::convert($item, Nodes\ArrayItem::class);
+        $item = NodeConverter::convert($item, Nodes\ArrayItem::class, $this->phpVersion);
         $this->items->add($item);
     }
 
@@ -194,13 +181,31 @@ abstract class GeneratedLongArrayExpression extends CompoundNode implements Node
         if ($rightParenthesis !== null)
         {
             /** @var Token $rightParenthesis */
-            $rightParenthesis = NodeConverter::convert($rightParenthesis, Token::class, $this->_phpVersion);
-            $rightParenthesis->_attachTo($this);
+            $rightParenthesis = NodeConverter::convert($rightParenthesis, Token::class, $this->phpVersion);
+            $rightParenthesis->detach();
+            $rightParenthesis->parent = $this;
         }
         if ($this->rightParenthesis !== null)
         {
             $this->rightParenthesis->detach();
         }
         $this->rightParenthesis = $rightParenthesis;
+    }
+
+    protected function _validate(int $flags): void
+    {
+        if ($flags & self::VALIDATE_TYPES)
+        {
+            if ($this->keyword === null) throw ValidationException::childRequired($this, 'keyword');
+            if ($this->leftParenthesis === null) throw ValidationException::childRequired($this, 'leftParenthesis');
+            if ($this->rightParenthesis === null) throw ValidationException::childRequired($this, 'rightParenthesis');
+        }
+        if ($flags & self::VALIDATE_EXPRESSION_CONTEXT)
+        {
+        }
+        if ($flags & self::VALIDATE_TOKENS)
+        {
+        }
+        $this->items->_validate($flags);
     }
 }

@@ -2,18 +2,24 @@
 
 namespace Phi\Nodes;
 
-use Phi\Nodes\Base\ReadOnlyExpression;
+use Phi\Exception\ValidationException;
 use Phi\Nodes\Generated\GeneratedTernaryExpression;
 
 class TernaryExpression extends GeneratedTernaryExpression
 {
-    public function isConstant(): bool
+    public function validateContext(int $flags): void
     {
-        $then = $this->getThen();
-        return $this->getTest()->isConstant()
-            && (!$then || $then->isConstant())
-            && $this->getElse()->isConstant();
-    }
+        $never = self::CTX_WRITE|self::CTX_ALIAS;
+        if ($flags & $never)
+        {
+            throw ValidationException::expressionContext($flags & $never, $this);
+        }
 
-    use ReadOnlyExpression;
+        $this->getTest()->validateContext(self::CTX_READ);
+        if ($this->hasThen())
+        {
+            $this->getThen()->validateContext(self::CTX_READ);
+        }
+        $this->getElse()->validateContext(self::CTX_READ);
+    }
 }
