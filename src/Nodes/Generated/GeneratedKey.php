@@ -55,8 +55,8 @@ abstract class GeneratedKey extends CompoundNode
     protected function &_getNodeRefs(): array
     {
         $refs = [
-            'value' => &$this->value,
-            'arrow' => &$this->arrow,
+            "value" => &$this->value,
+            "arrow" => &$this->arrow,
         ];
         return $refs;
     }
@@ -131,8 +131,8 @@ abstract class GeneratedKey extends CompoundNode
     {
         if ($flags & self::VALIDATE_TYPES)
         {
-            if ($this->value === null) throw ValidationException::childRequired($this, 'value');
-            if ($this->arrow === null) throw ValidationException::childRequired($this, 'arrow');
+            if ($this->value === null) throw ValidationException::childRequired($this, "value");
+            if ($this->arrow === null) throw ValidationException::childRequired($this, "arrow");
         }
         if ($flags & self::VALIDATE_EXPRESSION_CONTEXT)
         {

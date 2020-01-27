@@ -34,7 +34,7 @@ class NodesList extends Node implements Countable, IteratorAggregate
 
         if ($i === false)
         {
-            throw new \RuntimeException("$childToDetach is not attached to $this");
+            throw new \RuntimeException($childToDetach . " is not attached to " . $this);
         }
 
         \array_splice($this->_nodes, $i, 1);
@@ -55,12 +55,12 @@ class NodesList extends Node implements Countable, IteratorAggregate
 
     public function getLeftWhitespace(): string
     {
-        return $this->_nodes ? $this->_nodes[0]->getLeftWhitespace() : '';
+        return $this->_nodes ? $this->_nodes[0]->getLeftWhitespace() : "";
     }
 
     public function getRightWhitespace(): string
     {
-        return $this->_nodes ? $this->_nodes[count($this->_nodes) - 1]->getRightWhitespace() : '';
+        return $this->_nodes ? $this->_nodes[count($this->_nodes) - 1]->getRightWhitespace() : "";
     }
 
     protected function _validate(int $flags): void
@@ -73,7 +73,7 @@ class NodesList extends Node implements Countable, IteratorAggregate
 
     public function toPhp(): string
     {
-        $php = '';
+        $php = "";
         foreach ($this->_nodes as $node)
         {
             $php .= $node;
@@ -81,7 +81,7 @@ class NodesList extends Node implements Countable, IteratorAggregate
         return $php;
     }
 
-    public function debugDump(string $indent = ''): void
+    public function debugDump(string $indent = ""): void
     {
         echo $indent . $this->repr() . " [\n";
 

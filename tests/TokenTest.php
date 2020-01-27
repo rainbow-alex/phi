@@ -22,7 +22,7 @@ class TokenTest extends TestCase
 
         for ($i = 1; $i < 256; $i++)
         {
-            $lexed = @\token_get_all('<?php ' . \chr($i));
+            $lexed = @\token_get_all("<?php " . \chr($i));
             if (isset($lexed[1]))
             {
                 $t = $lexed[1][0];

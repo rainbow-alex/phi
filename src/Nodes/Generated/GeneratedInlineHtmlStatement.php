@@ -82,9 +82,9 @@ abstract class GeneratedInlineHtmlStatement extends Nodes\Statement
     protected function &_getNodeRefs(): array
     {
         $refs = [
-            'closingTag' => &$this->closingTag,
-            'content' => &$this->content,
-            'openingTag' => &$this->openingTag,
+            "closingTag" => &$this->closingTag,
+            "content" => &$this->content,
+            "openingTag" => &$this->openingTag,
         ];
         return $refs;
     }

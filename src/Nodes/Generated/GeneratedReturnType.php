@@ -55,8 +55,8 @@ abstract class GeneratedReturnType extends CompoundNode
     protected function &_getNodeRefs(): array
     {
         $refs = [
-            'symbol' => &$this->symbol,
-            'type' => &$this->type,
+            "symbol" => &$this->symbol,
+            "type" => &$this->type,
         ];
         return $refs;
     }
@@ -131,8 +131,8 @@ abstract class GeneratedReturnType extends CompoundNode
     {
         if ($flags & self::VALIDATE_TYPES)
         {
-            if ($this->symbol === null) throw ValidationException::childRequired($this, 'symbol');
-            if ($this->type === null) throw ValidationException::childRequired($this, 'type');
+            if ($this->symbol === null) throw ValidationException::childRequired($this, "symbol");
+            if ($this->type === null) throw ValidationException::childRequired($this, "type");
         }
         if ($flags & self::VALIDATE_EXPRESSION_CONTEXT)
         {

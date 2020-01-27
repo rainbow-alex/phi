@@ -119,15 +119,15 @@ abstract class GeneratedAnonymousFunctionExpression extends Nodes\Expression
     protected function &_getNodeRefs(): array
     {
         $refs = [
-            'static' => &$this->static,
-            'keyword' => &$this->keyword,
-            'byReference' => &$this->byReference,
-            'leftParenthesis' => &$this->leftParenthesis,
-            'parameters' => &$this->parameters,
-            'rightParenthesis' => &$this->rightParenthesis,
-            'use' => &$this->use,
-            'returnType' => &$this->returnType,
-            'body' => &$this->body,
+            "static" => &$this->static,
+            "keyword" => &$this->keyword,
+            "byReference" => &$this->byReference,
+            "leftParenthesis" => &$this->leftParenthesis,
+            "parameters" => &$this->parameters,
+            "rightParenthesis" => &$this->rightParenthesis,
+            "use" => &$this->use,
+            "returnType" => &$this->returnType,
+            "body" => &$this->body,
         ];
         return $refs;
     }
@@ -402,10 +402,10 @@ abstract class GeneratedAnonymousFunctionExpression extends Nodes\Expression
     {
         if ($flags & self::VALIDATE_TYPES)
         {
-            if ($this->keyword === null) throw ValidationException::childRequired($this, 'keyword');
-            if ($this->leftParenthesis === null) throw ValidationException::childRequired($this, 'leftParenthesis');
-            if ($this->rightParenthesis === null) throw ValidationException::childRequired($this, 'rightParenthesis');
-            if ($this->body === null) throw ValidationException::childRequired($this, 'body');
+            if ($this->keyword === null) throw ValidationException::childRequired($this, "keyword");
+            if ($this->leftParenthesis === null) throw ValidationException::childRequired($this, "leftParenthesis");
+            if ($this->rightParenthesis === null) throw ValidationException::childRequired($this, "rightParenthesis");
+            if ($this->body === null) throw ValidationException::childRequired($this, "body");
         }
         if ($flags & self::VALIDATE_EXPRESSION_CONTEXT)
         {

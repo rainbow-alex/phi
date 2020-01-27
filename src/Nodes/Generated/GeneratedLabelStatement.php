@@ -55,8 +55,8 @@ abstract class GeneratedLabelStatement extends Nodes\Statement
     protected function &_getNodeRefs(): array
     {
         $refs = [
-            'label' => &$this->label,
-            'colon' => &$this->colon,
+            "label" => &$this->label,
+            "colon" => &$this->colon,
         ];
         return $refs;
     }
@@ -131,8 +131,8 @@ abstract class GeneratedLabelStatement extends Nodes\Statement
     {
         if ($flags & self::VALIDATE_TYPES)
         {
-            if ($this->label === null) throw ValidationException::childRequired($this, 'label');
-            if ($this->colon === null) throw ValidationException::childRequired($this, 'colon');
+            if ($this->label === null) throw ValidationException::childRequired($this, "label");
+            if ($this->colon === null) throw ValidationException::childRequired($this, "colon");
         }
         if ($flags & self::VALIDATE_EXPRESSION_CONTEXT)
         {

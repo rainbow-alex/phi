@@ -50,8 +50,8 @@ abstract class GeneratedGroupedUsePrefix extends CompoundNode
     protected function &_getNodeRefs(): array
     {
         $refs = [
-            'prefix' => &$this->prefix,
-            'separator' => &$this->separator,
+            "prefix" => &$this->prefix,
+            "separator" => &$this->separator,
         ];
         return $refs;
     }
@@ -126,8 +126,8 @@ abstract class GeneratedGroupedUsePrefix extends CompoundNode
     {
         if ($flags & self::VALIDATE_TYPES)
         {
-            if ($this->prefix === null) throw ValidationException::childRequired($this, 'prefix');
-            if ($this->separator === null) throw ValidationException::childRequired($this, 'separator');
+            if ($this->prefix === null) throw ValidationException::childRequired($this, "prefix");
+            if ($this->separator === null) throw ValidationException::childRequired($this, "separator");
         }
         if ($flags & self::VALIDATE_EXPRESSION_CONTEXT)
         {

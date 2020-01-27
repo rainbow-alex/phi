@@ -77,10 +77,10 @@ abstract class GeneratedVariableVariableExpression extends Nodes\Variable
     protected function &_getNodeRefs(): array
     {
         $refs = [
-            'dollar' => &$this->dollar,
-            'leftBrace' => &$this->leftBrace,
-            'name' => &$this->name,
-            'rightBrace' => &$this->rightBrace,
+            "dollar" => &$this->dollar,
+            "leftBrace" => &$this->leftBrace,
+            "name" => &$this->name,
+            "rightBrace" => &$this->rightBrace,
         ];
         return $refs;
     }
@@ -213,8 +213,8 @@ abstract class GeneratedVariableVariableExpression extends Nodes\Variable
     {
         if ($flags & self::VALIDATE_TYPES)
         {
-            if ($this->dollar === null) throw ValidationException::childRequired($this, 'dollar');
-            if ($this->name === null) throw ValidationException::childRequired($this, 'name');
+            if ($this->dollar === null) throw ValidationException::childRequired($this, "dollar");
+            if ($this->name === null) throw ValidationException::childRequired($this, "name");
         }
         if ($flags & self::VALIDATE_EXPRESSION_CONTEXT)
         {

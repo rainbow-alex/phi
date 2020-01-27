@@ -8,6 +8,6 @@ class MissingNodeException extends PhiException
 {
     public function __construct(Node $node, string $method)
     {
-        parent::__construct("$method: the required node is missing", $node);
+        parent::__construct($method . ": the required node is missing", $node);
     }
 }

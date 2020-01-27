@@ -19,7 +19,7 @@ class TestRepr
         {
             $types[] = Token::typeToString($t->getType());
         }
-        return implode(' ', $types);
+        return implode(" ", $types);
     }
 
     public static function node(Node $node): string
@@ -38,7 +38,7 @@ class TestRepr
                     $children[] = self::node($child);
                 }
             }
-            return $node->repr() . '(' . implode(', ', $children) . ')';
+            return $node->repr() . "(" . implode(", ", $children) . ")";
         }
         else if ($node instanceof NodesList || $node instanceof SeparatedNodesList)
         {
@@ -47,13 +47,13 @@ class TestRepr
             {
                 $items[] = self::node($item);
             }
-            return '[' . implode(', ', $items) . ']';
+            return "[" . implode(", ", $items) . "]";
         }
         else if ($node instanceof Token)
         {
             if (in_array($node->getType(), [Token::PH_S_LEFT_PAREN, Token::PH_S_RIGHT_PAREN], true))
             {
-                return '`' . $node->getSource() . '`';
+                return "`" . $node->getSource() . "`";
             }
             return $node->getSource();
         }

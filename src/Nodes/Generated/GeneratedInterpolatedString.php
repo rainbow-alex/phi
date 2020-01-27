@@ -59,9 +59,9 @@ abstract class GeneratedInterpolatedString extends Nodes\Expression
     protected function &_getNodeRefs(): array
     {
         $refs = [
-            'leftDelimiter' => &$this->leftDelimiter,
-            'parts' => &$this->parts,
-            'rightDelimiter' => &$this->rightDelimiter,
+            "leftDelimiter" => &$this->leftDelimiter,
+            "parts" => &$this->parts,
+            "rightDelimiter" => &$this->rightDelimiter,
         ];
         return $refs;
     }
@@ -154,8 +154,8 @@ abstract class GeneratedInterpolatedString extends Nodes\Expression
     {
         if ($flags & self::VALIDATE_TYPES)
         {
-            if ($this->leftDelimiter === null) throw ValidationException::childRequired($this, 'leftDelimiter');
-            if ($this->rightDelimiter === null) throw ValidationException::childRequired($this, 'rightDelimiter');
+            if ($this->leftDelimiter === null) throw ValidationException::childRequired($this, "leftDelimiter");
+            if ($this->rightDelimiter === null) throw ValidationException::childRequired($this, "rightDelimiter");
         }
         if ($flags & self::VALIDATE_EXPRESSION_CONTEXT)
         {

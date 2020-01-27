@@ -47,7 +47,7 @@ abstract class GeneratedSimpleInterpolatedStringExpression extends Nodes\CInterp
     protected function &_getNodeRefs(): array
     {
         $refs = [
-            'expression' => &$this->expression,
+            "expression" => &$this->expression,
         ];
         return $refs;
     }
@@ -89,7 +89,7 @@ abstract class GeneratedSimpleInterpolatedStringExpression extends Nodes\CInterp
     {
         if ($flags & self::VALIDATE_TYPES)
         {
-            if ($this->expression === null) throw ValidationException::childRequired($this, 'expression');
+            if ($this->expression === null) throw ValidationException::childRequired($this, "expression");
         }
         if ($flags & self::VALIDATE_EXPRESSION_CONTEXT)
         {

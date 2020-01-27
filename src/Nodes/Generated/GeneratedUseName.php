@@ -53,8 +53,8 @@ abstract class GeneratedUseName extends CompoundNode
     protected function &_getNodeRefs(): array
     {
         $refs = [
-            'name' => &$this->name,
-            'alias' => &$this->alias,
+            "name" => &$this->name,
+            "alias" => &$this->alias,
         ];
         return $refs;
     }
@@ -125,7 +125,7 @@ abstract class GeneratedUseName extends CompoundNode
     {
         if ($flags & self::VALIDATE_TYPES)
         {
-            if ($this->name === null) throw ValidationException::childRequired($this, 'name');
+            if ($this->name === null) throw ValidationException::childRequired($this, "name");
         }
         if ($flags & self::VALIDATE_EXPRESSION_CONTEXT)
         {

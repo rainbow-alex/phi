@@ -29,9 +29,9 @@ class SystemTest extends TestCase
 
     public function files_to_parse()
     {
-        $files = (new Finder())->in(__DIR__ . '/../src')->filter(function (\SplFileInfo $p)
+        $files = (new Finder())->in(__DIR__ . "/../src")->filter(function (\SplFileInfo $p)
         {
-            return $p->getExtension() === 'php';
+            return $p->getExtension() === "php";
         });
 
         /** @var SplFileInfo $file */

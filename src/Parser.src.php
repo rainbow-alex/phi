@@ -178,14 +178,14 @@ class Parser
             $this->types[] = $token->getType();
         }
 
-        $typezip = '';
+        $typezip = "";
         foreach ($this->types as $t)
         {
             $typezip .= \in_array($t, [
                 Token::PH_S_RIGHT_PAREN, Token::PH_S_RIGHT_CURLY_BRACE, Token::PH_S_RIGHT_SQUARE_BRACKET,
                 Token::PH_S_COMMA, Token::PH_S_SEMICOLON, Token::PH_S_COLON,
                 Token::PH_T_AS, Token::PH_T_DOUBLE_ARROW,
-            ], true) ? '000' : $t;
+            ], true) ? "000" : $t;
         }
         $this->typezip = $typezip;
     }
@@ -1787,7 +1787,7 @@ class Parser
                     // which is either an access for the constant static or a call for the method static
                     // we'll probaby want to goto into to the T_STRING case here...
                     default:
-                        if ($this->peek()->getSource() === 'class')
+                        if ($this->peek()->getSource() === "class")
                         {
                             // TODO what is this!? undoing of Lexer/$forceIdentifier? maybe we should force the identifier in the parser
                             // TODO property handle reserved, semi reserved

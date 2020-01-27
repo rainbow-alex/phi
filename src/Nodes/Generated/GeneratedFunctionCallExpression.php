@@ -72,10 +72,10 @@ abstract class GeneratedFunctionCallExpression extends Nodes\Expression
     protected function &_getNodeRefs(): array
     {
         $refs = [
-            'callee' => &$this->callee,
-            'leftParenthesis' => &$this->leftParenthesis,
-            'arguments' => &$this->arguments,
-            'rightParenthesis' => &$this->rightParenthesis,
+            "callee" => &$this->callee,
+            "leftParenthesis" => &$this->leftParenthesis,
+            "arguments" => &$this->arguments,
+            "rightParenthesis" => &$this->rightParenthesis,
         ];
         return $refs;
     }
@@ -201,9 +201,9 @@ abstract class GeneratedFunctionCallExpression extends Nodes\Expression
     {
         if ($flags & self::VALIDATE_TYPES)
         {
-            if ($this->callee === null) throw ValidationException::childRequired($this, 'callee');
-            if ($this->leftParenthesis === null) throw ValidationException::childRequired($this, 'leftParenthesis');
-            if ($this->rightParenthesis === null) throw ValidationException::childRequired($this, 'rightParenthesis');
+            if ($this->callee === null) throw ValidationException::childRequired($this, "callee");
+            if ($this->leftParenthesis === null) throw ValidationException::childRequired($this, "leftParenthesis");
+            if ($this->rightParenthesis === null) throw ValidationException::childRequired($this, "rightParenthesis");
         }
         if ($flags & self::VALIDATE_EXPRESSION_CONTEXT)
         {

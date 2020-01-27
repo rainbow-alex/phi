@@ -105,14 +105,14 @@ abstract class GeneratedFunctionStatement extends Nodes\Statement
     protected function &_getNodeRefs(): array
     {
         $refs = [
-            'keyword' => &$this->keyword,
-            'byReference' => &$this->byReference,
-            'name' => &$this->name,
-            'leftParenthesis' => &$this->leftParenthesis,
-            'parameters' => &$this->parameters,
-            'rightParenthesis' => &$this->rightParenthesis,
-            'returnType' => &$this->returnType,
-            'body' => &$this->body,
+            "keyword" => &$this->keyword,
+            "byReference" => &$this->byReference,
+            "name" => &$this->name,
+            "leftParenthesis" => &$this->leftParenthesis,
+            "parameters" => &$this->parameters,
+            "rightParenthesis" => &$this->rightParenthesis,
+            "returnType" => &$this->returnType,
+            "body" => &$this->body,
         ];
         return $refs;
     }
@@ -362,11 +362,11 @@ abstract class GeneratedFunctionStatement extends Nodes\Statement
     {
         if ($flags & self::VALIDATE_TYPES)
         {
-            if ($this->keyword === null) throw ValidationException::childRequired($this, 'keyword');
-            if ($this->name === null) throw ValidationException::childRequired($this, 'name');
-            if ($this->leftParenthesis === null) throw ValidationException::childRequired($this, 'leftParenthesis');
-            if ($this->rightParenthesis === null) throw ValidationException::childRequired($this, 'rightParenthesis');
-            if ($this->body === null) throw ValidationException::childRequired($this, 'body');
+            if ($this->keyword === null) throw ValidationException::childRequired($this, "keyword");
+            if ($this->name === null) throw ValidationException::childRequired($this, "name");
+            if ($this->leftParenthesis === null) throw ValidationException::childRequired($this, "leftParenthesis");
+            if ($this->rightParenthesis === null) throw ValidationException::childRequired($this, "rightParenthesis");
+            if ($this->body === null) throw ValidationException::childRequired($this, "body");
         }
         if ($flags & self::VALIDATE_EXPRESSION_CONTEXT)
         {

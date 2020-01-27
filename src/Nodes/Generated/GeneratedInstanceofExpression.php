@@ -68,9 +68,9 @@ abstract class GeneratedInstanceofExpression extends Nodes\Expression
     protected function &_getNodeRefs(): array
     {
         $refs = [
-            'value' => &$this->value,
-            'operator' => &$this->operator,
-            'type' => &$this->type,
+            "value" => &$this->value,
+            "operator" => &$this->operator,
+            "type" => &$this->type,
         ];
         return $refs;
     }
@@ -178,9 +178,9 @@ abstract class GeneratedInstanceofExpression extends Nodes\Expression
     {
         if ($flags & self::VALIDATE_TYPES)
         {
-            if ($this->value === null) throw ValidationException::childRequired($this, 'value');
-            if ($this->operator === null) throw ValidationException::childRequired($this, 'operator');
-            if ($this->type === null) throw ValidationException::childRequired($this, 'type');
+            if ($this->value === null) throw ValidationException::childRequired($this, "value");
+            if ($this->operator === null) throw ValidationException::childRequired($this, "operator");
+            if ($this->type === null) throw ValidationException::childRequired($this, "type");
         }
         if ($flags & self::VALIDATE_EXPRESSION_CONTEXT)
         {

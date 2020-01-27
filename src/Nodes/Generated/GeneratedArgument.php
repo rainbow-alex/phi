@@ -58,8 +58,8 @@ abstract class GeneratedArgument extends CompoundNode
     protected function &_getNodeRefs(): array
     {
         $refs = [
-            'unpack' => &$this->unpack,
-            'expression' => &$this->expression,
+            "unpack" => &$this->unpack,
+            "expression" => &$this->expression,
         ];
         return $refs;
     }
@@ -130,7 +130,7 @@ abstract class GeneratedArgument extends CompoundNode
     {
         if ($flags & self::VALIDATE_TYPES)
         {
-            if ($this->expression === null) throw ValidationException::childRequired($this, 'expression');
+            if ($this->expression === null) throw ValidationException::childRequired($this, "expression");
         }
         if ($flags & self::VALIDATE_EXPRESSION_CONTEXT)
         {

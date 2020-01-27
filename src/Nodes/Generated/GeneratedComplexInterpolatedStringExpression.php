@@ -63,9 +63,9 @@ abstract class GeneratedComplexInterpolatedStringExpression extends Nodes\CInter
     protected function &_getNodeRefs(): array
     {
         $refs = [
-            'leftBrace' => &$this->leftBrace,
-            'expression' => &$this->expression,
-            'rightBrace' => &$this->rightBrace,
+            "leftBrace" => &$this->leftBrace,
+            "expression" => &$this->expression,
+            "rightBrace" => &$this->rightBrace,
         ];
         return $refs;
     }
@@ -173,9 +173,9 @@ abstract class GeneratedComplexInterpolatedStringExpression extends Nodes\CInter
     {
         if ($flags & self::VALIDATE_TYPES)
         {
-            if ($this->leftBrace === null) throw ValidationException::childRequired($this, 'leftBrace');
-            if ($this->expression === null) throw ValidationException::childRequired($this, 'expression');
-            if ($this->rightBrace === null) throw ValidationException::childRequired($this, 'rightBrace');
+            if ($this->leftBrace === null) throw ValidationException::childRequired($this, "leftBrace");
+            if ($this->expression === null) throw ValidationException::childRequired($this, "expression");
+            if ($this->rightBrace === null) throw ValidationException::childRequired($this, "rightBrace");
         }
         if ($flags & self::VALIDATE_EXPRESSION_CONTEXT)
         {

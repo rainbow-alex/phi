@@ -92,11 +92,11 @@ abstract class GeneratedTernaryExpression extends Nodes\Expression
     protected function &_getNodeRefs(): array
     {
         $refs = [
-            'test' => &$this->test,
-            'questionMark' => &$this->questionMark,
-            'then' => &$this->then,
-            'colon' => &$this->colon,
-            'else' => &$this->else,
+            "test" => &$this->test,
+            "questionMark" => &$this->questionMark,
+            "then" => &$this->then,
+            "colon" => &$this->colon,
+            "else" => &$this->else,
         ];
         return $refs;
     }
@@ -266,10 +266,10 @@ abstract class GeneratedTernaryExpression extends Nodes\Expression
     {
         if ($flags & self::VALIDATE_TYPES)
         {
-            if ($this->test === null) throw ValidationException::childRequired($this, 'test');
-            if ($this->questionMark === null) throw ValidationException::childRequired($this, 'questionMark');
-            if ($this->colon === null) throw ValidationException::childRequired($this, 'colon');
-            if ($this->else === null) throw ValidationException::childRequired($this, 'else');
+            if ($this->test === null) throw ValidationException::childRequired($this, "test");
+            if ($this->questionMark === null) throw ValidationException::childRequired($this, "questionMark");
+            if ($this->colon === null) throw ValidationException::childRequired($this, "colon");
+            if ($this->else === null) throw ValidationException::childRequired($this, "else");
         }
         if ($flags & self::VALIDATE_EXPRESSION_CONTEXT)
         {

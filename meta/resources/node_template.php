@@ -101,7 +101,7 @@ abstract class <?= $node->shortClassName() ?> extends <?= imported($node->extend
         $refs = [
 <?php foreach ($node->children as $child): ?>
 <?php /* TODO get rid of keys */ ?>
-            '<?= $child->name ?>' => &$this-><?= $child->name ?>,
+            "<?= $child->name ?>" => &$this-><?= $child->name ?>,
 <?php endforeach ?>
         ];
         return $refs;
@@ -172,7 +172,7 @@ abstract class <?= $node->shortClassName() ?> extends <?= imported($node->extend
         {
 <?php foreach ($node->children as $child): ?>
 <?php if (!$child->optional && !$child->isList): ?>
-            if ($this-><?= $child->name ?> === null) throw ValidationException::childRequired($this, '<?= $child->name ?>');
+            if ($this-><?= $child->name ?> === null) throw ValidationException::childRequired($this, "<?= $child->name ?>");
 <?php endif ?>
 <?php endforeach ?>
         }

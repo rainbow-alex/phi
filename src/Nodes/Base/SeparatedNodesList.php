@@ -35,7 +35,7 @@ class SeparatedNodesList extends Node implements IteratorAggregate
 
         if ($i === false)
         {
-            throw new \RuntimeException("$childToDetach is not attached to $this");
+            throw new \RuntimeException($childToDetach . " is not attached to " . $this);
         }
 
         \array_splice($this->nodes, $i, 1);
@@ -66,7 +66,7 @@ class SeparatedNodesList extends Node implements IteratorAggregate
                 return $node->getLeftWhitespace();
             }
         }
-        return '';
+        return "";
     }
 
     public function getRightWhitespace(): string
@@ -79,7 +79,7 @@ class SeparatedNodesList extends Node implements IteratorAggregate
                 return $node->getRightWhitespace();
             }
         }
-        return '';
+        return "";
     }
 
     public function _validate(int $flags): void
@@ -96,7 +96,7 @@ class SeparatedNodesList extends Node implements IteratorAggregate
 
     public function toPhp(): string
     {
-        $php = '';
+        $php = "";
         foreach ($this->nodes as $node)
         {
             if ($node)
@@ -107,7 +107,7 @@ class SeparatedNodesList extends Node implements IteratorAggregate
         return $php;
     }
 
-    public function debugDump(string $indent = ''): void
+    public function debugDump(string $indent = ""): void
     {
         echo $indent . $this->repr() . " [\n", null;
 

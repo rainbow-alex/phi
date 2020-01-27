@@ -63,9 +63,9 @@ abstract class GeneratedParenthesizedExpression extends Nodes\Expression
     protected function &_getNodeRefs(): array
     {
         $refs = [
-            'leftParenthesis' => &$this->leftParenthesis,
-            'expression' => &$this->expression,
-            'rightParenthesis' => &$this->rightParenthesis,
+            "leftParenthesis" => &$this->leftParenthesis,
+            "expression" => &$this->expression,
+            "rightParenthesis" => &$this->rightParenthesis,
         ];
         return $refs;
     }
@@ -173,9 +173,9 @@ abstract class GeneratedParenthesizedExpression extends Nodes\Expression
     {
         if ($flags & self::VALIDATE_TYPES)
         {
-            if ($this->leftParenthesis === null) throw ValidationException::childRequired($this, 'leftParenthesis');
-            if ($this->expression === null) throw ValidationException::childRequired($this, 'expression');
-            if ($this->rightParenthesis === null) throw ValidationException::childRequired($this, 'rightParenthesis');
+            if ($this->leftParenthesis === null) throw ValidationException::childRequired($this, "leftParenthesis");
+            if ($this->expression === null) throw ValidationException::childRequired($this, "expression");
+            if ($this->rightParenthesis === null) throw ValidationException::childRequired($this, "rightParenthesis");
         }
         if ($flags & self::VALIDATE_EXPRESSION_CONTEXT)
         {

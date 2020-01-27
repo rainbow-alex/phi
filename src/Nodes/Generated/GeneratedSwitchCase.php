@@ -67,10 +67,10 @@ abstract class GeneratedSwitchCase extends CompoundNode
     protected function &_getNodeRefs(): array
     {
         $refs = [
-            'keyword' => &$this->keyword,
-            'value' => &$this->value,
-            'colon' => &$this->colon,
-            'statements' => &$this->statements,
+            "keyword" => &$this->keyword,
+            "value" => &$this->value,
+            "colon" => &$this->colon,
+            "statements" => &$this->statements,
         ];
         return $refs;
     }
@@ -196,9 +196,9 @@ abstract class GeneratedSwitchCase extends CompoundNode
     {
         if ($flags & self::VALIDATE_TYPES)
         {
-            if ($this->keyword === null) throw ValidationException::childRequired($this, 'keyword');
-            if ($this->value === null) throw ValidationException::childRequired($this, 'value');
-            if ($this->colon === null) throw ValidationException::childRequired($this, 'colon');
+            if ($this->keyword === null) throw ValidationException::childRequired($this, "keyword");
+            if ($this->value === null) throw ValidationException::childRequired($this, "value");
+            if ($this->colon === null) throw ValidationException::childRequired($this, "colon");
         }
         if ($flags & self::VALIDATE_EXPRESSION_CONTEXT)
         {

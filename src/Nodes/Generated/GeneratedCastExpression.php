@@ -60,8 +60,8 @@ abstract class GeneratedCastExpression extends Nodes\Expression
     protected function &_getNodeRefs(): array
     {
         $refs = [
-            'cast' => &$this->cast,
-            'expression' => &$this->expression,
+            "cast" => &$this->cast,
+            "expression" => &$this->expression,
         ];
         return $refs;
     }
@@ -136,8 +136,8 @@ abstract class GeneratedCastExpression extends Nodes\Expression
     {
         if ($flags & self::VALIDATE_TYPES)
         {
-            if ($this->cast === null) throw ValidationException::childRequired($this, 'cast');
-            if ($this->expression === null) throw ValidationException::childRequired($this, 'expression');
+            if ($this->cast === null) throw ValidationException::childRequired($this, "cast");
+            if ($this->expression === null) throw ValidationException::childRequired($this, "expression");
         }
         if ($flags & self::VALIDATE_EXPRESSION_CONTEXT)
         {

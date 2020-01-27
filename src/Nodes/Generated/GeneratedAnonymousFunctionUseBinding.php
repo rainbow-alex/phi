@@ -53,8 +53,8 @@ abstract class GeneratedAnonymousFunctionUseBinding extends CompoundNode
     protected function &_getNodeRefs(): array
     {
         $refs = [
-            'byReference' => &$this->byReference,
-            'variable' => &$this->variable,
+            "byReference" => &$this->byReference,
+            "variable" => &$this->variable,
         ];
         return $refs;
     }
@@ -125,7 +125,7 @@ abstract class GeneratedAnonymousFunctionUseBinding extends CompoundNode
     {
         if ($flags & self::VALIDATE_TYPES)
         {
-            if ($this->variable === null) throw ValidationException::childRequired($this, 'variable');
+            if ($this->variable === null) throw ValidationException::childRequired($this, "variable");
         }
         if ($flags & self::VALIDATE_EXPRESSION_CONTEXT)
         {

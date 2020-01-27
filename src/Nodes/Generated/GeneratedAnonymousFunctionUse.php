@@ -67,10 +67,10 @@ abstract class GeneratedAnonymousFunctionUse extends CompoundNode
     protected function &_getNodeRefs(): array
     {
         $refs = [
-            'keyword' => &$this->keyword,
-            'leftParenthesis' => &$this->leftParenthesis,
-            'bindings' => &$this->bindings,
-            'rightParenthesis' => &$this->rightParenthesis,
+            "keyword" => &$this->keyword,
+            "leftParenthesis" => &$this->leftParenthesis,
+            "bindings" => &$this->bindings,
+            "rightParenthesis" => &$this->rightParenthesis,
         ];
         return $refs;
     }
@@ -196,9 +196,9 @@ abstract class GeneratedAnonymousFunctionUse extends CompoundNode
     {
         if ($flags & self::VALIDATE_TYPES)
         {
-            if ($this->keyword === null) throw ValidationException::childRequired($this, 'keyword');
-            if ($this->leftParenthesis === null) throw ValidationException::childRequired($this, 'leftParenthesis');
-            if ($this->rightParenthesis === null) throw ValidationException::childRequired($this, 'rightParenthesis');
+            if ($this->keyword === null) throw ValidationException::childRequired($this, "keyword");
+            if ($this->leftParenthesis === null) throw ValidationException::childRequired($this, "leftParenthesis");
+            if ($this->rightParenthesis === null) throw ValidationException::childRequired($this, "rightParenthesis");
         }
         if ($flags & self::VALIDATE_EXPRESSION_CONTEXT)
         {

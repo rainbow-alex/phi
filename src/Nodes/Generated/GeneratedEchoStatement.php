@@ -62,9 +62,9 @@ abstract class GeneratedEchoStatement extends Nodes\Statement
     protected function &_getNodeRefs(): array
     {
         $refs = [
-            'keyword' => &$this->keyword,
-            'expressions' => &$this->expressions,
-            'semiColon' => &$this->semiColon,
+            "keyword" => &$this->keyword,
+            "expressions" => &$this->expressions,
+            "semiColon" => &$this->semiColon,
         ];
         return $refs;
     }
@@ -153,7 +153,7 @@ abstract class GeneratedEchoStatement extends Nodes\Statement
     {
         if ($flags & self::VALIDATE_TYPES)
         {
-            if ($this->keyword === null) throw ValidationException::childRequired($this, 'keyword');
+            if ($this->keyword === null) throw ValidationException::childRequired($this, "keyword");
         }
         if ($flags & self::VALIDATE_EXPRESSION_CONTEXT)
         {

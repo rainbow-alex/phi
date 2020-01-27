@@ -66,7 +66,7 @@ class NodeChildDef
 
     public function itemVar(): string
     {
-        return "\${$this->singularName()}";
+        return "\$" . $this->singularName();
     }
 
     public function phpType(): string
@@ -88,22 +88,22 @@ class NodeChildDef
 
     public function getter(): string
     {
-        return "get{$this->ucName()}";
+        return "get" . $this->ucName();
     }
 
     public function getterReturnType(): string
     {
-        return ($this->optional ? '?' : '') . $this->phpType();
+        return ($this->optional ? "?" : "") . $this->phpType();
     }
 
     public function hasser(): string
     {
-        return "has{$this->ucName()}";
+        return "has" . $this->ucName();
     }
 
     public function setter(): string
     {
-        return "set{$this->ucName()}";
+        return "set" . $this->ucName();
     }
 
     public function setterDocType(): string
@@ -131,6 +131,6 @@ class NodeChildDef
 
     public function adder(): string
     {
-        return "add{$this->ucSingularName()}";
+        return "add" . $this->ucSingularName();
     }
 }

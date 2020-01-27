@@ -100,13 +100,13 @@ abstract class GeneratedGroupedUseStatement extends Nodes\UseStatement
     protected function &_getNodeRefs(): array
     {
         $refs = [
-            'keyword' => &$this->keyword,
-            'type' => &$this->type,
-            'prefix' => &$this->prefix,
-            'leftBrace' => &$this->leftBrace,
-            'uses' => &$this->uses,
-            'rightBrace' => &$this->rightBrace,
-            'semiColon' => &$this->semiColon,
+            "keyword" => &$this->keyword,
+            "type" => &$this->type,
+            "prefix" => &$this->prefix,
+            "leftBrace" => &$this->leftBrace,
+            "uses" => &$this->uses,
+            "rightBrace" => &$this->rightBrace,
+            "semiColon" => &$this->semiColon,
         ];
         return $refs;
     }
@@ -319,9 +319,9 @@ abstract class GeneratedGroupedUseStatement extends Nodes\UseStatement
     {
         if ($flags & self::VALIDATE_TYPES)
         {
-            if ($this->keyword === null) throw ValidationException::childRequired($this, 'keyword');
-            if ($this->leftBrace === null) throw ValidationException::childRequired($this, 'leftBrace');
-            if ($this->rightBrace === null) throw ValidationException::childRequired($this, 'rightBrace');
+            if ($this->keyword === null) throw ValidationException::childRequired($this, "keyword");
+            if ($this->leftBrace === null) throw ValidationException::childRequired($this, "leftBrace");
+            if ($this->rightBrace === null) throw ValidationException::childRequired($this, "rightBrace");
         }
         if ($flags & self::VALIDATE_EXPRESSION_CONTEXT)
         {

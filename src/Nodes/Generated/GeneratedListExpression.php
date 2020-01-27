@@ -67,10 +67,10 @@ abstract class GeneratedListExpression extends Nodes\Expression
     protected function &_getNodeRefs(): array
     {
         $refs = [
-            'keyword' => &$this->keyword,
-            'leftParenthesis' => &$this->leftParenthesis,
-            'expressions' => &$this->expressions,
-            'rightParenthesis' => &$this->rightParenthesis,
+            "keyword" => &$this->keyword,
+            "leftParenthesis" => &$this->leftParenthesis,
+            "expressions" => &$this->expressions,
+            "rightParenthesis" => &$this->rightParenthesis,
         ];
         return $refs;
     }
@@ -196,9 +196,9 @@ abstract class GeneratedListExpression extends Nodes\Expression
     {
         if ($flags & self::VALIDATE_TYPES)
         {
-            if ($this->keyword === null) throw ValidationException::childRequired($this, 'keyword');
-            if ($this->leftParenthesis === null) throw ValidationException::childRequired($this, 'leftParenthesis');
-            if ($this->rightParenthesis === null) throw ValidationException::childRequired($this, 'rightParenthesis');
+            if ($this->keyword === null) throw ValidationException::childRequired($this, "keyword");
+            if ($this->leftParenthesis === null) throw ValidationException::childRequired($this, "leftParenthesis");
+            if ($this->rightParenthesis === null) throw ValidationException::childRequired($this, "rightParenthesis");
         }
         if ($flags & self::VALIDATE_EXPRESSION_CONTEXT)
         {

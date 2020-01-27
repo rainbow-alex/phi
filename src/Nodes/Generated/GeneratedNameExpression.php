@@ -47,7 +47,7 @@ abstract class GeneratedNameExpression extends Nodes\Expression
     protected function &_getNodeRefs(): array
     {
         $refs = [
-            'name' => &$this->name,
+            "name" => &$this->name,
         ];
         return $refs;
     }
@@ -89,7 +89,7 @@ abstract class GeneratedNameExpression extends Nodes\Expression
     {
         if ($flags & self::VALIDATE_TYPES)
         {
-            if ($this->name === null) throw ValidationException::childRequired($this, 'name');
+            if ($this->name === null) throw ValidationException::childRequired($this, "name");
         }
         if ($flags & self::VALIDATE_EXPRESSION_CONTEXT)
         {

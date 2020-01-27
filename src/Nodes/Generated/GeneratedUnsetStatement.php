@@ -78,11 +78,11 @@ abstract class GeneratedUnsetStatement extends Nodes\Statement
     protected function &_getNodeRefs(): array
     {
         $refs = [
-            'keyword' => &$this->keyword,
-            'leftParenthesis' => &$this->leftParenthesis,
-            'variables' => &$this->variables,
-            'rightParenthesis' => &$this->rightParenthesis,
-            'semiColon' => &$this->semiColon,
+            "keyword" => &$this->keyword,
+            "leftParenthesis" => &$this->leftParenthesis,
+            "variables" => &$this->variables,
+            "rightParenthesis" => &$this->rightParenthesis,
+            "semiColon" => &$this->semiColon,
         ];
         return $refs;
     }
@@ -237,9 +237,9 @@ abstract class GeneratedUnsetStatement extends Nodes\Statement
     {
         if ($flags & self::VALIDATE_TYPES)
         {
-            if ($this->keyword === null) throw ValidationException::childRequired($this, 'keyword');
-            if ($this->leftParenthesis === null) throw ValidationException::childRequired($this, 'leftParenthesis');
-            if ($this->rightParenthesis === null) throw ValidationException::childRequired($this, 'rightParenthesis');
+            if ($this->keyword === null) throw ValidationException::childRequired($this, "keyword");
+            if ($this->leftParenthesis === null) throw ValidationException::childRequired($this, "leftParenthesis");
+            if ($this->rightParenthesis === null) throw ValidationException::childRequired($this, "rightParenthesis");
         }
         if ($flags & self::VALIDATE_EXPRESSION_CONTEXT)
         {

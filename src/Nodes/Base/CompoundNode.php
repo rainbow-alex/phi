@@ -27,7 +27,7 @@ abstract class CompoundNode extends Node
             }
         }
 
-        throw new \RuntimeException("$childToDetach is not attached to $this");
+        throw new \RuntimeException($childToDetach . " is not attached to " . $this);
     }
 
     public function childNodes(): array
@@ -49,13 +49,13 @@ abstract class CompoundNode extends Node
     public function getLeftWhitespace(): string
     {
         $firstNode = $this->firstNode();
-        return $firstNode ? $firstNode->getLeftWhitespace() : '';
+        return $firstNode ? $firstNode->getLeftWhitespace() : "";
     }
 
     public function getRightWhitespace(): string
     {
         $lastNode = $this->lastNode();
-        return $lastNode ? $lastNode->getRightWhitespace() : '';
+        return $lastNode ? $lastNode->getRightWhitespace() : "";
     }
 
     private function firstNode(): ?Node
@@ -82,7 +82,7 @@ abstract class CompoundNode extends Node
 
     public function toPhp(): string
     {
-        $php = '';
+        $php = "";
         foreach ($this->_getNodeRefs() as $child)
         {
             if ($child)
@@ -93,7 +93,7 @@ abstract class CompoundNode extends Node
         return $php;
     }
 
-    public function debugDump(string $indent = ''): void
+    public function debugDump(string $indent = ""): void
     {
         $important = ($this instanceof Statement || $this instanceof Expression || $this instanceof ClassLikeMember);
         echo $indent . ($important ? Console::bold($this->repr()) : $this->repr()) . " {\n";

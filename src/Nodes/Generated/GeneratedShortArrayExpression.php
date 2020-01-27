@@ -64,9 +64,9 @@ abstract class GeneratedShortArrayExpression extends Nodes\Expression
     protected function &_getNodeRefs(): array
     {
         $refs = [
-            'leftBracket' => &$this->leftBracket,
-            'items' => &$this->items,
-            'rightBracket' => &$this->rightBracket,
+            "leftBracket" => &$this->leftBracket,
+            "items" => &$this->items,
+            "rightBracket" => &$this->rightBracket,
         ];
         return $refs;
     }
@@ -159,8 +159,8 @@ abstract class GeneratedShortArrayExpression extends Nodes\Expression
     {
         if ($flags & self::VALIDATE_TYPES)
         {
-            if ($this->leftBracket === null) throw ValidationException::childRequired($this, 'leftBracket');
-            if ($this->rightBracket === null) throw ValidationException::childRequired($this, 'rightBracket');
+            if ($this->leftBracket === null) throw ValidationException::childRequired($this, "leftBracket");
+            if ($this->rightBracket === null) throw ValidationException::childRequired($this, "rightBracket");
         }
         if ($flags & self::VALIDATE_EXPRESSION_CONTEXT)
         {

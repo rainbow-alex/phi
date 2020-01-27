@@ -86,11 +86,11 @@ abstract class GeneratedNewExpression extends Nodes\Expression
     protected function &_getNodeRefs(): array
     {
         $refs = [
-            'keyword' => &$this->keyword,
-            'class' => &$this->class,
-            'leftParenthesis' => &$this->leftParenthesis,
-            'arguments' => &$this->arguments,
-            'rightParenthesis' => &$this->rightParenthesis,
+            "keyword" => &$this->keyword,
+            "class" => &$this->class,
+            "leftParenthesis" => &$this->leftParenthesis,
+            "arguments" => &$this->arguments,
+            "rightParenthesis" => &$this->rightParenthesis,
         ];
         return $refs;
     }
@@ -241,8 +241,8 @@ abstract class GeneratedNewExpression extends Nodes\Expression
     {
         if ($flags & self::VALIDATE_TYPES)
         {
-            if ($this->keyword === null) throw ValidationException::childRequired($this, 'keyword');
-            if ($this->class === null) throw ValidationException::childRequired($this, 'class');
+            if ($this->keyword === null) throw ValidationException::childRequired($this, "keyword");
+            if ($this->class === null) throw ValidationException::childRequired($this, "class");
         }
         if ($flags & self::VALIDATE_EXPRESSION_CONTEXT)
         {

@@ -93,12 +93,12 @@ abstract class GeneratedClassConstant extends Nodes\ClassLikeMember
     protected function &_getNodeRefs(): array
     {
         $refs = [
-            'modifiers' => &$this->modifiers,
-            'keyword' => &$this->keyword,
-            'name' => &$this->name,
-            'equals' => &$this->equals,
-            'value' => &$this->value,
-            'semiColon' => &$this->semiColon,
+            "modifiers" => &$this->modifiers,
+            "keyword" => &$this->keyword,
+            "name" => &$this->name,
+            "equals" => &$this->equals,
+            "value" => &$this->value,
+            "semiColon" => &$this->semiColon,
         ];
         return $refs;
     }
@@ -290,11 +290,11 @@ abstract class GeneratedClassConstant extends Nodes\ClassLikeMember
     {
         if ($flags & self::VALIDATE_TYPES)
         {
-            if ($this->keyword === null) throw ValidationException::childRequired($this, 'keyword');
-            if ($this->name === null) throw ValidationException::childRequired($this, 'name');
-            if ($this->equals === null) throw ValidationException::childRequired($this, 'equals');
-            if ($this->value === null) throw ValidationException::childRequired($this, 'value');
-            if ($this->semiColon === null) throw ValidationException::childRequired($this, 'semiColon');
+            if ($this->keyword === null) throw ValidationException::childRequired($this, "keyword");
+            if ($this->name === null) throw ValidationException::childRequired($this, "name");
+            if ($this->equals === null) throw ValidationException::childRequired($this, "equals");
+            if ($this->value === null) throw ValidationException::childRequired($this, "value");
+            if ($this->semiColon === null) throw ValidationException::childRequired($this, "semiColon");
         }
         if ($flags & self::VALIDATE_EXPRESSION_CONTEXT)
         {

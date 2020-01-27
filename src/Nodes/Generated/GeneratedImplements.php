@@ -56,8 +56,8 @@ abstract class GeneratedImplements extends CompoundNode
     protected function &_getNodeRefs(): array
     {
         $refs = [
-            'keyword' => &$this->keyword,
-            'names' => &$this->names,
+            "keyword" => &$this->keyword,
+            "names" => &$this->names,
         ];
         return $refs;
     }
@@ -117,7 +117,7 @@ abstract class GeneratedImplements extends CompoundNode
     {
         if ($flags & self::VALIDATE_TYPES)
         {
-            if ($this->keyword === null) throw ValidationException::childRequired($this, 'keyword');
+            if ($this->keyword === null) throw ValidationException::childRequired($this, "keyword");
         }
         if ($flags & self::VALIDATE_EXPRESSION_CONTEXT)
         {

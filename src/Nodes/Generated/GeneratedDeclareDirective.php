@@ -58,9 +58,9 @@ abstract class GeneratedDeclareDirective extends CompoundNode
     protected function &_getNodeRefs(): array
     {
         $refs = [
-            'key' => &$this->key,
-            'equals' => &$this->equals,
-            'value' => &$this->value,
+            "key" => &$this->key,
+            "equals" => &$this->equals,
+            "value" => &$this->value,
         ];
         return $refs;
     }
@@ -168,9 +168,9 @@ abstract class GeneratedDeclareDirective extends CompoundNode
     {
         if ($flags & self::VALIDATE_TYPES)
         {
-            if ($this->key === null) throw ValidationException::childRequired($this, 'key');
-            if ($this->equals === null) throw ValidationException::childRequired($this, 'equals');
-            if ($this->value === null) throw ValidationException::childRequired($this, 'value');
+            if ($this->key === null) throw ValidationException::childRequired($this, "key");
+            if ($this->equals === null) throw ValidationException::childRequired($this, "equals");
+            if ($this->value === null) throw ValidationException::childRequired($this, "value");
         }
         if ($flags & self::VALIDATE_EXPRESSION_CONTEXT)
         {

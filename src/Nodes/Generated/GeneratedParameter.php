@@ -91,11 +91,11 @@ abstract class GeneratedParameter extends CompoundNode
     protected function &_getNodeRefs(): array
     {
         $refs = [
-            'type' => &$this->type,
-            'byReference' => &$this->byReference,
-            'ellipsis' => &$this->ellipsis,
-            'variable' => &$this->variable,
-            'default' => &$this->default,
+            "type" => &$this->type,
+            "byReference" => &$this->byReference,
+            "ellipsis" => &$this->ellipsis,
+            "variable" => &$this->variable,
+            "default" => &$this->default,
         ];
         return $refs;
     }
@@ -253,7 +253,7 @@ abstract class GeneratedParameter extends CompoundNode
     {
         if ($flags & self::VALIDATE_TYPES)
         {
-            if ($this->variable === null) throw ValidationException::childRequired($this, 'variable');
+            if ($this->variable === null) throw ValidationException::childRequired($this, "variable");
         }
         if ($flags & self::VALIDATE_EXPRESSION_CONTEXT)
         {

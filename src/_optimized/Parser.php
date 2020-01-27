@@ -178,14 +178,14 @@ class Parser
             $this->types[] = $token->getType();
         }
 
-        $typezip = '';
+        $typezip = "";
         foreach ($this->types as $t)
         {
             $typezip .= \in_array($t, [
                 106, 126, 121,
                 109, 114, 113,
                 132, 160,
-            ], true) ? '000' : $t;
+            ], true) ? "000" : $t;
         }
         $this->typezip = $typezip;
     }
@@ -1052,7 +1052,7 @@ class Parser
 
     private function expression(int $minPrecedence = 0): Nodes\Expression
     {
-        switch (substr($this->typezip, $this->i * 3, 6)){    case '208000':    case '156000':        return Nodes\IntegerLiteral::__instantiateUnchecked($this->phpVersion, $this->tokens[$this->i++]);    case '243000':        return Nodes\NameExpression::__instantiateUnchecked($this->phpVersion, $this->name()); /* TODO further optim possible here (?) */    case '255000':        return Nodes\RegularVariableExpression::__instantiateUnchecked($this->phpVersion, $this->tokens[$this->i++]);    case '148000':        return Nodes\ConstantStringLiteral::__instantiateUnchecked($this->phpVersion, $this->tokens[$this->i++]);    case '206000':    case '179000':    case '154000':    case '141000':    case '249000':    case '212000':    case '185000':        return Nodes\MagicConstant::__instantiateUnchecked($this->phpVersion, $this->tokens[$this->i++]);}switch (substr($this->typezip, $this->i * 3, 9)){    case '219243000':        return Nodes\NameExpression::__instantiateUnchecked($this->phpVersion, Nodes\RegularName::__instantiateUnchecked($this->phpVersion, [$this->tokens[$this->i++], $this->tokens[$this->i++]]));    case '151255000':        return Nodes\PreDecrementExpression::__instantiateUnchecked($this->phpVersion, $this->tokens[$this->i++], Nodes\RegularVariableExpression::__instantiateUnchecked($this->phpVersion, $this->tokens[$this->i++]));    case '191255000':        return Nodes\PreIncrementExpression::__instantiateUnchecked($this->phpVersion, $this->tokens[$this->i++], Nodes\RegularVariableExpression::__instantiateUnchecked($this->phpVersion, $this->tokens[$this->i++]));    case '255151000':        return Nodes\PostDecrementExpression::__instantiateUnchecked($this->phpVersion, Nodes\RegularVariableExpression::__instantiateUnchecked($this->phpVersion, $this->tokens[$this->i++]), $this->tokens[$this->i++]);    case '255191000':        return Nodes\PostIncrementExpression::__instantiateUnchecked($this->phpVersion, Nodes\RegularVariableExpression::__instantiateUnchecked($this->phpVersion, $this->tokens[$this->i++]), $this->tokens[$this->i++]);    case '217243000':        return Nodes\NewExpression::__instantiateUnchecked($this->phpVersion, $this->tokens[$this->i++], Nodes\NameExpression::__instantiateUnchecked($this->phpVersion, $this->name()), null, [], null);}
+        switch (substr($this->typezip, $this->i * 3, 6)){    case "208000":    case "156000":        return Nodes\IntegerLiteral::__instantiateUnchecked($this->phpVersion, $this->tokens[$this->i++]);    case "243000":        return Nodes\NameExpression::__instantiateUnchecked($this->phpVersion, $this->name()); /* TODO further optim possible here (?) */    case "255000":        return Nodes\RegularVariableExpression::__instantiateUnchecked($this->phpVersion, $this->tokens[$this->i++]);    case "148000":        return Nodes\ConstantStringLiteral::__instantiateUnchecked($this->phpVersion, $this->tokens[$this->i++]);    case "206000":    case "179000":    case "154000":    case "141000":    case "249000":    case "212000":    case "185000":        return Nodes\MagicConstant::__instantiateUnchecked($this->phpVersion, $this->tokens[$this->i++]);}switch (substr($this->typezip, $this->i * 3, 9)){    case "219243000":        return Nodes\NameExpression::__instantiateUnchecked($this->phpVersion, Nodes\RegularName::__instantiateUnchecked($this->phpVersion, [$this->tokens[$this->i++], $this->tokens[$this->i++]]));    case "151255000":        return Nodes\PreDecrementExpression::__instantiateUnchecked($this->phpVersion, $this->tokens[$this->i++], Nodes\RegularVariableExpression::__instantiateUnchecked($this->phpVersion, $this->tokens[$this->i++]));    case "191255000":        return Nodes\PreIncrementExpression::__instantiateUnchecked($this->phpVersion, $this->tokens[$this->i++], Nodes\RegularVariableExpression::__instantiateUnchecked($this->phpVersion, $this->tokens[$this->i++]));    case "255151000":        return Nodes\PostDecrementExpression::__instantiateUnchecked($this->phpVersion, Nodes\RegularVariableExpression::__instantiateUnchecked($this->phpVersion, $this->tokens[$this->i++]), $this->tokens[$this->i++]);    case "255191000":        return Nodes\PostIncrementExpression::__instantiateUnchecked($this->phpVersion, Nodes\RegularVariableExpression::__instantiateUnchecked($this->phpVersion, $this->tokens[$this->i++]), $this->tokens[$this->i++]);    case "217243000":        return Nodes\NewExpression::__instantiateUnchecked($this->phpVersion, $this->tokens[$this->i++], Nodes\NameExpression::__instantiateUnchecked($this->phpVersion, $this->name()), null, [], null);}
 
         if ($minPrecedence <= self::PRECEDENCE_ASSIGN_LVALUE)
         {
@@ -1787,7 +1787,7 @@ class Parser
                     // which is either an access for the constant static or a call for the method static
                     // we'll probaby want to goto into to the T_STRING case here...
                     default:
-                        if ($this->tokens[$this->i]->getSource() === 'class')
+                        if ($this->tokens[$this->i]->getSource() === "class")
                         {
                             // TODO what is this!? undoing of Lexer/$forceIdentifier? maybe we should force the identifier in the parser
                             // TODO property handle reserved, semi reserved

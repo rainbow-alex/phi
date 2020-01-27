@@ -74,11 +74,11 @@ abstract class GeneratedTraitUseAs extends Nodes\TraitUseModification
     protected function &_getNodeRefs(): array
     {
         $refs = [
-            'trait' => &$this->trait,
-            'doubleColon' => &$this->doubleColon,
-            'member' => &$this->member,
-            'as' => &$this->as,
-            'alias' => &$this->alias,
+            "trait" => &$this->trait,
+            "doubleColon" => &$this->doubleColon,
+            "member" => &$this->member,
+            "as" => &$this->as,
+            "alias" => &$this->alias,
         ];
         return $refs;
     }
@@ -252,11 +252,11 @@ abstract class GeneratedTraitUseAs extends Nodes\TraitUseModification
     {
         if ($flags & self::VALIDATE_TYPES)
         {
-            if ($this->trait === null) throw ValidationException::childRequired($this, 'trait');
-            if ($this->doubleColon === null) throw ValidationException::childRequired($this, 'doubleColon');
-            if ($this->member === null) throw ValidationException::childRequired($this, 'member');
-            if ($this->as === null) throw ValidationException::childRequired($this, 'as');
-            if ($this->alias === null) throw ValidationException::childRequired($this, 'alias');
+            if ($this->trait === null) throw ValidationException::childRequired($this, "trait");
+            if ($this->doubleColon === null) throw ValidationException::childRequired($this, "doubleColon");
+            if ($this->member === null) throw ValidationException::childRequired($this, "member");
+            if ($this->as === null) throw ValidationException::childRequired($this, "as");
+            if ($this->alias === null) throw ValidationException::childRequired($this, "alias");
         }
         if ($flags & self::VALIDATE_EXPRESSION_CONTEXT)
         {

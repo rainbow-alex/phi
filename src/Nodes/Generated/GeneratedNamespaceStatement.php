@@ -75,10 +75,10 @@ abstract class GeneratedNamespaceStatement extends Nodes\Statement
     protected function &_getNodeRefs(): array
     {
         $refs = [
-            'keyword' => &$this->keyword,
-            'name' => &$this->name,
-            'block' => &$this->block,
-            'semiColon' => &$this->semiColon,
+            "keyword" => &$this->keyword,
+            "name" => &$this->name,
+            "block" => &$this->block,
+            "semiColon" => &$this->semiColon,
         ];
         return $refs;
     }
@@ -207,7 +207,7 @@ abstract class GeneratedNamespaceStatement extends Nodes\Statement
     {
         if ($flags & self::VALIDATE_TYPES)
         {
-            if ($this->keyword === null) throw ValidationException::childRequired($this, 'keyword');
+            if ($this->keyword === null) throw ValidationException::childRequired($this, "keyword");
         }
         if ($flags & self::VALIDATE_EXPRESSION_CONTEXT)
         {

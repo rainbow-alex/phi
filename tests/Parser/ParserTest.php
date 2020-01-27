@@ -21,7 +21,7 @@ class ParserTest extends TestCase
 
     public function cases(): iterable
     {
-        self::$cases = \json_decode(\file_get_contents(__DIR__ . '/data/data.json'), true);
+        self::$cases = \json_decode(\file_get_contents(__DIR__ . "/data/data.json"), true);
         foreach (self::$cases as $root => $group)
         {
             for ($i = 0; $i < count($group); $i += self::BATCH)
@@ -40,16 +40,16 @@ class ParserTest extends TestCase
 
             try
             {
-                $ast = $parser->parseFragment($case['source']);
+                $ast = $parser->parseFragment($case["source"]);
             }
             catch (PhiException $e)
             {
-                if ($case['php']['valid'])
+                if ($case["php"]["valid"])
                 {
                     self::fail(
                         "Failed to parse valid code!\n"
                         . "Got: " . $e->getMessageWithContext() . "\n"
-                        . $case['source']
+                        . $case["source"]
                     );
                 }
 
@@ -58,18 +58,18 @@ class ParserTest extends TestCase
                 continue;
             }
 
-            if (!($case['php']['valid']))
+            if (!($case["php"]["valid"]))
             {
                 self::fail(
                     "Accepted invalid code!\n"
-                    . "Expected: " . $case['php']['error'] . "\n"
-                    . $case['source']);
+                    . "Expected: " . $case["php"]["error"] . "\n"
+                    . $case["source"]);
             }
 
             // test for parsing regressions
-            self::assertTrue($case['phi']['valid']);
-            self::assertSame($case['phi']['repr'], TestRepr::node($ast), $case['source']);
-            self::assertSame($case['source'], (string) $ast);
+            self::assertTrue($case["phi"]["valid"]);
+            self::assertSame($case["phi"]["repr"], TestRepr::node($ast), $case["source"]);
+            self::assertSame($case["source"], (string) $ast);
 
             if ($ast instanceof Expression)
             {
@@ -78,14 +78,14 @@ class ParserTest extends TestCase
 
                 try
                 {
-                    $nikiAst = $nikiParser->parse('<?php ' . $case['source'] . ' ?>');
+                    $nikiAst = $nikiParser->parse("<?php " . $case["source"] . " ?>");
                     self::assertCount(1, $nikiAst);
                     self::assertInstanceOf(PPNodes\Stmt\Expression::class, $nikiAst[0]);
                     $expectedNikiDump = $nikiDumper->dump($nikiAst[0]->expr);
 
                     $actualNikiDump = $nikiDumper->dump(PhpParserCompat::convert($ast));
 
-                    self::assertSame($expectedNikiDump, $actualNikiDump, $case['source']);
+                    self::assertSame($expectedNikiDump, $actualNikiDump, $case["source"]);
                 }
                 catch (\RuntimeException $e)
                 {

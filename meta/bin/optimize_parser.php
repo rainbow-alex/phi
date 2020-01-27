@@ -5,15 +5,15 @@ use Phi\Token;
 
 // TODO mark ALL generated code as generated
 
-require __DIR__ . '/../../vendor/autoload.php';
+require __DIR__ . "/../../vendor/autoload.php";
 assert(class_exists(Token::class));
 
-$src = file_get_contents(__DIR__ . '/../../src/Parser.src.php');
+$src = file_get_contents(__DIR__ . "/../../src/Parser.src.php");
 
-$exprShortcuts = file_get_contents(__DIR__ . '/../resources/optimization/parser_shortcuts.php');
+$exprShortcuts = file_get_contents(__DIR__ . "/../resources/optimization/parser_shortcuts.php");
 $exprShortcuts = str_replace("\n", "", $exprShortcuts);
-$exprShortcuts = substr($exprShortcuts, strpos($exprShortcuts, '/* START */') + 11);
-$src = str_replace('/* EXPR SHORTCUTS */', $exprShortcuts, $src);
+$exprShortcuts = substr($exprShortcuts, strpos($exprShortcuts, "/* START */") + 11);
+$src = str_replace("/* EXPR SHORTCUTS */", $exprShortcuts, $src);
 
 $src = str_replace('$this->peek()->getType()', '$this->types[$this->i]', $src);
 $src = str_replace('$this->peek(1)->getType()', '$this->types[$this->i + 1]', $src);
@@ -27,11 +27,11 @@ $src = str_replace('$this->read()', '$this->tokens[$this->i++]', $src);
 
 $src = preg_replace_callback('{Token::(PH_[A-Z_]+)}', function ($m)
 {
-    return constant(Token::class . '::' . $m[1]);
+    return constant(Token::class . "::" . $m[1]);
 }, $src);
 
-$src = preg_replace('{ (\d\d\d) \\. \'}', ' \'$1', $src);
-$src = preg_replace('{ (\d\d\d) \\. \'}', ' \'$1', $src);
+$src = preg_replace('{ (\d\d\d) \\. "}', ' "$1', $src);
+$src = preg_replace('{ (\d\d\d) \\. "}', ' "$1', $src);
 
 /*
 foreach (['tokens', 'i', 'types', 'typezip', 'typezip2'] as $var)
@@ -54,4 +54,4 @@ $src = preg_replace(
 );
 //*/
 
-file_put_contents(__DIR__ . '/../../src/_optimized/Parser.php', $src);
+file_put_contents(__DIR__ . "/../../src/_optimized/Parser.php", $src);

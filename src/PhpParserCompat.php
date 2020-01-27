@@ -24,7 +24,7 @@ class PhpParserCompat
                 }
             }
 
-            return array_map([self::class, 'convert'], $items);
+            return array_map([self::class, "convert"], $items);
         }
         else if ($node instanceof Token)
         {
@@ -141,12 +141,12 @@ class PhpParserCompat
         else if ($node instanceof PhiNodes\IssetExpression)
         {
             $expressions = \iterator_to_array($node->getExpressions());
-            return new PPNodes\Expr\Isset_(\array_map([self::class, 'convert'], $expressions));
+            return new PPNodes\Expr\Isset_(\array_map([self::class, "convert"], $expressions));
         }
         else if ($node instanceof PhiNodes\ShortArrayExpression) // TODO use interface to handle all shapes?
         {
             $items = \iterator_to_array($node->getItems());
-            return new PPNodes\Expr\Array_(\array_map([self::class, 'convert'], $items));
+            return new PPNodes\Expr\Array_(\array_map([self::class, "convert"], $items));
         }
         else if ($node instanceof PhiNodes\RegularVariableExpression)
         {

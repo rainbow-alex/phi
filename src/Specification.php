@@ -19,7 +19,7 @@ abstract class Specification
 
     protected function validationErrorMessage(Node $node): string
     {
-        return $node->repr() . ' does not satisfy ' . (new ReflectionClass($this))->getShortName();
+        return $node->repr() . " does not satisfy " . (new ReflectionClass($this))->getShortName();
     }
 
     public function autocorrect(?Node $node): ?Node

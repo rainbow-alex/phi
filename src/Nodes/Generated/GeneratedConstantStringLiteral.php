@@ -47,7 +47,7 @@ abstract class GeneratedConstantStringLiteral extends Nodes\Expression
     protected function &_getNodeRefs(): array
     {
         $refs = [
-            'source' => &$this->source,
+            "source" => &$this->source,
         ];
         return $refs;
     }
@@ -89,7 +89,7 @@ abstract class GeneratedConstantStringLiteral extends Nodes\Expression
     {
         if ($flags & self::VALIDATE_TYPES)
         {
-            if ($this->source === null) throw ValidationException::childRequired($this, 'source');
+            if ($this->source === null) throw ValidationException::childRequired($this, "source");
         }
         if ($flags & self::VALIDATE_EXPRESSION_CONTEXT)
         {

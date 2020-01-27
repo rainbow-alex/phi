@@ -66,9 +66,9 @@ abstract class GeneratedGotoStatement extends Nodes\Statement
     protected function &_getNodeRefs(): array
     {
         $refs = [
-            'keyword' => &$this->keyword,
-            'label' => &$this->label,
-            'semiColon' => &$this->semiColon,
+            "keyword" => &$this->keyword,
+            "label" => &$this->label,
+            "semiColon" => &$this->semiColon,
         ];
         return $refs;
     }
@@ -172,8 +172,8 @@ abstract class GeneratedGotoStatement extends Nodes\Statement
     {
         if ($flags & self::VALIDATE_TYPES)
         {
-            if ($this->keyword === null) throw ValidationException::childRequired($this, 'keyword');
-            if ($this->label === null) throw ValidationException::childRequired($this, 'label');
+            if ($this->keyword === null) throw ValidationException::childRequired($this, "keyword");
+            if ($this->label === null) throw ValidationException::childRequired($this, "label");
         }
         if ($flags & self::VALIDATE_EXPRESSION_CONTEXT)
         {

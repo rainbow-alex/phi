@@ -28,11 +28,11 @@ class NodeConverter
         {
             if ($value instanceof Node)
             {
-                throw new ConversionException('Failed to convert ' . $value->repr() . ' to ' . $target, $value);
+                throw new ConversionException("Failed to convert " . $value->repr() . " to " . $target, $value);
             }
             else
             {
-                throw new ConversionException('Failed to convert ' . \var_export($value, true) . ' to ' . $target, null);
+                throw new ConversionException("Failed to convert " . \var_export($value, true) . " to " . $target, null);
             }
         }
 

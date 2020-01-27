@@ -11,7 +11,7 @@ use Phi\Nodes\Base\NodesList;
 use Phi\Nodes\Base\SeparatedNodesList;
 use Phi\Token;
 
-require_once __DIR__ . '/../../vendor/autoload.php';
+require_once __DIR__ . "/../../vendor/autoload.php";
 
 const IMPORTS = [
     Node::class,
@@ -22,22 +22,22 @@ const IMPORTS = [
     MissingNodeException::class,
     NodeConverter::class,
     ValidationException::class,
-    'Phi\\Nodes' => 'Nodes',
+    "Phi\\Nodes" => "Nodes",
 ];
 
 function main()
 {
-    foreach (glob(__DIR__ . '/../../src/Nodes/Generated/*.php') as $f)
+    foreach (glob(__DIR__ . "/../../src/Nodes/Generated/*.php") as $f)
     {
         unlink($f);
     }
 
     $nodes = array_merge(
-        require __DIR__ . '/../resources/nodedefs/expressions.php',
-        require __DIR__ . '/../resources/nodedefs/statements.php',
-        require __DIR__ . '/../resources/nodedefs/members.php',
-        require __DIR__ . '/../resources/nodedefs/types.php',
-        require __DIR__ . '/../resources/nodedefs/helpers.php'
+        require __DIR__ . "/../resources/nodedefs/expressions.php",
+        require __DIR__ . "/../resources/nodedefs/statements.php",
+        require __DIR__ . "/../resources/nodedefs/members.php",
+        require __DIR__ . "/../resources/nodedefs/types.php",
+        require __DIR__ . "/../resources/nodedefs/helpers.php"
     );
 
     foreach ($nodes as $node)
@@ -45,11 +45,11 @@ function main()
         assert($node instanceof NodeDef);
 
         ob_start();
-        include __DIR__ . '/../resources/node_template.php';
+        include __DIR__ . "/../resources/node_template.php";
         $src = ob_get_contents();
         ob_end_clean();
 
-        file_put_contents(__DIR__ . '/../../src/Nodes/Generated/' . $node->shortClassName() . '.php', $src);
+        file_put_contents(__DIR__ . "/../../src/Nodes/Generated/" . $node->shortClassName() . ".php", $src);
     }
 }
 
@@ -80,19 +80,19 @@ function singular(string $s): ?string
 {
     switch ($s)
     {
-        case 'names':
-            return 'name';
+        case "names":
+            return "name";
 
         default:
-            if (substr($s, -3) === 'ies')
+            if (substr($s, -3) === "ies")
             {
-                return substr($s, 0, -3) . 'y';
+                return substr($s, 0, -3) . "y";
             }
-            else if (substr($s, -2) === 'es')
+            else if (substr($s, -2) === "es")
             {
                 return substr($s, 0, -2);
             }
-            else if (substr($s, -1) === 's')
+            else if (substr($s, -1) === "s")
             {
                 return substr($s, 0, -1);
             }

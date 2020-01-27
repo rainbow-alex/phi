@@ -8,7 +8,7 @@ use ReflectionClass;
 class Token extends Node
 {
     // these tokens can be used as a name in some places TODO describe & test where
-    public const SPECIAL_CLASSES = ['self', 'parent', 'static'];
+    public const SPECIAL_CLASSES = ["self", "parent", "static"];
 
     public const CASTS = [
         self::PH_T_ARRAY_CAST,
@@ -67,9 +67,9 @@ class Token extends Node
     private $filename;
 
     /** @var string */
-    private $leftWhitespace = '';
+    private $leftWhitespace = "";
     /** @var string */
-    private $rightWhitespace = '';
+    private $rightWhitespace = "";
 
     public function __construct(
         int $type,
@@ -77,7 +77,7 @@ class Token extends Node
         int $line = null,
         int $column = null,
         string $filename = null,
-        string $leftWhitespace = ''
+        string $leftWhitespace = ""
     )
     {
         $this->type = $type;
@@ -90,7 +90,7 @@ class Token extends Node
 
     protected function detachChild(Node $childToDetach): void
     {
-        throw new \RuntimeException($childToDetach . ' is not attached to ' . $this->repr());
+        throw new \RuntimeException($childToDetach . " is not attached to " . $this->repr());
     }
 
     public function childNodes(): array
@@ -109,7 +109,7 @@ class Token extends Node
 
     public function repr(): string
     {
-        return 'Token<' . self::typeToString($this->type) . '>';
+        return "Token<" . self::typeToString($this->type) . ">";
     }
 
     public function toPhp(): string
@@ -117,7 +117,7 @@ class Token extends Node
         return $this->leftWhitespace . $this->source . $this->rightWhitespace;
     }
 
-    public function debugDump(string $indent = ''): void
+    public function debugDump(string $indent = ""): void
     {
         $source = str_replace("\n", "\\n", \var_export($this->source, true));
         echo $indent . self::typeToString($this->type) . ": " . Console::yellow($source) . "\n";
@@ -248,7 +248,7 @@ class Token extends Node
     public const PH_T_CONST = 147;
     public const PH_T_CONSTANT_ENCAPSED_STRING = 148;
     public const PH_T_CONTINUE = 149;
-    public const PH_T_CURLY_OPEN = 150; // within interpolated strings this is the php type instead of '{'; TODO hide this behavior?
+    public const PH_T_CURLY_OPEN = 150; // within interpolated strings this is the php type instead of "{"; TODO hide this behavior?
     public const PH_T_DEC = 151;
     public const PH_T_DECLARE = 152;
     public const PH_T_DEFAULT = 153;
@@ -366,7 +366,7 @@ class Token extends Node
     {
         return \array_filter(
             (new ReflectionClass(__CLASS__))->getConstants(),
-            function ($k) { return substr($k, 0, 3) === 'PH_'; },
+            function ($k) { return substr($k, 0, 3) === "PH_"; },
             \ARRAY_FILTER_USE_KEY
         );
     }
@@ -375,34 +375,34 @@ class Token extends Node
     {
         static $map;
         $map = $map ?? array_filter([
-            '!' => self::PH_S_EXCLAMATION_MARK,
-            '"' => self::PH_S_DOUBLE_QUOTE,
-            '$' => self::PH_S_DOLLAR,
-            '%' => self::PH_S_MODULO,
-            '&' => self::PH_S_AMPERSAND,
-            '(' => self::PH_S_LEFT_PAREN,
-            ')' => self::PH_S_RIGHT_PAREN,
-            '*' => self::PH_S_ASTERISK,
-            '+' => self::PH_S_PLUS,
-            ',' => self::PH_S_COMMA,
-            '-' => self::PH_S_MINUS,
-            '.' => self::PH_S_DOT,
-            '/' => self::PH_S_FORWARD_SLASH,
-            ':' => self::PH_S_COLON,
-            ';' => self::PH_S_SEMICOLON,
-            '<' => self::PH_S_LT,
-            '=' => self::PH_S_EQUALS,
-            '>' => self::PH_S_GT,
-            '?' => self::PH_S_QUESTION_MARK,
-            '@' => self::PH_S_AT,
-            '[' => self::PH_S_LEFT_SQUARE_BRACKET,
-            ']' => self::PH_S_RIGHT_SQUARE_BRACKET,
-            '^' => self::PH_S_CARAT,
-            '`' => self::PH_S_BACKTICK,
-            '{' => self::PH_S_LEFT_CURLY_BRACE,
-            '|' => self::PH_S_VERTICAL_BAR,
-            '}' => self::PH_S_RIGHT_CURLY_BRACE,
-            '~' => self::PH_S_TILDE,
+            "!" => self::PH_S_EXCLAMATION_MARK,
+            "\"" => self::PH_S_DOUBLE_QUOTE,
+            "\$" => self::PH_S_DOLLAR,
+            "%" => self::PH_S_MODULO,
+            "&" => self::PH_S_AMPERSAND,
+            "(" => self::PH_S_LEFT_PAREN,
+            ")" => self::PH_S_RIGHT_PAREN,
+            "*" => self::PH_S_ASTERISK,
+            "+" => self::PH_S_PLUS,
+            "," => self::PH_S_COMMA,
+            "-" => self::PH_S_MINUS,
+            "." => self::PH_S_DOT,
+            "/" => self::PH_S_FORWARD_SLASH,
+            ":" => self::PH_S_COLON,
+            ";" => self::PH_S_SEMICOLON,
+            "<" => self::PH_S_LT,
+            "=" => self::PH_S_EQUALS,
+            ">" => self::PH_S_GT,
+            "?" => self::PH_S_QUESTION_MARK,
+            "@" => self::PH_S_AT,
+            "[" => self::PH_S_LEFT_SQUARE_BRACKET,
+            "]" => self::PH_S_RIGHT_SQUARE_BRACKET,
+            "^" => self::PH_S_CARAT,
+            "`" => self::PH_S_BACKTICK,
+            "{" => self::PH_S_LEFT_CURLY_BRACE,
+            "|" => self::PH_S_VERTICAL_BAR,
+            "}" => self::PH_S_RIGHT_CURLY_BRACE,
+            "~" => self::PH_S_TILDE,
             \T_ABSTRACT => self::PH_T_ABSTRACT,
             \T_AND_EQUAL => self::PH_T_AND_EQUAL,
             \T_ARRAY => self::PH_T_ARRAY,

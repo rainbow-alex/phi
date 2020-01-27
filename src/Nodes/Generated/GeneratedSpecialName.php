@@ -47,7 +47,7 @@ abstract class GeneratedSpecialName extends Nodes\Name
     protected function &_getNodeRefs(): array
     {
         $refs = [
-            'token' => &$this->token,
+            "token" => &$this->token,
         ];
         return $refs;
     }
@@ -89,7 +89,7 @@ abstract class GeneratedSpecialName extends Nodes\Name
     {
         if ($flags & self::VALIDATE_TYPES)
         {
-            if ($this->token === null) throw ValidationException::childRequired($this, 'token');
+            if ($this->token === null) throw ValidationException::childRequired($this, "token");
         }
         if ($flags & self::VALIDATE_EXPRESSION_CONTEXT)
         {

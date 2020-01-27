@@ -55,8 +55,8 @@ abstract class GeneratedUnaryMinusExpression extends Nodes\Expression
     protected function &_getNodeRefs(): array
     {
         $refs = [
-            'symbol' => &$this->symbol,
-            'expression' => &$this->expression,
+            "symbol" => &$this->symbol,
+            "expression" => &$this->expression,
         ];
         return $refs;
     }
@@ -131,8 +131,8 @@ abstract class GeneratedUnaryMinusExpression extends Nodes\Expression
     {
         if ($flags & self::VALIDATE_TYPES)
         {
-            if ($this->symbol === null) throw ValidationException::childRequired($this, 'symbol');
-            if ($this->expression === null) throw ValidationException::childRequired($this, 'expression');
+            if ($this->symbol === null) throw ValidationException::childRequired($this, "symbol");
+            if ($this->expression === null) throw ValidationException::childRequired($this, "expression");
         }
         if ($flags & self::VALIDATE_EXPRESSION_CONTEXT)
         {

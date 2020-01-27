@@ -64,9 +64,9 @@ abstract class GeneratedRegularBlock extends Nodes\Block
     protected function &_getNodeRefs(): array
     {
         $refs = [
-            'leftBrace' => &$this->leftBrace,
-            'statements' => &$this->statements,
-            'rightBrace' => &$this->rightBrace,
+            "leftBrace" => &$this->leftBrace,
+            "statements" => &$this->statements,
+            "rightBrace" => &$this->rightBrace,
         ];
         return $refs;
     }
@@ -159,8 +159,8 @@ abstract class GeneratedRegularBlock extends Nodes\Block
     {
         if ($flags & self::VALIDATE_TYPES)
         {
-            if ($this->leftBrace === null) throw ValidationException::childRequired($this, 'leftBrace');
-            if ($this->rightBrace === null) throw ValidationException::childRequired($this, 'rightBrace');
+            if ($this->leftBrace === null) throw ValidationException::childRequired($this, "leftBrace");
+            if ($this->rightBrace === null) throw ValidationException::childRequired($this, "rightBrace");
         }
         if ($flags & self::VALIDATE_EXPRESSION_CONTEXT)
         {

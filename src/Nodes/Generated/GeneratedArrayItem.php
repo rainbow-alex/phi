@@ -72,9 +72,9 @@ abstract class GeneratedArrayItem extends CompoundNode
     protected function &_getNodeRefs(): array
     {
         $refs = [
-            'key' => &$this->key,
-            'byReference' => &$this->byReference,
-            'value' => &$this->value,
+            "key" => &$this->key,
+            "byReference" => &$this->byReference,
+            "value" => &$this->value,
         ];
         return $refs;
     }

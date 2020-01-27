@@ -76,10 +76,10 @@ abstract class GeneratedAliasingExpression extends Nodes\Expression
     protected function &_getNodeRefs(): array
     {
         $refs = [
-            'alias' => &$this->alias,
-            'operator1' => &$this->operator1,
-            'operator2' => &$this->operator2,
-            'value' => &$this->value,
+            "alias" => &$this->alias,
+            "operator1" => &$this->operator1,
+            "operator2" => &$this->operator2,
+            "value" => &$this->value,
         ];
         return $refs;
     }
@@ -220,10 +220,10 @@ abstract class GeneratedAliasingExpression extends Nodes\Expression
     {
         if ($flags & self::VALIDATE_TYPES)
         {
-            if ($this->alias === null) throw ValidationException::childRequired($this, 'alias');
-            if ($this->operator1 === null) throw ValidationException::childRequired($this, 'operator1');
-            if ($this->operator2 === null) throw ValidationException::childRequired($this, 'operator2');
-            if ($this->value === null) throw ValidationException::childRequired($this, 'value');
+            if ($this->alias === null) throw ValidationException::childRequired($this, "alias");
+            if ($this->operator1 === null) throw ValidationException::childRequired($this, "operator1");
+            if ($this->operator2 === null) throw ValidationException::childRequired($this, "operator2");
+            if ($this->value === null) throw ValidationException::childRequired($this, "value");
         }
         if ($flags & self::VALIDATE_EXPRESSION_CONTEXT)
         {

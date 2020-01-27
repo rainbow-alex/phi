@@ -55,8 +55,8 @@ abstract class GeneratedBooleanNotExpression extends Nodes\Expression
     protected function &_getNodeRefs(): array
     {
         $refs = [
-            'operator' => &$this->operator,
-            'expression' => &$this->expression,
+            "operator" => &$this->operator,
+            "expression" => &$this->expression,
         ];
         return $refs;
     }
@@ -131,8 +131,8 @@ abstract class GeneratedBooleanNotExpression extends Nodes\Expression
     {
         if ($flags & self::VALIDATE_TYPES)
         {
-            if ($this->operator === null) throw ValidationException::childRequired($this, 'operator');
-            if ($this->expression === null) throw ValidationException::childRequired($this, 'expression');
+            if ($this->operator === null) throw ValidationException::childRequired($this, "operator");
+            if ($this->expression === null) throw ValidationException::childRequired($this, "expression");
         }
         if ($flags & self::VALIDATE_EXPRESSION_CONTEXT)
         {

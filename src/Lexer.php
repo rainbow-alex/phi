@@ -22,7 +22,7 @@ class Lexer
     public function lex(?string $filename, string $source, bool $forcePhp = false): array
     {
         $tokens = [];
-        $whitespace = '';
+        $whitespace = "";
         $line = 1;
         $column = 1;
         $forceIdentifier = false;
@@ -30,7 +30,7 @@ class Lexer
 
         if ($forcePhp)
         {
-            $phpTokens = \token_get_all('<?php ' . $source);
+            $phpTokens = \token_get_all("<?php " . $source);
             \array_shift($phpTokens);
         }
         else
@@ -68,11 +68,11 @@ class Lexer
             else
             {
                 $phpType = $source = $phpToken;
-                $forceIdentifier = ($forceIdentifier && $phpType === '&');
+                $forceIdentifier = ($forceIdentifier && $phpType === "&");
             }
 
             $tokens[] = new Token($typeMap[$phpType], $source, $line, $column, $filename, $whitespace);
-            $whitespace = '';
+            $whitespace = "";
 
             updateColumnAndLine:
             // TODO optimize using $phpToken[2]?
@@ -95,7 +95,7 @@ class Lexer
             }
         }
 
-        $tokens[] = new Token(Token::PH_T_EOF, '', $line, $column, $filename, $whitespace);
+        $tokens[] = new Token(Token::PH_T_EOF, "", $line, $column, $filename, $whitespace);
 
         return $tokens;
     }

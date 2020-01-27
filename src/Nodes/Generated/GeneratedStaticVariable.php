@@ -53,8 +53,8 @@ abstract class GeneratedStaticVariable extends CompoundNode
     protected function &_getNodeRefs(): array
     {
         $refs = [
-            'variable' => &$this->variable,
-            'default' => &$this->default,
+            "variable" => &$this->variable,
+            "default" => &$this->default,
         ];
         return $refs;
     }
@@ -125,7 +125,7 @@ abstract class GeneratedStaticVariable extends CompoundNode
     {
         if ($flags & self::VALIDATE_TYPES)
         {
-            if ($this->variable === null) throw ValidationException::childRequired($this, 'variable');
+            if ($this->variable === null) throw ValidationException::childRequired($this, "variable");
         }
         if ($flags & self::VALIDATE_EXPRESSION_CONTEXT)
         {

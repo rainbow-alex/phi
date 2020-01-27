@@ -69,9 +69,9 @@ abstract class GeneratedVariableMemberName extends Nodes\MemberName
     protected function &_getNodeRefs(): array
     {
         $refs = [
-            'leftBrace' => &$this->leftBrace,
-            'expression' => &$this->expression,
-            'rightBrace' => &$this->rightBrace,
+            "leftBrace" => &$this->leftBrace,
+            "expression" => &$this->expression,
+            "rightBrace" => &$this->rightBrace,
         ];
         return $refs;
     }
@@ -171,7 +171,7 @@ abstract class GeneratedVariableMemberName extends Nodes\MemberName
     {
         if ($flags & self::VALIDATE_TYPES)
         {
-            if ($this->expression === null) throw ValidationException::childRequired($this, 'expression');
+            if ($this->expression === null) throw ValidationException::childRequired($this, "expression");
         }
         if ($flags & self::VALIDATE_EXPRESSION_CONTEXT)
         {

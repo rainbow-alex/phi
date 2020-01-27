@@ -68,9 +68,9 @@ abstract class GeneratedMultiplyExpression extends Nodes\Expression
     protected function &_getNodeRefs(): array
     {
         $refs = [
-            'left' => &$this->left,
-            'operator' => &$this->operator,
-            'right' => &$this->right,
+            "left" => &$this->left,
+            "operator" => &$this->operator,
+            "right" => &$this->right,
         ];
         return $refs;
     }
@@ -178,9 +178,9 @@ abstract class GeneratedMultiplyExpression extends Nodes\Expression
     {
         if ($flags & self::VALIDATE_TYPES)
         {
-            if ($this->left === null) throw ValidationException::childRequired($this, 'left');
-            if ($this->operator === null) throw ValidationException::childRequired($this, 'operator');
-            if ($this->right === null) throw ValidationException::childRequired($this, 'right');
+            if ($this->left === null) throw ValidationException::childRequired($this, "left");
+            if ($this->operator === null) throw ValidationException::childRequired($this, "operator");
+            if ($this->right === null) throw ValidationException::childRequired($this, "right");
         }
         if ($flags & self::VALIDATE_EXPRESSION_CONTEXT)
         {

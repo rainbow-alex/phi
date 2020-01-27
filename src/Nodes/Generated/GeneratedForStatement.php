@@ -135,15 +135,15 @@ abstract class GeneratedForStatement extends Nodes\Statement
     protected function &_getNodeRefs(): array
     {
         $refs = [
-            'keyword' => &$this->keyword,
-            'leftParenthesis' => &$this->leftParenthesis,
-            'init' => &$this->init,
-            'separator1' => &$this->separator1,
-            'test' => &$this->test,
-            'separator2' => &$this->separator2,
-            'step' => &$this->step,
-            'rightParenthesis' => &$this->rightParenthesis,
-            'block' => &$this->block,
+            "keyword" => &$this->keyword,
+            "leftParenthesis" => &$this->leftParenthesis,
+            "init" => &$this->init,
+            "separator1" => &$this->separator1,
+            "test" => &$this->test,
+            "separator2" => &$this->separator2,
+            "step" => &$this->step,
+            "rightParenthesis" => &$this->rightParenthesis,
+            "block" => &$this->block,
         ];
         return $refs;
     }
@@ -437,12 +437,12 @@ abstract class GeneratedForStatement extends Nodes\Statement
     {
         if ($flags & self::VALIDATE_TYPES)
         {
-            if ($this->keyword === null) throw ValidationException::childRequired($this, 'keyword');
-            if ($this->leftParenthesis === null) throw ValidationException::childRequired($this, 'leftParenthesis');
-            if ($this->separator1 === null) throw ValidationException::childRequired($this, 'separator1');
-            if ($this->separator2 === null) throw ValidationException::childRequired($this, 'separator2');
-            if ($this->rightParenthesis === null) throw ValidationException::childRequired($this, 'rightParenthesis');
-            if ($this->block === null) throw ValidationException::childRequired($this, 'block');
+            if ($this->keyword === null) throw ValidationException::childRequired($this, "keyword");
+            if ($this->leftParenthesis === null) throw ValidationException::childRequired($this, "leftParenthesis");
+            if ($this->separator1 === null) throw ValidationException::childRequired($this, "separator1");
+            if ($this->separator2 === null) throw ValidationException::childRequired($this, "separator2");
+            if ($this->rightParenthesis === null) throw ValidationException::childRequired($this, "rightParenthesis");
+            if ($this->block === null) throw ValidationException::childRequired($this, "block");
         }
         if ($flags & self::VALIDATE_EXPRESSION_CONTEXT)
         {

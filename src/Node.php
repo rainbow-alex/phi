@@ -136,7 +136,7 @@ abstract class Node
                             \array_pop($relexed); // eof
                             if (count($relexed) !== 2 || $relexed[0]->getSource() !== $previous->getSource() || $relexed[1]->getSource() !== $token->getSource())
                             {
-                                $token->setLeftWhitespace(' ');
+                                $token->setLeftWhitespace(" ");
                             }
                         }
                     }
@@ -171,12 +171,12 @@ abstract class Node
     public function repr(): string
     {
         // TODO phpstan
-        return (string) \preg_replace('{^Phi\\\\Nodes\\\\}', '', \get_class($this));
+        return (string) \preg_replace('{^Phi\\\\Nodes\\\\}', "", \get_class($this));
     }
 
     abstract public function toPhp(): string;
 
-    abstract public function debugDump(string $indent = ''): void;
+    abstract public function debugDump(string $indent = ""): void;
 
     final public function __toString(): string
     {

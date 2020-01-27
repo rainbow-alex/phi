@@ -16,6 +16,6 @@ trait AssertThrows
             return $t;
         }
 
-        $this->fail('Expected throw of class ' . $class . ', but nothing was thrown');
+        $this->fail("Expected throw of class " . $class . ", but nothing was thrown");
     }
 }

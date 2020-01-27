@@ -93,12 +93,12 @@ abstract class GeneratedMethodCallExpression extends Nodes\Expression
     protected function &_getNodeRefs(): array
     {
         $refs = [
-            'object' => &$this->object,
-            'operator' => &$this->operator,
-            'name' => &$this->name,
-            'leftParenthesis' => &$this->leftParenthesis,
-            'arguments' => &$this->arguments,
-            'rightParenthesis' => &$this->rightParenthesis,
+            "object" => &$this->object,
+            "operator" => &$this->operator,
+            "name" => &$this->name,
+            "leftParenthesis" => &$this->leftParenthesis,
+            "arguments" => &$this->arguments,
+            "rightParenthesis" => &$this->rightParenthesis,
         ];
         return $refs;
     }
@@ -290,11 +290,11 @@ abstract class GeneratedMethodCallExpression extends Nodes\Expression
     {
         if ($flags & self::VALIDATE_TYPES)
         {
-            if ($this->object === null) throw ValidationException::childRequired($this, 'object');
-            if ($this->operator === null) throw ValidationException::childRequired($this, 'operator');
-            if ($this->name === null) throw ValidationException::childRequired($this, 'name');
-            if ($this->leftParenthesis === null) throw ValidationException::childRequired($this, 'leftParenthesis');
-            if ($this->rightParenthesis === null) throw ValidationException::childRequired($this, 'rightParenthesis');
+            if ($this->object === null) throw ValidationException::childRequired($this, "object");
+            if ($this->operator === null) throw ValidationException::childRequired($this, "operator");
+            if ($this->name === null) throw ValidationException::childRequired($this, "name");
+            if ($this->leftParenthesis === null) throw ValidationException::childRequired($this, "leftParenthesis");
+            if ($this->rightParenthesis === null) throw ValidationException::childRequired($this, "rightParenthesis");
         }
         if ($flags & self::VALIDATE_EXPRESSION_CONTEXT)
         {

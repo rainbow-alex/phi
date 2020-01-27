@@ -68,9 +68,9 @@ abstract class GeneratedCombinedAssignmentExpression extends Nodes\Expression
     protected function &_getNodeRefs(): array
     {
         $refs = [
-            'lvalue' => &$this->lvalue,
-            'operator' => &$this->operator,
-            'value' => &$this->value,
+            "lvalue" => &$this->lvalue,
+            "operator" => &$this->operator,
+            "value" => &$this->value,
         ];
         return $refs;
     }
@@ -178,9 +178,9 @@ abstract class GeneratedCombinedAssignmentExpression extends Nodes\Expression
     {
         if ($flags & self::VALIDATE_TYPES)
         {
-            if ($this->lvalue === null) throw ValidationException::childRequired($this, 'lvalue');
-            if ($this->operator === null) throw ValidationException::childRequired($this, 'operator');
-            if ($this->value === null) throw ValidationException::childRequired($this, 'value');
+            if ($this->lvalue === null) throw ValidationException::childRequired($this, "lvalue");
+            if ($this->operator === null) throw ValidationException::childRequired($this, "operator");
+            if ($this->value === null) throw ValidationException::childRequired($this, "value");
         }
         if ($flags & self::VALIDATE_EXPRESSION_CONTEXT)
         {

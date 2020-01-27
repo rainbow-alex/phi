@@ -43,7 +43,7 @@ abstract class GeneratedRegularName extends Nodes\Name
     protected function &_getNodeRefs(): array
     {
         $refs = [
-            'parts' => &$this->parts,
+            "parts" => &$this->parts,
         ];
         return $refs;
     }

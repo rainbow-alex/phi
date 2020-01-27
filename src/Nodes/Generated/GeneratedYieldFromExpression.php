@@ -55,8 +55,8 @@ abstract class GeneratedYieldFromExpression extends Nodes\Expression
     protected function &_getNodeRefs(): array
     {
         $refs = [
-            'keyword' => &$this->keyword,
-            'expression' => &$this->expression,
+            "keyword" => &$this->keyword,
+            "expression" => &$this->expression,
         ];
         return $refs;
     }
@@ -131,8 +131,8 @@ abstract class GeneratedYieldFromExpression extends Nodes\Expression
     {
         if ($flags & self::VALIDATE_TYPES)
         {
-            if ($this->keyword === null) throw ValidationException::childRequired($this, 'keyword');
-            if ($this->expression === null) throw ValidationException::childRequired($this, 'expression');
+            if ($this->keyword === null) throw ValidationException::childRequired($this, "keyword");
+            if ($this->expression === null) throw ValidationException::childRequired($this, "expression");
         }
         if ($flags & self::VALIDATE_EXPRESSION_CONTEXT)
         {

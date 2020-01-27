@@ -47,7 +47,7 @@ abstract class GeneratedImplicitBlock extends Nodes\Block
     protected function &_getNodeRefs(): array
     {
         $refs = [
-            'statement' => &$this->statement,
+            "statement" => &$this->statement,
         ];
         return $refs;
     }
@@ -89,7 +89,7 @@ abstract class GeneratedImplicitBlock extends Nodes\Block
     {
         if ($flags & self::VALIDATE_TYPES)
         {
-            if ($this->statement === null) throw ValidationException::childRequired($this, 'statement');
+            if ($this->statement === null) throw ValidationException::childRequired($this, "statement");
         }
         if ($flags & self::VALIDATE_EXPRESSION_CONTEXT)
         {

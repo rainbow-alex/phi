@@ -78,10 +78,10 @@ abstract class GeneratedAlternativeFormatBlock extends Nodes\Block
     protected function &_getNodeRefs(): array
     {
         $refs = [
-            'colon' => &$this->colon,
-            'statements' => &$this->statements,
-            'endKeyword' => &$this->endKeyword,
-            'semiColon' => &$this->semiColon,
+            "colon" => &$this->colon,
+            "statements" => &$this->statements,
+            "endKeyword" => &$this->endKeyword,
+            "semiColon" => &$this->semiColon,
         ];
         return $refs;
     }
@@ -199,7 +199,7 @@ abstract class GeneratedAlternativeFormatBlock extends Nodes\Block
     {
         if ($flags & self::VALIDATE_TYPES)
         {
-            if ($this->colon === null) throw ValidationException::childRequired($this, 'colon');
+            if ($this->colon === null) throw ValidationException::childRequired($this, "colon");
         }
         if ($flags & self::VALIDATE_EXPRESSION_CONTEXT)
         {

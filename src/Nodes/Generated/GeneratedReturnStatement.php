@@ -64,9 +64,9 @@ abstract class GeneratedReturnStatement extends Nodes\Statement
     protected function &_getNodeRefs(): array
     {
         $refs = [
-            'keyword' => &$this->keyword,
-            'expression' => &$this->expression,
-            'semiColon' => &$this->semiColon,
+            "keyword" => &$this->keyword,
+            "expression" => &$this->expression,
+            "semiColon" => &$this->semiColon,
         ];
         return $refs;
     }
@@ -166,7 +166,7 @@ abstract class GeneratedReturnStatement extends Nodes\Statement
     {
         if ($flags & self::VALIDATE_TYPES)
         {
-            if ($this->keyword === null) throw ValidationException::childRequired($this, 'keyword');
+            if ($this->keyword === null) throw ValidationException::childRequired($this, "keyword");
         }
         if ($flags & self::VALIDATE_EXPRESSION_CONTEXT)
         {

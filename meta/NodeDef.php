@@ -160,7 +160,7 @@ class NodeDef
 
     public function shortClassName(): string
     {
-        $parts = explode('\\', $this->className);
-        return 'Generated' . rtrim(array_pop($parts), '_');
+        $parts = explode("\\", $this->className);
+        return "Generated" . rtrim(array_pop($parts), "_");
     }
 }

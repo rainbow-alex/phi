@@ -58,8 +58,8 @@ abstract class GeneratedExpressionStatement extends Nodes\Statement
     protected function &_getNodeRefs(): array
     {
         $refs = [
-            'expression' => &$this->expression,
-            'semiColon' => &$this->semiColon,
+            "expression" => &$this->expression,
+            "semiColon" => &$this->semiColon,
         ];
         return $refs;
     }
@@ -130,7 +130,7 @@ abstract class GeneratedExpressionStatement extends Nodes\Statement
     {
         if ($flags & self::VALIDATE_TYPES)
         {
-            if ($this->expression === null) throw ValidationException::childRequired($this, 'expression');
+            if ($this->expression === null) throw ValidationException::childRequired($this, "expression");
         }
         if ($flags & self::VALIDATE_EXPRESSION_CONTEXT)
         {

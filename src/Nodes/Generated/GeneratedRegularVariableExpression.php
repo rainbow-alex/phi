@@ -47,7 +47,7 @@ abstract class GeneratedRegularVariableExpression extends Nodes\Variable
     protected function &_getNodeRefs(): array
     {
         $refs = [
-            'variable' => &$this->variable,
+            "variable" => &$this->variable,
         ];
         return $refs;
     }
@@ -89,7 +89,7 @@ abstract class GeneratedRegularVariableExpression extends Nodes\Variable
     {
         if ($flags & self::VALIDATE_TYPES)
         {
-            if ($this->variable === null) throw ValidationException::childRequired($this, 'variable');
+            if ($this->variable === null) throw ValidationException::childRequired($this, "variable");
         }
         if ($flags & self::VALIDATE_EXPRESSION_CONTEXT)
         {

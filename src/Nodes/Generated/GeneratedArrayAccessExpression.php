@@ -79,10 +79,10 @@ abstract class GeneratedArrayAccessExpression extends Nodes\Expression
     protected function &_getNodeRefs(): array
     {
         $refs = [
-            'accessee' => &$this->accessee,
-            'leftBracket' => &$this->leftBracket,
-            'index' => &$this->index,
-            'rightBracket' => &$this->rightBracket,
+            "accessee" => &$this->accessee,
+            "leftBracket" => &$this->leftBracket,
+            "index" => &$this->index,
+            "rightBracket" => &$this->rightBracket,
         ];
         return $refs;
     }
@@ -219,9 +219,9 @@ abstract class GeneratedArrayAccessExpression extends Nodes\Expression
     {
         if ($flags & self::VALIDATE_TYPES)
         {
-            if ($this->accessee === null) throw ValidationException::childRequired($this, 'accessee');
-            if ($this->leftBracket === null) throw ValidationException::childRequired($this, 'leftBracket');
-            if ($this->rightBracket === null) throw ValidationException::childRequired($this, 'rightBracket');
+            if ($this->accessee === null) throw ValidationException::childRequired($this, "accessee");
+            if ($this->leftBracket === null) throw ValidationException::childRequired($this, "leftBracket");
+            if ($this->rightBracket === null) throw ValidationException::childRequired($this, "rightBracket");
         }
         if ($flags & self::VALIDATE_EXPRESSION_CONTEXT)
         {

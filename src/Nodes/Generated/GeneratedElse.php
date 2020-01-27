@@ -50,8 +50,8 @@ abstract class GeneratedElse extends CompoundNode
     protected function &_getNodeRefs(): array
     {
         $refs = [
-            'keyword' => &$this->keyword,
-            'block' => &$this->block,
+            "keyword" => &$this->keyword,
+            "block" => &$this->block,
         ];
         return $refs;
     }
@@ -126,8 +126,8 @@ abstract class GeneratedElse extends CompoundNode
     {
         if ($flags & self::VALIDATE_TYPES)
         {
-            if ($this->keyword === null) throw ValidationException::childRequired($this, 'keyword');
-            if ($this->block === null) throw ValidationException::childRequired($this, 'block');
+            if ($this->keyword === null) throw ValidationException::childRequired($this, "keyword");
+            if ($this->block === null) throw ValidationException::childRequired($this, "block");
         }
         if ($flags & self::VALIDATE_EXPRESSION_CONTEXT)
         {

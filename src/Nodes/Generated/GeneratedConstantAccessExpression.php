@@ -68,9 +68,9 @@ abstract class GeneratedConstantAccessExpression extends Nodes\Expression
     protected function &_getNodeRefs(): array
     {
         $refs = [
-            'accessee' => &$this->accessee,
-            'operator' => &$this->operator,
-            'name' => &$this->name,
+            "accessee" => &$this->accessee,
+            "operator" => &$this->operator,
+            "name" => &$this->name,
         ];
         return $refs;
     }
@@ -178,9 +178,9 @@ abstract class GeneratedConstantAccessExpression extends Nodes\Expression
     {
         if ($flags & self::VALIDATE_TYPES)
         {
-            if ($this->accessee === null) throw ValidationException::childRequired($this, 'accessee');
-            if ($this->operator === null) throw ValidationException::childRequired($this, 'operator');
-            if ($this->name === null) throw ValidationException::childRequired($this, 'name');
+            if ($this->accessee === null) throw ValidationException::childRequired($this, "accessee");
+            if ($this->operator === null) throw ValidationException::childRequired($this, "operator");
+            if ($this->name === null) throw ValidationException::childRequired($this, "name");
         }
         if ($flags & self::VALIDATE_EXPRESSION_CONTEXT)
         {

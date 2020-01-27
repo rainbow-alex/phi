@@ -63,9 +63,9 @@ abstract class GeneratedClassNameResolutionExpression extends Nodes\Expression
     protected function &_getNodeRefs(): array
     {
         $refs = [
-            'class' => &$this->class,
-            'operator' => &$this->operator,
-            'keyword' => &$this->keyword,
+            "class" => &$this->class,
+            "operator" => &$this->operator,
+            "keyword" => &$this->keyword,
         ];
         return $refs;
     }
@@ -173,9 +173,9 @@ abstract class GeneratedClassNameResolutionExpression extends Nodes\Expression
     {
         if ($flags & self::VALIDATE_TYPES)
         {
-            if ($this->class === null) throw ValidationException::childRequired($this, 'class');
-            if ($this->operator === null) throw ValidationException::childRequired($this, 'operator');
-            if ($this->keyword === null) throw ValidationException::childRequired($this, 'keyword');
+            if ($this->class === null) throw ValidationException::childRequired($this, "class");
+            if ($this->operator === null) throw ValidationException::childRequired($this, "operator");
+            if ($this->keyword === null) throw ValidationException::childRequired($this, "keyword");
         }
         if ($flags & self::VALIDATE_EXPRESSION_CONTEXT)
         {

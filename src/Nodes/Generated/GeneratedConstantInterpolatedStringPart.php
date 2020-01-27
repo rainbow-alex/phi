@@ -47,7 +47,7 @@ abstract class GeneratedConstantInterpolatedStringPart extends Nodes\CInterpolat
     protected function &_getNodeRefs(): array
     {
         $refs = [
-            'content' => &$this->content,
+            "content" => &$this->content,
         ];
         return $refs;
     }
@@ -89,7 +89,7 @@ abstract class GeneratedConstantInterpolatedStringPart extends Nodes\CInterpolat
     {
         if ($flags & self::VALIDATE_TYPES)
         {
-            if ($this->content === null) throw ValidationException::childRequired($this, 'content');
+            if ($this->content === null) throw ValidationException::childRequired($this, "content");
         }
         if ($flags & self::VALIDATE_EXPRESSION_CONTEXT)
         {

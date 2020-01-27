@@ -50,8 +50,8 @@ abstract class GeneratedUseAlias extends CompoundNode
     protected function &_getNodeRefs(): array
     {
         $refs = [
-            'keyword' => &$this->keyword,
-            'name' => &$this->name,
+            "keyword" => &$this->keyword,
+            "name" => &$this->name,
         ];
         return $refs;
     }
@@ -126,8 +126,8 @@ abstract class GeneratedUseAlias extends CompoundNode
     {
         if ($flags & self::VALIDATE_TYPES)
         {
-            if ($this->keyword === null) throw ValidationException::childRequired($this, 'keyword');
-            if ($this->name === null) throw ValidationException::childRequired($this, 'name');
+            if ($this->keyword === null) throw ValidationException::childRequired($this, "keyword");
+            if ($this->name === null) throw ValidationException::childRequired($this, "name");
         }
         if ($flags & self::VALIDATE_EXPRESSION_CONTEXT)
         {

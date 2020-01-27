@@ -42,7 +42,7 @@ abstract class GeneratedNopStatement extends Nodes\Statement
     protected function &_getNodeRefs(): array
     {
         $refs = [
-            'semiColon' => &$this->semiColon,
+            "semiColon" => &$this->semiColon,
         ];
         return $refs;
     }
@@ -84,7 +84,7 @@ abstract class GeneratedNopStatement extends Nodes\Statement
     {
         if ($flags & self::VALIDATE_TYPES)
         {
-            if ($this->semiColon === null) throw ValidationException::childRequired($this, 'semiColon');
+            if ($this->semiColon === null) throw ValidationException::childRequired($this, "semiColon");
         }
         if ($flags & self::VALIDATE_EXPRESSION_CONTEXT)
         {

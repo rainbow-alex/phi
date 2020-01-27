@@ -55,11 +55,11 @@ abstract class PhiException extends Exception
 
     public function getContext(): string
     {
-        return ($this->getSourceFilename() ?? '<unknown>') . ' on line ' . ($this->getSourceLine() ?? '?');
+        return ($this->getSourceFilename() ?? "<unknown>") . " on line " . ($this->getSourceLine() ?? "?");
     }
 
     public function getMessageWithContext(): string
     {
-        return $this->message . ' in ' . $this->getContext();
+        return $this->message . " in " . $this->getContext();
     }
 }

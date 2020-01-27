@@ -55,8 +55,8 @@ abstract class GeneratedPostIncrementExpression extends Nodes\CrementExpression
     protected function &_getNodeRefs(): array
     {
         $refs = [
-            'expression' => &$this->expression,
-            'operator' => &$this->operator,
+            "expression" => &$this->expression,
+            "operator" => &$this->operator,
         ];
         return $refs;
     }
@@ -131,8 +131,8 @@ abstract class GeneratedPostIncrementExpression extends Nodes\CrementExpression
     {
         if ($flags & self::VALIDATE_TYPES)
         {
-            if ($this->expression === null) throw ValidationException::childRequired($this, 'expression');
-            if ($this->operator === null) throw ValidationException::childRequired($this, 'operator');
+            if ($this->expression === null) throw ValidationException::childRequired($this, "expression");
+            if ($this->operator === null) throw ValidationException::childRequired($this, "operator");
         }
         if ($flags & self::VALIDATE_EXPRESSION_CONTEXT)
         {

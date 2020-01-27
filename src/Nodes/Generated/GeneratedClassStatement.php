@@ -111,14 +111,14 @@ abstract class GeneratedClassStatement extends Nodes\ClassLikeStatement
     protected function &_getNodeRefs(): array
     {
         $refs = [
-            'modifiers' => &$this->modifiers,
-            'keyword' => &$this->keyword,
-            'name' => &$this->name,
-            'extends' => &$this->extends,
-            'implements' => &$this->implements,
-            'leftBrace' => &$this->leftBrace,
-            'members' => &$this->members,
-            'rightBrace' => &$this->rightBrace,
+            "modifiers" => &$this->modifiers,
+            "keyword" => &$this->keyword,
+            "name" => &$this->name,
+            "extends" => &$this->extends,
+            "implements" => &$this->implements,
+            "leftBrace" => &$this->leftBrace,
+            "members" => &$this->members,
+            "rightBrace" => &$this->rightBrace,
         ];
         return $refs;
     }
@@ -353,10 +353,10 @@ abstract class GeneratedClassStatement extends Nodes\ClassLikeStatement
     {
         if ($flags & self::VALIDATE_TYPES)
         {
-            if ($this->keyword === null) throw ValidationException::childRequired($this, 'keyword');
-            if ($this->name === null) throw ValidationException::childRequired($this, 'name');
-            if ($this->leftBrace === null) throw ValidationException::childRequired($this, 'leftBrace');
-            if ($this->rightBrace === null) throw ValidationException::childRequired($this, 'rightBrace');
+            if ($this->keyword === null) throw ValidationException::childRequired($this, "keyword");
+            if ($this->name === null) throw ValidationException::childRequired($this, "name");
+            if ($this->leftBrace === null) throw ValidationException::childRequired($this, "leftBrace");
+            if ($this->rightBrace === null) throw ValidationException::childRequired($this, "rightBrace");
         }
         if ($flags & self::VALIDATE_EXPRESSION_CONTEXT)
         {

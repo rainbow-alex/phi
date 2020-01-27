@@ -59,9 +59,9 @@ abstract class GeneratedSwitchDefault extends CompoundNode
     protected function &_getNodeRefs(): array
     {
         $refs = [
-            'keyword' => &$this->keyword,
-            'colon' => &$this->colon,
-            'statements' => &$this->statements,
+            "keyword" => &$this->keyword,
+            "colon" => &$this->colon,
+            "statements" => &$this->statements,
         ];
         return $refs;
     }
@@ -154,8 +154,8 @@ abstract class GeneratedSwitchDefault extends CompoundNode
     {
         if ($flags & self::VALIDATE_TYPES)
         {
-            if ($this->keyword === null) throw ValidationException::childRequired($this, 'keyword');
-            if ($this->colon === null) throw ValidationException::childRequired($this, 'colon');
+            if ($this->keyword === null) throw ValidationException::childRequired($this, "keyword");
+            if ($this->colon === null) throw ValidationException::childRequired($this, "colon");
         }
         if ($flags & self::VALIDATE_EXPRESSION_CONTEXT)
         {

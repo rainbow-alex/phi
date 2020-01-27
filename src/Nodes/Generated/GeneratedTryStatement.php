@@ -70,10 +70,10 @@ abstract class GeneratedTryStatement extends Nodes\Statement
     protected function &_getNodeRefs(): array
     {
         $refs = [
-            'keyword' => &$this->keyword,
-            'block' => &$this->block,
-            'catches' => &$this->catches,
-            'finally' => &$this->finally,
+            "keyword" => &$this->keyword,
+            "block" => &$this->block,
+            "catches" => &$this->catches,
+            "finally" => &$this->finally,
         ];
         return $refs;
     }
@@ -195,8 +195,8 @@ abstract class GeneratedTryStatement extends Nodes\Statement
     {
         if ($flags & self::VALIDATE_TYPES)
         {
-            if ($this->keyword === null) throw ValidationException::childRequired($this, 'keyword');
-            if ($this->block === null) throw ValidationException::childRequired($this, 'block');
+            if ($this->keyword === null) throw ValidationException::childRequired($this, "keyword");
+            if ($this->block === null) throw ValidationException::childRequired($this, "block");
         }
         if ($flags & self::VALIDATE_EXPRESSION_CONTEXT)
         {

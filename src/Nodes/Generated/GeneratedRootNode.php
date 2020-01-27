@@ -59,8 +59,8 @@ abstract class GeneratedRootNode extends CompoundNode
     protected function &_getNodeRefs(): array
     {
         $refs = [
-            'statements' => &$this->statements,
-            'eof' => &$this->eof,
+            "statements" => &$this->statements,
+            "eof" => &$this->eof,
         ];
         return $refs;
     }

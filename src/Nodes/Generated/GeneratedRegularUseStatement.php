@@ -78,10 +78,10 @@ abstract class GeneratedRegularUseStatement extends Nodes\UseStatement
     protected function &_getNodeRefs(): array
     {
         $refs = [
-            'keyword' => &$this->keyword,
-            'type' => &$this->type,
-            'names' => &$this->names,
-            'semiColon' => &$this->semiColon,
+            "keyword" => &$this->keyword,
+            "type" => &$this->type,
+            "names" => &$this->names,
+            "semiColon" => &$this->semiColon,
         ];
         return $refs;
     }
@@ -199,7 +199,7 @@ abstract class GeneratedRegularUseStatement extends Nodes\UseStatement
     {
         if ($flags & self::VALIDATE_TYPES)
         {
-            if ($this->keyword === null) throw ValidationException::childRequired($this, 'keyword');
+            if ($this->keyword === null) throw ValidationException::childRequired($this, "keyword");
         }
         if ($flags & self::VALIDATE_EXPRESSION_CONTEXT)
         {

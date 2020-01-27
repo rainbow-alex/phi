@@ -42,7 +42,7 @@ abstract class GeneratedMagicConstant extends Nodes\Expression
     protected function &_getNodeRefs(): array
     {
         $refs = [
-            'token' => &$this->token,
+            "token" => &$this->token,
         ];
         return $refs;
     }
@@ -84,7 +84,7 @@ abstract class GeneratedMagicConstant extends Nodes\Expression
     {
         if ($flags & self::VALIDATE_TYPES)
         {
-            if ($this->token === null) throw ValidationException::childRequired($this, 'token');
+            if ($this->token === null) throw ValidationException::childRequired($this, "token");
         }
         if ($flags & self::VALIDATE_EXPRESSION_CONTEXT)
         {

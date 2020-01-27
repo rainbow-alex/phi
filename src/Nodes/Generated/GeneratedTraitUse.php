@@ -93,12 +93,12 @@ abstract class GeneratedTraitUse extends Nodes\ClassLikeMember
     protected function &_getNodeRefs(): array
     {
         $refs = [
-            'keyword' => &$this->keyword,
-            'traits' => &$this->traits,
-            'leftBrace' => &$this->leftBrace,
-            'modifications' => &$this->modifications,
-            'rightBrace' => &$this->rightBrace,
-            'semiColon' => &$this->semiColon,
+            "keyword" => &$this->keyword,
+            "traits" => &$this->traits,
+            "leftBrace" => &$this->leftBrace,
+            "modifications" => &$this->modifications,
+            "rightBrace" => &$this->rightBrace,
+            "semiColon" => &$this->semiColon,
         ];
         return $refs;
     }
@@ -263,7 +263,7 @@ abstract class GeneratedTraitUse extends Nodes\ClassLikeMember
     {
         if ($flags & self::VALIDATE_TYPES)
         {
-            if ($this->keyword === null) throw ValidationException::childRequired($this, 'keyword');
+            if ($this->keyword === null) throw ValidationException::childRequired($this, "keyword");
         }
         if ($flags & self::VALIDATE_EXPRESSION_CONTEXT)
         {

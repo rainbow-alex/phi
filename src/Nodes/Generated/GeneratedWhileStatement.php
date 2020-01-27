@@ -79,11 +79,11 @@ abstract class GeneratedWhileStatement extends Nodes\Statement
     protected function &_getNodeRefs(): array
     {
         $refs = [
-            'keyword' => &$this->keyword,
-            'leftParenthesis' => &$this->leftParenthesis,
-            'test' => &$this->test,
-            'rightParenthesis' => &$this->rightParenthesis,
-            'block' => &$this->block,
+            "keyword" => &$this->keyword,
+            "leftParenthesis" => &$this->leftParenthesis,
+            "test" => &$this->test,
+            "rightParenthesis" => &$this->rightParenthesis,
+            "block" => &$this->block,
         ];
         return $refs;
     }
@@ -257,11 +257,11 @@ abstract class GeneratedWhileStatement extends Nodes\Statement
     {
         if ($flags & self::VALIDATE_TYPES)
         {
-            if ($this->keyword === null) throw ValidationException::childRequired($this, 'keyword');
-            if ($this->leftParenthesis === null) throw ValidationException::childRequired($this, 'leftParenthesis');
-            if ($this->test === null) throw ValidationException::childRequired($this, 'test');
-            if ($this->rightParenthesis === null) throw ValidationException::childRequired($this, 'rightParenthesis');
-            if ($this->block === null) throw ValidationException::childRequired($this, 'block');
+            if ($this->keyword === null) throw ValidationException::childRequired($this, "keyword");
+            if ($this->leftParenthesis === null) throw ValidationException::childRequired($this, "leftParenthesis");
+            if ($this->test === null) throw ValidationException::childRequired($this, "test");
+            if ($this->rightParenthesis === null) throw ValidationException::childRequired($this, "rightParenthesis");
+            if ($this->block === null) throw ValidationException::childRequired($this, "block");
         }
         if ($flags & self::VALIDATE_EXPRESSION_CONTEXT)
         {

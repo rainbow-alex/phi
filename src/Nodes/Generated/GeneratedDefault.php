@@ -55,8 +55,8 @@ abstract class GeneratedDefault extends CompoundNode
     protected function &_getNodeRefs(): array
     {
         $refs = [
-            'symbol' => &$this->symbol,
-            'value' => &$this->value,
+            "symbol" => &$this->symbol,
+            "value" => &$this->value,
         ];
         return $refs;
     }
@@ -131,8 +131,8 @@ abstract class GeneratedDefault extends CompoundNode
     {
         if ($flags & self::VALIDATE_TYPES)
         {
-            if ($this->symbol === null) throw ValidationException::childRequired($this, 'symbol');
-            if ($this->value === null) throw ValidationException::childRequired($this, 'value');
+            if ($this->symbol === null) throw ValidationException::childRequired($this, "symbol");
+            if ($this->value === null) throw ValidationException::childRequired($this, "value");
         }
         if ($flags & self::VALIDATE_EXPRESSION_CONTEXT)
         {

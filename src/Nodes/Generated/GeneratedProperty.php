@@ -75,10 +75,10 @@ abstract class GeneratedProperty extends Nodes\ClassLikeMember
     protected function &_getNodeRefs(): array
     {
         $refs = [
-            'modifiers' => &$this->modifiers,
-            'variable' => &$this->variable,
-            'default' => &$this->default,
-            'semiColon' => &$this->semiColon,
+            "modifiers" => &$this->modifiers,
+            "variable" => &$this->variable,
+            "default" => &$this->default,
+            "semiColon" => &$this->semiColon,
         ];
         return $refs;
     }
@@ -200,8 +200,8 @@ abstract class GeneratedProperty extends Nodes\ClassLikeMember
     {
         if ($flags & self::VALIDATE_TYPES)
         {
-            if ($this->variable === null) throw ValidationException::childRequired($this, 'variable');
-            if ($this->semiColon === null) throw ValidationException::childRequired($this, 'semiColon');
+            if ($this->variable === null) throw ValidationException::childRequired($this, "variable");
+            if ($this->semiColon === null) throw ValidationException::childRequired($this, "semiColon");
         }
         if ($flags & self::VALIDATE_EXPRESSION_CONTEXT)
         {

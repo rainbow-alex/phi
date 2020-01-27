@@ -47,7 +47,7 @@ abstract class GeneratedBlockStatement extends Nodes\Statement
     protected function &_getNodeRefs(): array
     {
         $refs = [
-            'block' => &$this->block,
+            "block" => &$this->block,
         ];
         return $refs;
     }
@@ -89,7 +89,7 @@ abstract class GeneratedBlockStatement extends Nodes\Statement
     {
         if ($flags & self::VALIDATE_TYPES)
         {
-            if ($this->block === null) throw ValidationException::childRequired($this, 'block');
+            if ($this->block === null) throw ValidationException::childRequired($this, "block");
         }
         if ($flags & self::VALIDATE_EXPRESSION_CONTEXT)
         {
