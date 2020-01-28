@@ -22,7 +22,7 @@ foreach (array_slice($argv, 1) as $arg)
         continue;
     }
 
-    foreach ($ast->find(new IsInstanceOf(InterpolatedString::class)) as $node)
+    foreach ($ast->findNodes(new IsInstanceOf(InterpolatedString::class)) as $node)
     {
         echo $arg . "\n";
         /** @var InterpolatedString $node */

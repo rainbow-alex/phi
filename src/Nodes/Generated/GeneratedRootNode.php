@@ -16,6 +16,7 @@ abstract class GeneratedRootNode extends CompoundNode
 {
     /**
      * @var NodesList|Nodes\Statement[]
+     * @phpstan-var NodesList<\Phi\Nodes\Statement>
      */
     private $statements;
 
@@ -23,6 +24,7 @@ abstract class GeneratedRootNode extends CompoundNode
      * @var Token|null
      */
     private $eof;
+
 
     /**
      * @param Nodes\Statement $statement
@@ -49,10 +51,7 @@ abstract class GeneratedRootNode extends CompoundNode
         $instance->statements->__initUnchecked($statements);
         $instance->statements->parent = $instance;
         $instance->eof = $eof;
-        if ($eof)
-        {
-            $instance->eof->parent = $instance;
-        }
+        if ($eof) $eof->parent = $instance;
         return $instance;
     }
 
@@ -67,6 +66,7 @@ abstract class GeneratedRootNode extends CompoundNode
 
     /**
      * @return NodesList|Nodes\Statement[]
+     * @phpstan-return NodesList<\Phi\Nodes\Statement>
      */
     public function getStatements(): NodesList
     {

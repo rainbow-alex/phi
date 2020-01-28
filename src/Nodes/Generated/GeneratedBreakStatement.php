@@ -27,7 +27,8 @@ abstract class GeneratedBreakStatement extends Nodes\Statement
     /**
      * @var Token|null
      */
-    private $semiColon;
+    private $delimiter;
+
 
     /**
      */
@@ -37,27 +38,21 @@ abstract class GeneratedBreakStatement extends Nodes\Statement
 
     /**
      * @param int $phpVersion
-     * @param Token|null $keyword
+     * @param Token $keyword
      * @param Nodes\IntegerLiteral|null $levels
-     * @param Token|null $semiColon
+     * @param Token $delimiter
      * @return static
      */
-    public static function __instantiateUnchecked($phpVersion, $keyword, $levels, $semiColon)
+    public static function __instantiateUnchecked($phpVersion, $keyword, $levels, $delimiter)
     {
         $instance = new static;
         $instance->phpVersion = $phpVersion;
         $instance->keyword = $keyword;
-        $instance->keyword->parent = $instance;
+        $keyword->parent = $instance;
         $instance->levels = $levels;
-        if ($levels)
-        {
-            $instance->levels->parent = $instance;
-        }
-        $instance->semiColon = $semiColon;
-        if ($semiColon)
-        {
-            $instance->semiColon->parent = $instance;
-        }
+        if ($levels) $levels->parent = $instance;
+        $instance->delimiter = $delimiter;
+        $delimiter->parent = $instance;
         return $instance;
     }
 
@@ -66,7 +61,7 @@ abstract class GeneratedBreakStatement extends Nodes\Statement
         $refs = [
             "keyword" => &$this->keyword,
             "levels" => &$this->levels,
-            "semiColon" => &$this->semiColon,
+            "delimiter" => &$this->delimiter,
         ];
         return $refs;
     }
@@ -133,40 +128,45 @@ abstract class GeneratedBreakStatement extends Nodes\Statement
         $this->levels = $levels;
     }
 
-    public function getSemiColon(): ?Token
+    public function getDelimiter(): Token
     {
-        return $this->semiColon;
+        if ($this->delimiter === null)
+        {
+            throw new MissingNodeException($this, __FUNCTION__);
+        }
+        return $this->delimiter;
     }
 
-    public function hasSemiColon(): bool
+    public function hasDelimiter(): bool
     {
-        return $this->semiColon !== null;
+        return $this->delimiter !== null;
     }
 
     /**
-     * @param Token|Node|string|null $semiColon
+     * @param Token|Node|string|null $delimiter
      */
-    public function setSemiColon($semiColon): void
+    public function setDelimiter($delimiter): void
     {
-        if ($semiColon !== null)
+        if ($delimiter !== null)
         {
-            /** @var Token $semiColon */
-            $semiColon = NodeConverter::convert($semiColon, Token::class, $this->phpVersion);
-            $semiColon->detach();
-            $semiColon->parent = $this;
+            /** @var Token $delimiter */
+            $delimiter = NodeConverter::convert($delimiter, Token::class, $this->phpVersion);
+            $delimiter->detach();
+            $delimiter->parent = $this;
         }
-        if ($this->semiColon !== null)
+        if ($this->delimiter !== null)
         {
-            $this->semiColon->detach();
+            $this->delimiter->detach();
         }
-        $this->semiColon = $semiColon;
+        $this->delimiter = $delimiter;
     }
 
     protected function _validate(int $flags): void
     {
+        if ($this->keyword === null) throw ValidationException::childRequired($this, "keyword");
+        if ($this->delimiter === null) throw ValidationException::childRequired($this, "delimiter");
         if ($flags & self::VALIDATE_TYPES)
         {
-            if ($this->keyword === null) throw ValidationException::childRequired($this, "keyword");
         }
         if ($flags & self::VALIDATE_EXPRESSION_CONTEXT)
         {

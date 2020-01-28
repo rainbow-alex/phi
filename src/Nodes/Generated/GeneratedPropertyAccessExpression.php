@@ -29,6 +29,7 @@ abstract class GeneratedPropertyAccessExpression extends Nodes\Expression
      */
     private $name;
 
+
     /**
      * @param Nodes\Expression|Node|string|null $accessee
      * @param Nodes\MemberName|Node|string|null $name
@@ -47,9 +48,9 @@ abstract class GeneratedPropertyAccessExpression extends Nodes\Expression
 
     /**
      * @param int $phpVersion
-     * @param Nodes\Expression|null $accessee
-     * @param Token|null $operator
-     * @param Nodes\MemberName|null $name
+     * @param Nodes\Expression $accessee
+     * @param Token $operator
+     * @param Nodes\MemberName $name
      * @return static
      */
     public static function __instantiateUnchecked($phpVersion, $accessee, $operator, $name)
@@ -57,11 +58,11 @@ abstract class GeneratedPropertyAccessExpression extends Nodes\Expression
         $instance = new static;
         $instance->phpVersion = $phpVersion;
         $instance->accessee = $accessee;
-        $instance->accessee->parent = $instance;
+        $accessee->parent = $instance;
         $instance->operator = $operator;
-        $instance->operator->parent = $instance;
+        $operator->parent = $instance;
         $instance->name = $name;
-        $instance->name->parent = $instance;
+        $name->parent = $instance;
         return $instance;
     }
 
@@ -176,11 +177,11 @@ abstract class GeneratedPropertyAccessExpression extends Nodes\Expression
 
     protected function _validate(int $flags): void
     {
+        if ($this->accessee === null) throw ValidationException::childRequired($this, "accessee");
+        if ($this->operator === null) throw ValidationException::childRequired($this, "operator");
+        if ($this->name === null) throw ValidationException::childRequired($this, "name");
         if ($flags & self::VALIDATE_TYPES)
         {
-            if ($this->accessee === null) throw ValidationException::childRequired($this, "accessee");
-            if ($this->operator === null) throw ValidationException::childRequired($this, "operator");
-            if ($this->name === null) throw ValidationException::childRequired($this, "name");
         }
         if ($flags & self::VALIDATE_EXPRESSION_CONTEXT)
         {

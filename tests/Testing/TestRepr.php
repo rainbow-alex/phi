@@ -8,6 +8,7 @@ use Phi\Nodes\Base\NodesList;
 use Phi\Nodes\Base\SeparatedNodesList;
 use Phi\Token;
 use Phi\Nodes;
+use Phi\TokenType;
 
 class TestRepr
 {
@@ -17,7 +18,7 @@ class TestRepr
         $types = [];
         foreach ($tokens as $t)
         {
-            $types[] = Token::typeToString($t->getType());
+            $types[] = TokenType::typeToString($t->getType());
         }
         return implode(" ", $types);
     }
@@ -31,7 +32,7 @@ class TestRepr
         else if ($node instanceof CompoundNode)
         {
             $children = [];
-            foreach ($node->childNodes() as $child)
+            foreach ($node->getChildNodes() as $child)
             {
                 if ($child)
                 {
@@ -43,7 +44,7 @@ class TestRepr
         else if ($node instanceof NodesList || $node instanceof SeparatedNodesList)
         {
             $items = [];
-            foreach ($node->childNodes() as $item)
+            foreach ($node->getChildNodes() as $item)
             {
                 $items[] = self::node($item);
             }
@@ -51,7 +52,7 @@ class TestRepr
         }
         else if ($node instanceof Token)
         {
-            if (in_array($node->getType(), [Token::PH_S_LEFT_PAREN, Token::PH_S_RIGHT_PAREN], true))
+            if (in_array($node->getType(), [TokenType::S_LEFT_PAREN, TokenType::S_RIGHT_PAREN], true))
             {
                 return "`" . $node->getSource() . "`";
             }

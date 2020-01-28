@@ -12,12 +12,13 @@ use Phi\NodeConverter;
 use Phi\Exception\ValidationException;
 use Phi\Nodes as Nodes;
 
-abstract class GeneratedConstantInterpolatedStringPart extends Nodes\CInterpolatedStringPart
+abstract class GeneratedConstantInterpolatedStringPart extends Nodes\InterpolatedStringPart
 {
     /**
      * @var Token|null
      */
     private $content;
+
 
     /**
      * @param Token|Node|string|null $content
@@ -32,7 +33,7 @@ abstract class GeneratedConstantInterpolatedStringPart extends Nodes\CInterpolat
 
     /**
      * @param int $phpVersion
-     * @param Token|null $content
+     * @param Token $content
      * @return static
      */
     public static function __instantiateUnchecked($phpVersion, $content)
@@ -40,7 +41,7 @@ abstract class GeneratedConstantInterpolatedStringPart extends Nodes\CInterpolat
         $instance = new static;
         $instance->phpVersion = $phpVersion;
         $instance->content = $content;
-        $instance->content->parent = $instance;
+        $content->parent = $instance;
         return $instance;
     }
 
@@ -87,9 +88,9 @@ abstract class GeneratedConstantInterpolatedStringPart extends Nodes\CInterpolat
 
     protected function _validate(int $flags): void
     {
+        if ($this->content === null) throw ValidationException::childRequired($this, "content");
         if ($flags & self::VALIDATE_TYPES)
         {
-            if ($this->content === null) throw ValidationException::childRequired($this, "content");
         }
         if ($flags & self::VALIDATE_EXPRESSION_CONTEXT)
         {

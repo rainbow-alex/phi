@@ -5,6 +5,7 @@ namespace Phi\Nodes;
 use Phi\Exception\ValidationException;
 use Phi\ExpressionClassification;
 use Phi\Nodes\Generated\GeneratedIssetExpression;
+use PhpParser\Node\Expr\Isset_;
 
 class IssetExpression extends GeneratedIssetExpression
 {
@@ -19,5 +20,15 @@ class IssetExpression extends GeneratedIssetExpression
                 throw new ValidationException(__METHOD__, $this); // TODO
             }
         }
+    }
+
+    public function convertToPhpParserNode()
+    {
+        $expressions = [];
+        foreach ($this->getExpressions() as $phiExpr)
+        {
+            $expressions[] = $phiExpr->convertToPhpParserNode();
+        }
+        return new Isset_($expressions);
     }
 }

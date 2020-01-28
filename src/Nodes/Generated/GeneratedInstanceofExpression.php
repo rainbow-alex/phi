@@ -29,6 +29,7 @@ abstract class GeneratedInstanceofExpression extends Nodes\Expression
      */
     private $type;
 
+
     /**
      * @param Nodes\Expression|Node|string|null $value
      * @param Nodes\Expression|Node|string|null $type
@@ -47,9 +48,9 @@ abstract class GeneratedInstanceofExpression extends Nodes\Expression
 
     /**
      * @param int $phpVersion
-     * @param Nodes\Expression|null $value
-     * @param Token|null $operator
-     * @param Nodes\Expression|null $type
+     * @param Nodes\Expression $value
+     * @param Token $operator
+     * @param Nodes\Expression $type
      * @return static
      */
     public static function __instantiateUnchecked($phpVersion, $value, $operator, $type)
@@ -57,11 +58,11 @@ abstract class GeneratedInstanceofExpression extends Nodes\Expression
         $instance = new static;
         $instance->phpVersion = $phpVersion;
         $instance->value = $value;
-        $instance->value->parent = $instance;
+        $value->parent = $instance;
         $instance->operator = $operator;
-        $instance->operator->parent = $instance;
+        $operator->parent = $instance;
         $instance->type = $type;
-        $instance->type->parent = $instance;
+        $type->parent = $instance;
         return $instance;
     }
 
@@ -176,11 +177,11 @@ abstract class GeneratedInstanceofExpression extends Nodes\Expression
 
     protected function _validate(int $flags): void
     {
+        if ($this->value === null) throw ValidationException::childRequired($this, "value");
+        if ($this->operator === null) throw ValidationException::childRequired($this, "operator");
+        if ($this->type === null) throw ValidationException::childRequired($this, "type");
         if ($flags & self::VALIDATE_TYPES)
         {
-            if ($this->value === null) throw ValidationException::childRequired($this, "value");
-            if ($this->operator === null) throw ValidationException::childRequired($this, "operator");
-            if ($this->type === null) throw ValidationException::childRequired($this, "type");
         }
         if ($flags & self::VALIDATE_EXPRESSION_CONTEXT)
         {

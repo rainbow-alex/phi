@@ -19,6 +19,7 @@ abstract class GeneratedRegularVariableExpression extends Nodes\Variable
      */
     private $variable;
 
+
     /**
      * @param Token|Node|string|null $variable
      */
@@ -32,7 +33,7 @@ abstract class GeneratedRegularVariableExpression extends Nodes\Variable
 
     /**
      * @param int $phpVersion
-     * @param Token|null $variable
+     * @param Token $variable
      * @return static
      */
     public static function __instantiateUnchecked($phpVersion, $variable)
@@ -40,7 +41,7 @@ abstract class GeneratedRegularVariableExpression extends Nodes\Variable
         $instance = new static;
         $instance->phpVersion = $phpVersion;
         $instance->variable = $variable;
-        $instance->variable->parent = $instance;
+        $variable->parent = $instance;
         return $instance;
     }
 
@@ -87,9 +88,9 @@ abstract class GeneratedRegularVariableExpression extends Nodes\Variable
 
     protected function _validate(int $flags): void
     {
+        if ($this->variable === null) throw ValidationException::childRequired($this, "variable");
         if ($flags & self::VALIDATE_TYPES)
         {
-            if ($this->variable === null) throw ValidationException::childRequired($this, "variable");
         }
         if ($flags & self::VALIDATE_EXPRESSION_CONTEXT)
         {

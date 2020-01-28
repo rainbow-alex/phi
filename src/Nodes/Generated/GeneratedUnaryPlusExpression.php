@@ -24,6 +24,7 @@ abstract class GeneratedUnaryPlusExpression extends Nodes\Expression
      */
     private $expression;
 
+
     /**
      * @param Nodes\Expression|Node|string|null $expression
      */
@@ -37,8 +38,8 @@ abstract class GeneratedUnaryPlusExpression extends Nodes\Expression
 
     /**
      * @param int $phpVersion
-     * @param Token|null $symbol
-     * @param Nodes\Expression|null $expression
+     * @param Token $symbol
+     * @param Nodes\Expression $expression
      * @return static
      */
     public static function __instantiateUnchecked($phpVersion, $symbol, $expression)
@@ -46,9 +47,9 @@ abstract class GeneratedUnaryPlusExpression extends Nodes\Expression
         $instance = new static;
         $instance->phpVersion = $phpVersion;
         $instance->symbol = $symbol;
-        $instance->symbol->parent = $instance;
+        $symbol->parent = $instance;
         $instance->expression = $expression;
-        $instance->expression->parent = $instance;
+        $expression->parent = $instance;
         return $instance;
     }
 
@@ -129,10 +130,10 @@ abstract class GeneratedUnaryPlusExpression extends Nodes\Expression
 
     protected function _validate(int $flags): void
     {
+        if ($this->symbol === null) throw ValidationException::childRequired($this, "symbol");
+        if ($this->expression === null) throw ValidationException::childRequired($this, "expression");
         if ($flags & self::VALIDATE_TYPES)
         {
-            if ($this->symbol === null) throw ValidationException::childRequired($this, "symbol");
-            if ($this->expression === null) throw ValidationException::childRequired($this, "expression");
         }
         if ($flags & self::VALIDATE_EXPRESSION_CONTEXT)
         {

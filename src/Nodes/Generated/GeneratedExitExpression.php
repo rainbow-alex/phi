@@ -34,6 +34,7 @@ abstract class GeneratedExitExpression extends Nodes\Expression
      */
     private $rightParenthesis;
 
+
     /**
      * @param Nodes\Expression|Node|string|null $expression
      */
@@ -47,10 +48,10 @@ abstract class GeneratedExitExpression extends Nodes\Expression
 
     /**
      * @param int $phpVersion
-     * @param Token|null $keyword
-     * @param Token|null $leftParenthesis
+     * @param Token $keyword
+     * @param Token $leftParenthesis
      * @param Nodes\Expression|null $expression
-     * @param Token|null $rightParenthesis
+     * @param Token $rightParenthesis
      * @return static
      */
     public static function __instantiateUnchecked($phpVersion, $keyword, $leftParenthesis, $expression, $rightParenthesis)
@@ -58,16 +59,13 @@ abstract class GeneratedExitExpression extends Nodes\Expression
         $instance = new static;
         $instance->phpVersion = $phpVersion;
         $instance->keyword = $keyword;
-        $instance->keyword->parent = $instance;
+        $keyword->parent = $instance;
         $instance->leftParenthesis = $leftParenthesis;
-        $instance->leftParenthesis->parent = $instance;
+        $leftParenthesis->parent = $instance;
         $instance->expression = $expression;
-        if ($expression)
-        {
-            $instance->expression->parent = $instance;
-        }
+        if ($expression) $expression->parent = $instance;
         $instance->rightParenthesis = $rightParenthesis;
-        $instance->rightParenthesis->parent = $instance;
+        $rightParenthesis->parent = $instance;
         return $instance;
     }
 
@@ -212,11 +210,11 @@ abstract class GeneratedExitExpression extends Nodes\Expression
 
     protected function _validate(int $flags): void
     {
+        if ($this->keyword === null) throw ValidationException::childRequired($this, "keyword");
+        if ($this->leftParenthesis === null) throw ValidationException::childRequired($this, "leftParenthesis");
+        if ($this->rightParenthesis === null) throw ValidationException::childRequired($this, "rightParenthesis");
         if ($flags & self::VALIDATE_TYPES)
         {
-            if ($this->keyword === null) throw ValidationException::childRequired($this, "keyword");
-            if ($this->leftParenthesis === null) throw ValidationException::childRequired($this, "leftParenthesis");
-            if ($this->rightParenthesis === null) throw ValidationException::childRequired($this, "rightParenthesis");
         }
         if ($flags & self::VALIDATE_EXPRESSION_CONTEXT)
         {

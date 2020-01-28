@@ -15,4 +15,9 @@ class ExpressionStatement extends GeneratedExpressionStatement
             $this->getExpression()->validateContext(Expression::CTX_READ);
         }
     }
+
+    public function convertToPhpParserNode()
+    {
+        return new \PhpParser\Node\Stmt\Expression($this->getExpression()->convertToPhpParserNode());
+    }
 }

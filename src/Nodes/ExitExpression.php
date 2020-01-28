@@ -15,9 +15,9 @@ class ExitExpression extends GeneratedExitExpression
             throw ValidationException::expressionContext($flags & $never, $this);
         }
 
-        if ($this->hasExpression())
+        if ($expression = $this->getExpression())
         {
-            $this->getExpression()->validateContext(self::CTX_READ);
+            $expression->validateContext(self::CTX_READ);
         }
     }
 }

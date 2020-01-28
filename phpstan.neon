@@ -7,15 +7,23 @@ parameters:
         - ./src
     ignoreErrors:
         - '{Only booleans are allowed in .+}'
+        - '{Call to function assert\(\) with .* will always evaluate to true.}'
         -
-            path: src/Parser.php
-            message: '{^Strict comparison using .+ between .+ and .+ will always evaluate to (true|false)\.$}'
+            # phpstan gets tons wrong here, mostly because read changes the return value of peek()
+            path: src/Parser.src.php
+            message: '{is unreachable|will always evaluate|always terminates|is always (true|false)}'
         -
-            path: src/Parser.php
-            message: '{^Else branch is unreachable because .+}'
+            # seems to be a phpstan bug
+            path: src/Parser.src.php
+            message: '{Switch condition type \(162\) does not match case condition .* \(int\).$}'
         -
-            path: src/Parser.php
-            message: '{^(Right side|Result) of (\|\||&&) is always .+}'
+            path: src/_optimized/
+            message: '{}'
         -
+             # TODO fix?
             path: src/Nodes/Generated/
-            message: '{^Property .+[(&](Phi\\Nodes\\Base\\(Separated)?NodesList).+ does not accept \1}'
+            message: '{^Unsafe usage of new static\(\).$}'
+        -
+            # TODO figure out how to annotate this
+            message: '{does not accept .*NodesList}'
+            path: src/Nodes/Generated/

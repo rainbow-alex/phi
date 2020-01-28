@@ -29,6 +29,7 @@ abstract class GeneratedArrayItem extends CompoundNode
      */
     private $value;
 
+
     /**
      * @param Nodes\Expression|Node|string|null $value
      */
@@ -52,20 +53,11 @@ abstract class GeneratedArrayItem extends CompoundNode
         $instance = new static;
         $instance->phpVersion = $phpVersion;
         $instance->key = $key;
-        if ($key)
-        {
-            $instance->key->parent = $instance;
-        }
+        if ($key) $key->parent = $instance;
         $instance->byReference = $byReference;
-        if ($byReference)
-        {
-            $instance->byReference->parent = $instance;
-        }
+        if ($byReference) $byReference->parent = $instance;
         $instance->value = $value;
-        if ($value)
-        {
-            $instance->value->parent = $instance;
-        }
+        if ($value) $value->parent = $instance;
         return $instance;
     }
 

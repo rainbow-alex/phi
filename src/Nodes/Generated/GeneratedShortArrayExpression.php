@@ -21,6 +21,7 @@ abstract class GeneratedShortArrayExpression extends Nodes\Expression
 
     /**
      * @var SeparatedNodesList|Nodes\ArrayItem[]
+     * @phpstan-var SeparatedNodesList<\Phi\Nodes\ArrayItem>
      */
     private $items;
 
@@ -28,6 +29,7 @@ abstract class GeneratedShortArrayExpression extends Nodes\Expression
      * @var Token|null
      */
     private $rightBracket;
+
 
     /**
      * @param Nodes\ArrayItem $item
@@ -43,9 +45,9 @@ abstract class GeneratedShortArrayExpression extends Nodes\Expression
 
     /**
      * @param int $phpVersion
-     * @param Token|null $leftBracket
+     * @param Token $leftBracket
      * @param mixed[] $items
-     * @param Token|null $rightBracket
+     * @param Token $rightBracket
      * @return static
      */
     public static function __instantiateUnchecked($phpVersion, $leftBracket, $items, $rightBracket)
@@ -53,11 +55,11 @@ abstract class GeneratedShortArrayExpression extends Nodes\Expression
         $instance = new static;
         $instance->phpVersion = $phpVersion;
         $instance->leftBracket = $leftBracket;
-        $instance->leftBracket->parent = $instance;
+        $leftBracket->parent = $instance;
         $instance->items->__initUnchecked($items);
         $instance->items->parent = $instance;
         $instance->rightBracket = $rightBracket;
-        $instance->rightBracket->parent = $instance;
+        $rightBracket->parent = $instance;
         return $instance;
     }
 
@@ -106,6 +108,7 @@ abstract class GeneratedShortArrayExpression extends Nodes\Expression
 
     /**
      * @return SeparatedNodesList|Nodes\ArrayItem[]
+     * @phpstan-return SeparatedNodesList<\Phi\Nodes\ArrayItem>
      */
     public function getItems(): SeparatedNodesList
     {
@@ -157,10 +160,10 @@ abstract class GeneratedShortArrayExpression extends Nodes\Expression
 
     protected function _validate(int $flags): void
     {
+        if ($this->leftBracket === null) throw ValidationException::childRequired($this, "leftBracket");
+        if ($this->rightBracket === null) throw ValidationException::childRequired($this, "rightBracket");
         if ($flags & self::VALIDATE_TYPES)
         {
-            if ($this->leftBracket === null) throw ValidationException::childRequired($this, "leftBracket");
-            if ($this->rightBracket === null) throw ValidationException::childRequired($this, "rightBracket");
         }
         if ($flags & self::VALIDATE_EXPRESSION_CONTEXT)
         {

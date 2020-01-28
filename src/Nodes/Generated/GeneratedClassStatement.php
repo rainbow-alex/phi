@@ -16,6 +16,7 @@ abstract class GeneratedClassStatement extends Nodes\ClassLikeStatement
 {
     /**
      * @var NodesList|Token[]
+     * @phpstan-var NodesList<\Phi\Token>
      */
     private $modifiers;
 
@@ -46,6 +47,7 @@ abstract class GeneratedClassStatement extends Nodes\ClassLikeStatement
 
     /**
      * @var NodesList|Nodes\ClassLikeMember[]
+     * @phpstan-var NodesList<\Phi\Nodes\ClassLikeMember>
      */
     private $members;
 
@@ -53,6 +55,7 @@ abstract class GeneratedClassStatement extends Nodes\ClassLikeStatement
      * @var Token|null
      */
     private $rightBrace;
+
 
     /**
      * @param Token|Node|string|null $name
@@ -70,13 +73,13 @@ abstract class GeneratedClassStatement extends Nodes\ClassLikeStatement
     /**
      * @param int $phpVersion
      * @param mixed[] $modifiers
-     * @param Token|null $keyword
-     * @param Token|null $name
+     * @param Token $keyword
+     * @param Token $name
      * @param Nodes\Extends_|null $extends
      * @param Nodes\Implements_|null $implements
-     * @param Token|null $leftBrace
+     * @param Token $leftBrace
      * @param mixed[] $members
-     * @param Token|null $rightBrace
+     * @param Token $rightBrace
      * @return static
      */
     public static function __instantiateUnchecked($phpVersion, $modifiers, $keyword, $name, $extends, $implements, $leftBrace, $members, $rightBrace)
@@ -86,25 +89,19 @@ abstract class GeneratedClassStatement extends Nodes\ClassLikeStatement
         $instance->modifiers->__initUnchecked($modifiers);
         $instance->modifiers->parent = $instance;
         $instance->keyword = $keyword;
-        $instance->keyword->parent = $instance;
+        $keyword->parent = $instance;
         $instance->name = $name;
-        $instance->name->parent = $instance;
+        $name->parent = $instance;
         $instance->extends = $extends;
-        if ($extends)
-        {
-            $instance->extends->parent = $instance;
-        }
+        if ($extends) $extends->parent = $instance;
         $instance->implements = $implements;
-        if ($implements)
-        {
-            $instance->implements->parent = $instance;
-        }
+        if ($implements) $implements->parent = $instance;
         $instance->leftBrace = $leftBrace;
-        $instance->leftBrace->parent = $instance;
+        $leftBrace->parent = $instance;
         $instance->members->__initUnchecked($members);
         $instance->members->parent = $instance;
         $instance->rightBrace = $rightBrace;
-        $instance->rightBrace->parent = $instance;
+        $rightBrace->parent = $instance;
         return $instance;
     }
 
@@ -125,6 +122,7 @@ abstract class GeneratedClassStatement extends Nodes\ClassLikeStatement
 
     /**
      * @return NodesList|Token[]
+     * @phpstan-return NodesList<\Phi\Token>
      */
     public function getModifiers(): NodesList
     {
@@ -300,6 +298,7 @@ abstract class GeneratedClassStatement extends Nodes\ClassLikeStatement
 
     /**
      * @return NodesList|Nodes\ClassLikeMember[]
+     * @phpstan-return NodesList<\Phi\Nodes\ClassLikeMember>
      */
     public function getMembers(): NodesList
     {
@@ -351,12 +350,12 @@ abstract class GeneratedClassStatement extends Nodes\ClassLikeStatement
 
     protected function _validate(int $flags): void
     {
+        if ($this->keyword === null) throw ValidationException::childRequired($this, "keyword");
+        if ($this->name === null) throw ValidationException::childRequired($this, "name");
+        if ($this->leftBrace === null) throw ValidationException::childRequired($this, "leftBrace");
+        if ($this->rightBrace === null) throw ValidationException::childRequired($this, "rightBrace");
         if ($flags & self::VALIDATE_TYPES)
         {
-            if ($this->keyword === null) throw ValidationException::childRequired($this, "keyword");
-            if ($this->name === null) throw ValidationException::childRequired($this, "name");
-            if ($this->leftBrace === null) throw ValidationException::childRequired($this, "leftBrace");
-            if ($this->rightBrace === null) throw ValidationException::childRequired($this, "rightBrace");
         }
         if ($flags & self::VALIDATE_EXPRESSION_CONTEXT)
         {

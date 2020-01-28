@@ -4,6 +4,7 @@ namespace Phi\Nodes;
 
 use Phi\Exception\ValidationException;
 use Phi\Nodes\Generated\GeneratedRegularAssignmentExpression;
+use PhpParser\Node\Expr\Assign;
 
 class RegularAssignmentExpression extends GeneratedRegularAssignmentExpression
 {
@@ -17,5 +18,10 @@ class RegularAssignmentExpression extends GeneratedRegularAssignmentExpression
 
         $this->getLvalue()->validateContext(self::CTX_WRITE);
         $this->getValue()->validateContext(self::CTX_READ);
+    }
+
+    public function convertToPhpParserNode()
+    {
+        return new Assign($this->getLvalue()->convertToPhpParserNode(), $this->getValue()->convertToPhpParserNode());
     }
 }

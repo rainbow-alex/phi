@@ -36,6 +36,7 @@ abstract class GeneratedGroupedUseStatement extends Nodes\UseStatement
 
     /**
      * @var SeparatedNodesList|Nodes\UseName[]
+     * @phpstan-var SeparatedNodesList<\Phi\Nodes\UseName>
      */
     private $uses;
 
@@ -47,7 +48,8 @@ abstract class GeneratedGroupedUseStatement extends Nodes\UseStatement
     /**
      * @var Token|null
      */
-    private $semiColon;
+    private $delimiter;
+
 
     /**
      */
@@ -58,42 +60,33 @@ abstract class GeneratedGroupedUseStatement extends Nodes\UseStatement
 
     /**
      * @param int $phpVersion
-     * @param Token|null $keyword
+     * @param Token $keyword
      * @param Token|null $type
      * @param Nodes\GroupedUsePrefix|null $prefix
-     * @param Token|null $leftBrace
+     * @param Token $leftBrace
      * @param mixed[] $uses
-     * @param Token|null $rightBrace
-     * @param Token|null $semiColon
+     * @param Token $rightBrace
+     * @param Token $delimiter
      * @return static
      */
-    public static function __instantiateUnchecked($phpVersion, $keyword, $type, $prefix, $leftBrace, $uses, $rightBrace, $semiColon)
+    public static function __instantiateUnchecked($phpVersion, $keyword, $type, $prefix, $leftBrace, $uses, $rightBrace, $delimiter)
     {
         $instance = new static;
         $instance->phpVersion = $phpVersion;
         $instance->keyword = $keyword;
-        $instance->keyword->parent = $instance;
+        $keyword->parent = $instance;
         $instance->type = $type;
-        if ($type)
-        {
-            $instance->type->parent = $instance;
-        }
+        if ($type) $type->parent = $instance;
         $instance->prefix = $prefix;
-        if ($prefix)
-        {
-            $instance->prefix->parent = $instance;
-        }
+        if ($prefix) $prefix->parent = $instance;
         $instance->leftBrace = $leftBrace;
-        $instance->leftBrace->parent = $instance;
+        $leftBrace->parent = $instance;
         $instance->uses->__initUnchecked($uses);
         $instance->uses->parent = $instance;
         $instance->rightBrace = $rightBrace;
-        $instance->rightBrace->parent = $instance;
-        $instance->semiColon = $semiColon;
-        if ($semiColon)
-        {
-            $instance->semiColon->parent = $instance;
-        }
+        $rightBrace->parent = $instance;
+        $instance->delimiter = $delimiter;
+        $delimiter->parent = $instance;
         return $instance;
     }
 
@@ -106,7 +99,7 @@ abstract class GeneratedGroupedUseStatement extends Nodes\UseStatement
             "leftBrace" => &$this->leftBrace,
             "uses" => &$this->uses,
             "rightBrace" => &$this->rightBrace,
-            "semiColon" => &$this->semiColon,
+            "delimiter" => &$this->delimiter,
         ];
         return $refs;
     }
@@ -237,6 +230,7 @@ abstract class GeneratedGroupedUseStatement extends Nodes\UseStatement
 
     /**
      * @return SeparatedNodesList|Nodes\UseName[]
+     * @phpstan-return SeparatedNodesList<\Phi\Nodes\UseName>
      */
     public function getUses(): SeparatedNodesList
     {
@@ -286,42 +280,47 @@ abstract class GeneratedGroupedUseStatement extends Nodes\UseStatement
         $this->rightBrace = $rightBrace;
     }
 
-    public function getSemiColon(): ?Token
+    public function getDelimiter(): Token
     {
-        return $this->semiColon;
+        if ($this->delimiter === null)
+        {
+            throw new MissingNodeException($this, __FUNCTION__);
+        }
+        return $this->delimiter;
     }
 
-    public function hasSemiColon(): bool
+    public function hasDelimiter(): bool
     {
-        return $this->semiColon !== null;
+        return $this->delimiter !== null;
     }
 
     /**
-     * @param Token|Node|string|null $semiColon
+     * @param Token|Node|string|null $delimiter
      */
-    public function setSemiColon($semiColon): void
+    public function setDelimiter($delimiter): void
     {
-        if ($semiColon !== null)
+        if ($delimiter !== null)
         {
-            /** @var Token $semiColon */
-            $semiColon = NodeConverter::convert($semiColon, Token::class, $this->phpVersion);
-            $semiColon->detach();
-            $semiColon->parent = $this;
+            /** @var Token $delimiter */
+            $delimiter = NodeConverter::convert($delimiter, Token::class, $this->phpVersion);
+            $delimiter->detach();
+            $delimiter->parent = $this;
         }
-        if ($this->semiColon !== null)
+        if ($this->delimiter !== null)
         {
-            $this->semiColon->detach();
+            $this->delimiter->detach();
         }
-        $this->semiColon = $semiColon;
+        $this->delimiter = $delimiter;
     }
 
     protected function _validate(int $flags): void
     {
+        if ($this->keyword === null) throw ValidationException::childRequired($this, "keyword");
+        if ($this->leftBrace === null) throw ValidationException::childRequired($this, "leftBrace");
+        if ($this->rightBrace === null) throw ValidationException::childRequired($this, "rightBrace");
+        if ($this->delimiter === null) throw ValidationException::childRequired($this, "delimiter");
         if ($flags & self::VALIDATE_TYPES)
         {
-            if ($this->keyword === null) throw ValidationException::childRequired($this, "keyword");
-            if ($this->leftBrace === null) throw ValidationException::childRequired($this, "leftBrace");
-            if ($this->rightBrace === null) throw ValidationException::childRequired($this, "rightBrace");
         }
         if ($flags & self::VALIDATE_EXPRESSION_CONTEXT)
         {

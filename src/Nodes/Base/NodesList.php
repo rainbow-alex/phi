@@ -8,16 +8,23 @@ use Iterator;
 use IteratorAggregate;
 use Phi\Node;
 
-class NodesList extends Node implements Countable, IteratorAggregate
+/**
+ * @template T of Node
+ * @extends BaseListNode<T>
+ * @implements IteratorAggregate<T>
+ */
+class NodesList extends BaseListNode implements Countable, IteratorAggregate
 {
     /**
      * @var Node[]
+     * @phpstan-var T[]
      * @internal
      */
     public $_nodes = [];
 
     /**
      * @param Node[] $nodes
+     * @phpstan-param T[] $nodes
      */
     public function __initUnchecked(array $nodes): void
     {
@@ -40,27 +47,17 @@ class NodesList extends Node implements Countable, IteratorAggregate
         \array_splice($this->_nodes, $i, 1);
     }
 
-    public function childNodes(): array
+    public function getChildNodes(): array
     {
         return $this->_nodes;
     }
 
-    public function tokens(): iterable
+    public function iterTokens(): iterable
     {
         foreach ($this->_nodes as $node)
         {
-            yield from $node->tokens();
+            yield from $node->iterTokens();
         }
-    }
-
-    public function getLeftWhitespace(): string
-    {
-        return $this->_nodes ? $this->_nodes[0]->getLeftWhitespace() : "";
-    }
-
-    public function getRightWhitespace(): string
-    {
-        return $this->_nodes ? $this->_nodes[count($this->_nodes) - 1]->getRightWhitespace() : "";
     }
 
     protected function _validate(int $flags): void
@@ -98,18 +95,27 @@ class NodesList extends Node implements Countable, IteratorAggregate
         return count($this->_nodes);
     }
 
-    /** @return Iterator|Node[] */
+    /**
+     * @return Iterator|Node[]
+     * @phpstan-return Iterator<T>
+     */
     public function getIterator(): Iterator
     {
         return new ArrayIterator($this->_nodes);
     }
 
-    /** @return Node[] */
+    /**
+     * @return Node[]
+     * @phpstan-return T[]
+     */
     public function getItems(): array
     {
         return $this->_nodes;
     }
 
+    /**
+     * @phpstan-param T $node
+     */
     public function add(Node $node): void
     {
         $this->_nodes[] = $node;

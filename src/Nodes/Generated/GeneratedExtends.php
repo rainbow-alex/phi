@@ -21,8 +21,10 @@ abstract class GeneratedExtends extends CompoundNode
 
     /**
      * @var SeparatedNodesList|Nodes\Name[]
+     * @phpstan-var SeparatedNodesList<\Phi\Nodes\Name>
      */
     private $names;
+
 
     /**
      * @param Nodes\Name $name
@@ -38,7 +40,7 @@ abstract class GeneratedExtends extends CompoundNode
 
     /**
      * @param int $phpVersion
-     * @param Token|null $keyword
+     * @param Token $keyword
      * @param mixed[] $names
      * @return static
      */
@@ -47,7 +49,7 @@ abstract class GeneratedExtends extends CompoundNode
         $instance = new static;
         $instance->phpVersion = $phpVersion;
         $instance->keyword = $keyword;
-        $instance->keyword->parent = $instance;
+        $keyword->parent = $instance;
         $instance->names->__initUnchecked($names);
         $instance->names->parent = $instance;
         return $instance;
@@ -97,6 +99,7 @@ abstract class GeneratedExtends extends CompoundNode
 
     /**
      * @return SeparatedNodesList|Nodes\Name[]
+     * @phpstan-return SeparatedNodesList<\Phi\Nodes\Name>
      */
     public function getNames(): SeparatedNodesList
     {
@@ -115,9 +118,9 @@ abstract class GeneratedExtends extends CompoundNode
 
     protected function _validate(int $flags): void
     {
+        if ($this->keyword === null) throw ValidationException::childRequired($this, "keyword");
         if ($flags & self::VALIDATE_TYPES)
         {
-            if ($this->keyword === null) throw ValidationException::childRequired($this, "keyword");
         }
         if ($flags & self::VALIDATE_EXPRESSION_CONTEXT)
         {

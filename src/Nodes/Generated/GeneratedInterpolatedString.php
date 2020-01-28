@@ -20,7 +20,8 @@ abstract class GeneratedInterpolatedString extends Nodes\Expression
     private $leftDelimiter;
 
     /**
-     * @var NodesList|Nodes\CInterpolatedStringPart[]
+     * @var NodesList|Nodes\InterpolatedStringPart[]
+     * @phpstan-var NodesList<\Phi\Nodes\InterpolatedStringPart>
      */
     private $parts;
 
@@ -28,6 +29,7 @@ abstract class GeneratedInterpolatedString extends Nodes\Expression
      * @var Token|null
      */
     private $rightDelimiter;
+
 
     /**
      */
@@ -38,9 +40,9 @@ abstract class GeneratedInterpolatedString extends Nodes\Expression
 
     /**
      * @param int $phpVersion
-     * @param Token|null $leftDelimiter
+     * @param Token $leftDelimiter
      * @param mixed[] $parts
-     * @param Token|null $rightDelimiter
+     * @param Token $rightDelimiter
      * @return static
      */
     public static function __instantiateUnchecked($phpVersion, $leftDelimiter, $parts, $rightDelimiter)
@@ -48,11 +50,11 @@ abstract class GeneratedInterpolatedString extends Nodes\Expression
         $instance = new static;
         $instance->phpVersion = $phpVersion;
         $instance->leftDelimiter = $leftDelimiter;
-        $instance->leftDelimiter->parent = $instance;
+        $leftDelimiter->parent = $instance;
         $instance->parts->__initUnchecked($parts);
         $instance->parts->parent = $instance;
         $instance->rightDelimiter = $rightDelimiter;
-        $instance->rightDelimiter->parent = $instance;
+        $rightDelimiter->parent = $instance;
         return $instance;
     }
 
@@ -100,7 +102,8 @@ abstract class GeneratedInterpolatedString extends Nodes\Expression
     }
 
     /**
-     * @return NodesList|Nodes\CInterpolatedStringPart[]
+     * @return NodesList|Nodes\InterpolatedStringPart[]
+     * @phpstan-return NodesList<\Phi\Nodes\InterpolatedStringPart>
      */
     public function getParts(): NodesList
     {
@@ -108,12 +111,12 @@ abstract class GeneratedInterpolatedString extends Nodes\Expression
     }
 
     /**
-     * @param Nodes\CInterpolatedStringPart $part
+     * @param Nodes\InterpolatedStringPart $part
      */
     public function addPart($part): void
     {
-        /** @var Nodes\CInterpolatedStringPart $part */
-        $part = NodeConverter::convert($part, Nodes\CInterpolatedStringPart::class, $this->phpVersion);
+        /** @var Nodes\InterpolatedStringPart $part */
+        $part = NodeConverter::convert($part, Nodes\InterpolatedStringPart::class, $this->phpVersion);
         $this->parts->add($part);
     }
 
@@ -152,10 +155,10 @@ abstract class GeneratedInterpolatedString extends Nodes\Expression
 
     protected function _validate(int $flags): void
     {
+        if ($this->leftDelimiter === null) throw ValidationException::childRequired($this, "leftDelimiter");
+        if ($this->rightDelimiter === null) throw ValidationException::childRequired($this, "rightDelimiter");
         if ($flags & self::VALIDATE_TYPES)
         {
-            if ($this->leftDelimiter === null) throw ValidationException::childRequired($this, "leftDelimiter");
-            if ($this->rightDelimiter === null) throw ValidationException::childRequired($this, "rightDelimiter");
         }
         if ($flags & self::VALIDATE_EXPRESSION_CONTEXT)
         {

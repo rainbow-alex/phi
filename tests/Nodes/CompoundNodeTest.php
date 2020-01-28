@@ -4,6 +4,7 @@ namespace Phi\Tests\Nodes;
 
 use Phi\Nodes\IssetExpression;
 use Phi\Token;
+use Phi\TokenType;
 use PHPUnit\Framework\TestCase;
 
 class CompoundNodeTest extends TestCase
@@ -11,7 +12,7 @@ class CompoundNodeTest extends TestCase
     public function test_detach()
     {
         $node = new IssetExpression();
-        $keyword = new Token(Token::PH_T_ISSET, "isset");
+        $keyword = new Token(TokenType::T_ISSET, "isset");
         $node->setKeyword($keyword);
 
         self::assertTrue($keyword->isAttached());

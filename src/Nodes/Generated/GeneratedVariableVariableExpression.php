@@ -34,6 +34,7 @@ abstract class GeneratedVariableVariableExpression extends Nodes\Variable
      */
     private $rightBrace;
 
+
     /**
      * @param Nodes\Expression|Node|string|null $name
      */
@@ -47,9 +48,9 @@ abstract class GeneratedVariableVariableExpression extends Nodes\Variable
 
     /**
      * @param int $phpVersion
-     * @param Token|null $dollar
+     * @param Token $dollar
      * @param Token|null $leftBrace
-     * @param Nodes\Expression|null $name
+     * @param Nodes\Expression $name
      * @param Token|null $rightBrace
      * @return static
      */
@@ -58,19 +59,13 @@ abstract class GeneratedVariableVariableExpression extends Nodes\Variable
         $instance = new static;
         $instance->phpVersion = $phpVersion;
         $instance->dollar = $dollar;
-        $instance->dollar->parent = $instance;
+        $dollar->parent = $instance;
         $instance->leftBrace = $leftBrace;
-        if ($leftBrace)
-        {
-            $instance->leftBrace->parent = $instance;
-        }
+        if ($leftBrace) $leftBrace->parent = $instance;
         $instance->name = $name;
-        $instance->name->parent = $instance;
+        $name->parent = $instance;
         $instance->rightBrace = $rightBrace;
-        if ($rightBrace)
-        {
-            $instance->rightBrace->parent = $instance;
-        }
+        if ($rightBrace) $rightBrace->parent = $instance;
         return $instance;
     }
 
@@ -211,10 +206,10 @@ abstract class GeneratedVariableVariableExpression extends Nodes\Variable
 
     protected function _validate(int $flags): void
     {
+        if ($this->dollar === null) throw ValidationException::childRequired($this, "dollar");
+        if ($this->name === null) throw ValidationException::childRequired($this, "name");
         if ($flags & self::VALIDATE_TYPES)
         {
-            if ($this->dollar === null) throw ValidationException::childRequired($this, "dollar");
-            if ($this->name === null) throw ValidationException::childRequired($this, "name");
         }
         if ($flags & self::VALIDATE_EXPRESSION_CONTEXT)
         {

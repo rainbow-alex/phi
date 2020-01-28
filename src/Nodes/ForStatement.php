@@ -12,15 +12,15 @@ class ForStatement extends GeneratedForStatement
 
         if ($flags & self::VALIDATE_EXPRESSION_CONTEXT)
         {
-            if ($init = $this->getInit())
+            foreach ($this->getInits() as $init)
             {
                 $init->validateContext(Expression::CTX_READ);
             }
-            if ($test = $this->getTest())
+            foreach ($this->getTests() as $test)
             {
                 $test->validateContext(Expression::CTX_READ);
             }
-            if ($step = $this->getStep())
+            foreach ($this->getSteps() as $step)
             {
                 $step->validateContext(Expression::CTX_READ);
             }

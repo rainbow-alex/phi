@@ -34,6 +34,7 @@ abstract class GeneratedArrayAccessExpression extends Nodes\Expression
      */
     private $rightBracket;
 
+
     /**
      * @param Nodes\Expression|Node|string|null $accessee
      * @param Nodes\Expression|Node|string|null $index
@@ -52,10 +53,10 @@ abstract class GeneratedArrayAccessExpression extends Nodes\Expression
 
     /**
      * @param int $phpVersion
-     * @param Nodes\Expression|null $accessee
-     * @param Token|null $leftBracket
+     * @param Nodes\Expression $accessee
+     * @param Token $leftBracket
      * @param Nodes\Expression|null $index
-     * @param Token|null $rightBracket
+     * @param Token $rightBracket
      * @return static
      */
     public static function __instantiateUnchecked($phpVersion, $accessee, $leftBracket, $index, $rightBracket)
@@ -63,16 +64,13 @@ abstract class GeneratedArrayAccessExpression extends Nodes\Expression
         $instance = new static;
         $instance->phpVersion = $phpVersion;
         $instance->accessee = $accessee;
-        $instance->accessee->parent = $instance;
+        $accessee->parent = $instance;
         $instance->leftBracket = $leftBracket;
-        $instance->leftBracket->parent = $instance;
+        $leftBracket->parent = $instance;
         $instance->index = $index;
-        if ($index)
-        {
-            $instance->index->parent = $instance;
-        }
+        if ($index) $index->parent = $instance;
         $instance->rightBracket = $rightBracket;
-        $instance->rightBracket->parent = $instance;
+        $rightBracket->parent = $instance;
         return $instance;
     }
 
@@ -217,11 +215,11 @@ abstract class GeneratedArrayAccessExpression extends Nodes\Expression
 
     protected function _validate(int $flags): void
     {
+        if ($this->accessee === null) throw ValidationException::childRequired($this, "accessee");
+        if ($this->leftBracket === null) throw ValidationException::childRequired($this, "leftBracket");
+        if ($this->rightBracket === null) throw ValidationException::childRequired($this, "rightBracket");
         if ($flags & self::VALIDATE_TYPES)
         {
-            if ($this->accessee === null) throw ValidationException::childRequired($this, "accessee");
-            if ($this->leftBracket === null) throw ValidationException::childRequired($this, "leftBracket");
-            if ($this->rightBracket === null) throw ValidationException::childRequired($this, "rightBracket");
         }
         if ($flags & self::VALIDATE_EXPRESSION_CONTEXT)
         {

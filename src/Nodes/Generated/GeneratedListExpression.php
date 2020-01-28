@@ -26,6 +26,7 @@ abstract class GeneratedListExpression extends Nodes\Expression
 
     /**
      * @var SeparatedNodesList|Nodes\Expression[]
+     * @phpstan-var SeparatedNodesList<\Phi\Nodes\Expression>
      */
     private $expressions;
 
@@ -33,6 +34,7 @@ abstract class GeneratedListExpression extends Nodes\Expression
      * @var Token|null
      */
     private $rightParenthesis;
+
 
     /**
      */
@@ -43,10 +45,10 @@ abstract class GeneratedListExpression extends Nodes\Expression
 
     /**
      * @param int $phpVersion
-     * @param Token|null $keyword
-     * @param Token|null $leftParenthesis
+     * @param Token $keyword
+     * @param Token $leftParenthesis
      * @param mixed[] $expressions
-     * @param Token|null $rightParenthesis
+     * @param Token $rightParenthesis
      * @return static
      */
     public static function __instantiateUnchecked($phpVersion, $keyword, $leftParenthesis, $expressions, $rightParenthesis)
@@ -54,13 +56,13 @@ abstract class GeneratedListExpression extends Nodes\Expression
         $instance = new static;
         $instance->phpVersion = $phpVersion;
         $instance->keyword = $keyword;
-        $instance->keyword->parent = $instance;
+        $keyword->parent = $instance;
         $instance->leftParenthesis = $leftParenthesis;
-        $instance->leftParenthesis->parent = $instance;
+        $leftParenthesis->parent = $instance;
         $instance->expressions->__initUnchecked($expressions);
         $instance->expressions->parent = $instance;
         $instance->rightParenthesis = $rightParenthesis;
-        $instance->rightParenthesis->parent = $instance;
+        $rightParenthesis->parent = $instance;
         return $instance;
     }
 
@@ -143,6 +145,7 @@ abstract class GeneratedListExpression extends Nodes\Expression
 
     /**
      * @return SeparatedNodesList|Nodes\Expression[]
+     * @phpstan-return SeparatedNodesList<\Phi\Nodes\Expression>
      */
     public function getExpressions(): SeparatedNodesList
     {
@@ -194,11 +197,11 @@ abstract class GeneratedListExpression extends Nodes\Expression
 
     protected function _validate(int $flags): void
     {
+        if ($this->keyword === null) throw ValidationException::childRequired($this, "keyword");
+        if ($this->leftParenthesis === null) throw ValidationException::childRequired($this, "leftParenthesis");
+        if ($this->rightParenthesis === null) throw ValidationException::childRequired($this, "rightParenthesis");
         if ($flags & self::VALIDATE_TYPES)
         {
-            if ($this->keyword === null) throw ValidationException::childRequired($this, "keyword");
-            if ($this->leftParenthesis === null) throw ValidationException::childRequired($this, "leftParenthesis");
-            if ($this->rightParenthesis === null) throw ValidationException::childRequired($this, "rightParenthesis");
         }
         if ($flags & self::VALIDATE_EXPRESSION_CONTEXT)
         {

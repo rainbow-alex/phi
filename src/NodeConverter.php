@@ -3,6 +3,7 @@
 namespace Phi;
 
 use Phi\Exception\ConversionException;
+use Phi\Exception\SyntaxException;
 use Phi\Exception\ValidationException;
 use Phi\Nodes\Statement;
 use Phi\Nodes\RegularBlock;
@@ -17,11 +18,6 @@ class NodeConverter
      */
     public static function convert($value, string $target, ?int $phpVersion): Node
     {
-        if (!($value instanceof Node || \is_string($value)))
-        {
-            throw new \InvalidArgumentException(); // TODO message
-        }
-
         $result = self::tryConvert($value, $target, $phpVersion ?? PhpVersion::DEFAULT());
 
         if (!$result)
@@ -49,8 +45,14 @@ class NodeConverter
         if (is_string($value))
         {
             $parser = new Parser($phpVersion);
-            $value = $parser->parseFragment($value);
-            // TODO handle parse exception
+            try
+            {
+                $value = $parser->parseFragment($value);
+            }
+            catch (SyntaxException $e)
+            {
+                return null;
+            }
         }
 
         if ($value instanceof $target)
@@ -95,7 +97,7 @@ class NodeConverter
 
             if ($value instanceof Token)
             {
-                if ($value->getType() === Token::PH_T_LNUMBER)
+                if ($value->getType() === TokenType::T_LNUMBER)
                 {
                     return new IntegerLiteral($value);
                 }

@@ -4,7 +4,6 @@
 /** @noinspection PhpComposerExtensionStubsInspection */
 
 use Phi\Nodes\RootNode;
-use Phi\PhpParserCompat;
 use Phi\PhpVersion;
 
 require __DIR__ . '/vendor/autoload.php';
@@ -33,15 +32,13 @@ if (count($argv) > 1)
         echo "\e[45mphi\e[0m\n";
         try
         {
-            $ast2 = (new \Phi\Parser(PhpVersion::PHP_7_2))->parseStatement($arg);
+            $ast2 = (new \Phi\Parser(PhpVersion::PHP_7_2))->parse(null, "<?php " . $arg);
             $ast2->debugDump();
 
             echo "\e[45mphi (php-parser compat)\e[0m\n";
             try
             {
-                $ast3 = new RootNode();
-                $ast3->addStatement($ast2);
-                echo (new \PhpParser\NodeDumper())->dump(PhpParserCompat::convert($ast3));
+                echo (new \PhpParser\NodeDumper())->dump($ast2->convertToPhpParserNode());
             }
             catch (\RuntimeException $e)
             {

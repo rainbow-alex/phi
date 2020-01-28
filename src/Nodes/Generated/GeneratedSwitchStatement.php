@@ -41,6 +41,7 @@ abstract class GeneratedSwitchStatement extends Nodes\Statement
 
     /**
      * @var NodesList|Nodes\SwitchCase[]
+     * @phpstan-var NodesList<\Phi\Nodes\SwitchCase>
      */
     private $cases;
 
@@ -54,6 +55,7 @@ abstract class GeneratedSwitchStatement extends Nodes\Statement
      */
     private $rightBrace;
 
+
     /**
      */
     public function __construct()
@@ -63,14 +65,14 @@ abstract class GeneratedSwitchStatement extends Nodes\Statement
 
     /**
      * @param int $phpVersion
-     * @param Token|null $keyword
-     * @param Token|null $leftParenthesis
-     * @param Nodes\Expression|null $value
-     * @param Token|null $rightParenthesis
-     * @param Token|null $leftBrace
+     * @param Token $keyword
+     * @param Token $leftParenthesis
+     * @param Nodes\Expression $value
+     * @param Token $rightParenthesis
+     * @param Token $leftBrace
      * @param mixed[] $cases
      * @param Nodes\SwitchDefault|null $default
-     * @param Token|null $rightBrace
+     * @param Token $rightBrace
      * @return static
      */
     public static function __instantiateUnchecked($phpVersion, $keyword, $leftParenthesis, $value, $rightParenthesis, $leftBrace, $cases, $default, $rightBrace)
@@ -78,24 +80,21 @@ abstract class GeneratedSwitchStatement extends Nodes\Statement
         $instance = new static;
         $instance->phpVersion = $phpVersion;
         $instance->keyword = $keyword;
-        $instance->keyword->parent = $instance;
+        $keyword->parent = $instance;
         $instance->leftParenthesis = $leftParenthesis;
-        $instance->leftParenthesis->parent = $instance;
+        $leftParenthesis->parent = $instance;
         $instance->value = $value;
-        $instance->value->parent = $instance;
+        $value->parent = $instance;
         $instance->rightParenthesis = $rightParenthesis;
-        $instance->rightParenthesis->parent = $instance;
+        $rightParenthesis->parent = $instance;
         $instance->leftBrace = $leftBrace;
-        $instance->leftBrace->parent = $instance;
+        $leftBrace->parent = $instance;
         $instance->cases->__initUnchecked($cases);
         $instance->cases->parent = $instance;
         $instance->default = $default;
-        if ($default)
-        {
-            $instance->default->parent = $instance;
-        }
+        if ($default) $default->parent = $instance;
         $instance->rightBrace = $rightBrace;
-        $instance->rightBrace->parent = $instance;
+        $rightBrace->parent = $instance;
         return $instance;
     }
 
@@ -281,6 +280,7 @@ abstract class GeneratedSwitchStatement extends Nodes\Statement
 
     /**
      * @return NodesList|Nodes\SwitchCase[]
+     * @phpstan-return NodesList<\Phi\Nodes\SwitchCase>
      */
     public function getCases(): NodesList
     {
@@ -361,14 +361,14 @@ abstract class GeneratedSwitchStatement extends Nodes\Statement
 
     protected function _validate(int $flags): void
     {
+        if ($this->keyword === null) throw ValidationException::childRequired($this, "keyword");
+        if ($this->leftParenthesis === null) throw ValidationException::childRequired($this, "leftParenthesis");
+        if ($this->value === null) throw ValidationException::childRequired($this, "value");
+        if ($this->rightParenthesis === null) throw ValidationException::childRequired($this, "rightParenthesis");
+        if ($this->leftBrace === null) throw ValidationException::childRequired($this, "leftBrace");
+        if ($this->rightBrace === null) throw ValidationException::childRequired($this, "rightBrace");
         if ($flags & self::VALIDATE_TYPES)
         {
-            if ($this->keyword === null) throw ValidationException::childRequired($this, "keyword");
-            if ($this->leftParenthesis === null) throw ValidationException::childRequired($this, "leftParenthesis");
-            if ($this->value === null) throw ValidationException::childRequired($this, "value");
-            if ($this->rightParenthesis === null) throw ValidationException::childRequired($this, "rightParenthesis");
-            if ($this->leftBrace === null) throw ValidationException::childRequired($this, "leftBrace");
-            if ($this->rightBrace === null) throw ValidationException::childRequired($this, "rightBrace");
         }
         if ($flags & self::VALIDATE_EXPRESSION_CONTEXT)
         {

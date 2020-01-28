@@ -22,6 +22,6 @@ abstract class CrementExpression extends Expression
             throw new ValidationException(__METHOD__, $this); // TODO
         }
 
-        $this->getExpression()->validateContext(self::CTX_WRITE);
+        $this->getExpression()->validateContext(self::CTX_READ|self::CTX_WRITE);
     }
 }

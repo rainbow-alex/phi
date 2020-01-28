@@ -16,6 +16,7 @@ abstract class GeneratedClassConstant extends Nodes\ClassLikeMember
 {
     /**
      * @var NodesList|Token[]
+     * @phpstan-var NodesList<\Phi\Token>
      */
     private $modifiers;
 
@@ -44,6 +45,7 @@ abstract class GeneratedClassConstant extends Nodes\ClassLikeMember
      */
     private $semiColon;
 
+
     /**
      * @param Token|Node|string|null $name
      * @param Nodes\Expression|Node|string|null $value
@@ -64,11 +66,11 @@ abstract class GeneratedClassConstant extends Nodes\ClassLikeMember
     /**
      * @param int $phpVersion
      * @param mixed[] $modifiers
-     * @param Token|null $keyword
-     * @param Token|null $name
-     * @param Token|null $equals
-     * @param Nodes\Expression|null $value
-     * @param Token|null $semiColon
+     * @param Token $keyword
+     * @param Token $name
+     * @param Token $equals
+     * @param Nodes\Expression $value
+     * @param Token $semiColon
      * @return static
      */
     public static function __instantiateUnchecked($phpVersion, $modifiers, $keyword, $name, $equals, $value, $semiColon)
@@ -78,15 +80,15 @@ abstract class GeneratedClassConstant extends Nodes\ClassLikeMember
         $instance->modifiers->__initUnchecked($modifiers);
         $instance->modifiers->parent = $instance;
         $instance->keyword = $keyword;
-        $instance->keyword->parent = $instance;
+        $keyword->parent = $instance;
         $instance->name = $name;
-        $instance->name->parent = $instance;
+        $name->parent = $instance;
         $instance->equals = $equals;
-        $instance->equals->parent = $instance;
+        $equals->parent = $instance;
         $instance->value = $value;
-        $instance->value->parent = $instance;
+        $value->parent = $instance;
         $instance->semiColon = $semiColon;
-        $instance->semiColon->parent = $instance;
+        $semiColon->parent = $instance;
         return $instance;
     }
 
@@ -105,6 +107,7 @@ abstract class GeneratedClassConstant extends Nodes\ClassLikeMember
 
     /**
      * @return NodesList|Token[]
+     * @phpstan-return NodesList<\Phi\Token>
      */
     public function getModifiers(): NodesList
     {
@@ -288,13 +291,13 @@ abstract class GeneratedClassConstant extends Nodes\ClassLikeMember
 
     protected function _validate(int $flags): void
     {
+        if ($this->keyword === null) throw ValidationException::childRequired($this, "keyword");
+        if ($this->name === null) throw ValidationException::childRequired($this, "name");
+        if ($this->equals === null) throw ValidationException::childRequired($this, "equals");
+        if ($this->value === null) throw ValidationException::childRequired($this, "value");
+        if ($this->semiColon === null) throw ValidationException::childRequired($this, "semiColon");
         if ($flags & self::VALIDATE_TYPES)
         {
-            if ($this->keyword === null) throw ValidationException::childRequired($this, "keyword");
-            if ($this->name === null) throw ValidationException::childRequired($this, "name");
-            if ($this->equals === null) throw ValidationException::childRequired($this, "equals");
-            if ($this->value === null) throw ValidationException::childRequired($this, "value");
-            if ($this->semiColon === null) throw ValidationException::childRequired($this, "semiColon");
         }
         if ($flags & self::VALIDATE_EXPRESSION_CONTEXT)
         {

@@ -24,6 +24,7 @@ abstract class GeneratedStaticVariable extends CompoundNode
      */
     private $default;
 
+
     /**
      */
     public function __construct()
@@ -32,7 +33,7 @@ abstract class GeneratedStaticVariable extends CompoundNode
 
     /**
      * @param int $phpVersion
-     * @param Token|null $variable
+     * @param Token $variable
      * @param Nodes\Default_|null $default
      * @return static
      */
@@ -41,12 +42,9 @@ abstract class GeneratedStaticVariable extends CompoundNode
         $instance = new static;
         $instance->phpVersion = $phpVersion;
         $instance->variable = $variable;
-        $instance->variable->parent = $instance;
+        $variable->parent = $instance;
         $instance->default = $default;
-        if ($default)
-        {
-            $instance->default->parent = $instance;
-        }
+        if ($default) $default->parent = $instance;
         return $instance;
     }
 
@@ -123,9 +121,9 @@ abstract class GeneratedStaticVariable extends CompoundNode
 
     protected function _validate(int $flags): void
     {
+        if ($this->variable === null) throw ValidationException::childRequired($this, "variable");
         if ($flags & self::VALIDATE_TYPES)
         {
-            if ($this->variable === null) throw ValidationException::childRequired($this, "variable");
         }
         if ($flags & self::VALIDATE_EXPRESSION_CONTEXT)
         {

@@ -36,6 +36,7 @@ abstract class GeneratedFunctionStatement extends Nodes\Statement
 
     /**
      * @var SeparatedNodesList|Nodes\Parameter[]
+     * @phpstan-var SeparatedNodesList<\Phi\Nodes\Parameter>
      */
     private $parameters;
 
@@ -54,6 +55,7 @@ abstract class GeneratedFunctionStatement extends Nodes\Statement
      */
     private $body;
 
+
     /**
      */
     public function __construct()
@@ -63,14 +65,14 @@ abstract class GeneratedFunctionStatement extends Nodes\Statement
 
     /**
      * @param int $phpVersion
-     * @param Token|null $keyword
+     * @param Token $keyword
      * @param Token|null $byReference
-     * @param Token|null $name
-     * @param Token|null $leftParenthesis
+     * @param Token $name
+     * @param Token $leftParenthesis
      * @param mixed[] $parameters
-     * @param Token|null $rightParenthesis
+     * @param Token $rightParenthesis
      * @param Nodes\ReturnType|null $returnType
-     * @param Nodes\RegularBlock|null $body
+     * @param Nodes\RegularBlock $body
      * @return static
      */
     public static function __instantiateUnchecked($phpVersion, $keyword, $byReference, $name, $leftParenthesis, $parameters, $rightParenthesis, $returnType, $body)
@@ -78,27 +80,21 @@ abstract class GeneratedFunctionStatement extends Nodes\Statement
         $instance = new static;
         $instance->phpVersion = $phpVersion;
         $instance->keyword = $keyword;
-        $instance->keyword->parent = $instance;
+        $keyword->parent = $instance;
         $instance->byReference = $byReference;
-        if ($byReference)
-        {
-            $instance->byReference->parent = $instance;
-        }
+        if ($byReference) $byReference->parent = $instance;
         $instance->name = $name;
-        $instance->name->parent = $instance;
+        $name->parent = $instance;
         $instance->leftParenthesis = $leftParenthesis;
-        $instance->leftParenthesis->parent = $instance;
+        $leftParenthesis->parent = $instance;
         $instance->parameters->__initUnchecked($parameters);
         $instance->parameters->parent = $instance;
         $instance->rightParenthesis = $rightParenthesis;
-        $instance->rightParenthesis->parent = $instance;
+        $rightParenthesis->parent = $instance;
         $instance->returnType = $returnType;
-        if ($returnType)
-        {
-            $instance->returnType->parent = $instance;
-        }
+        if ($returnType) $returnType->parent = $instance;
         $instance->body = $body;
-        $instance->body->parent = $instance;
+        $body->parent = $instance;
         return $instance;
     }
 
@@ -247,6 +243,7 @@ abstract class GeneratedFunctionStatement extends Nodes\Statement
 
     /**
      * @return SeparatedNodesList|Nodes\Parameter[]
+     * @phpstan-return SeparatedNodesList<\Phi\Nodes\Parameter>
      */
     public function getParameters(): SeparatedNodesList
     {
@@ -360,13 +357,13 @@ abstract class GeneratedFunctionStatement extends Nodes\Statement
 
     protected function _validate(int $flags): void
     {
+        if ($this->keyword === null) throw ValidationException::childRequired($this, "keyword");
+        if ($this->name === null) throw ValidationException::childRequired($this, "name");
+        if ($this->leftParenthesis === null) throw ValidationException::childRequired($this, "leftParenthesis");
+        if ($this->rightParenthesis === null) throw ValidationException::childRequired($this, "rightParenthesis");
+        if ($this->body === null) throw ValidationException::childRequired($this, "body");
         if ($flags & self::VALIDATE_TYPES)
         {
-            if ($this->keyword === null) throw ValidationException::childRequired($this, "keyword");
-            if ($this->name === null) throw ValidationException::childRequired($this, "name");
-            if ($this->leftParenthesis === null) throw ValidationException::childRequired($this, "leftParenthesis");
-            if ($this->rightParenthesis === null) throw ValidationException::childRequired($this, "rightParenthesis");
-            if ($this->body === null) throw ValidationException::childRequired($this, "body");
         }
         if ($flags & self::VALIDATE_EXPRESSION_CONTEXT)
         {

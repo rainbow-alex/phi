@@ -24,6 +24,7 @@ abstract class GeneratedUseName extends CompoundNode
      */
     private $alias;
 
+
     /**
      */
     public function __construct()
@@ -32,7 +33,7 @@ abstract class GeneratedUseName extends CompoundNode
 
     /**
      * @param int $phpVersion
-     * @param Nodes\Name|null $name
+     * @param Nodes\Name $name
      * @param Nodes\UseAlias|null $alias
      * @return static
      */
@@ -41,12 +42,9 @@ abstract class GeneratedUseName extends CompoundNode
         $instance = new static;
         $instance->phpVersion = $phpVersion;
         $instance->name = $name;
-        $instance->name->parent = $instance;
+        $name->parent = $instance;
         $instance->alias = $alias;
-        if ($alias)
-        {
-            $instance->alias->parent = $instance;
-        }
+        if ($alias) $alias->parent = $instance;
         return $instance;
     }
 
@@ -123,9 +121,9 @@ abstract class GeneratedUseName extends CompoundNode
 
     protected function _validate(int $flags): void
     {
+        if ($this->name === null) throw ValidationException::childRequired($this, "name");
         if ($flags & self::VALIDATE_TYPES)
         {
-            if ($this->name === null) throw ValidationException::childRequired($this, "name");
         }
         if ($flags & self::VALIDATE_EXPRESSION_CONTEXT)
         {

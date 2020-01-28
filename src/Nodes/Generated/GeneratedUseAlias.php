@@ -24,6 +24,7 @@ abstract class GeneratedUseAlias extends CompoundNode
      */
     private $name;
 
+
     /**
      */
     public function __construct()
@@ -32,8 +33,8 @@ abstract class GeneratedUseAlias extends CompoundNode
 
     /**
      * @param int $phpVersion
-     * @param Token|null $keyword
-     * @param Token|null $name
+     * @param Token $keyword
+     * @param Token $name
      * @return static
      */
     public static function __instantiateUnchecked($phpVersion, $keyword, $name)
@@ -41,9 +42,9 @@ abstract class GeneratedUseAlias extends CompoundNode
         $instance = new static;
         $instance->phpVersion = $phpVersion;
         $instance->keyword = $keyword;
-        $instance->keyword->parent = $instance;
+        $keyword->parent = $instance;
         $instance->name = $name;
-        $instance->name->parent = $instance;
+        $name->parent = $instance;
         return $instance;
     }
 
@@ -124,10 +125,10 @@ abstract class GeneratedUseAlias extends CompoundNode
 
     protected function _validate(int $flags): void
     {
+        if ($this->keyword === null) throw ValidationException::childRequired($this, "keyword");
+        if ($this->name === null) throw ValidationException::childRequired($this, "name");
         if ($flags & self::VALIDATE_TYPES)
         {
-            if ($this->keyword === null) throw ValidationException::childRequired($this, "keyword");
-            if ($this->name === null) throw ValidationException::childRequired($this, "name");
         }
         if ($flags & self::VALIDATE_EXPRESSION_CONTEXT)
         {

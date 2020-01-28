@@ -4,8 +4,8 @@ namespace Phi\Nodes;
 
 use Phi\Exception\ValidationException;
 use Phi\Nodes\Generated\GeneratedSuppressErrorsExpression;
+use PhpParser\Node\Expr\ErrorSuppress;
 
-// TODO can this be used in write at all?
 class SuppressErrorsExpression extends GeneratedSuppressErrorsExpression
 {
     public function validateContext(int $flags): void
@@ -17,5 +17,10 @@ class SuppressErrorsExpression extends GeneratedSuppressErrorsExpression
         }
 
         $this->getExpression()->validateContext(self::CTX_READ);
+    }
+
+    public function convertToPhpParserNode()
+    {
+        return new ErrorSuppress($this->getExpression()->convertToPhpParserNode());
     }
 }

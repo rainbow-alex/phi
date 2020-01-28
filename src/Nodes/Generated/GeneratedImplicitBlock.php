@@ -19,6 +19,7 @@ abstract class GeneratedImplicitBlock extends Nodes\Block
      */
     private $statement;
 
+
     /**
      * @param Nodes\Statement|Node|string|null $statement
      */
@@ -32,7 +33,7 @@ abstract class GeneratedImplicitBlock extends Nodes\Block
 
     /**
      * @param int $phpVersion
-     * @param Nodes\Statement|null $statement
+     * @param Nodes\Statement $statement
      * @return static
      */
     public static function __instantiateUnchecked($phpVersion, $statement)
@@ -40,7 +41,7 @@ abstract class GeneratedImplicitBlock extends Nodes\Block
         $instance = new static;
         $instance->phpVersion = $phpVersion;
         $instance->statement = $statement;
-        $instance->statement->parent = $instance;
+        $statement->parent = $instance;
         return $instance;
     }
 
@@ -87,9 +88,9 @@ abstract class GeneratedImplicitBlock extends Nodes\Block
 
     protected function _validate(int $flags): void
     {
+        if ($this->statement === null) throw ValidationException::childRequired($this, "statement");
         if ($flags & self::VALIDATE_TYPES)
         {
-            if ($this->statement === null) throw ValidationException::childRequired($this, "statement");
         }
         if ($flags & self::VALIDATE_EXPRESSION_CONTEXT)
         {

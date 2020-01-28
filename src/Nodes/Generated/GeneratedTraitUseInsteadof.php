@@ -39,6 +39,7 @@ abstract class GeneratedTraitUseInsteadof extends Nodes\TraitUseModification
      */
     private $excluded;
 
+
     /**
      */
     public function __construct()
@@ -47,11 +48,11 @@ abstract class GeneratedTraitUseInsteadof extends Nodes\TraitUseModification
 
     /**
      * @param int $phpVersion
-     * @param Nodes\Name|null $trait
-     * @param Token|null $doubleColon
-     * @param Token|null $member
-     * @param Token|null $insteadof
-     * @param Nodes\Name|null $excluded
+     * @param Nodes\Name $trait
+     * @param Token $doubleColon
+     * @param Token $member
+     * @param Token $insteadof
+     * @param Nodes\Name $excluded
      * @return static
      */
     public static function __instantiateUnchecked($phpVersion, $trait, $doubleColon, $member, $insteadof, $excluded)
@@ -59,15 +60,15 @@ abstract class GeneratedTraitUseInsteadof extends Nodes\TraitUseModification
         $instance = new static;
         $instance->phpVersion = $phpVersion;
         $instance->trait = $trait;
-        $instance->trait->parent = $instance;
+        $trait->parent = $instance;
         $instance->doubleColon = $doubleColon;
-        $instance->doubleColon->parent = $instance;
+        $doubleColon->parent = $instance;
         $instance->member = $member;
-        $instance->member->parent = $instance;
+        $member->parent = $instance;
         $instance->insteadof = $insteadof;
-        $instance->insteadof->parent = $instance;
+        $insteadof->parent = $instance;
         $instance->excluded = $excluded;
-        $instance->excluded->parent = $instance;
+        $excluded->parent = $instance;
         return $instance;
     }
 
@@ -250,13 +251,13 @@ abstract class GeneratedTraitUseInsteadof extends Nodes\TraitUseModification
 
     protected function _validate(int $flags): void
     {
+        if ($this->trait === null) throw ValidationException::childRequired($this, "trait");
+        if ($this->doubleColon === null) throw ValidationException::childRequired($this, "doubleColon");
+        if ($this->member === null) throw ValidationException::childRequired($this, "member");
+        if ($this->insteadof === null) throw ValidationException::childRequired($this, "insteadof");
+        if ($this->excluded === null) throw ValidationException::childRequired($this, "excluded");
         if ($flags & self::VALIDATE_TYPES)
         {
-            if ($this->trait === null) throw ValidationException::childRequired($this, "trait");
-            if ($this->doubleColon === null) throw ValidationException::childRequired($this, "doubleColon");
-            if ($this->member === null) throw ValidationException::childRequired($this, "member");
-            if ($this->insteadof === null) throw ValidationException::childRequired($this, "insteadof");
-            if ($this->excluded === null) throw ValidationException::childRequired($this, "excluded");
         }
         if ($flags & self::VALIDATE_EXPRESSION_CONTEXT)
         {

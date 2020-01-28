@@ -6,8 +6,8 @@ use Phi\Nodes\Generated\GeneratedLongArrayExpression;
 
 class LongArrayExpression extends GeneratedLongArrayExpression
 {
-    public function checkContext(int $requiredContext): void
+    public function validateContext(int $flags): void
     {
-        // TODO: Implement checkContext() method. maybe something with ArrayItem?
+        // TODO: Implement validateContext() method.
     }
 }

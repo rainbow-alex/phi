@@ -74,7 +74,7 @@ class NodeChildDef
         return imported($this->class);
     }
 
-    public function docType(): string
+    public function docType(bool $null = true): string
     {
         if ($this->isList)
         {
@@ -82,8 +82,14 @@ class NodeChildDef
         }
         else
         {
-            return $this->phpType() . "|null";
+            return $this->phpType() . ($this->optional || $null ? "|null" : "");
         }
+    }
+
+    public function phpstanDocType(): string
+    {
+        assert($this->isList);
+        return $this->phpType() . "<\\" . $this->itemClass . ">";
     }
 
     public function getter(): string

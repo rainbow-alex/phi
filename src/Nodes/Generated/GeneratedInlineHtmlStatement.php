@@ -17,11 +17,6 @@ abstract class GeneratedInlineHtmlStatement extends Nodes\Statement
     /**
      * @var Token|null
      */
-    private $closingTag;
-
-    /**
-     * @var Token|null
-     */
     private $content;
 
     /**
@@ -29,17 +24,13 @@ abstract class GeneratedInlineHtmlStatement extends Nodes\Statement
      */
     private $openingTag;
 
+
     /**
-     * @param Token|Node|string|null $closingTag
      * @param Token|Node|string|null $content
      * @param Token|Node|string|null $openingTag
      */
-    public function __construct($closingTag = null, $content = null, $openingTag = null)
+    public function __construct($content = null, $openingTag = null)
     {
-        if ($closingTag !== null)
-        {
-            $this->setClosingTag($closingTag);
-        }
         if ($content !== null)
         {
             $this->setContent($content);
@@ -52,70 +43,28 @@ abstract class GeneratedInlineHtmlStatement extends Nodes\Statement
 
     /**
      * @param int $phpVersion
-     * @param Token|null $closingTag
      * @param Token|null $content
      * @param Token|null $openingTag
      * @return static
      */
-    public static function __instantiateUnchecked($phpVersion, $closingTag, $content, $openingTag)
+    public static function __instantiateUnchecked($phpVersion, $content, $openingTag)
     {
         $instance = new static;
         $instance->phpVersion = $phpVersion;
-        $instance->closingTag = $closingTag;
-        if ($closingTag)
-        {
-            $instance->closingTag->parent = $instance;
-        }
         $instance->content = $content;
-        if ($content)
-        {
-            $instance->content->parent = $instance;
-        }
+        if ($content) $content->parent = $instance;
         $instance->openingTag = $openingTag;
-        if ($openingTag)
-        {
-            $instance->openingTag->parent = $instance;
-        }
+        if ($openingTag) $openingTag->parent = $instance;
         return $instance;
     }
 
     protected function &_getNodeRefs(): array
     {
         $refs = [
-            "closingTag" => &$this->closingTag,
             "content" => &$this->content,
             "openingTag" => &$this->openingTag,
         ];
         return $refs;
-    }
-
-    public function getClosingTag(): ?Token
-    {
-        return $this->closingTag;
-    }
-
-    public function hasClosingTag(): bool
-    {
-        return $this->closingTag !== null;
-    }
-
-    /**
-     * @param Token|Node|string|null $closingTag
-     */
-    public function setClosingTag($closingTag): void
-    {
-        if ($closingTag !== null)
-        {
-            /** @var Token $closingTag */
-            $closingTag = NodeConverter::convert($closingTag, Token::class, $this->phpVersion);
-            $closingTag->detach();
-            $closingTag->parent = $this;
-        }
-        if ($this->closingTag !== null)
-        {
-            $this->closingTag->detach();
-        }
-        $this->closingTag = $closingTag;
     }
 
     public function getContent(): ?Token

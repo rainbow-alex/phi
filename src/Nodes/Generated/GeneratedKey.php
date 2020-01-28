@@ -24,6 +24,7 @@ abstract class GeneratedKey extends CompoundNode
      */
     private $arrow;
 
+
     /**
      * @param Nodes\Expression|Node|string|null $value
      */
@@ -37,8 +38,8 @@ abstract class GeneratedKey extends CompoundNode
 
     /**
      * @param int $phpVersion
-     * @param Nodes\Expression|null $value
-     * @param Token|null $arrow
+     * @param Nodes\Expression $value
+     * @param Token $arrow
      * @return static
      */
     public static function __instantiateUnchecked($phpVersion, $value, $arrow)
@@ -46,9 +47,9 @@ abstract class GeneratedKey extends CompoundNode
         $instance = new static;
         $instance->phpVersion = $phpVersion;
         $instance->value = $value;
-        $instance->value->parent = $instance;
+        $value->parent = $instance;
         $instance->arrow = $arrow;
-        $instance->arrow->parent = $instance;
+        $arrow->parent = $instance;
         return $instance;
     }
 
@@ -129,10 +130,10 @@ abstract class GeneratedKey extends CompoundNode
 
     protected function _validate(int $flags): void
     {
+        if ($this->value === null) throw ValidationException::childRequired($this, "value");
+        if ($this->arrow === null) throw ValidationException::childRequired($this, "arrow");
         if ($flags & self::VALIDATE_TYPES)
         {
-            if ($this->value === null) throw ValidationException::childRequired($this, "value");
-            if ($this->arrow === null) throw ValidationException::childRequired($this, "arrow");
         }
         if ($flags & self::VALIDATE_EXPRESSION_CONTEXT)
         {

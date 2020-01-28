@@ -5,8 +5,8 @@ use Phi\Nodes\AlternativeFormatBlock;
 use Phi\Nodes\Argument;
 use Phi\Nodes\ArrayItem;
 use Phi\Nodes\Block;
-use Phi\Nodes\CInterpolatedStringExpression;
-use Phi\Nodes\CInterpolatedStringPart;
+use Phi\Nodes\InterpolatedStringExpression;
+use Phi\Nodes\InterpolatedStringPart;
 use Phi\Nodes\ComplexInterpolatedStringExpression;
 use Phi\Nodes\ConstantInterpolatedStringPart;
 use Phi\Nodes\Default_;
@@ -31,25 +31,26 @@ use Phi\Nodes\Type;
 use Phi\Nodes\UseAlias;
 use Phi\Nodes\UseName;
 use Phi\Token;
+use Phi\TokenType;
 
 return [
     (new NodeDef(Argument::class))
-        ->withOptToken("unpack", Token::PH_T_ELLIPSIS)
+        ->withOptToken("unpack", TokenType::T_ELLIPSIS)
         ->withChild("expression", Expression::class)
         ->withConstructor("expression"),
 
     (new NodeDef(ArrayItem::class))
         ->withOptChild("key", Key::class)
-        ->withOptToken("byReference", Token::PH_S_AMPERSAND)
+        ->withOptToken("byReference", TokenType::S_AMPERSAND)
         ->withOptChild("value", Expression::class)
         ->withConstructor("value"),
 
     /** @see Block */
     (new NodeDef(RegularBlock::class))
         ->withExtends(Block::class)
-        ->withToken("leftBrace", Token::PH_S_LEFT_CURLY_BRACE)
+        ->withToken("leftBrace", TokenType::S_LEFT_CURLY_BRACE)
         ->withList("statements", Statement::class)
-        ->withToken("rightBrace", Token::PH_S_RIGHT_CURLY_BRACE)
+        ->withToken("rightBrace", TokenType::S_RIGHT_CURLY_BRACE)
         ->withConstructor("statement"),
     (new NodeDef(ImplicitBlock::class))
         ->withExtends(Block::class)
@@ -57,86 +58,87 @@ return [
         ->withConstructor("statement"),
     (new NodeDef(AlternativeFormatBlock::class))
         ->withExtends(Block::class)
-        ->withToken("colon", Token::PH_S_COLON)
+        ->withToken("colon", TokenType::S_COLON)
         ->withList("statements", Statement::class)
-        ->withOptToken("endKeyword", [Token::PH_T_ENDDECLARE, Token::PH_T_ENDFOR, Token::PH_T_ENDFOREACH, Token::PH_T_ENDIF, Token::PH_T_ENDSWITCH, Token::PH_T_ENDWHILE])
-        ->withOptToken("semiColon", Token::PH_S_SEMICOLON)
+        // opt because e.g. if (0): else: endif;
+        ->withOptToken("endKeyword", [TokenType::T_ENDDECLARE, TokenType::T_ENDFOR, TokenType::T_ENDFOREACH, TokenType::T_ENDIF, TokenType::T_ENDSWITCH, TokenType::T_ENDWHILE])
+        ->withOptToken("delimiter", [TokenType::S_SEMICOLON, TokenType::T_CLOSE_TAG])
         ->withConstructor("statement"),
 
     (new NodeDef(Default_::class))
-        ->withToken("symbol", Token::PH_S_EQUALS)
+        ->withToken("symbol", TokenType::S_EQUALS)
         ->withChild("value", Expression::class)
         ->withConstructor("value"),
 
     (new NodeDef(Extends_::class))
-        ->withToken("keyword", Token::PH_T_EXTENDS)
-        ->withSepList("names", Name::class, Token::PH_S_COMMA)
+        ->withToken("keyword", TokenType::T_EXTENDS)
+        ->withSepList("names", Name::class, TokenType::S_COMMA)
         ->withConstructor("name"),
 
-    /** @see CInterpolatedStringPart */
-    /** @see CInterpolatedStringExpression */
+    /** @see InterpolatedStringPart */
+    /** @see InterpolatedStringExpression */
     (new NodeDef(ConstantInterpolatedStringPart::class))
-        ->withExtends(CInterpolatedStringPart::class)
-        ->withToken("content", Token::PH_T_ENCAPSED_AND_WHITESPACE)
+        ->withExtends(InterpolatedStringPart::class)
+        ->withToken("content", TokenType::T_ENCAPSED_AND_WHITESPACE)
         ->withConstructor("content"),
     (new NodeDef(SimpleInterpolatedStringExpression::class))
-        ->withExtends(CInterpolatedStringExpression::class)
+        ->withExtends(InterpolatedStringExpression::class)
         ->withChild("expression", Expression::class)
         ->withConstructor("expression"),
     (new NodeDef(ComplexInterpolatedStringExpression::class))
-        ->withExtends(CInterpolatedStringExpression::class)
-        ->withToken("leftBrace", Token::PH_T_CURLY_OPEN)
+        ->withExtends(InterpolatedStringExpression::class)
+        ->withToken("leftBrace", TokenType::T_CURLY_OPEN)
         ->withChild("expression", Expression::class)
-        ->withToken("rightBrace", Token::PH_S_RIGHT_CURLY_BRACE)
+        ->withToken("rightBrace", TokenType::S_RIGHT_CURLY_BRACE)
         ->withConstructor("expression"),
 
     (new NodeDef(Implements_::class))
-        ->withToken("keyword", Token::PH_T_IMPLEMENTS)
-        ->withSepList("names", Name::class, Token::PH_S_COMMA)
+        ->withToken("keyword", TokenType::T_IMPLEMENTS)
+        ->withSepList("names", Name::class, TokenType::S_COMMA)
         ->withConstructor("name"),
 
     (new NodeDef(Key::class))
         ->withChild("value", Expression::class)
-        ->withToken("arrow", Token::PH_T_DOUBLE_ARROW)
+        ->withToken("arrow", TokenType::T_DOUBLE_ARROW)
         ->withConstructor("value"),
 
     /** @see MemberName */
     (new NodeDef(RegularMemberName::class))
         ->withExtends(MemberName::class)
-        ->withToken("token", Token::PH_T_STRING)
+        ->withToken("token", TokenType::T_STRING)
         ->withConstructor("token"),
     (new NodeDef(VariableMemberName::class))
         ->withExtends(MemberName::class)
-        ->withOptToken("leftBrace", Token::PH_T_STRING) // TODO validate braces
+        ->withOptToken("leftBrace", TokenType::T_STRING) // TODO validate braces
         ->withChild("expression", Expression::class)
-        ->withOptToken("rightBrace", Token::PH_T_STRING)
+        ->withOptToken("rightBrace", TokenType::T_STRING)
         ->withConstructor("expression"),
 
     /** @see Name */
     (new NodeDef(RegularName::class))
         ->withExtends(Name::class)
-        ->withSepTokenList("parts", Token::class, Token::PH_T_NS_SEPARATOR),
+        ->withSepTokenList("parts", Token::class, TokenType::T_NS_SEPARATOR),
     (new NodeDef(SpecialName::class))
         ->withExtends(Name::class)
-        ->withToken("token", Token::PH_T_STATIC)
+        ->withToken("token", TokenType::T_STATIC)
         ->withConstructor("token"),
 
     (new NodeDef(Parameter::class))
         ->withOptChild("type", Type::class)
-        ->withOptToken("byReference", Token::PH_S_AMPERSAND)
-        ->withOptToken("ellipsis", Token::PH_T_ELLIPSIS)
-        ->withToken("variable", Token::PH_T_VARIABLE)
+        ->withOptToken("byReference", TokenType::S_AMPERSAND)
+        ->withOptToken("ellipsis", TokenType::T_ELLIPSIS)
+        ->withToken("variable", TokenType::T_VARIABLE)
         ->withOptChild("default", Default_::class)
         ->withConstructor("variable"),
 
     (new NodeDef(ReturnType::class))
-        ->withToken("symbol", Token::PH_S_COLON)
+        ->withToken("symbol", TokenType::S_COLON)
         ->withChild("type", Type::class)
         ->withConstructor("type"),
 
     (new NodeDef(RootNode::class))
         ->withList("statements", Statement::class)
-        ->withOptToken("eof", Token::PH_T_EOF)
+        ->withOptToken("eof", TokenType::T_EOF)
         ->withConstructor("statement"),
 
     /** @see UseStatement */
@@ -144,6 +146,6 @@ return [
         ->withChild("name", Name::class)
         ->withOptChild("alias", UseAlias::class),
     (new NodeDef(UseAlias::class))
-        ->withToken("keyword", Token::PH_T_AS)
-        ->withToken("name", Token::PH_T_STRING),
+        ->withToken("keyword", TokenType::T_AS)
+        ->withToken("name", TokenType::T_STRING),
 ];

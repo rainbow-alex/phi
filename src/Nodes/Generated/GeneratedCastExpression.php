@@ -24,6 +24,7 @@ abstract class GeneratedCastExpression extends Nodes\Expression
      */
     private $expression;
 
+
     /**
      * @param Token|Node|string|null $cast
      * @param Nodes\Expression|Node|string|null $expression
@@ -42,8 +43,8 @@ abstract class GeneratedCastExpression extends Nodes\Expression
 
     /**
      * @param int $phpVersion
-     * @param Token|null $cast
-     * @param Nodes\Expression|null $expression
+     * @param Token $cast
+     * @param Nodes\Expression $expression
      * @return static
      */
     public static function __instantiateUnchecked($phpVersion, $cast, $expression)
@@ -51,9 +52,9 @@ abstract class GeneratedCastExpression extends Nodes\Expression
         $instance = new static;
         $instance->phpVersion = $phpVersion;
         $instance->cast = $cast;
-        $instance->cast->parent = $instance;
+        $cast->parent = $instance;
         $instance->expression = $expression;
-        $instance->expression->parent = $instance;
+        $expression->parent = $instance;
         return $instance;
     }
 
@@ -134,10 +135,10 @@ abstract class GeneratedCastExpression extends Nodes\Expression
 
     protected function _validate(int $flags): void
     {
+        if ($this->cast === null) throw ValidationException::childRequired($this, "cast");
+        if ($this->expression === null) throw ValidationException::childRequired($this, "expression");
         if ($flags & self::VALIDATE_TYPES)
         {
-            if ($this->cast === null) throw ValidationException::childRequired($this, "cast");
-            if ($this->expression === null) throw ValidationException::childRequired($this, "expression");
         }
         if ($flags & self::VALIDATE_EXPRESSION_CONTEXT)
         {

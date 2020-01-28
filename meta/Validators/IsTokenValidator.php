@@ -3,7 +3,7 @@
 namespace Phi\Meta\Validators;
 
 use Phi\Node;
-use Phi\Token;
+use Phi\TokenType;
 
 class IsTokenValidator implements NodeValidator
 {
@@ -32,17 +32,11 @@ class IsTokenValidator implements NodeValidator
         }
         else
         {
-            $phpType = Token::typeToString($this->types[0]);
+            $phpType = TokenType::typeToString($this->types[0]);
             return
                 "if (" . $var . "->getType() !== " . $phpType . ")"
                 . " throw new ValidationException(" . $var . '->repr() . " is expected to be TODO", ' . $var . ");"
             ;
         }
-    }
-
-    private static function tokenTypeToPhp(int $type): string
-    {
-        // TODO
-        return "Token::" . \array_search($type, Token::getMap());
     }
 }

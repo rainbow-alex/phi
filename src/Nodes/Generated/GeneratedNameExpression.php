@@ -19,6 +19,7 @@ abstract class GeneratedNameExpression extends Nodes\Expression
      */
     private $name;
 
+
     /**
      * @param Nodes\Name|Node|string|null $name
      */
@@ -32,7 +33,7 @@ abstract class GeneratedNameExpression extends Nodes\Expression
 
     /**
      * @param int $phpVersion
-     * @param Nodes\Name|null $name
+     * @param Nodes\Name $name
      * @return static
      */
     public static function __instantiateUnchecked($phpVersion, $name)
@@ -40,7 +41,7 @@ abstract class GeneratedNameExpression extends Nodes\Expression
         $instance = new static;
         $instance->phpVersion = $phpVersion;
         $instance->name = $name;
-        $instance->name->parent = $instance;
+        $name->parent = $instance;
         return $instance;
     }
 
@@ -87,9 +88,9 @@ abstract class GeneratedNameExpression extends Nodes\Expression
 
     protected function _validate(int $flags): void
     {
+        if ($this->name === null) throw ValidationException::childRequired($this, "name");
         if ($flags & self::VALIDATE_TYPES)
         {
-            if ($this->name === null) throw ValidationException::childRequired($this, "name");
         }
         if ($flags & self::VALIDATE_EXPRESSION_CONTEXT)
         {

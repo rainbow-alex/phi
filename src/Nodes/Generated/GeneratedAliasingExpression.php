@@ -34,6 +34,7 @@ abstract class GeneratedAliasingExpression extends Nodes\Expression
      */
     private $value;
 
+
     /**
      * @param Nodes\Expression|Node|string|null $alias
      * @param Nodes\Expression|Node|string|null $value
@@ -52,10 +53,10 @@ abstract class GeneratedAliasingExpression extends Nodes\Expression
 
     /**
      * @param int $phpVersion
-     * @param Nodes\Expression|null $alias
-     * @param Token|null $operator1
-     * @param Token|null $operator2
-     * @param Nodes\Expression|null $value
+     * @param Nodes\Expression $alias
+     * @param Token $operator1
+     * @param Token $operator2
+     * @param Nodes\Expression $value
      * @return static
      */
     public static function __instantiateUnchecked($phpVersion, $alias, $operator1, $operator2, $value)
@@ -63,13 +64,13 @@ abstract class GeneratedAliasingExpression extends Nodes\Expression
         $instance = new static;
         $instance->phpVersion = $phpVersion;
         $instance->alias = $alias;
-        $instance->alias->parent = $instance;
+        $alias->parent = $instance;
         $instance->operator1 = $operator1;
-        $instance->operator1->parent = $instance;
+        $operator1->parent = $instance;
         $instance->operator2 = $operator2;
-        $instance->operator2->parent = $instance;
+        $operator2->parent = $instance;
         $instance->value = $value;
-        $instance->value->parent = $instance;
+        $value->parent = $instance;
         return $instance;
     }
 
@@ -218,12 +219,12 @@ abstract class GeneratedAliasingExpression extends Nodes\Expression
 
     protected function _validate(int $flags): void
     {
+        if ($this->alias === null) throw ValidationException::childRequired($this, "alias");
+        if ($this->operator1 === null) throw ValidationException::childRequired($this, "operator1");
+        if ($this->operator2 === null) throw ValidationException::childRequired($this, "operator2");
+        if ($this->value === null) throw ValidationException::childRequired($this, "value");
         if ($flags & self::VALIDATE_TYPES)
         {
-            if ($this->alias === null) throw ValidationException::childRequired($this, "alias");
-            if ($this->operator1 === null) throw ValidationException::childRequired($this, "operator1");
-            if ($this->operator2 === null) throw ValidationException::childRequired($this, "operator2");
-            if ($this->value === null) throw ValidationException::childRequired($this, "value");
         }
         if ($flags & self::VALIDATE_EXPRESSION_CONTEXT)
         {

@@ -4,6 +4,7 @@ namespace Phi\Nodes;
 
 use Phi\Exception\ValidationException;
 use Phi\Nodes\Generated\GeneratedConstantStringLiteral;
+use PhpParser\Node\Scalar\String_;
 
 class ConstantStringLiteral extends GeneratedConstantStringLiteral
 {
@@ -14,5 +15,10 @@ class ConstantStringLiteral extends GeneratedConstantStringLiteral
         {
             throw ValidationException::expressionContext($flags & $never, $this);
         }
+    }
+
+    public function convertToPhpParserNode()
+    {
+        return new String_(String_::parse($this->getSource()->getSource())); // TODO unicode test
     }
 }

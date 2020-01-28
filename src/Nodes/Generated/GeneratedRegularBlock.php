@@ -21,6 +21,7 @@ abstract class GeneratedRegularBlock extends Nodes\Block
 
     /**
      * @var NodesList|Nodes\Statement[]
+     * @phpstan-var NodesList<\Phi\Nodes\Statement>
      */
     private $statements;
 
@@ -28,6 +29,7 @@ abstract class GeneratedRegularBlock extends Nodes\Block
      * @var Token|null
      */
     private $rightBrace;
+
 
     /**
      * @param Nodes\Statement $statement
@@ -43,9 +45,9 @@ abstract class GeneratedRegularBlock extends Nodes\Block
 
     /**
      * @param int $phpVersion
-     * @param Token|null $leftBrace
+     * @param Token $leftBrace
      * @param mixed[] $statements
-     * @param Token|null $rightBrace
+     * @param Token $rightBrace
      * @return static
      */
     public static function __instantiateUnchecked($phpVersion, $leftBrace, $statements, $rightBrace)
@@ -53,11 +55,11 @@ abstract class GeneratedRegularBlock extends Nodes\Block
         $instance = new static;
         $instance->phpVersion = $phpVersion;
         $instance->leftBrace = $leftBrace;
-        $instance->leftBrace->parent = $instance;
+        $leftBrace->parent = $instance;
         $instance->statements->__initUnchecked($statements);
         $instance->statements->parent = $instance;
         $instance->rightBrace = $rightBrace;
-        $instance->rightBrace->parent = $instance;
+        $rightBrace->parent = $instance;
         return $instance;
     }
 
@@ -106,6 +108,7 @@ abstract class GeneratedRegularBlock extends Nodes\Block
 
     /**
      * @return NodesList|Nodes\Statement[]
+     * @phpstan-return NodesList<\Phi\Nodes\Statement>
      */
     public function getStatements(): NodesList
     {
@@ -157,10 +160,10 @@ abstract class GeneratedRegularBlock extends Nodes\Block
 
     protected function _validate(int $flags): void
     {
+        if ($this->leftBrace === null) throw ValidationException::childRequired($this, "leftBrace");
+        if ($this->rightBrace === null) throw ValidationException::childRequired($this, "rightBrace");
         if ($flags & self::VALIDATE_TYPES)
         {
-            if ($this->leftBrace === null) throw ValidationException::childRequired($this, "leftBrace");
-            if ($this->rightBrace === null) throw ValidationException::childRequired($this, "rightBrace");
         }
         if ($flags & self::VALIDATE_EXPRESSION_CONTEXT)
         {

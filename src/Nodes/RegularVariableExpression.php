@@ -10,4 +10,9 @@ class RegularVariableExpression extends GeneratedRegularVariableExpression
     {
         // valid in all contexts
     }
+
+    public function convertToPhpParserNode()
+    {
+        return new \PhpParser\Node\Expr\Variable(substr($this->getVariable()->getSource(), 1));
+    }
 }

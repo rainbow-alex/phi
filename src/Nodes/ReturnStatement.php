@@ -12,9 +12,9 @@ class ReturnStatement extends GeneratedReturnStatement
 
         if ($flags & self::VALIDATE_EXPRESSION_CONTEXT)
         {
-            if ($this->getExpression())
+            if ($expression = $this->getExpression())
             {
-                $this->getExpression()->validateContext(Expression::CTX_READ);
+                $expression->validateContext(Expression::CTX_READ);
             }
         }
     }

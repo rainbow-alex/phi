@@ -29,6 +29,7 @@ abstract class GeneratedGotoStatement extends Nodes\Statement
      */
     private $semiColon;
 
+
     /**
      * @param Token|Node|string|null $label
      */
@@ -42,8 +43,8 @@ abstract class GeneratedGotoStatement extends Nodes\Statement
 
     /**
      * @param int $phpVersion
-     * @param Token|null $keyword
-     * @param Token|null $label
+     * @param Token $keyword
+     * @param Token $label
      * @param Token|null $semiColon
      * @return static
      */
@@ -52,14 +53,11 @@ abstract class GeneratedGotoStatement extends Nodes\Statement
         $instance = new static;
         $instance->phpVersion = $phpVersion;
         $instance->keyword = $keyword;
-        $instance->keyword->parent = $instance;
+        $keyword->parent = $instance;
         $instance->label = $label;
-        $instance->label->parent = $instance;
+        $label->parent = $instance;
         $instance->semiColon = $semiColon;
-        if ($semiColon)
-        {
-            $instance->semiColon->parent = $instance;
-        }
+        if ($semiColon) $semiColon->parent = $instance;
         return $instance;
     }
 
@@ -170,10 +168,10 @@ abstract class GeneratedGotoStatement extends Nodes\Statement
 
     protected function _validate(int $flags): void
     {
+        if ($this->keyword === null) throw ValidationException::childRequired($this, "keyword");
+        if ($this->label === null) throw ValidationException::childRequired($this, "label");
         if ($flags & self::VALIDATE_TYPES)
         {
-            if ($this->keyword === null) throw ValidationException::childRequired($this, "keyword");
-            if ($this->label === null) throw ValidationException::childRequired($this, "label");
         }
         if ($flags & self::VALIDATE_EXPRESSION_CONTEXT)
         {

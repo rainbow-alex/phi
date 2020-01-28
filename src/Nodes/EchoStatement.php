@@ -3,6 +3,7 @@
 namespace Phi\Nodes;
 
 use Phi\Nodes\Generated\GeneratedEchoStatement;
+use PhpParser\Node\Stmt\Echo_;
 
 class EchoStatement extends GeneratedEchoStatement
 {
@@ -17,5 +18,10 @@ class EchoStatement extends GeneratedEchoStatement
                 $expression->validateContext(Expression::CTX_READ);
             }
         }
+    }
+
+    public function convertToPhpParserNode()
+    {
+        return new Echo_($this->getExpressions()->convertToPhpParserNode());
     }
 }

@@ -31,6 +31,7 @@ abstract class GeneratedTraitStatement extends Nodes\ClassLikeStatement
 
     /**
      * @var NodesList|Nodes\ClassLikeMember[]
+     * @phpstan-var NodesList<\Phi\Nodes\ClassLikeMember>
      */
     private $members;
 
@@ -38,6 +39,7 @@ abstract class GeneratedTraitStatement extends Nodes\ClassLikeStatement
      * @var Token|null
      */
     private $rightBrace;
+
 
     /**
      */
@@ -48,11 +50,11 @@ abstract class GeneratedTraitStatement extends Nodes\ClassLikeStatement
 
     /**
      * @param int $phpVersion
-     * @param Token|null $keyword
-     * @param Token|null $name
-     * @param Token|null $leftBrace
+     * @param Token $keyword
+     * @param Token $name
+     * @param Token $leftBrace
      * @param mixed[] $members
-     * @param Token|null $rightBrace
+     * @param Token $rightBrace
      * @return static
      */
     public static function __instantiateUnchecked($phpVersion, $keyword, $name, $leftBrace, $members, $rightBrace)
@@ -60,15 +62,15 @@ abstract class GeneratedTraitStatement extends Nodes\ClassLikeStatement
         $instance = new static;
         $instance->phpVersion = $phpVersion;
         $instance->keyword = $keyword;
-        $instance->keyword->parent = $instance;
+        $keyword->parent = $instance;
         $instance->name = $name;
-        $instance->name->parent = $instance;
+        $name->parent = $instance;
         $instance->leftBrace = $leftBrace;
-        $instance->leftBrace->parent = $instance;
+        $leftBrace->parent = $instance;
         $instance->members->__initUnchecked($members);
         $instance->members->parent = $instance;
         $instance->rightBrace = $rightBrace;
-        $instance->rightBrace->parent = $instance;
+        $rightBrace->parent = $instance;
         return $instance;
     }
 
@@ -185,6 +187,7 @@ abstract class GeneratedTraitStatement extends Nodes\ClassLikeStatement
 
     /**
      * @return NodesList|Nodes\ClassLikeMember[]
+     * @phpstan-return NodesList<\Phi\Nodes\ClassLikeMember>
      */
     public function getMembers(): NodesList
     {
@@ -236,12 +239,12 @@ abstract class GeneratedTraitStatement extends Nodes\ClassLikeStatement
 
     protected function _validate(int $flags): void
     {
+        if ($this->keyword === null) throw ValidationException::childRequired($this, "keyword");
+        if ($this->name === null) throw ValidationException::childRequired($this, "name");
+        if ($this->leftBrace === null) throw ValidationException::childRequired($this, "leftBrace");
+        if ($this->rightBrace === null) throw ValidationException::childRequired($this, "rightBrace");
         if ($flags & self::VALIDATE_TYPES)
         {
-            if ($this->keyword === null) throw ValidationException::childRequired($this, "keyword");
-            if ($this->name === null) throw ValidationException::childRequired($this, "name");
-            if ($this->leftBrace === null) throw ValidationException::childRequired($this, "leftBrace");
-            if ($this->rightBrace === null) throw ValidationException::childRequired($this, "rightBrace");
         }
         if ($flags & self::VALIDATE_EXPRESSION_CONTEXT)
         {

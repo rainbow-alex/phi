@@ -24,6 +24,7 @@ abstract class GeneratedReturnType extends CompoundNode
      */
     private $type;
 
+
     /**
      * @param Nodes\Type|Node|string|null $type
      */
@@ -37,8 +38,8 @@ abstract class GeneratedReturnType extends CompoundNode
 
     /**
      * @param int $phpVersion
-     * @param Token|null $symbol
-     * @param Nodes\Type|null $type
+     * @param Token $symbol
+     * @param Nodes\Type $type
      * @return static
      */
     public static function __instantiateUnchecked($phpVersion, $symbol, $type)
@@ -46,9 +47,9 @@ abstract class GeneratedReturnType extends CompoundNode
         $instance = new static;
         $instance->phpVersion = $phpVersion;
         $instance->symbol = $symbol;
-        $instance->symbol->parent = $instance;
+        $symbol->parent = $instance;
         $instance->type = $type;
-        $instance->type->parent = $instance;
+        $type->parent = $instance;
         return $instance;
     }
 
@@ -129,10 +130,10 @@ abstract class GeneratedReturnType extends CompoundNode
 
     protected function _validate(int $flags): void
     {
+        if ($this->symbol === null) throw ValidationException::childRequired($this, "symbol");
+        if ($this->type === null) throw ValidationException::childRequired($this, "type");
         if ($flags & self::VALIDATE_TYPES)
         {
-            if ($this->symbol === null) throw ValidationException::childRequired($this, "symbol");
-            if ($this->type === null) throw ValidationException::childRequired($this, "type");
         }
         if ($flags & self::VALIDATE_EXPRESSION_CONTEXT)
         {

@@ -21,6 +21,7 @@ abstract class GeneratedTraitUse extends Nodes\ClassLikeMember
 
     /**
      * @var SeparatedNodesList|Nodes\Name[]
+     * @phpstan-var SeparatedNodesList<\Phi\Nodes\Name>
      */
     private $traits;
 
@@ -31,6 +32,7 @@ abstract class GeneratedTraitUse extends Nodes\ClassLikeMember
 
     /**
      * @var NodesList|Nodes\TraitUseModification[]
+     * @phpstan-var NodesList<\Phi\Nodes\TraitUseModification>
      */
     private $modifications;
 
@@ -44,6 +46,7 @@ abstract class GeneratedTraitUse extends Nodes\ClassLikeMember
      */
     private $semiColon;
 
+
     /**
      */
     public function __construct()
@@ -54,7 +57,7 @@ abstract class GeneratedTraitUse extends Nodes\ClassLikeMember
 
     /**
      * @param int $phpVersion
-     * @param Token|null $keyword
+     * @param Token $keyword
      * @param mixed[] $traits
      * @param Token|null $leftBrace
      * @param mixed[] $modifications
@@ -67,26 +70,17 @@ abstract class GeneratedTraitUse extends Nodes\ClassLikeMember
         $instance = new static;
         $instance->phpVersion = $phpVersion;
         $instance->keyword = $keyword;
-        $instance->keyword->parent = $instance;
+        $keyword->parent = $instance;
         $instance->traits->__initUnchecked($traits);
         $instance->traits->parent = $instance;
         $instance->leftBrace = $leftBrace;
-        if ($leftBrace)
-        {
-            $instance->leftBrace->parent = $instance;
-        }
+        if ($leftBrace) $leftBrace->parent = $instance;
         $instance->modifications->__initUnchecked($modifications);
         $instance->modifications->parent = $instance;
         $instance->rightBrace = $rightBrace;
-        if ($rightBrace)
-        {
-            $instance->rightBrace->parent = $instance;
-        }
+        if ($rightBrace) $rightBrace->parent = $instance;
         $instance->semiColon = $semiColon;
-        if ($semiColon)
-        {
-            $instance->semiColon->parent = $instance;
-        }
+        if ($semiColon) $semiColon->parent = $instance;
         return $instance;
     }
 
@@ -138,6 +132,7 @@ abstract class GeneratedTraitUse extends Nodes\ClassLikeMember
 
     /**
      * @return SeparatedNodesList|Nodes\Name[]
+     * @phpstan-return SeparatedNodesList<\Phi\Nodes\Name>
      */
     public function getTraits(): SeparatedNodesList
     {
@@ -185,6 +180,7 @@ abstract class GeneratedTraitUse extends Nodes\ClassLikeMember
 
     /**
      * @return NodesList|Nodes\TraitUseModification[]
+     * @phpstan-return NodesList<\Phi\Nodes\TraitUseModification>
      */
     public function getModifications(): NodesList
     {
@@ -261,9 +257,9 @@ abstract class GeneratedTraitUse extends Nodes\ClassLikeMember
 
     protected function _validate(int $flags): void
     {
+        if ($this->keyword === null) throw ValidationException::childRequired($this, "keyword");
         if ($flags & self::VALIDATE_TYPES)
         {
-            if ($this->keyword === null) throw ValidationException::childRequired($this, "keyword");
         }
         if ($flags & self::VALIDATE_EXPRESSION_CONTEXT)
         {

@@ -6,7 +6,7 @@ use Phi\Parser;
 use Phi\PhpVersion;
 use Phi\Tests\Testing\TestRepr;
 
-require __DIR__ . '/../../vendor/autoload.php';
+require __DIR__ . "/../../vendor/autoload.php";
 
 // TODO extract resources
 
@@ -145,6 +145,7 @@ const RULES = [
         '{}',
         'echo $v;',
         'echo $v; echo $v;',
+        '?>foo<?php',
     ],
 
     'EXPR' => [
@@ -408,17 +409,17 @@ $parser = new Parser(PhpVersion::PHP_7_2);
 
 $cases = [];
 
-foreach (RULES['ROOT'] as $root)
+foreach (RULES["ROOT"] as $root)
 {
     echo $root . " ... ";
 
     $group = [];
     foreach (generate($root) as $src)
     {
-        $v = 'a';
+        $v = "a";
         $src = preg_replace_callback('{\\$v}', function () use (&$v) { return "$" . $v++; }, $src);
         $w = 0;
-        $src = preg_replace_callback('{foo}', function () use (&$w) { return ['foo', 'bar', 'baz', 'qux', 'quux', 'corge'][$w++]; }, $src);
+        $src = preg_replace_callback('{foo}', function () use (&$w) { return ["foo", "bar", "baz", "qux", "quux", "corge"][$w++]; }, $src);
 
         $group[] = $src;
     }
@@ -429,9 +430,9 @@ foreach (RULES['ROOT'] as $root)
 
     foreach ($group as $i => $src)
     {
-        $case = ['source' => $src];
+        $case = ["source" => $src];
 
-        if (strpos($syntaxCheckCache[$src] ?? '', 'Unexpected character in input') !== false)
+        if (strpos($syntaxCheckCache[$src] ?? "", "Unexpected character in input") !== false)
         {
             unset($syntaxCheckCache[$src]);
         }
@@ -439,7 +440,7 @@ foreach (RULES['ROOT'] as $root)
         // figure out if php will parse this
         $syntaxCheck = $syntaxCheckCache[$src] ?? $syntaxCheckCache[$src] = (function () use ($src)
         {
-            $h = proc_open('php -l', [['pipe', 'r'], ['pipe', 'w'], ['pipe', 'w']], $pipes);
+            $h = proc_open("php -l", [["pipe", "r"], ["pipe", "w"], ["pipe", "w"]], $pipes);
             fwrite($pipes[0], "<?php " . $src . " ?>\n");
             fclose($pipes[0]);
             $out = trim(stream_get_contents($pipes[2]));
@@ -452,26 +453,26 @@ foreach (RULES['ROOT'] as $root)
 
         if ($syntaxCheck !== true)
         {
-            $syntaxCheck = str_replace('PHP Fatal error:  ', '', $syntaxCheck);
-            $syntaxCheck = str_replace('PHP Parse error:  ', '', $syntaxCheck);
-            $syntaxCheck = str_replace(' in Standard input code on line 1', '', $syntaxCheck);
-            $case['php'] = ['valid' => false, 'error' => $syntaxCheck];
+            $syntaxCheck = str_replace("PHP Fatal error:  ", "", $syntaxCheck);
+            $syntaxCheck = str_replace("PHP Parse error:  ", "", $syntaxCheck);
+            $syntaxCheck = str_replace(" in Standard input code on line 1", "", $syntaxCheck);
+            $case["php"] = ["valid" => false, "error" => $syntaxCheck];
         }
         else
         {
-            $case['php'] = ['valid' => true];
+            $case["php"] = ["valid" => true];
         }
 
         // lex & parse the source using phi
         try
         {
-            $ast = $parser->parseFragment($src);
-            $case['phi'] = ['valid' => true, 'repr' => TestRepr::node($ast)];
+            $ast = $parser->parse(null, "<?php " . $src . " ?>");
+            $case["phi"] = ["valid" => true, "repr" => TestRepr::node($ast)];
         }
         catch (Throwable $t)
         {
             $ast = null;
-            $case['phi'] = ['valid' => false, 'error' => $t->getMessage()];
+            $case["phi"] = ["valid" => false, "error" => $t->getMessage()];
         }
 
         $cases[$root][] = $case;

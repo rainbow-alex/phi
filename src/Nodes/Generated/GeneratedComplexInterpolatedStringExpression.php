@@ -12,7 +12,7 @@ use Phi\NodeConverter;
 use Phi\Exception\ValidationException;
 use Phi\Nodes as Nodes;
 
-abstract class GeneratedComplexInterpolatedStringExpression extends Nodes\CInterpolatedStringExpression
+abstract class GeneratedComplexInterpolatedStringExpression extends Nodes\InterpolatedStringExpression
 {
     /**
      * @var Token|null
@@ -29,6 +29,7 @@ abstract class GeneratedComplexInterpolatedStringExpression extends Nodes\CInter
      */
     private $rightBrace;
 
+
     /**
      * @param Nodes\Expression|Node|string|null $expression
      */
@@ -42,9 +43,9 @@ abstract class GeneratedComplexInterpolatedStringExpression extends Nodes\CInter
 
     /**
      * @param int $phpVersion
-     * @param Token|null $leftBrace
-     * @param Nodes\Expression|null $expression
-     * @param Token|null $rightBrace
+     * @param Token $leftBrace
+     * @param Nodes\Expression $expression
+     * @param Token $rightBrace
      * @return static
      */
     public static function __instantiateUnchecked($phpVersion, $leftBrace, $expression, $rightBrace)
@@ -52,11 +53,11 @@ abstract class GeneratedComplexInterpolatedStringExpression extends Nodes\CInter
         $instance = new static;
         $instance->phpVersion = $phpVersion;
         $instance->leftBrace = $leftBrace;
-        $instance->leftBrace->parent = $instance;
+        $leftBrace->parent = $instance;
         $instance->expression = $expression;
-        $instance->expression->parent = $instance;
+        $expression->parent = $instance;
         $instance->rightBrace = $rightBrace;
-        $instance->rightBrace->parent = $instance;
+        $rightBrace->parent = $instance;
         return $instance;
     }
 
@@ -171,11 +172,11 @@ abstract class GeneratedComplexInterpolatedStringExpression extends Nodes\CInter
 
     protected function _validate(int $flags): void
     {
+        if ($this->leftBrace === null) throw ValidationException::childRequired($this, "leftBrace");
+        if ($this->expression === null) throw ValidationException::childRequired($this, "expression");
+        if ($this->rightBrace === null) throw ValidationException::childRequired($this, "rightBrace");
         if ($flags & self::VALIDATE_TYPES)
         {
-            if ($this->leftBrace === null) throw ValidationException::childRequired($this, "leftBrace");
-            if ($this->expression === null) throw ValidationException::childRequired($this, "expression");
-            if ($this->rightBrace === null) throw ValidationException::childRequired($this, "rightBrace");
         }
         if ($flags & self::VALIDATE_EXPRESSION_CONTEXT)
         {

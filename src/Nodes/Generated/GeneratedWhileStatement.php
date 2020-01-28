@@ -39,6 +39,7 @@ abstract class GeneratedWhileStatement extends Nodes\Statement
      */
     private $block;
 
+
     /**
      * @param Nodes\Expression|Node|string|null $test
      */
@@ -52,11 +53,11 @@ abstract class GeneratedWhileStatement extends Nodes\Statement
 
     /**
      * @param int $phpVersion
-     * @param Token|null $keyword
-     * @param Token|null $leftParenthesis
-     * @param Nodes\Expression|null $test
-     * @param Token|null $rightParenthesis
-     * @param Nodes\Block|null $block
+     * @param Token $keyword
+     * @param Token $leftParenthesis
+     * @param Nodes\Expression $test
+     * @param Token $rightParenthesis
+     * @param Nodes\Block $block
      * @return static
      */
     public static function __instantiateUnchecked($phpVersion, $keyword, $leftParenthesis, $test, $rightParenthesis, $block)
@@ -64,15 +65,15 @@ abstract class GeneratedWhileStatement extends Nodes\Statement
         $instance = new static;
         $instance->phpVersion = $phpVersion;
         $instance->keyword = $keyword;
-        $instance->keyword->parent = $instance;
+        $keyword->parent = $instance;
         $instance->leftParenthesis = $leftParenthesis;
-        $instance->leftParenthesis->parent = $instance;
+        $leftParenthesis->parent = $instance;
         $instance->test = $test;
-        $instance->test->parent = $instance;
+        $test->parent = $instance;
         $instance->rightParenthesis = $rightParenthesis;
-        $instance->rightParenthesis->parent = $instance;
+        $rightParenthesis->parent = $instance;
         $instance->block = $block;
-        $instance->block->parent = $instance;
+        $block->parent = $instance;
         return $instance;
     }
 
@@ -255,13 +256,13 @@ abstract class GeneratedWhileStatement extends Nodes\Statement
 
     protected function _validate(int $flags): void
     {
+        if ($this->keyword === null) throw ValidationException::childRequired($this, "keyword");
+        if ($this->leftParenthesis === null) throw ValidationException::childRequired($this, "leftParenthesis");
+        if ($this->test === null) throw ValidationException::childRequired($this, "test");
+        if ($this->rightParenthesis === null) throw ValidationException::childRequired($this, "rightParenthesis");
+        if ($this->block === null) throw ValidationException::childRequired($this, "block");
         if ($flags & self::VALIDATE_TYPES)
         {
-            if ($this->keyword === null) throw ValidationException::childRequired($this, "keyword");
-            if ($this->leftParenthesis === null) throw ValidationException::childRequired($this, "leftParenthesis");
-            if ($this->test === null) throw ValidationException::childRequired($this, "test");
-            if ($this->rightParenthesis === null) throw ValidationException::childRequired($this, "rightParenthesis");
-            if ($this->block === null) throw ValidationException::childRequired($this, "block");
         }
         if ($flags & self::VALIDATE_EXPRESSION_CONTEXT)
         {

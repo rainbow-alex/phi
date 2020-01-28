@@ -6,17 +6,18 @@ use Phi\Exception\ValidationException;
 use Phi\ExpressionClassification;
 use Phi\Nodes\Generated\GeneratedCombinedAssignmentExpression;
 
+// TODO split
 class CombinedAssignmentExpression extends GeneratedCombinedAssignmentExpression
 {
     public function validateContext(int $flags): void
     {
-        $never = self::CTX_WRITE|self::CTX_ALIAS;
+        $never = self::CTX_WRITE | self::CTX_ALIAS;
         if ($flags & $never)
         {
             throw ValidationException::expressionContext($flags & $never, $this);
         }
 
-        $this->getLvalue()->validateContext(self::CTX_READ_OR_IMPLICIT_ALIAS_READ);
+        $this->getLvalue()->validateContext(self::CTX_READ | self::CTX_WRITE);
 
         if (ExpressionClassification::isTemporary($this->getLvalue()))
         {

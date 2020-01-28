@@ -24,6 +24,7 @@ abstract class GeneratedPostDecrementExpression extends Nodes\CrementExpression
      */
     private $operator;
 
+
     /**
      * @param Nodes\Expression|Node|string|null $expression
      */
@@ -37,8 +38,8 @@ abstract class GeneratedPostDecrementExpression extends Nodes\CrementExpression
 
     /**
      * @param int $phpVersion
-     * @param Nodes\Expression|null $expression
-     * @param Token|null $operator
+     * @param Nodes\Expression $expression
+     * @param Token $operator
      * @return static
      */
     public static function __instantiateUnchecked($phpVersion, $expression, $operator)
@@ -46,9 +47,9 @@ abstract class GeneratedPostDecrementExpression extends Nodes\CrementExpression
         $instance = new static;
         $instance->phpVersion = $phpVersion;
         $instance->expression = $expression;
-        $instance->expression->parent = $instance;
+        $expression->parent = $instance;
         $instance->operator = $operator;
-        $instance->operator->parent = $instance;
+        $operator->parent = $instance;
         return $instance;
     }
 
@@ -129,10 +130,10 @@ abstract class GeneratedPostDecrementExpression extends Nodes\CrementExpression
 
     protected function _validate(int $flags): void
     {
+        if ($this->expression === null) throw ValidationException::childRequired($this, "expression");
+        if ($this->operator === null) throw ValidationException::childRequired($this, "operator");
         if ($flags & self::VALIDATE_TYPES)
         {
-            if ($this->expression === null) throw ValidationException::childRequired($this, "expression");
-            if ($this->operator === null) throw ValidationException::childRequired($this, "operator");
         }
         if ($flags & self::VALIDATE_EXPRESSION_CONTEXT)
         {

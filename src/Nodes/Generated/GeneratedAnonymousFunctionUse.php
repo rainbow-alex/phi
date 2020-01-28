@@ -26,6 +26,7 @@ abstract class GeneratedAnonymousFunctionUse extends CompoundNode
 
     /**
      * @var SeparatedNodesList|Nodes\AnonymousFunctionUseBinding[]
+     * @phpstan-var SeparatedNodesList<\Phi\Nodes\AnonymousFunctionUseBinding>
      */
     private $bindings;
 
@@ -33,6 +34,7 @@ abstract class GeneratedAnonymousFunctionUse extends CompoundNode
      * @var Token|null
      */
     private $rightParenthesis;
+
 
     /**
      */
@@ -43,10 +45,10 @@ abstract class GeneratedAnonymousFunctionUse extends CompoundNode
 
     /**
      * @param int $phpVersion
-     * @param Token|null $keyword
-     * @param Token|null $leftParenthesis
+     * @param Token $keyword
+     * @param Token $leftParenthesis
      * @param mixed[] $bindings
-     * @param Token|null $rightParenthesis
+     * @param Token $rightParenthesis
      * @return static
      */
     public static function __instantiateUnchecked($phpVersion, $keyword, $leftParenthesis, $bindings, $rightParenthesis)
@@ -54,13 +56,13 @@ abstract class GeneratedAnonymousFunctionUse extends CompoundNode
         $instance = new static;
         $instance->phpVersion = $phpVersion;
         $instance->keyword = $keyword;
-        $instance->keyword->parent = $instance;
+        $keyword->parent = $instance;
         $instance->leftParenthesis = $leftParenthesis;
-        $instance->leftParenthesis->parent = $instance;
+        $leftParenthesis->parent = $instance;
         $instance->bindings->__initUnchecked($bindings);
         $instance->bindings->parent = $instance;
         $instance->rightParenthesis = $rightParenthesis;
-        $instance->rightParenthesis->parent = $instance;
+        $rightParenthesis->parent = $instance;
         return $instance;
     }
 
@@ -143,6 +145,7 @@ abstract class GeneratedAnonymousFunctionUse extends CompoundNode
 
     /**
      * @return SeparatedNodesList|Nodes\AnonymousFunctionUseBinding[]
+     * @phpstan-return SeparatedNodesList<\Phi\Nodes\AnonymousFunctionUseBinding>
      */
     public function getBindings(): SeparatedNodesList
     {
@@ -194,11 +197,11 @@ abstract class GeneratedAnonymousFunctionUse extends CompoundNode
 
     protected function _validate(int $flags): void
     {
+        if ($this->keyword === null) throw ValidationException::childRequired($this, "keyword");
+        if ($this->leftParenthesis === null) throw ValidationException::childRequired($this, "leftParenthesis");
+        if ($this->rightParenthesis === null) throw ValidationException::childRequired($this, "rightParenthesis");
         if ($flags & self::VALIDATE_TYPES)
         {
-            if ($this->keyword === null) throw ValidationException::childRequired($this, "keyword");
-            if ($this->leftParenthesis === null) throw ValidationException::childRequired($this, "leftParenthesis");
-            if ($this->rightParenthesis === null) throw ValidationException::childRequired($this, "rightParenthesis");
         }
         if ($flags & self::VALIDATE_EXPRESSION_CONTEXT)
         {

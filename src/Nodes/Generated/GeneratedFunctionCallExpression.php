@@ -26,6 +26,7 @@ abstract class GeneratedFunctionCallExpression extends Nodes\Expression
 
     /**
      * @var SeparatedNodesList|Nodes\Argument[]
+     * @phpstan-var SeparatedNodesList<\Phi\Nodes\Argument>
      */
     private $arguments;
 
@@ -33,6 +34,7 @@ abstract class GeneratedFunctionCallExpression extends Nodes\Expression
      * @var Token|null
      */
     private $rightParenthesis;
+
 
     /**
      * @param Nodes\Expression|Node|string|null $callee
@@ -48,10 +50,10 @@ abstract class GeneratedFunctionCallExpression extends Nodes\Expression
 
     /**
      * @param int $phpVersion
-     * @param Nodes\Expression|null $callee
-     * @param Token|null $leftParenthesis
+     * @param Nodes\Expression $callee
+     * @param Token $leftParenthesis
      * @param mixed[] $arguments
-     * @param Token|null $rightParenthesis
+     * @param Token $rightParenthesis
      * @return static
      */
     public static function __instantiateUnchecked($phpVersion, $callee, $leftParenthesis, $arguments, $rightParenthesis)
@@ -59,13 +61,13 @@ abstract class GeneratedFunctionCallExpression extends Nodes\Expression
         $instance = new static;
         $instance->phpVersion = $phpVersion;
         $instance->callee = $callee;
-        $instance->callee->parent = $instance;
+        $callee->parent = $instance;
         $instance->leftParenthesis = $leftParenthesis;
-        $instance->leftParenthesis->parent = $instance;
+        $leftParenthesis->parent = $instance;
         $instance->arguments->__initUnchecked($arguments);
         $instance->arguments->parent = $instance;
         $instance->rightParenthesis = $rightParenthesis;
-        $instance->rightParenthesis->parent = $instance;
+        $rightParenthesis->parent = $instance;
         return $instance;
     }
 
@@ -148,6 +150,7 @@ abstract class GeneratedFunctionCallExpression extends Nodes\Expression
 
     /**
      * @return SeparatedNodesList|Nodes\Argument[]
+     * @phpstan-return SeparatedNodesList<\Phi\Nodes\Argument>
      */
     public function getArguments(): SeparatedNodesList
     {
@@ -199,11 +202,11 @@ abstract class GeneratedFunctionCallExpression extends Nodes\Expression
 
     protected function _validate(int $flags): void
     {
+        if ($this->callee === null) throw ValidationException::childRequired($this, "callee");
+        if ($this->leftParenthesis === null) throw ValidationException::childRequired($this, "leftParenthesis");
+        if ($this->rightParenthesis === null) throw ValidationException::childRequired($this, "rightParenthesis");
         if ($flags & self::VALIDATE_TYPES)
         {
-            if ($this->callee === null) throw ValidationException::childRequired($this, "callee");
-            if ($this->leftParenthesis === null) throw ValidationException::childRequired($this, "leftParenthesis");
-            if ($this->rightParenthesis === null) throw ValidationException::childRequired($this, "rightParenthesis");
         }
         if ($flags & self::VALIDATE_EXPRESSION_CONTEXT)
         {

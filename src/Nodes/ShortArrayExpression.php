@@ -5,6 +5,7 @@ namespace Phi\Nodes;
 use Phi\Exception\ValidationException;
 use Phi\ExpressionClassification;
 use Phi\Nodes\Generated\GeneratedShortArrayExpression;
+use PhpParser\Node\Expr\Array_;
 
 // TODO array items with keys can't have empty value
 class ShortArrayExpression extends GeneratedShortArrayExpression
@@ -13,6 +14,8 @@ class ShortArrayExpression extends GeneratedShortArrayExpression
     {
         if ($flags & self::CTX_READ)
         {
+            // (only) in read we keep track of whether the array is constant
+            // if it is completely, we will run an additional check on the key types
             $constant = true;
 
             foreach ($this->getItems() as $item)
@@ -33,7 +36,6 @@ class ShortArrayExpression extends GeneratedShortArrayExpression
                     {
                         $constant = false;
 
-                        // TODO check, this context is very weird ... $a = [&$b[]]
                         $value->validateContext(self::CTX_READ | self::CTX_ALIAS_WRITE);
                     }
                     else
@@ -70,19 +72,17 @@ class ShortArrayExpression extends GeneratedShortArrayExpression
         {
             $empty = true;
 
-            foreach ($this->getItems() as $item)
+            foreach ($this->getItems() as $item) /** @var ArrayItem $item */
             {
-                /** @var ArrayItem $item */ // TODO improve generated annotations
-
                 if ($key = $item->getKey())
                 {
                     $key->getValue()->validateContext(self::CTX_READ);
                     // note with write the key check isn't done
                 }
 
-                if ($item->getByReference())
+                if ($byRef = $item->getByReference())
                 {
-                    throw ValidationException::expressionContext(self::CTX_WRITE, $item->getByReference());
+                    throw ValidationException::expressionContext(self::CTX_WRITE, $byRef);
                 }
 
                 if ($value = $item->getValue())
@@ -107,5 +107,15 @@ class ShortArrayExpression extends GeneratedShortArrayExpression
         {
             throw ValidationException::expressionContext($never, $this);
         }
+    }
+
+    public function convertToPhpParserNode()
+    {
+        $items = [];
+        foreach ($this->getItems() as $phiItem)
+        {
+            $items[] = $phiItem->convertToPhpParserNode();
+        }
+        return new Array_($items);
     }
 }

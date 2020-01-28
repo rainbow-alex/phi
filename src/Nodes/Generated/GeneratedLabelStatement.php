@@ -24,6 +24,7 @@ abstract class GeneratedLabelStatement extends Nodes\Statement
      */
     private $colon;
 
+
     /**
      * @param Token|Node|string|null $label
      */
@@ -37,8 +38,8 @@ abstract class GeneratedLabelStatement extends Nodes\Statement
 
     /**
      * @param int $phpVersion
-     * @param Token|null $label
-     * @param Token|null $colon
+     * @param Token $label
+     * @param Token $colon
      * @return static
      */
     public static function __instantiateUnchecked($phpVersion, $label, $colon)
@@ -46,9 +47,9 @@ abstract class GeneratedLabelStatement extends Nodes\Statement
         $instance = new static;
         $instance->phpVersion = $phpVersion;
         $instance->label = $label;
-        $instance->label->parent = $instance;
+        $label->parent = $instance;
         $instance->colon = $colon;
-        $instance->colon->parent = $instance;
+        $colon->parent = $instance;
         return $instance;
     }
 
@@ -129,10 +130,10 @@ abstract class GeneratedLabelStatement extends Nodes\Statement
 
     protected function _validate(int $flags): void
     {
+        if ($this->label === null) throw ValidationException::childRequired($this, "label");
+        if ($this->colon === null) throw ValidationException::childRequired($this, "colon");
         if ($flags & self::VALIDATE_TYPES)
         {
-            if ($this->label === null) throw ValidationException::childRequired($this, "label");
-            if ($this->colon === null) throw ValidationException::childRequired($this, "colon");
         }
         if ($flags & self::VALIDATE_EXPRESSION_CONTEXT)
         {

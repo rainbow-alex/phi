@@ -24,6 +24,7 @@ abstract class GeneratedAnonymousFunctionUseBinding extends CompoundNode
      */
     private $variable;
 
+
     /**
      */
     public function __construct()
@@ -33,7 +34,7 @@ abstract class GeneratedAnonymousFunctionUseBinding extends CompoundNode
     /**
      * @param int $phpVersion
      * @param Token|null $byReference
-     * @param Token|null $variable
+     * @param Token $variable
      * @return static
      */
     public static function __instantiateUnchecked($phpVersion, $byReference, $variable)
@@ -41,12 +42,9 @@ abstract class GeneratedAnonymousFunctionUseBinding extends CompoundNode
         $instance = new static;
         $instance->phpVersion = $phpVersion;
         $instance->byReference = $byReference;
-        if ($byReference)
-        {
-            $instance->byReference->parent = $instance;
-        }
+        if ($byReference) $byReference->parent = $instance;
         $instance->variable = $variable;
-        $instance->variable->parent = $instance;
+        $variable->parent = $instance;
         return $instance;
     }
 
@@ -123,9 +121,9 @@ abstract class GeneratedAnonymousFunctionUseBinding extends CompoundNode
 
     protected function _validate(int $flags): void
     {
+        if ($this->variable === null) throw ValidationException::childRequired($this, "variable");
         if ($flags & self::VALIDATE_TYPES)
         {
-            if ($this->variable === null) throw ValidationException::childRequired($this, "variable");
         }
         if ($flags & self::VALIDATE_EXPRESSION_CONTEXT)
         {

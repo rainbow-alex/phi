@@ -26,6 +26,7 @@ abstract class GeneratedUnsetStatement extends Nodes\Statement
 
     /**
      * @var SeparatedNodesList|Nodes\Expression[]
+     * @phpstan-var SeparatedNodesList<\Phi\Nodes\Expression>
      */
     private $variables;
 
@@ -39,6 +40,7 @@ abstract class GeneratedUnsetStatement extends Nodes\Statement
      */
     private $semiColon;
 
+
     /**
      */
     public function __construct()
@@ -48,10 +50,10 @@ abstract class GeneratedUnsetStatement extends Nodes\Statement
 
     /**
      * @param int $phpVersion
-     * @param Token|null $keyword
-     * @param Token|null $leftParenthesis
+     * @param Token $keyword
+     * @param Token $leftParenthesis
      * @param mixed[] $variables
-     * @param Token|null $rightParenthesis
+     * @param Token $rightParenthesis
      * @param Token|null $semiColon
      * @return static
      */
@@ -60,18 +62,15 @@ abstract class GeneratedUnsetStatement extends Nodes\Statement
         $instance = new static;
         $instance->phpVersion = $phpVersion;
         $instance->keyword = $keyword;
-        $instance->keyword->parent = $instance;
+        $keyword->parent = $instance;
         $instance->leftParenthesis = $leftParenthesis;
-        $instance->leftParenthesis->parent = $instance;
+        $leftParenthesis->parent = $instance;
         $instance->variables->__initUnchecked($variables);
         $instance->variables->parent = $instance;
         $instance->rightParenthesis = $rightParenthesis;
-        $instance->rightParenthesis->parent = $instance;
+        $rightParenthesis->parent = $instance;
         $instance->semiColon = $semiColon;
-        if ($semiColon)
-        {
-            $instance->semiColon->parent = $instance;
-        }
+        if ($semiColon) $semiColon->parent = $instance;
         return $instance;
     }
 
@@ -155,6 +154,7 @@ abstract class GeneratedUnsetStatement extends Nodes\Statement
 
     /**
      * @return SeparatedNodesList|Nodes\Expression[]
+     * @phpstan-return SeparatedNodesList<\Phi\Nodes\Expression>
      */
     public function getVariables(): SeparatedNodesList
     {
@@ -235,11 +235,11 @@ abstract class GeneratedUnsetStatement extends Nodes\Statement
 
     protected function _validate(int $flags): void
     {
+        if ($this->keyword === null) throw ValidationException::childRequired($this, "keyword");
+        if ($this->leftParenthesis === null) throw ValidationException::childRequired($this, "leftParenthesis");
+        if ($this->rightParenthesis === null) throw ValidationException::childRequired($this, "rightParenthesis");
         if ($flags & self::VALIDATE_TYPES)
         {
-            if ($this->keyword === null) throw ValidationException::childRequired($this, "keyword");
-            if ($this->leftParenthesis === null) throw ValidationException::childRequired($this, "leftParenthesis");
-            if ($this->rightParenthesis === null) throw ValidationException::childRequired($this, "rightParenthesis");
         }
         if ($flags & self::VALIDATE_EXPRESSION_CONTEXT)
         {

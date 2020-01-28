@@ -17,7 +17,7 @@ class ParenthesizedExpression extends GeneratedParenthesizedExpression
 
         // note: this is one of the very few cases where flags are passed as they are
         // instead of explicitely specifying a new context
-        /** @see Expression::CTX_READ_OR_IMPLICIT_ALIAS_READ */
+        /** @see Expression::CTX_READ_IMPLICIT_BY_REF */
         $this->getExpression()->validateContext($flags);
     }
 }

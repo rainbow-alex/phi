@@ -24,6 +24,7 @@ abstract class GeneratedFinally extends CompoundNode
      */
     private $block;
 
+
     /**
      */
     public function __construct()
@@ -32,8 +33,8 @@ abstract class GeneratedFinally extends CompoundNode
 
     /**
      * @param int $phpVersion
-     * @param Token|null $keyword
-     * @param Nodes\RegularBlock|null $block
+     * @param Token $keyword
+     * @param Nodes\RegularBlock $block
      * @return static
      */
     public static function __instantiateUnchecked($phpVersion, $keyword, $block)
@@ -41,9 +42,9 @@ abstract class GeneratedFinally extends CompoundNode
         $instance = new static;
         $instance->phpVersion = $phpVersion;
         $instance->keyword = $keyword;
-        $instance->keyword->parent = $instance;
+        $keyword->parent = $instance;
         $instance->block = $block;
-        $instance->block->parent = $instance;
+        $block->parent = $instance;
         return $instance;
     }
 
@@ -124,10 +125,10 @@ abstract class GeneratedFinally extends CompoundNode
 
     protected function _validate(int $flags): void
     {
+        if ($this->keyword === null) throw ValidationException::childRequired($this, "keyword");
+        if ($this->block === null) throw ValidationException::childRequired($this, "block");
         if ($flags & self::VALIDATE_TYPES)
         {
-            if ($this->keyword === null) throw ValidationException::childRequired($this, "keyword");
-            if ($this->block === null) throw ValidationException::childRequired($this, "block");
         }
         if ($flags & self::VALIDATE_EXPRESSION_CONTEXT)
         {

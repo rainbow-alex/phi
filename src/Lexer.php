@@ -26,7 +26,7 @@ class Lexer
         $line = 1;
         $column = 1;
         $forceIdentifier = false;
-        $typeMap = Token::getPhpTypeMap();
+        $typeMap = TokenType::getPhpTypeMap();
 
         if ($forcePhp)
         {
@@ -95,7 +95,7 @@ class Lexer
             }
         }
 
-        $tokens[] = new Token(Token::PH_T_EOF, "", $line, $column, $filename, $whitespace);
+        $tokens[] = new Token(TokenType::T_EOF, "", $line, $column, $filename, $whitespace);
 
         return $tokens;
     }

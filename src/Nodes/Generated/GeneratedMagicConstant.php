@@ -19,6 +19,7 @@ abstract class GeneratedMagicConstant extends Nodes\Expression
      */
     private $token;
 
+
     /**
      */
     public function __construct()
@@ -27,7 +28,7 @@ abstract class GeneratedMagicConstant extends Nodes\Expression
 
     /**
      * @param int $phpVersion
-     * @param Token|null $token
+     * @param Token $token
      * @return static
      */
     public static function __instantiateUnchecked($phpVersion, $token)
@@ -35,7 +36,7 @@ abstract class GeneratedMagicConstant extends Nodes\Expression
         $instance = new static;
         $instance->phpVersion = $phpVersion;
         $instance->token = $token;
-        $instance->token->parent = $instance;
+        $token->parent = $instance;
         return $instance;
     }
 
@@ -82,9 +83,9 @@ abstract class GeneratedMagicConstant extends Nodes\Expression
 
     protected function _validate(int $flags): void
     {
+        if ($this->token === null) throw ValidationException::childRequired($this, "token");
         if ($flags & self::VALIDATE_TYPES)
         {
-            if ($this->token === null) throw ValidationException::childRequired($this, "token");
         }
         if ($flags & self::VALIDATE_EXPRESSION_CONTEXT)
         {

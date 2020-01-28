@@ -29,6 +29,7 @@ abstract class GeneratedRegularAssignmentExpression extends Nodes\Expression
      */
     private $value;
 
+
     /**
      * @param Nodes\Expression|Node|string|null $lvalue
      * @param Nodes\Expression|Node|string|null $value
@@ -47,9 +48,9 @@ abstract class GeneratedRegularAssignmentExpression extends Nodes\Expression
 
     /**
      * @param int $phpVersion
-     * @param Nodes\Expression|null $lvalue
-     * @param Token|null $operator
-     * @param Nodes\Expression|null $value
+     * @param Nodes\Expression $lvalue
+     * @param Token $operator
+     * @param Nodes\Expression $value
      * @return static
      */
     public static function __instantiateUnchecked($phpVersion, $lvalue, $operator, $value)
@@ -57,11 +58,11 @@ abstract class GeneratedRegularAssignmentExpression extends Nodes\Expression
         $instance = new static;
         $instance->phpVersion = $phpVersion;
         $instance->lvalue = $lvalue;
-        $instance->lvalue->parent = $instance;
+        $lvalue->parent = $instance;
         $instance->operator = $operator;
-        $instance->operator->parent = $instance;
+        $operator->parent = $instance;
         $instance->value = $value;
-        $instance->value->parent = $instance;
+        $value->parent = $instance;
         return $instance;
     }
 
@@ -176,11 +177,11 @@ abstract class GeneratedRegularAssignmentExpression extends Nodes\Expression
 
     protected function _validate(int $flags): void
     {
+        if ($this->lvalue === null) throw ValidationException::childRequired($this, "lvalue");
+        if ($this->operator === null) throw ValidationException::childRequired($this, "operator");
+        if ($this->value === null) throw ValidationException::childRequired($this, "value");
         if ($flags & self::VALIDATE_TYPES)
         {
-            if ($this->lvalue === null) throw ValidationException::childRequired($this, "lvalue");
-            if ($this->operator === null) throw ValidationException::childRequired($this, "operator");
-            if ($this->value === null) throw ValidationException::childRequired($this, "value");
         }
         if ($flags & self::VALIDATE_EXPRESSION_CONTEXT)
         {

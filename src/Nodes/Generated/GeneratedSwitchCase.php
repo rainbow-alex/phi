@@ -31,8 +31,10 @@ abstract class GeneratedSwitchCase extends CompoundNode
 
     /**
      * @var NodesList|Nodes\Statement[]
+     * @phpstan-var NodesList<\Phi\Nodes\Statement>
      */
     private $statements;
+
 
     /**
      */
@@ -43,9 +45,9 @@ abstract class GeneratedSwitchCase extends CompoundNode
 
     /**
      * @param int $phpVersion
-     * @param Token|null $keyword
-     * @param Nodes\Expression|null $value
-     * @param Token|null $colon
+     * @param Token $keyword
+     * @param Nodes\Expression $value
+     * @param Token $colon
      * @param mixed[] $statements
      * @return static
      */
@@ -54,11 +56,11 @@ abstract class GeneratedSwitchCase extends CompoundNode
         $instance = new static;
         $instance->phpVersion = $phpVersion;
         $instance->keyword = $keyword;
-        $instance->keyword->parent = $instance;
+        $keyword->parent = $instance;
         $instance->value = $value;
-        $instance->value->parent = $instance;
+        $value->parent = $instance;
         $instance->colon = $colon;
-        $instance->colon->parent = $instance;
+        $colon->parent = $instance;
         $instance->statements->__initUnchecked($statements);
         $instance->statements->parent = $instance;
         return $instance;
@@ -176,6 +178,7 @@ abstract class GeneratedSwitchCase extends CompoundNode
 
     /**
      * @return NodesList|Nodes\Statement[]
+     * @phpstan-return NodesList<\Phi\Nodes\Statement>
      */
     public function getStatements(): NodesList
     {
@@ -194,11 +197,11 @@ abstract class GeneratedSwitchCase extends CompoundNode
 
     protected function _validate(int $flags): void
     {
+        if ($this->keyword === null) throw ValidationException::childRequired($this, "keyword");
+        if ($this->value === null) throw ValidationException::childRequired($this, "value");
+        if ($this->colon === null) throw ValidationException::childRequired($this, "colon");
         if ($flags & self::VALIDATE_TYPES)
         {
-            if ($this->keyword === null) throw ValidationException::childRequired($this, "keyword");
-            if ($this->value === null) throw ValidationException::childRequired($this, "value");
-            if ($this->colon === null) throw ValidationException::childRequired($this, "colon");
         }
         if ($flags & self::VALIDATE_EXPRESSION_CONTEXT)
         {

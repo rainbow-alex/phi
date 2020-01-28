@@ -17,7 +17,8 @@ abstract class GeneratedNopStatement extends Nodes\Statement
     /**
      * @var Token|null
      */
-    private $semiColon;
+    private $delimiter;
+
 
     /**
      */
@@ -27,64 +28,64 @@ abstract class GeneratedNopStatement extends Nodes\Statement
 
     /**
      * @param int $phpVersion
-     * @param Token|null $semiColon
+     * @param Token $delimiter
      * @return static
      */
-    public static function __instantiateUnchecked($phpVersion, $semiColon)
+    public static function __instantiateUnchecked($phpVersion, $delimiter)
     {
         $instance = new static;
         $instance->phpVersion = $phpVersion;
-        $instance->semiColon = $semiColon;
-        $instance->semiColon->parent = $instance;
+        $instance->delimiter = $delimiter;
+        $delimiter->parent = $instance;
         return $instance;
     }
 
     protected function &_getNodeRefs(): array
     {
         $refs = [
-            "semiColon" => &$this->semiColon,
+            "delimiter" => &$this->delimiter,
         ];
         return $refs;
     }
 
-    public function getSemiColon(): Token
+    public function getDelimiter(): Token
     {
-        if ($this->semiColon === null)
+        if ($this->delimiter === null)
         {
             throw new MissingNodeException($this, __FUNCTION__);
         }
-        return $this->semiColon;
+        return $this->delimiter;
     }
 
-    public function hasSemiColon(): bool
+    public function hasDelimiter(): bool
     {
-        return $this->semiColon !== null;
+        return $this->delimiter !== null;
     }
 
     /**
-     * @param Token|Node|string|null $semiColon
+     * @param Token|Node|string|null $delimiter
      */
-    public function setSemiColon($semiColon): void
+    public function setDelimiter($delimiter): void
     {
-        if ($semiColon !== null)
+        if ($delimiter !== null)
         {
-            /** @var Token $semiColon */
-            $semiColon = NodeConverter::convert($semiColon, Token::class, $this->phpVersion);
-            $semiColon->detach();
-            $semiColon->parent = $this;
+            /** @var Token $delimiter */
+            $delimiter = NodeConverter::convert($delimiter, Token::class, $this->phpVersion);
+            $delimiter->detach();
+            $delimiter->parent = $this;
         }
-        if ($this->semiColon !== null)
+        if ($this->delimiter !== null)
         {
-            $this->semiColon->detach();
+            $this->delimiter->detach();
         }
-        $this->semiColon = $semiColon;
+        $this->delimiter = $delimiter;
     }
 
     protected function _validate(int $flags): void
     {
+        if ($this->delimiter === null) throw ValidationException::childRequired($this, "delimiter");
         if ($flags & self::VALIDATE_TYPES)
         {
-            if ($this->semiColon === null) throw ValidationException::childRequired($this, "semiColon");
         }
         if ($flags & self::VALIDATE_EXPRESSION_CONTEXT)
         {

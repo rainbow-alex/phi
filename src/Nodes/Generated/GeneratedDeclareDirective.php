@@ -29,6 +29,7 @@ abstract class GeneratedDeclareDirective extends CompoundNode
      */
     private $value;
 
+
     /**
      */
     public function __construct()
@@ -37,9 +38,9 @@ abstract class GeneratedDeclareDirective extends CompoundNode
 
     /**
      * @param int $phpVersion
-     * @param Token|null $key
-     * @param Token|null $equals
-     * @param Nodes\Expression|null $value
+     * @param Token $key
+     * @param Token $equals
+     * @param Nodes\Expression $value
      * @return static
      */
     public static function __instantiateUnchecked($phpVersion, $key, $equals, $value)
@@ -47,11 +48,11 @@ abstract class GeneratedDeclareDirective extends CompoundNode
         $instance = new static;
         $instance->phpVersion = $phpVersion;
         $instance->key = $key;
-        $instance->key->parent = $instance;
+        $key->parent = $instance;
         $instance->equals = $equals;
-        $instance->equals->parent = $instance;
+        $equals->parent = $instance;
         $instance->value = $value;
-        $instance->value->parent = $instance;
+        $value->parent = $instance;
         return $instance;
     }
 
@@ -166,11 +167,11 @@ abstract class GeneratedDeclareDirective extends CompoundNode
 
     protected function _validate(int $flags): void
     {
+        if ($this->key === null) throw ValidationException::childRequired($this, "key");
+        if ($this->equals === null) throw ValidationException::childRequired($this, "equals");
+        if ($this->value === null) throw ValidationException::childRequired($this, "value");
         if ($flags & self::VALIDATE_TYPES)
         {
-            if ($this->key === null) throw ValidationException::childRequired($this, "key");
-            if ($this->equals === null) throw ValidationException::childRequired($this, "equals");
-            if ($this->value === null) throw ValidationException::childRequired($this, "value");
         }
         if ($flags & self::VALIDATE_EXPRESSION_CONTEXT)
         {

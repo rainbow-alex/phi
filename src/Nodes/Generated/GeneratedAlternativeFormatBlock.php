@@ -21,6 +21,7 @@ abstract class GeneratedAlternativeFormatBlock extends Nodes\Block
 
     /**
      * @var NodesList|Nodes\Statement[]
+     * @phpstan-var NodesList<\Phi\Nodes\Statement>
      */
     private $statements;
 
@@ -32,7 +33,8 @@ abstract class GeneratedAlternativeFormatBlock extends Nodes\Block
     /**
      * @var Token|null
      */
-    private $semiColon;
+    private $delimiter;
+
 
     /**
      * @param Nodes\Statement $statement
@@ -48,30 +50,24 @@ abstract class GeneratedAlternativeFormatBlock extends Nodes\Block
 
     /**
      * @param int $phpVersion
-     * @param Token|null $colon
+     * @param Token $colon
      * @param mixed[] $statements
      * @param Token|null $endKeyword
-     * @param Token|null $semiColon
+     * @param Token|null $delimiter
      * @return static
      */
-    public static function __instantiateUnchecked($phpVersion, $colon, $statements, $endKeyword, $semiColon)
+    public static function __instantiateUnchecked($phpVersion, $colon, $statements, $endKeyword, $delimiter)
     {
         $instance = new static;
         $instance->phpVersion = $phpVersion;
         $instance->colon = $colon;
-        $instance->colon->parent = $instance;
+        $colon->parent = $instance;
         $instance->statements->__initUnchecked($statements);
         $instance->statements->parent = $instance;
         $instance->endKeyword = $endKeyword;
-        if ($endKeyword)
-        {
-            $instance->endKeyword->parent = $instance;
-        }
-        $instance->semiColon = $semiColon;
-        if ($semiColon)
-        {
-            $instance->semiColon->parent = $instance;
-        }
+        if ($endKeyword) $endKeyword->parent = $instance;
+        $instance->delimiter = $delimiter;
+        if ($delimiter) $delimiter->parent = $instance;
         return $instance;
     }
 
@@ -81,7 +77,7 @@ abstract class GeneratedAlternativeFormatBlock extends Nodes\Block
             "colon" => &$this->colon,
             "statements" => &$this->statements,
             "endKeyword" => &$this->endKeyword,
-            "semiColon" => &$this->semiColon,
+            "delimiter" => &$this->delimiter,
         ];
         return $refs;
     }
@@ -121,6 +117,7 @@ abstract class GeneratedAlternativeFormatBlock extends Nodes\Block
 
     /**
      * @return NodesList|Nodes\Statement[]
+     * @phpstan-return NodesList<\Phi\Nodes\Statement>
      */
     public function getStatements(): NodesList
     {
@@ -166,40 +163,40 @@ abstract class GeneratedAlternativeFormatBlock extends Nodes\Block
         $this->endKeyword = $endKeyword;
     }
 
-    public function getSemiColon(): ?Token
+    public function getDelimiter(): ?Token
     {
-        return $this->semiColon;
+        return $this->delimiter;
     }
 
-    public function hasSemiColon(): bool
+    public function hasDelimiter(): bool
     {
-        return $this->semiColon !== null;
+        return $this->delimiter !== null;
     }
 
     /**
-     * @param Token|Node|string|null $semiColon
+     * @param Token|Node|string|null $delimiter
      */
-    public function setSemiColon($semiColon): void
+    public function setDelimiter($delimiter): void
     {
-        if ($semiColon !== null)
+        if ($delimiter !== null)
         {
-            /** @var Token $semiColon */
-            $semiColon = NodeConverter::convert($semiColon, Token::class, $this->phpVersion);
-            $semiColon->detach();
-            $semiColon->parent = $this;
+            /** @var Token $delimiter */
+            $delimiter = NodeConverter::convert($delimiter, Token::class, $this->phpVersion);
+            $delimiter->detach();
+            $delimiter->parent = $this;
         }
-        if ($this->semiColon !== null)
+        if ($this->delimiter !== null)
         {
-            $this->semiColon->detach();
+            $this->delimiter->detach();
         }
-        $this->semiColon = $semiColon;
+        $this->delimiter = $delimiter;
     }
 
     protected function _validate(int $flags): void
     {
+        if ($this->colon === null) throw ValidationException::childRequired($this, "colon");
         if ($flags & self::VALIDATE_TYPES)
         {
-            if ($this->colon === null) throw ValidationException::childRequired($this, "colon");
         }
         if ($flags & self::VALIDATE_EXPRESSION_CONTEXT)
         {

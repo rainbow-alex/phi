@@ -5,6 +5,7 @@ namespace Phi\Nodes;
 use Phi\Exception\ValidationException;
 use Phi\ExpressionClassification;
 use Phi\Nodes\Generated\GeneratedFunctionCallExpression;
+use PhpParser\Node\Expr\FuncCall;
 
 class FunctionCallExpression extends GeneratedFunctionCallExpression
 {
@@ -27,5 +28,15 @@ class FunctionCallExpression extends GeneratedFunctionCallExpression
         {
             $argument->validateContext();
         }
+    }
+
+    public function convertToPhpParserNode()
+    {
+        $callee = $this->getCallee();
+        if ($callee instanceof NameExpression)
+        {
+            $callee = $callee->getName();
+        }
+        return new FuncCall($callee->convertToPhpParserNode(), $this->getArguments()->convertToPhpParserNode());
     }
 }

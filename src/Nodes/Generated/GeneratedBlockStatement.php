@@ -19,6 +19,7 @@ abstract class GeneratedBlockStatement extends Nodes\Statement
      */
     private $block;
 
+
     /**
      * @param Nodes\RegularBlock|Node|string|null $block
      */
@@ -32,7 +33,7 @@ abstract class GeneratedBlockStatement extends Nodes\Statement
 
     /**
      * @param int $phpVersion
-     * @param Nodes\RegularBlock|null $block
+     * @param Nodes\RegularBlock $block
      * @return static
      */
     public static function __instantiateUnchecked($phpVersion, $block)
@@ -40,7 +41,7 @@ abstract class GeneratedBlockStatement extends Nodes\Statement
         $instance = new static;
         $instance->phpVersion = $phpVersion;
         $instance->block = $block;
-        $instance->block->parent = $instance;
+        $block->parent = $instance;
         return $instance;
     }
 
@@ -87,9 +88,9 @@ abstract class GeneratedBlockStatement extends Nodes\Statement
 
     protected function _validate(int $flags): void
     {
+        if ($this->block === null) throw ValidationException::childRequired($this, "block");
         if ($flags & self::VALIDATE_TYPES)
         {
-            if ($this->block === null) throw ValidationException::childRequired($this, "block");
         }
         if ($flags & self::VALIDATE_EXPRESSION_CONTEXT)
         {

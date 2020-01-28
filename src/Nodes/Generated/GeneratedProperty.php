@@ -16,6 +16,7 @@ abstract class GeneratedProperty extends Nodes\ClassLikeMember
 {
     /**
      * @var NodesList|Token[]
+     * @phpstan-var NodesList<\Phi\Token>
      */
     private $modifiers;
 
@@ -34,6 +35,7 @@ abstract class GeneratedProperty extends Nodes\ClassLikeMember
      */
     private $semiColon;
 
+
     /**
      * @param Token|Node|string|null $variable
      */
@@ -49,9 +51,9 @@ abstract class GeneratedProperty extends Nodes\ClassLikeMember
     /**
      * @param int $phpVersion
      * @param mixed[] $modifiers
-     * @param Token|null $variable
+     * @param Token $variable
      * @param Nodes\Default_|null $default
-     * @param Token|null $semiColon
+     * @param Token $semiColon
      * @return static
      */
     public static function __instantiateUnchecked($phpVersion, $modifiers, $variable, $default, $semiColon)
@@ -61,14 +63,11 @@ abstract class GeneratedProperty extends Nodes\ClassLikeMember
         $instance->modifiers->__initUnchecked($modifiers);
         $instance->modifiers->parent = $instance;
         $instance->variable = $variable;
-        $instance->variable->parent = $instance;
+        $variable->parent = $instance;
         $instance->default = $default;
-        if ($default)
-        {
-            $instance->default->parent = $instance;
-        }
+        if ($default) $default->parent = $instance;
         $instance->semiColon = $semiColon;
-        $instance->semiColon->parent = $instance;
+        $semiColon->parent = $instance;
         return $instance;
     }
 
@@ -85,6 +84,7 @@ abstract class GeneratedProperty extends Nodes\ClassLikeMember
 
     /**
      * @return NodesList|Token[]
+     * @phpstan-return NodesList<\Phi\Token>
      */
     public function getModifiers(): NodesList
     {
@@ -198,10 +198,10 @@ abstract class GeneratedProperty extends Nodes\ClassLikeMember
 
     protected function _validate(int $flags): void
     {
+        if ($this->variable === null) throw ValidationException::childRequired($this, "variable");
+        if ($this->semiColon === null) throw ValidationException::childRequired($this, "semiColon");
         if ($flags & self::VALIDATE_TYPES)
         {
-            if ($this->variable === null) throw ValidationException::childRequired($this, "variable");
-            if ($this->semiColon === null) throw ValidationException::childRequired($this, "semiColon");
         }
         if ($flags & self::VALIDATE_EXPRESSION_CONTEXT)
         {

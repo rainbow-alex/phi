@@ -12,12 +12,13 @@ use Phi\NodeConverter;
 use Phi\Exception\ValidationException;
 use Phi\Nodes as Nodes;
 
-abstract class GeneratedSimpleInterpolatedStringExpression extends Nodes\CInterpolatedStringExpression
+abstract class GeneratedSimpleInterpolatedStringExpression extends Nodes\InterpolatedStringExpression
 {
     /**
      * @var Nodes\Expression|null
      */
     private $expression;
+
 
     /**
      * @param Nodes\Expression|Node|string|null $expression
@@ -32,7 +33,7 @@ abstract class GeneratedSimpleInterpolatedStringExpression extends Nodes\CInterp
 
     /**
      * @param int $phpVersion
-     * @param Nodes\Expression|null $expression
+     * @param Nodes\Expression $expression
      * @return static
      */
     public static function __instantiateUnchecked($phpVersion, $expression)
@@ -40,7 +41,7 @@ abstract class GeneratedSimpleInterpolatedStringExpression extends Nodes\CInterp
         $instance = new static;
         $instance->phpVersion = $phpVersion;
         $instance->expression = $expression;
-        $instance->expression->parent = $instance;
+        $expression->parent = $instance;
         return $instance;
     }
 
@@ -87,9 +88,9 @@ abstract class GeneratedSimpleInterpolatedStringExpression extends Nodes\CInterp
 
     protected function _validate(int $flags): void
     {
+        if ($this->expression === null) throw ValidationException::childRequired($this, "expression");
         if ($flags & self::VALIDATE_TYPES)
         {
-            if ($this->expression === null) throw ValidationException::childRequired($this, "expression");
         }
         if ($flags & self::VALIDATE_EXPRESSION_CONTEXT)
         {

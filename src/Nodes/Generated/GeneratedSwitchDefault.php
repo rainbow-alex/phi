@@ -26,8 +26,10 @@ abstract class GeneratedSwitchDefault extends CompoundNode
 
     /**
      * @var NodesList|Nodes\Statement[]
+     * @phpstan-var NodesList<\Phi\Nodes\Statement>
      */
     private $statements;
+
 
     /**
      */
@@ -38,8 +40,8 @@ abstract class GeneratedSwitchDefault extends CompoundNode
 
     /**
      * @param int $phpVersion
-     * @param Token|null $keyword
-     * @param Token|null $colon
+     * @param Token $keyword
+     * @param Token $colon
      * @param mixed[] $statements
      * @return static
      */
@@ -48,9 +50,9 @@ abstract class GeneratedSwitchDefault extends CompoundNode
         $instance = new static;
         $instance->phpVersion = $phpVersion;
         $instance->keyword = $keyword;
-        $instance->keyword->parent = $instance;
+        $keyword->parent = $instance;
         $instance->colon = $colon;
-        $instance->colon->parent = $instance;
+        $colon->parent = $instance;
         $instance->statements->__initUnchecked($statements);
         $instance->statements->parent = $instance;
         return $instance;
@@ -134,6 +136,7 @@ abstract class GeneratedSwitchDefault extends CompoundNode
 
     /**
      * @return NodesList|Nodes\Statement[]
+     * @phpstan-return NodesList<\Phi\Nodes\Statement>
      */
     public function getStatements(): NodesList
     {
@@ -152,10 +155,10 @@ abstract class GeneratedSwitchDefault extends CompoundNode
 
     protected function _validate(int $flags): void
     {
+        if ($this->keyword === null) throw ValidationException::childRequired($this, "keyword");
+        if ($this->colon === null) throw ValidationException::childRequired($this, "colon");
         if ($flags & self::VALIDATE_TYPES)
         {
-            if ($this->keyword === null) throw ValidationException::childRequired($this, "keyword");
-            if ($this->colon === null) throw ValidationException::childRequired($this, "colon");
         }
         if ($flags & self::VALIDATE_EXPRESSION_CONTEXT)
         {

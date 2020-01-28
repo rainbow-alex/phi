@@ -39,6 +39,7 @@ abstract class GeneratedTraitUseAs extends Nodes\TraitUseModification
      */
     private $alias;
 
+
     /**
      */
     public function __construct()
@@ -47,11 +48,11 @@ abstract class GeneratedTraitUseAs extends Nodes\TraitUseModification
 
     /**
      * @param int $phpVersion
-     * @param Nodes\Name|null $trait
-     * @param Token|null $doubleColon
-     * @param Token|null $member
-     * @param Token|null $as
-     * @param Token|null $alias
+     * @param Nodes\Name $trait
+     * @param Token $doubleColon
+     * @param Token $member
+     * @param Token $as
+     * @param Token $alias
      * @return static
      */
     public static function __instantiateUnchecked($phpVersion, $trait, $doubleColon, $member, $as, $alias)
@@ -59,15 +60,15 @@ abstract class GeneratedTraitUseAs extends Nodes\TraitUseModification
         $instance = new static;
         $instance->phpVersion = $phpVersion;
         $instance->trait = $trait;
-        $instance->trait->parent = $instance;
+        $trait->parent = $instance;
         $instance->doubleColon = $doubleColon;
-        $instance->doubleColon->parent = $instance;
+        $doubleColon->parent = $instance;
         $instance->member = $member;
-        $instance->member->parent = $instance;
+        $member->parent = $instance;
         $instance->as = $as;
-        $instance->as->parent = $instance;
+        $as->parent = $instance;
         $instance->alias = $alias;
-        $instance->alias->parent = $instance;
+        $alias->parent = $instance;
         return $instance;
     }
 
@@ -250,13 +251,13 @@ abstract class GeneratedTraitUseAs extends Nodes\TraitUseModification
 
     protected function _validate(int $flags): void
     {
+        if ($this->trait === null) throw ValidationException::childRequired($this, "trait");
+        if ($this->doubleColon === null) throw ValidationException::childRequired($this, "doubleColon");
+        if ($this->member === null) throw ValidationException::childRequired($this, "member");
+        if ($this->as === null) throw ValidationException::childRequired($this, "as");
+        if ($this->alias === null) throw ValidationException::childRequired($this, "alias");
         if ($flags & self::VALIDATE_TYPES)
         {
-            if ($this->trait === null) throw ValidationException::childRequired($this, "trait");
-            if ($this->doubleColon === null) throw ValidationException::childRequired($this, "doubleColon");
-            if ($this->member === null) throw ValidationException::childRequired($this, "member");
-            if ($this->as === null) throw ValidationException::childRequired($this, "as");
-            if ($this->alias === null) throw ValidationException::childRequired($this, "alias");
         }
         if ($flags & self::VALIDATE_EXPRESSION_CONTEXT)
         {

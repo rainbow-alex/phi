@@ -26,6 +26,7 @@ abstract class GeneratedTryStatement extends Nodes\Statement
 
     /**
      * @var NodesList|Nodes\Catch_[]
+     * @phpstan-var NodesList<\Phi\Nodes\Catch_>
      */
     private $catches;
 
@@ -33,6 +34,7 @@ abstract class GeneratedTryStatement extends Nodes\Statement
      * @var Nodes\Finally_|null
      */
     private $finally;
+
 
     /**
      */
@@ -43,8 +45,8 @@ abstract class GeneratedTryStatement extends Nodes\Statement
 
     /**
      * @param int $phpVersion
-     * @param Token|null $keyword
-     * @param Nodes\RegularBlock|null $block
+     * @param Token $keyword
+     * @param Nodes\RegularBlock $block
      * @param mixed[] $catches
      * @param Nodes\Finally_|null $finally
      * @return static
@@ -54,16 +56,13 @@ abstract class GeneratedTryStatement extends Nodes\Statement
         $instance = new static;
         $instance->phpVersion = $phpVersion;
         $instance->keyword = $keyword;
-        $instance->keyword->parent = $instance;
+        $keyword->parent = $instance;
         $instance->block = $block;
-        $instance->block->parent = $instance;
+        $block->parent = $instance;
         $instance->catches->__initUnchecked($catches);
         $instance->catches->parent = $instance;
         $instance->finally = $finally;
-        if ($finally)
-        {
-            $instance->finally->parent = $instance;
-        }
+        if ($finally) $finally->parent = $instance;
         return $instance;
     }
 
@@ -146,6 +145,7 @@ abstract class GeneratedTryStatement extends Nodes\Statement
 
     /**
      * @return NodesList|Nodes\Catch_[]
+     * @phpstan-return NodesList<\Phi\Nodes\Catch_>
      */
     public function getCatches(): NodesList
     {
@@ -193,10 +193,10 @@ abstract class GeneratedTryStatement extends Nodes\Statement
 
     protected function _validate(int $flags): void
     {
+        if ($this->keyword === null) throw ValidationException::childRequired($this, "keyword");
+        if ($this->block === null) throw ValidationException::childRequired($this, "block");
         if ($flags & self::VALIDATE_TYPES)
         {
-            if ($this->keyword === null) throw ValidationException::childRequired($this, "keyword");
-            if ($this->block === null) throw ValidationException::childRequired($this, "block");
         }
         if ($flags & self::VALIDATE_EXPRESSION_CONTEXT)
         {

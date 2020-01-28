@@ -30,12 +30,12 @@ abstract class CompoundNode extends Node
         throw new \RuntimeException($childToDetach . " is not attached to " . $this);
     }
 
-    public function childNodes(): array
+    public function getChildNodes(): array
     {
         return \array_values(\array_filter($this->_getNodeRefs()));
     }
 
-    public function tokens(): iterable
+    public function iterTokens(): iterable
     {
         foreach ($this->_getNodeRefs() as $node)
         {
@@ -44,40 +44,6 @@ abstract class CompoundNode extends Node
                 yield from $node->tokens();
             }
         }
-    }
-
-    public function getLeftWhitespace(): string
-    {
-        $firstNode = $this->firstNode();
-        return $firstNode ? $firstNode->getLeftWhitespace() : "";
-    }
-
-    public function getRightWhitespace(): string
-    {
-        $lastNode = $this->lastNode();
-        return $lastNode ? $lastNode->getRightWhitespace() : "";
-    }
-
-    private function firstNode(): ?Node
-    {
-        foreach ($this->_getNodeRefs() as $node)
-        {
-            if ($node)
-            {
-                return $node;
-            }
-        }
-        return null;
-    }
-
-    private function lastNode(): ?Node
-    {
-        $lastNode = null;
-        foreach ($this->_getNodeRefs() as $node)
-        {
-            $lastNode = $node ?? $lastNode;
-        }
-        return $lastNode;
     }
 
     public function toPhp(): string
@@ -98,12 +64,15 @@ abstract class CompoundNode extends Node
         $important = ($this instanceof Statement || $this instanceof Expression || $this instanceof ClassLikeMember);
         echo $indent . ($important ? Console::bold($this->repr()) : $this->repr()) . " {\n";
 
-        foreach ($this->_getNodeRefs() as $k => $v)
+        foreach ($this->_getNodeRefs() as $node)
         {
-            echo $indent . "  " . Console::blue($k) . ":\n";
-            if ($v instanceof Node)
+            $name = \explode("\0", \array_search($node, (array) $this));
+            $name = \end($name);
+
+            echo $indent . "  " . Console::blue($name) . ":\n";
+            if ($node instanceof Node)
             {
-                $v->debugDump($indent . "    ");
+                $node->debugDump($indent . "    ");
             }
             else
             {

@@ -3,6 +3,7 @@
 namespace Phi\Tests;
 
 use Phi\Token;
+use Phi\TokenType;
 use PHPUnit\Framework\TestCase;
 use ReflectionClass;
 
@@ -43,8 +44,8 @@ class TokenTest extends TestCase
     {
         // TODO make lexing portable
 
-        $defined = Token::getMap();
-        $phpTypeMap = Token::getPhpTypeMap();
+        $defined = TokenType::getAll();
+        $phpTypeMap = TokenType::getPhpTypeMap();
         $discovered = self::discoverTokenTypes();
 
         // each token has a unique value

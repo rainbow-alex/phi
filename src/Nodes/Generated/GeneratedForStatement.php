@@ -25,9 +25,10 @@ abstract class GeneratedForStatement extends Nodes\Statement
     private $leftParenthesis;
 
     /**
-     * @var Nodes\Expression|null
+     * @var SeparatedNodesList|Nodes\Expression[]
+     * @phpstan-var SeparatedNodesList<\Phi\Nodes\Expression>
      */
-    private $init;
+    private $inits;
 
     /**
      * @var Token|null
@@ -35,9 +36,10 @@ abstract class GeneratedForStatement extends Nodes\Statement
     private $separator1;
 
     /**
-     * @var Nodes\Expression|null
+     * @var SeparatedNodesList|Nodes\Expression[]
+     * @phpstan-var SeparatedNodesList<\Phi\Nodes\Expression>
      */
-    private $test;
+    private $tests;
 
     /**
      * @var Token|null
@@ -45,9 +47,10 @@ abstract class GeneratedForStatement extends Nodes\Statement
     private $separator2;
 
     /**
-     * @var Nodes\Expression|null
+     * @var SeparatedNodesList|Nodes\Expression[]
+     * @phpstan-var SeparatedNodesList<\Phi\Nodes\Expression>
      */
-    private $step;
+    private $steps;
 
     /**
      * @var Token|null
@@ -59,25 +62,29 @@ abstract class GeneratedForStatement extends Nodes\Statement
      */
     private $block;
 
+
     /**
-     * @param Nodes\Expression|Node|string|null $init
-     * @param Nodes\Expression|Node|string|null $test
-     * @param Nodes\Expression|Node|string|null $step
+     * @param Nodes\Expression $init
+     * @param Nodes\Expression $test
+     * @param Nodes\Expression $step
      * @param Nodes\Block|Node|string|null $block
      */
     public function __construct($init = null, $test = null, $step = null, $block = null)
     {
+        $this->inits = new SeparatedNodesList();
         if ($init !== null)
         {
-            $this->setInit($init);
+            $this->addInit($init);
         }
+        $this->tests = new SeparatedNodesList();
         if ($test !== null)
         {
-            $this->setTest($test);
+            $this->addTest($test);
         }
+        $this->steps = new SeparatedNodesList();
         if ($step !== null)
         {
-            $this->setStep($step);
+            $this->addStep($step);
         }
         if ($block !== null)
         {
@@ -87,48 +94,39 @@ abstract class GeneratedForStatement extends Nodes\Statement
 
     /**
      * @param int $phpVersion
-     * @param Token|null $keyword
-     * @param Token|null $leftParenthesis
-     * @param Nodes\Expression|null $init
-     * @param Token|null $separator1
-     * @param Nodes\Expression|null $test
-     * @param Token|null $separator2
-     * @param Nodes\Expression|null $step
-     * @param Token|null $rightParenthesis
-     * @param Nodes\Block|null $block
+     * @param Token $keyword
+     * @param Token $leftParenthesis
+     * @param mixed[] $inits
+     * @param Token $separator1
+     * @param mixed[] $tests
+     * @param Token $separator2
+     * @param mixed[] $steps
+     * @param Token $rightParenthesis
+     * @param Nodes\Block $block
      * @return static
      */
-    public static function __instantiateUnchecked($phpVersion, $keyword, $leftParenthesis, $init, $separator1, $test, $separator2, $step, $rightParenthesis, $block)
+    public static function __instantiateUnchecked($phpVersion, $keyword, $leftParenthesis, $inits, $separator1, $tests, $separator2, $steps, $rightParenthesis, $block)
     {
         $instance = new static;
         $instance->phpVersion = $phpVersion;
         $instance->keyword = $keyword;
-        $instance->keyword->parent = $instance;
+        $keyword->parent = $instance;
         $instance->leftParenthesis = $leftParenthesis;
-        $instance->leftParenthesis->parent = $instance;
-        $instance->init = $init;
-        if ($init)
-        {
-            $instance->init->parent = $instance;
-        }
+        $leftParenthesis->parent = $instance;
+        $instance->inits->__initUnchecked($inits);
+        $instance->inits->parent = $instance;
         $instance->separator1 = $separator1;
-        $instance->separator1->parent = $instance;
-        $instance->test = $test;
-        if ($test)
-        {
-            $instance->test->parent = $instance;
-        }
+        $separator1->parent = $instance;
+        $instance->tests->__initUnchecked($tests);
+        $instance->tests->parent = $instance;
         $instance->separator2 = $separator2;
-        $instance->separator2->parent = $instance;
-        $instance->step = $step;
-        if ($step)
-        {
-            $instance->step->parent = $instance;
-        }
+        $separator2->parent = $instance;
+        $instance->steps->__initUnchecked($steps);
+        $instance->steps->parent = $instance;
         $instance->rightParenthesis = $rightParenthesis;
-        $instance->rightParenthesis->parent = $instance;
+        $rightParenthesis->parent = $instance;
         $instance->block = $block;
-        $instance->block->parent = $instance;
+        $block->parent = $instance;
         return $instance;
     }
 
@@ -137,11 +135,11 @@ abstract class GeneratedForStatement extends Nodes\Statement
         $refs = [
             "keyword" => &$this->keyword,
             "leftParenthesis" => &$this->leftParenthesis,
-            "init" => &$this->init,
+            "inits" => &$this->inits,
             "separator1" => &$this->separator1,
-            "test" => &$this->test,
+            "tests" => &$this->tests,
             "separator2" => &$this->separator2,
-            "step" => &$this->step,
+            "steps" => &$this->steps,
             "rightParenthesis" => &$this->rightParenthesis,
             "block" => &$this->block,
         ];
@@ -214,33 +212,23 @@ abstract class GeneratedForStatement extends Nodes\Statement
         $this->leftParenthesis = $leftParenthesis;
     }
 
-    public function getInit(): ?Nodes\Expression
+    /**
+     * @return SeparatedNodesList|Nodes\Expression[]
+     * @phpstan-return SeparatedNodesList<\Phi\Nodes\Expression>
+     */
+    public function getInits(): SeparatedNodesList
     {
-        return $this->init;
-    }
-
-    public function hasInit(): bool
-    {
-        return $this->init !== null;
+        return $this->inits;
     }
 
     /**
-     * @param Nodes\Expression|Node|string|null $init
+     * @param Nodes\Expression $init
      */
-    public function setInit($init): void
+    public function addInit($init): void
     {
-        if ($init !== null)
-        {
-            /** @var Nodes\Expression $init */
-            $init = NodeConverter::convert($init, Nodes\Expression::class, $this->phpVersion);
-            $init->detach();
-            $init->parent = $this;
-        }
-        if ($this->init !== null)
-        {
-            $this->init->detach();
-        }
-        $this->init = $init;
+        /** @var Nodes\Expression $init */
+        $init = NodeConverter::convert($init, Nodes\Expression::class, $this->phpVersion);
+        $this->inits->add($init);
     }
 
     public function getSeparator1(): Token
@@ -276,33 +264,23 @@ abstract class GeneratedForStatement extends Nodes\Statement
         $this->separator1 = $separator1;
     }
 
-    public function getTest(): ?Nodes\Expression
+    /**
+     * @return SeparatedNodesList|Nodes\Expression[]
+     * @phpstan-return SeparatedNodesList<\Phi\Nodes\Expression>
+     */
+    public function getTests(): SeparatedNodesList
     {
-        return $this->test;
-    }
-
-    public function hasTest(): bool
-    {
-        return $this->test !== null;
+        return $this->tests;
     }
 
     /**
-     * @param Nodes\Expression|Node|string|null $test
+     * @param Nodes\Expression $test
      */
-    public function setTest($test): void
+    public function addTest($test): void
     {
-        if ($test !== null)
-        {
-            /** @var Nodes\Expression $test */
-            $test = NodeConverter::convert($test, Nodes\Expression::class, $this->phpVersion);
-            $test->detach();
-            $test->parent = $this;
-        }
-        if ($this->test !== null)
-        {
-            $this->test->detach();
-        }
-        $this->test = $test;
+        /** @var Nodes\Expression $test */
+        $test = NodeConverter::convert($test, Nodes\Expression::class, $this->phpVersion);
+        $this->tests->add($test);
     }
 
     public function getSeparator2(): Token
@@ -338,33 +316,23 @@ abstract class GeneratedForStatement extends Nodes\Statement
         $this->separator2 = $separator2;
     }
 
-    public function getStep(): ?Nodes\Expression
+    /**
+     * @return SeparatedNodesList|Nodes\Expression[]
+     * @phpstan-return SeparatedNodesList<\Phi\Nodes\Expression>
+     */
+    public function getSteps(): SeparatedNodesList
     {
-        return $this->step;
-    }
-
-    public function hasStep(): bool
-    {
-        return $this->step !== null;
+        return $this->steps;
     }
 
     /**
-     * @param Nodes\Expression|Node|string|null $step
+     * @param Nodes\Expression $step
      */
-    public function setStep($step): void
+    public function addStep($step): void
     {
-        if ($step !== null)
-        {
-            /** @var Nodes\Expression $step */
-            $step = NodeConverter::convert($step, Nodes\Expression::class, $this->phpVersion);
-            $step->detach();
-            $step->parent = $this;
-        }
-        if ($this->step !== null)
-        {
-            $this->step->detach();
-        }
-        $this->step = $step;
+        /** @var Nodes\Expression $step */
+        $step = NodeConverter::convert($step, Nodes\Expression::class, $this->phpVersion);
+        $this->steps->add($step);
     }
 
     public function getRightParenthesis(): Token
@@ -435,14 +403,14 @@ abstract class GeneratedForStatement extends Nodes\Statement
 
     protected function _validate(int $flags): void
     {
+        if ($this->keyword === null) throw ValidationException::childRequired($this, "keyword");
+        if ($this->leftParenthesis === null) throw ValidationException::childRequired($this, "leftParenthesis");
+        if ($this->separator1 === null) throw ValidationException::childRequired($this, "separator1");
+        if ($this->separator2 === null) throw ValidationException::childRequired($this, "separator2");
+        if ($this->rightParenthesis === null) throw ValidationException::childRequired($this, "rightParenthesis");
+        if ($this->block === null) throw ValidationException::childRequired($this, "block");
         if ($flags & self::VALIDATE_TYPES)
         {
-            if ($this->keyword === null) throw ValidationException::childRequired($this, "keyword");
-            if ($this->leftParenthesis === null) throw ValidationException::childRequired($this, "leftParenthesis");
-            if ($this->separator1 === null) throw ValidationException::childRequired($this, "separator1");
-            if ($this->separator2 === null) throw ValidationException::childRequired($this, "separator2");
-            if ($this->rightParenthesis === null) throw ValidationException::childRequired($this, "rightParenthesis");
-            if ($this->block === null) throw ValidationException::childRequired($this, "block");
         }
         if ($flags & self::VALIDATE_EXPRESSION_CONTEXT)
         {
@@ -450,18 +418,9 @@ abstract class GeneratedForStatement extends Nodes\Statement
         if ($flags & self::VALIDATE_TOKENS)
         {
         }
-        if ($this->init)
-        {
-            $this->init->_validate($flags);
-        }
-        if ($this->test)
-        {
-            $this->test->_validate($flags);
-        }
-        if ($this->step)
-        {
-            $this->step->_validate($flags);
-        }
+        $this->inits->_validate($flags);
+        $this->tests->_validate($flags);
+        $this->steps->_validate($flags);
         $this->block->_validate($flags);
     }
 }

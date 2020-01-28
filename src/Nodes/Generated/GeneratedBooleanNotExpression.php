@@ -24,6 +24,7 @@ abstract class GeneratedBooleanNotExpression extends Nodes\Expression
      */
     private $expression;
 
+
     /**
      * @param Nodes\Expression|Node|string|null $expression
      */
@@ -37,8 +38,8 @@ abstract class GeneratedBooleanNotExpression extends Nodes\Expression
 
     /**
      * @param int $phpVersion
-     * @param Token|null $operator
-     * @param Nodes\Expression|null $expression
+     * @param Token $operator
+     * @param Nodes\Expression $expression
      * @return static
      */
     public static function __instantiateUnchecked($phpVersion, $operator, $expression)
@@ -46,9 +47,9 @@ abstract class GeneratedBooleanNotExpression extends Nodes\Expression
         $instance = new static;
         $instance->phpVersion = $phpVersion;
         $instance->operator = $operator;
-        $instance->operator->parent = $instance;
+        $operator->parent = $instance;
         $instance->expression = $expression;
-        $instance->expression->parent = $instance;
+        $expression->parent = $instance;
         return $instance;
     }
 
@@ -129,10 +130,10 @@ abstract class GeneratedBooleanNotExpression extends Nodes\Expression
 
     protected function _validate(int $flags): void
     {
+        if ($this->operator === null) throw ValidationException::childRequired($this, "operator");
+        if ($this->expression === null) throw ValidationException::childRequired($this, "expression");
         if ($flags & self::VALIDATE_TYPES)
         {
-            if ($this->operator === null) throw ValidationException::childRequired($this, "operator");
-            if ($this->expression === null) throw ValidationException::childRequired($this, "expression");
         }
         if ($flags & self::VALIDATE_EXPRESSION_CONTEXT)
         {

@@ -24,6 +24,7 @@ abstract class GeneratedArgument extends CompoundNode
      */
     private $expression;
 
+
     /**
      * @param Nodes\Expression|Node|string|null $expression
      */
@@ -38,7 +39,7 @@ abstract class GeneratedArgument extends CompoundNode
     /**
      * @param int $phpVersion
      * @param Token|null $unpack
-     * @param Nodes\Expression|null $expression
+     * @param Nodes\Expression $expression
      * @return static
      */
     public static function __instantiateUnchecked($phpVersion, $unpack, $expression)
@@ -46,12 +47,9 @@ abstract class GeneratedArgument extends CompoundNode
         $instance = new static;
         $instance->phpVersion = $phpVersion;
         $instance->unpack = $unpack;
-        if ($unpack)
-        {
-            $instance->unpack->parent = $instance;
-        }
+        if ($unpack) $unpack->parent = $instance;
         $instance->expression = $expression;
-        $instance->expression->parent = $instance;
+        $expression->parent = $instance;
         return $instance;
     }
 
@@ -128,9 +126,9 @@ abstract class GeneratedArgument extends CompoundNode
 
     protected function _validate(int $flags): void
     {
+        if ($this->expression === null) throw ValidationException::childRequired($this, "expression");
         if ($flags & self::VALIDATE_TYPES)
         {
-            if ($this->expression === null) throw ValidationException::childRequired($this, "expression");
         }
         if ($flags & self::VALIDATE_EXPRESSION_CONTEXT)
         {

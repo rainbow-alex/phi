@@ -2,7 +2,7 @@
 
 namespace Phi;
 
-// TODO make stuff final here as much as possible
+use Phi\Exception\PhiException;
 use Phi\Exception\ValidationException;
 
 abstract class Node
@@ -12,8 +12,6 @@ abstract class Node
      * @see PhpVersion
      */
     protected $phpVersion;
-    /** @var int|null */
-    private $id;
     /**
      * @var Node|null
      * @internal
@@ -23,29 +21,27 @@ abstract class Node
     /** @see PhpVersion */
     public function setPhpVersion(int $version): void
     {
-        PhpVersion::validate($version);
-        // TODO check parent, limit recursion, etc.
-        $this->phpVersion = $version;
-        foreach ($this->childNodes() as $n)
-        {
-            $n->setPhpVersion($version);
-        }
-    }
-
-    public function getId(): int
-    {
-        static $inc = 0;
-        return $this->id = ($this->id ?: ++$inc);
-    }
-
-    public function isAttached(): bool
-    {
-        return $this->parent !== null;
+        // TODO
     }
 
     public function getParent(): ?Node
     {
         return $this->parent;
+    }
+
+    public function getRoot(): Node
+    {
+        $node = $this;
+        while ($node->getParent())
+        {
+            $node = $node->getParent();
+        }
+        return $node;
+    }
+
+    public function isAttached(): bool
+    {
+        return $this->parent !== null;
     }
 
     public function detach(): void
@@ -60,23 +56,55 @@ abstract class Node
     abstract protected function detachChild(Node $childToDetach): void;
 
     /** @return Node[] */
-    abstract public function childNodes(): array;
+    abstract public function getChildNodes(): array;
+
+    /** @return iterable|Node[] */
+    public function findNodes(Specification $spec): iterable
+    {
+        if ($spec->isSatisfiedBy($this))
+        {
+            yield $this;
+        }
+
+        foreach ($this->getChildNodes() as $node)
+        {
+            yield from $node->findNodes($spec);
+        }
+    }
 
     /** @return iterable|Token[] */
-    abstract public function tokens(): iterable;
+    abstract public function iterTokens(): iterable;
 
-    public function firstToken(): Token
+    public function getFirstToken(): ?Token
     {
-        foreach ($this->tokens() as $t)
+        foreach ($this->iterTokens() as $t)
         {
             return $t;
         }
-
-        throw new \LogicException(); // TODO maybe an UnreachableException?
+        return null;
     }
 
-    abstract public function getLeftWhitespace(): string;
-    abstract public function getRightWhitespace(): string;
+    public function getLastToken(): ?Token
+    {
+        $last = null;
+        foreach ($this->iterTokens() as $t)
+        {
+            $last = $t;
+        }
+        return $last;
+    }
+
+    public function getLeftWhitespace(): string
+    {
+        $token = $this->getFirstToken();
+        return $token ? $token->getLeftWhitespace() : "";
+    }
+
+    public function getRightWhitespace(): string
+    {
+        $token = $this->getLastToken();
+        return $token ? $token->getRightWhitespace() : "";
+    }
 
     /** validate that nodes set are the right type and required nodes are present */
     public const VALIDATE_TYPES = 0x01;
@@ -88,6 +116,7 @@ abstract class Node
     public const VALIDATE_WHITESPACE = 0x08;
     /** any other validations */
     public const VALIDATE_OTHER = 0x10;
+
     public const VALIDATE_ALL = -1;
 
     final public function validate(int $flags = self::VALIDATE_ALL): void
@@ -107,6 +136,7 @@ abstract class Node
 
     /** @var bool */
     private static $autocorrectRecursion = false;
+
     public function autocorrect(): Node
     {
         $root = self::$autocorrectRecursion === false;
@@ -123,10 +153,10 @@ abstract class Node
             // check for corrected tokens that need some whitespace to be lexed correctly, e.g. `+` followed by `+` or `function` followed by `name`
             if ($root)
             {
-                $lexer = new Lexer($this->phpVersion ?: PhpVersion::DEFAULT());
+                $lexer = new Lexer($this->phpVersion ?? PhpVersion::DEFAULT());
                 /** @var Token|null $previous */
                 $previous = null;
-                foreach ($this->tokens() as $token)
+                foreach ($this->iterTokens() as $token)
                 {
                     if ($previous)
                     {
@@ -155,23 +185,9 @@ abstract class Node
         }
     }
 
-    /** @return iterable|Node[] */
-    public function find(Specification $spec): iterable
-    {
-        if ($spec->isSatisfiedBy($this))
-        {
-            yield $this;
-        }
-
-        foreach ($this->childNodes() as $node)
-        {
-            yield from $node->find($spec);
-        }
-    }
     public function repr(): string
     {
-        // TODO phpstan
-        return (string) \preg_replace('{^Phi\\\\Nodes\\\\}', "", \get_class($this));
+        return \str_replace('Phi\\Nodes\\', '', \get_class($this));
     }
 
     abstract public function toPhp(): string;
@@ -181,5 +197,15 @@ abstract class Node
     final public function __toString(): string
     {
         return $this->toPhp();
+    }
+
+    /**
+     * Attempts to convert this node to the equivalent PHP-Parser node.
+     *
+     * @return mixed
+     */
+    public function convertToPhpParserNode()
+    {
+        throw new PhiException('Failed to convert ' . $this->repr() . ' to PHP-Parser node', $this);
     }
 }

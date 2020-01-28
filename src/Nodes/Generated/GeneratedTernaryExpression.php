@@ -39,6 +39,7 @@ abstract class GeneratedTernaryExpression extends Nodes\Expression
      */
     private $else;
 
+
     /**
      * @param Nodes\Expression|Node|string|null $test
      * @param Nodes\Expression|Node|string|null $then
@@ -62,11 +63,11 @@ abstract class GeneratedTernaryExpression extends Nodes\Expression
 
     /**
      * @param int $phpVersion
-     * @param Nodes\Expression|null $test
-     * @param Token|null $questionMark
+     * @param Nodes\Expression $test
+     * @param Token $questionMark
      * @param Nodes\Expression|null $then
-     * @param Token|null $colon
-     * @param Nodes\Expression|null $else
+     * @param Token $colon
+     * @param Nodes\Expression $else
      * @return static
      */
     public static function __instantiateUnchecked($phpVersion, $test, $questionMark, $then, $colon, $else)
@@ -74,18 +75,15 @@ abstract class GeneratedTernaryExpression extends Nodes\Expression
         $instance = new static;
         $instance->phpVersion = $phpVersion;
         $instance->test = $test;
-        $instance->test->parent = $instance;
+        $test->parent = $instance;
         $instance->questionMark = $questionMark;
-        $instance->questionMark->parent = $instance;
+        $questionMark->parent = $instance;
         $instance->then = $then;
-        if ($then)
-        {
-            $instance->then->parent = $instance;
-        }
+        if ($then) $then->parent = $instance;
         $instance->colon = $colon;
-        $instance->colon->parent = $instance;
+        $colon->parent = $instance;
         $instance->else = $else;
-        $instance->else->parent = $instance;
+        $else->parent = $instance;
         return $instance;
     }
 
@@ -264,12 +262,12 @@ abstract class GeneratedTernaryExpression extends Nodes\Expression
 
     protected function _validate(int $flags): void
     {
+        if ($this->test === null) throw ValidationException::childRequired($this, "test");
+        if ($this->questionMark === null) throw ValidationException::childRequired($this, "questionMark");
+        if ($this->colon === null) throw ValidationException::childRequired($this, "colon");
+        if ($this->else === null) throw ValidationException::childRequired($this, "else");
         if ($flags & self::VALIDATE_TYPES)
         {
-            if ($this->test === null) throw ValidationException::childRequired($this, "test");
-            if ($this->questionMark === null) throw ValidationException::childRequired($this, "questionMark");
-            if ($this->colon === null) throw ValidationException::childRequired($this, "colon");
-            if ($this->else === null) throw ValidationException::childRequired($this, "else");
         }
         if ($flags & self::VALIDATE_EXPRESSION_CONTEXT)
         {

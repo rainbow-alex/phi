@@ -16,6 +16,7 @@ abstract class GeneratedMethod extends Nodes\ClassLikeMember
 {
     /**
      * @var NodesList|Token[]
+     * @phpstan-var NodesList<\Phi\Token>
      */
     private $modifiers;
 
@@ -41,6 +42,7 @@ abstract class GeneratedMethod extends Nodes\ClassLikeMember
 
     /**
      * @var SeparatedNodesList|Nodes\Parameter[]
+     * @phpstan-var SeparatedNodesList<\Phi\Nodes\Parameter>
      */
     private $parameters;
 
@@ -64,6 +66,7 @@ abstract class GeneratedMethod extends Nodes\ClassLikeMember
      */
     private $semiColon;
 
+
     /**
      * @param Token|Node|string|null $name
      */
@@ -80,12 +83,12 @@ abstract class GeneratedMethod extends Nodes\ClassLikeMember
     /**
      * @param int $phpVersion
      * @param mixed[] $modifiers
-     * @param Token|null $keyword
+     * @param Token $keyword
      * @param Token|null $byReference
-     * @param Token|null $name
-     * @param Token|null $leftParenthesis
+     * @param Token $name
+     * @param Token $leftParenthesis
      * @param mixed[] $parameters
-     * @param Token|null $rightParenthesis
+     * @param Token $rightParenthesis
      * @param Nodes\ReturnType|null $returnType
      * @param Nodes\RegularBlock|null $body
      * @param Token|null $semiColon
@@ -98,35 +101,23 @@ abstract class GeneratedMethod extends Nodes\ClassLikeMember
         $instance->modifiers->__initUnchecked($modifiers);
         $instance->modifiers->parent = $instance;
         $instance->keyword = $keyword;
-        $instance->keyword->parent = $instance;
+        $keyword->parent = $instance;
         $instance->byReference = $byReference;
-        if ($byReference)
-        {
-            $instance->byReference->parent = $instance;
-        }
+        if ($byReference) $byReference->parent = $instance;
         $instance->name = $name;
-        $instance->name->parent = $instance;
+        $name->parent = $instance;
         $instance->leftParenthesis = $leftParenthesis;
-        $instance->leftParenthesis->parent = $instance;
+        $leftParenthesis->parent = $instance;
         $instance->parameters->__initUnchecked($parameters);
         $instance->parameters->parent = $instance;
         $instance->rightParenthesis = $rightParenthesis;
-        $instance->rightParenthesis->parent = $instance;
+        $rightParenthesis->parent = $instance;
         $instance->returnType = $returnType;
-        if ($returnType)
-        {
-            $instance->returnType->parent = $instance;
-        }
+        if ($returnType) $returnType->parent = $instance;
         $instance->body = $body;
-        if ($body)
-        {
-            $instance->body->parent = $instance;
-        }
+        if ($body) $body->parent = $instance;
         $instance->semiColon = $semiColon;
-        if ($semiColon)
-        {
-            $instance->semiColon->parent = $instance;
-        }
+        if ($semiColon) $semiColon->parent = $instance;
         return $instance;
     }
 
@@ -149,6 +140,7 @@ abstract class GeneratedMethod extends Nodes\ClassLikeMember
 
     /**
      * @return NodesList|Token[]
+     * @phpstan-return NodesList<\Phi\Token>
      */
     public function getModifiers(): NodesList
     {
@@ -295,6 +287,7 @@ abstract class GeneratedMethod extends Nodes\ClassLikeMember
 
     /**
      * @return SeparatedNodesList|Nodes\Parameter[]
+     * @phpstan-return SeparatedNodesList<\Phi\Nodes\Parameter>
      */
     public function getParameters(): SeparatedNodesList
     {
@@ -433,12 +426,12 @@ abstract class GeneratedMethod extends Nodes\ClassLikeMember
 
     protected function _validate(int $flags): void
     {
+        if ($this->keyword === null) throw ValidationException::childRequired($this, "keyword");
+        if ($this->name === null) throw ValidationException::childRequired($this, "name");
+        if ($this->leftParenthesis === null) throw ValidationException::childRequired($this, "leftParenthesis");
+        if ($this->rightParenthesis === null) throw ValidationException::childRequired($this, "rightParenthesis");
         if ($flags & self::VALIDATE_TYPES)
         {
-            if ($this->keyword === null) throw ValidationException::childRequired($this, "keyword");
-            if ($this->name === null) throw ValidationException::childRequired($this, "name");
-            if ($this->leftParenthesis === null) throw ValidationException::childRequired($this, "leftParenthesis");
-            if ($this->rightParenthesis === null) throw ValidationException::childRequired($this, "rightParenthesis");
         }
         if ($flags & self::VALIDATE_EXPRESSION_CONTEXT)
         {

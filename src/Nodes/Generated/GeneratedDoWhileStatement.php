@@ -47,7 +47,8 @@ abstract class GeneratedDoWhileStatement extends Nodes\Statement
     /**
      * @var Token|null
      */
-    private $semiColon;
+    private $delimiter;
+
 
     /**
      */
@@ -57,36 +58,33 @@ abstract class GeneratedDoWhileStatement extends Nodes\Statement
 
     /**
      * @param int $phpVersion
-     * @param Token|null $keyword1
-     * @param Nodes\Block|null $block
-     * @param Token|null $keyword2
-     * @param Token|null $leftParenthesis
-     * @param Nodes\Expression|null $test
-     * @param Token|null $rightParenthesis
-     * @param Token|null $semiColon
+     * @param Token $keyword1
+     * @param Nodes\Block $block
+     * @param Token $keyword2
+     * @param Token $leftParenthesis
+     * @param Nodes\Expression $test
+     * @param Token $rightParenthesis
+     * @param Token $delimiter
      * @return static
      */
-    public static function __instantiateUnchecked($phpVersion, $keyword1, $block, $keyword2, $leftParenthesis, $test, $rightParenthesis, $semiColon)
+    public static function __instantiateUnchecked($phpVersion, $keyword1, $block, $keyword2, $leftParenthesis, $test, $rightParenthesis, $delimiter)
     {
         $instance = new static;
         $instance->phpVersion = $phpVersion;
         $instance->keyword1 = $keyword1;
-        $instance->keyword1->parent = $instance;
+        $keyword1->parent = $instance;
         $instance->block = $block;
-        $instance->block->parent = $instance;
+        $block->parent = $instance;
         $instance->keyword2 = $keyword2;
-        $instance->keyword2->parent = $instance;
+        $keyword2->parent = $instance;
         $instance->leftParenthesis = $leftParenthesis;
-        $instance->leftParenthesis->parent = $instance;
+        $leftParenthesis->parent = $instance;
         $instance->test = $test;
-        $instance->test->parent = $instance;
+        $test->parent = $instance;
         $instance->rightParenthesis = $rightParenthesis;
-        $instance->rightParenthesis->parent = $instance;
-        $instance->semiColon = $semiColon;
-        if ($semiColon)
-        {
-            $instance->semiColon->parent = $instance;
-        }
+        $rightParenthesis->parent = $instance;
+        $instance->delimiter = $delimiter;
+        $delimiter->parent = $instance;
         return $instance;
     }
 
@@ -99,7 +97,7 @@ abstract class GeneratedDoWhileStatement extends Nodes\Statement
             "leftParenthesis" => &$this->leftParenthesis,
             "test" => &$this->test,
             "rightParenthesis" => &$this->rightParenthesis,
-            "semiColon" => &$this->semiColon,
+            "delimiter" => &$this->delimiter,
         ];
         return $refs;
     }
@@ -302,45 +300,50 @@ abstract class GeneratedDoWhileStatement extends Nodes\Statement
         $this->rightParenthesis = $rightParenthesis;
     }
 
-    public function getSemiColon(): ?Token
+    public function getDelimiter(): Token
     {
-        return $this->semiColon;
+        if ($this->delimiter === null)
+        {
+            throw new MissingNodeException($this, __FUNCTION__);
+        }
+        return $this->delimiter;
     }
 
-    public function hasSemiColon(): bool
+    public function hasDelimiter(): bool
     {
-        return $this->semiColon !== null;
+        return $this->delimiter !== null;
     }
 
     /**
-     * @param Token|Node|string|null $semiColon
+     * @param Token|Node|string|null $delimiter
      */
-    public function setSemiColon($semiColon): void
+    public function setDelimiter($delimiter): void
     {
-        if ($semiColon !== null)
+        if ($delimiter !== null)
         {
-            /** @var Token $semiColon */
-            $semiColon = NodeConverter::convert($semiColon, Token::class, $this->phpVersion);
-            $semiColon->detach();
-            $semiColon->parent = $this;
+            /** @var Token $delimiter */
+            $delimiter = NodeConverter::convert($delimiter, Token::class, $this->phpVersion);
+            $delimiter->detach();
+            $delimiter->parent = $this;
         }
-        if ($this->semiColon !== null)
+        if ($this->delimiter !== null)
         {
-            $this->semiColon->detach();
+            $this->delimiter->detach();
         }
-        $this->semiColon = $semiColon;
+        $this->delimiter = $delimiter;
     }
 
     protected function _validate(int $flags): void
     {
+        if ($this->keyword1 === null) throw ValidationException::childRequired($this, "keyword1");
+        if ($this->block === null) throw ValidationException::childRequired($this, "block");
+        if ($this->keyword2 === null) throw ValidationException::childRequired($this, "keyword2");
+        if ($this->leftParenthesis === null) throw ValidationException::childRequired($this, "leftParenthesis");
+        if ($this->test === null) throw ValidationException::childRequired($this, "test");
+        if ($this->rightParenthesis === null) throw ValidationException::childRequired($this, "rightParenthesis");
+        if ($this->delimiter === null) throw ValidationException::childRequired($this, "delimiter");
         if ($flags & self::VALIDATE_TYPES)
         {
-            if ($this->keyword1 === null) throw ValidationException::childRequired($this, "keyword1");
-            if ($this->block === null) throw ValidationException::childRequired($this, "block");
-            if ($this->keyword2 === null) throw ValidationException::childRequired($this, "keyword2");
-            if ($this->leftParenthesis === null) throw ValidationException::childRequired($this, "leftParenthesis");
-            if ($this->test === null) throw ValidationException::childRequired($this, "test");
-            if ($this->rightParenthesis === null) throw ValidationException::childRequired($this, "rightParenthesis");
         }
         if ($flags & self::VALIDATE_EXPRESSION_CONTEXT)
         {

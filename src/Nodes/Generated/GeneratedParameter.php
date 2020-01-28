@@ -39,6 +39,7 @@ abstract class GeneratedParameter extends CompoundNode
      */
     private $default;
 
+
     /**
      * @param Token|Node|string|null $variable
      */
@@ -55,7 +56,7 @@ abstract class GeneratedParameter extends CompoundNode
      * @param Nodes\Type|null $type
      * @param Token|null $byReference
      * @param Token|null $ellipsis
-     * @param Token|null $variable
+     * @param Token $variable
      * @param Nodes\Default_|null $default
      * @return static
      */
@@ -64,27 +65,15 @@ abstract class GeneratedParameter extends CompoundNode
         $instance = new static;
         $instance->phpVersion = $phpVersion;
         $instance->type = $type;
-        if ($type)
-        {
-            $instance->type->parent = $instance;
-        }
+        if ($type) $type->parent = $instance;
         $instance->byReference = $byReference;
-        if ($byReference)
-        {
-            $instance->byReference->parent = $instance;
-        }
+        if ($byReference) $byReference->parent = $instance;
         $instance->ellipsis = $ellipsis;
-        if ($ellipsis)
-        {
-            $instance->ellipsis->parent = $instance;
-        }
+        if ($ellipsis) $ellipsis->parent = $instance;
         $instance->variable = $variable;
-        $instance->variable->parent = $instance;
+        $variable->parent = $instance;
         $instance->default = $default;
-        if ($default)
-        {
-            $instance->default->parent = $instance;
-        }
+        if ($default) $default->parent = $instance;
         return $instance;
     }
 
@@ -251,9 +240,9 @@ abstract class GeneratedParameter extends CompoundNode
 
     protected function _validate(int $flags): void
     {
+        if ($this->variable === null) throw ValidationException::childRequired($this, "variable");
         if ($flags & self::VALIDATE_TYPES)
         {
-            if ($this->variable === null) throw ValidationException::childRequired($this, "variable");
         }
         if ($flags & self::VALIDATE_EXPRESSION_CONTEXT)
         {

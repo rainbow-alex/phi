@@ -29,6 +29,7 @@ abstract class GeneratedClassNameResolutionExpression extends Nodes\Expression
      */
     private $keyword;
 
+
     /**
      * @param Nodes\Expression|Node|string|null $class
      */
@@ -42,9 +43,9 @@ abstract class GeneratedClassNameResolutionExpression extends Nodes\Expression
 
     /**
      * @param int $phpVersion
-     * @param Nodes\Expression|null $class
-     * @param Token|null $operator
-     * @param Token|null $keyword
+     * @param Nodes\Expression $class
+     * @param Token $operator
+     * @param Token $keyword
      * @return static
      */
     public static function __instantiateUnchecked($phpVersion, $class, $operator, $keyword)
@@ -52,11 +53,11 @@ abstract class GeneratedClassNameResolutionExpression extends Nodes\Expression
         $instance = new static;
         $instance->phpVersion = $phpVersion;
         $instance->class = $class;
-        $instance->class->parent = $instance;
+        $class->parent = $instance;
         $instance->operator = $operator;
-        $instance->operator->parent = $instance;
+        $operator->parent = $instance;
         $instance->keyword = $keyword;
-        $instance->keyword->parent = $instance;
+        $keyword->parent = $instance;
         return $instance;
     }
 
@@ -171,11 +172,11 @@ abstract class GeneratedClassNameResolutionExpression extends Nodes\Expression
 
     protected function _validate(int $flags): void
     {
+        if ($this->class === null) throw ValidationException::childRequired($this, "class");
+        if ($this->operator === null) throw ValidationException::childRequired($this, "operator");
+        if ($this->keyword === null) throw ValidationException::childRequired($this, "keyword");
         if ($flags & self::VALIDATE_TYPES)
         {
-            if ($this->class === null) throw ValidationException::childRequired($this, "class");
-            if ($this->operator === null) throw ValidationException::childRequired($this, "operator");
-            if ($this->keyword === null) throw ValidationException::childRequired($this, "keyword");
         }
         if ($flags & self::VALIDATE_EXPRESSION_CONTEXT)
         {

@@ -5,7 +5,6 @@ namespace Phi\Tests\Parser;
 use Phi\Exception\PhiException;
 use Phi\Nodes\Expression;
 use Phi\Parser;
-use Phi\PhpParserCompat;
 use Phi\PhpVersion;
 use Phi\Tests\Testing\TestRepr;
 use PhpParser\Node as PPNodes;
@@ -15,7 +14,7 @@ use PHPUnit\Framework\TestCase;
 class ParserTest extends TestCase
 {
     // unfortunately overhead seems to be pretty big per test, running things in batches is *much* faster
-    private const BATCH = 20;
+    private const BATCH = 100;
     // case data passed via this static var so phpunit doesn't dump all of it when a test fails
     private static $cases;
 
@@ -40,7 +39,7 @@ class ParserTest extends TestCase
 
             try
             {
-                $ast = $parser->parseFragment($case["source"]);
+                $ast = $parser->parse(null, "<?php " . $case["source"] . " ?>");
             }
             catch (PhiException $e)
             {
@@ -69,7 +68,7 @@ class ParserTest extends TestCase
             // test for parsing regressions
             self::assertTrue($case["phi"]["valid"]);
             self::assertSame($case["phi"]["repr"], TestRepr::node($ast), $case["source"]);
-            self::assertSame($case["source"], (string) $ast);
+            self::assertSame("<?php " . $case["source"] . " ?>", (string) $ast);
 
             if ($ast instanceof Expression)
             {
@@ -83,11 +82,11 @@ class ParserTest extends TestCase
                     self::assertInstanceOf(PPNodes\Stmt\Expression::class, $nikiAst[0]);
                     $expectedNikiDump = $nikiDumper->dump($nikiAst[0]->expr);
 
-                    $actualNikiDump = $nikiDumper->dump(PhpParserCompat::convert($ast));
+                    $actualNikiDump = $nikiDumper->dump($ast->convertToPhpParserNode());
 
                     self::assertSame($expectedNikiDump, $actualNikiDump, $case["source"]);
                 }
-                catch (\RuntimeException $e)
+                catch (PhiException $e) // TODO remove; niki conversion is a work in progress
                 {
 //                    throw $e;
                 }

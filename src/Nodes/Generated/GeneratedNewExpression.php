@@ -31,6 +31,7 @@ abstract class GeneratedNewExpression extends Nodes\Expression
 
     /**
      * @var SeparatedNodesList|Nodes\Argument[]
+     * @phpstan-var SeparatedNodesList<\Phi\Nodes\Argument>
      */
     private $arguments;
 
@@ -38,6 +39,7 @@ abstract class GeneratedNewExpression extends Nodes\Expression
      * @var Token|null
      */
     private $rightParenthesis;
+
 
     /**
      * @param Nodes\Expression|Node|string|null $class
@@ -53,8 +55,8 @@ abstract class GeneratedNewExpression extends Nodes\Expression
 
     /**
      * @param int $phpVersion
-     * @param Token|null $keyword
-     * @param Nodes\Expression|null $class
+     * @param Token $keyword
+     * @param Nodes\Expression $class
      * @param Token|null $leftParenthesis
      * @param mixed[] $arguments
      * @param Token|null $rightParenthesis
@@ -65,21 +67,15 @@ abstract class GeneratedNewExpression extends Nodes\Expression
         $instance = new static;
         $instance->phpVersion = $phpVersion;
         $instance->keyword = $keyword;
-        $instance->keyword->parent = $instance;
+        $keyword->parent = $instance;
         $instance->class = $class;
-        $instance->class->parent = $instance;
+        $class->parent = $instance;
         $instance->leftParenthesis = $leftParenthesis;
-        if ($leftParenthesis)
-        {
-            $instance->leftParenthesis->parent = $instance;
-        }
+        if ($leftParenthesis) $leftParenthesis->parent = $instance;
         $instance->arguments->__initUnchecked($arguments);
         $instance->arguments->parent = $instance;
         $instance->rightParenthesis = $rightParenthesis;
-        if ($rightParenthesis)
-        {
-            $instance->rightParenthesis->parent = $instance;
-        }
+        if ($rightParenthesis) $rightParenthesis->parent = $instance;
         return $instance;
     }
 
@@ -192,6 +188,7 @@ abstract class GeneratedNewExpression extends Nodes\Expression
 
     /**
      * @return SeparatedNodesList|Nodes\Argument[]
+     * @phpstan-return SeparatedNodesList<\Phi\Nodes\Argument>
      */
     public function getArguments(): SeparatedNodesList
     {
@@ -239,10 +236,10 @@ abstract class GeneratedNewExpression extends Nodes\Expression
 
     protected function _validate(int $flags): void
     {
+        if ($this->keyword === null) throw ValidationException::childRequired($this, "keyword");
+        if ($this->class === null) throw ValidationException::childRequired($this, "class");
         if ($flags & self::VALIDATE_TYPES)
         {
-            if ($this->keyword === null) throw ValidationException::childRequired($this, "keyword");
-            if ($this->class === null) throw ValidationException::childRequired($this, "class");
         }
         if ($flags & self::VALIDATE_EXPRESSION_CONTEXT)
         {

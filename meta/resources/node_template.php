@@ -24,10 +24,14 @@ abstract class <?= $node->shortClassName() ?> extends <?= imported($node->extend
 <?php foreach ($node->children as $child): ?>
     /**
      * @var <?= $child->docType() ?><?= "\n" ?>
+<?php if ($child->isList): ?>
+     * @phpstan-var <?= $child->phpstanDocType() ?><?= "\n" ?>
+<?php endif ?>
      */
     private $<?= $child->name ?>;
 
 <?php endforeach ?>
+
     /**
 <?php foreach ($node->children as $child): ?>
 <?php if ($child->isList): ?>
@@ -69,7 +73,7 @@ abstract class <?= $node->shortClassName() ?> extends <?= imported($node->extend
 <?php if ($child->isList): ?>
      * @param mixed[] $<?= $child->name ?><?= "\n" ?>
 <?php else: ?>
-     * @param <?= $child->docType() ?> $<?= $child->name ?><?= "\n" ?>
+     * @param <?= $child->docType(false) ?> $<?= $child->name ?><?= "\n" ?>
 <?php endif ?>
 <?php endforeach ?>
      * @return static
@@ -84,13 +88,12 @@ abstract class <?= $node->shortClassName() ?> extends <?= imported($node->extend
 <?php else: ?>
         $instance-><?= $child->name ?> = $<?= $child->name ?>;
 <?php endif ?>
-<?php if ($child->optional): ?>
-        if ($<?= $child->name ?>)
-        {
-            $instance-><?= $child->name ?>->parent = $instance;
-        }
-<?php else: ?>
+<?php if ($child->isList): ?>
         $instance-><?= $child->name ?>->parent = $instance;
+<?php elseif ($child->optional): ?>
+        if ($<?= $child->name ?>) $<?= $child->name ?>->parent = $instance;
+<?php else: ?>
+        $<?= $child->name ?>->parent = $instance;
 <?php endif ?>
 <?php endforeach ?>
         return $instance;
@@ -111,6 +114,9 @@ abstract class <?= $node->shortClassName() ?> extends <?= imported($node->extend
 
     /**
      * @return <?= $child->docType() ?><?= "\n" ?>
+<?php if ($child->isList): ?>
+     * @phpstan-return <?= $child->phpstanDocType() ?><?= "\n" ?>
+<?php endif ?>
      */
     public function <?= $child->getter() ?>(): <?= $child->getterReturnType() ?><?= "\n" ?>
     {
@@ -167,13 +173,15 @@ abstract class <?= $node->shortClassName() ?> extends <?= imported($node->extend
 
     protected function _validate(int $flags): void
     {
-<?php /* TODO if hasValidators($flag) */ ?>
+<?php foreach ($node->children as $child): ?>
+<?php if (!$child->optional && !$child->isList): ?>
+        if ($this-><?= $child->name ?> === null) throw ValidationException::childRequired($this, "<?= $child->name ?>");
+<?php endif ?>
+<?php endforeach ?>
         if ($flags & self::VALIDATE_TYPES)
         {
 <?php foreach ($node->children as $child): ?>
-<?php if (!$child->optional && !$child->isList): ?>
-            if ($this-><?= $child->name ?> === null) throw ValidationException::childRequired($this, "<?= $child->name ?>");
-<?php endif ?>
+<?php /* TODO need validators for this */ ?>
 <?php endforeach ?>
         }
         if ($flags & self::VALIDATE_EXPRESSION_CONTEXT)

@@ -36,6 +36,7 @@ abstract class GeneratedMethodCallExpression extends Nodes\Expression
 
     /**
      * @var SeparatedNodesList|Nodes\Argument[]
+     * @phpstan-var SeparatedNodesList<\Phi\Nodes\Argument>
      */
     private $arguments;
 
@@ -43,6 +44,7 @@ abstract class GeneratedMethodCallExpression extends Nodes\Expression
      * @var Token|null
      */
     private $rightParenthesis;
+
 
     /**
      * @param Nodes\Expression|Node|string|null $object
@@ -63,12 +65,12 @@ abstract class GeneratedMethodCallExpression extends Nodes\Expression
 
     /**
      * @param int $phpVersion
-     * @param Nodes\Expression|null $object
-     * @param Token|null $operator
-     * @param Nodes\MemberName|null $name
-     * @param Token|null $leftParenthesis
+     * @param Nodes\Expression $object
+     * @param Token $operator
+     * @param Nodes\MemberName $name
+     * @param Token $leftParenthesis
      * @param mixed[] $arguments
-     * @param Token|null $rightParenthesis
+     * @param Token $rightParenthesis
      * @return static
      */
     public static function __instantiateUnchecked($phpVersion, $object, $operator, $name, $leftParenthesis, $arguments, $rightParenthesis)
@@ -76,17 +78,17 @@ abstract class GeneratedMethodCallExpression extends Nodes\Expression
         $instance = new static;
         $instance->phpVersion = $phpVersion;
         $instance->object = $object;
-        $instance->object->parent = $instance;
+        $object->parent = $instance;
         $instance->operator = $operator;
-        $instance->operator->parent = $instance;
+        $operator->parent = $instance;
         $instance->name = $name;
-        $instance->name->parent = $instance;
+        $name->parent = $instance;
         $instance->leftParenthesis = $leftParenthesis;
-        $instance->leftParenthesis->parent = $instance;
+        $leftParenthesis->parent = $instance;
         $instance->arguments->__initUnchecked($arguments);
         $instance->arguments->parent = $instance;
         $instance->rightParenthesis = $rightParenthesis;
-        $instance->rightParenthesis->parent = $instance;
+        $rightParenthesis->parent = $instance;
         return $instance;
     }
 
@@ -237,6 +239,7 @@ abstract class GeneratedMethodCallExpression extends Nodes\Expression
 
     /**
      * @return SeparatedNodesList|Nodes\Argument[]
+     * @phpstan-return SeparatedNodesList<\Phi\Nodes\Argument>
      */
     public function getArguments(): SeparatedNodesList
     {
@@ -288,13 +291,13 @@ abstract class GeneratedMethodCallExpression extends Nodes\Expression
 
     protected function _validate(int $flags): void
     {
+        if ($this->object === null) throw ValidationException::childRequired($this, "object");
+        if ($this->operator === null) throw ValidationException::childRequired($this, "operator");
+        if ($this->name === null) throw ValidationException::childRequired($this, "name");
+        if ($this->leftParenthesis === null) throw ValidationException::childRequired($this, "leftParenthesis");
+        if ($this->rightParenthesis === null) throw ValidationException::childRequired($this, "rightParenthesis");
         if ($flags & self::VALIDATE_TYPES)
         {
-            if ($this->object === null) throw ValidationException::childRequired($this, "object");
-            if ($this->operator === null) throw ValidationException::childRequired($this, "operator");
-            if ($this->name === null) throw ValidationException::childRequired($this, "name");
-            if ($this->leftParenthesis === null) throw ValidationException::childRequired($this, "leftParenthesis");
-            if ($this->rightParenthesis === null) throw ValidationException::childRequired($this, "rightParenthesis");
         }
         if ($flags & self::VALIDATE_EXPRESSION_CONTEXT)
         {

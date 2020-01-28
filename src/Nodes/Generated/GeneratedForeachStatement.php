@@ -59,6 +59,7 @@ abstract class GeneratedForeachStatement extends Nodes\Statement
      */
     private $block;
 
+
     /**
      * @param Nodes\Expression|Node|string|null $iterable
      * @param Nodes\Key|Node|string|null $key
@@ -87,15 +88,15 @@ abstract class GeneratedForeachStatement extends Nodes\Statement
 
     /**
      * @param int $phpVersion
-     * @param Token|null $keyword
-     * @param Token|null $leftParenthesis
-     * @param Nodes\Expression|null $iterable
-     * @param Token|null $as
+     * @param Token $keyword
+     * @param Token $leftParenthesis
+     * @param Nodes\Expression $iterable
+     * @param Token $as
      * @param Nodes\Key|null $key
      * @param Token|null $byReference
-     * @param Nodes\Expression|null $value
-     * @param Token|null $rightParenthesis
-     * @param Nodes\Block|null $block
+     * @param Nodes\Expression $value
+     * @param Token $rightParenthesis
+     * @param Nodes\Block $block
      * @return static
      */
     public static function __instantiateUnchecked($phpVersion, $keyword, $leftParenthesis, $iterable, $as, $key, $byReference, $value, $rightParenthesis, $block)
@@ -103,29 +104,23 @@ abstract class GeneratedForeachStatement extends Nodes\Statement
         $instance = new static;
         $instance->phpVersion = $phpVersion;
         $instance->keyword = $keyword;
-        $instance->keyword->parent = $instance;
+        $keyword->parent = $instance;
         $instance->leftParenthesis = $leftParenthesis;
-        $instance->leftParenthesis->parent = $instance;
+        $leftParenthesis->parent = $instance;
         $instance->iterable = $iterable;
-        $instance->iterable->parent = $instance;
+        $iterable->parent = $instance;
         $instance->as = $as;
-        $instance->as->parent = $instance;
+        $as->parent = $instance;
         $instance->key = $key;
-        if ($key)
-        {
-            $instance->key->parent = $instance;
-        }
+        if ($key) $key->parent = $instance;
         $instance->byReference = $byReference;
-        if ($byReference)
-        {
-            $instance->byReference->parent = $instance;
-        }
+        if ($byReference) $byReference->parent = $instance;
         $instance->value = $value;
-        $instance->value->parent = $instance;
+        $value->parent = $instance;
         $instance->rightParenthesis = $rightParenthesis;
-        $instance->rightParenthesis->parent = $instance;
+        $rightParenthesis->parent = $instance;
         $instance->block = $block;
-        $instance->block->parent = $instance;
+        $block->parent = $instance;
         return $instance;
     }
 
@@ -436,15 +431,15 @@ abstract class GeneratedForeachStatement extends Nodes\Statement
 
     protected function _validate(int $flags): void
     {
+        if ($this->keyword === null) throw ValidationException::childRequired($this, "keyword");
+        if ($this->leftParenthesis === null) throw ValidationException::childRequired($this, "leftParenthesis");
+        if ($this->iterable === null) throw ValidationException::childRequired($this, "iterable");
+        if ($this->as === null) throw ValidationException::childRequired($this, "as");
+        if ($this->value === null) throw ValidationException::childRequired($this, "value");
+        if ($this->rightParenthesis === null) throw ValidationException::childRequired($this, "rightParenthesis");
+        if ($this->block === null) throw ValidationException::childRequired($this, "block");
         if ($flags & self::VALIDATE_TYPES)
         {
-            if ($this->keyword === null) throw ValidationException::childRequired($this, "keyword");
-            if ($this->leftParenthesis === null) throw ValidationException::childRequired($this, "leftParenthesis");
-            if ($this->iterable === null) throw ValidationException::childRequired($this, "iterable");
-            if ($this->as === null) throw ValidationException::childRequired($this, "as");
-            if ($this->value === null) throw ValidationException::childRequired($this, "value");
-            if ($this->rightParenthesis === null) throw ValidationException::childRequired($this, "rightParenthesis");
-            if ($this->block === null) throw ValidationException::childRequired($this, "block");
         }
         if ($flags & self::VALIDATE_EXPRESSION_CONTEXT)
         {

@@ -24,6 +24,7 @@ abstract class GeneratedGroupedUsePrefix extends CompoundNode
      */
     private $separator;
 
+
     /**
      */
     public function __construct()
@@ -32,8 +33,8 @@ abstract class GeneratedGroupedUsePrefix extends CompoundNode
 
     /**
      * @param int $phpVersion
-     * @param Nodes\Name|null $prefix
-     * @param Token|null $separator
+     * @param Nodes\Name $prefix
+     * @param Token $separator
      * @return static
      */
     public static function __instantiateUnchecked($phpVersion, $prefix, $separator)
@@ -41,9 +42,9 @@ abstract class GeneratedGroupedUsePrefix extends CompoundNode
         $instance = new static;
         $instance->phpVersion = $phpVersion;
         $instance->prefix = $prefix;
-        $instance->prefix->parent = $instance;
+        $prefix->parent = $instance;
         $instance->separator = $separator;
-        $instance->separator->parent = $instance;
+        $separator->parent = $instance;
         return $instance;
     }
 
@@ -124,10 +125,10 @@ abstract class GeneratedGroupedUsePrefix extends CompoundNode
 
     protected function _validate(int $flags): void
     {
+        if ($this->prefix === null) throw ValidationException::childRequired($this, "prefix");
+        if ($this->separator === null) throw ValidationException::childRequired($this, "separator");
         if ($flags & self::VALIDATE_TYPES)
         {
-            if ($this->prefix === null) throw ValidationException::childRequired($this, "prefix");
-            if ($this->separator === null) throw ValidationException::childRequired($this, "separator");
         }
         if ($flags & self::VALIDATE_EXPRESSION_CONTEXT)
         {

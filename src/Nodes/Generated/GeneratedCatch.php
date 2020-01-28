@@ -26,6 +26,7 @@ abstract class GeneratedCatch extends CompoundNode
 
     /**
      * @var SeparatedNodesList|Nodes\Type[]
+     * @phpstan-var SeparatedNodesList<\Phi\Nodes\Type>
      */
     private $types;
 
@@ -44,6 +45,7 @@ abstract class GeneratedCatch extends CompoundNode
      */
     private $block;
 
+
     /**
      */
     public function __construct()
@@ -53,12 +55,12 @@ abstract class GeneratedCatch extends CompoundNode
 
     /**
      * @param int $phpVersion
-     * @param Token|null $keyword
-     * @param Token|null $leftParenthesis
+     * @param Token $keyword
+     * @param Token $leftParenthesis
      * @param mixed[] $types
-     * @param Token|null $variable
-     * @param Token|null $rightParenthesis
-     * @param Nodes\RegularBlock|null $block
+     * @param Token $variable
+     * @param Token $rightParenthesis
+     * @param Nodes\RegularBlock $block
      * @return static
      */
     public static function __instantiateUnchecked($phpVersion, $keyword, $leftParenthesis, $types, $variable, $rightParenthesis, $block)
@@ -66,17 +68,17 @@ abstract class GeneratedCatch extends CompoundNode
         $instance = new static;
         $instance->phpVersion = $phpVersion;
         $instance->keyword = $keyword;
-        $instance->keyword->parent = $instance;
+        $keyword->parent = $instance;
         $instance->leftParenthesis = $leftParenthesis;
-        $instance->leftParenthesis->parent = $instance;
+        $leftParenthesis->parent = $instance;
         $instance->types->__initUnchecked($types);
         $instance->types->parent = $instance;
         $instance->variable = $variable;
-        $instance->variable->parent = $instance;
+        $variable->parent = $instance;
         $instance->rightParenthesis = $rightParenthesis;
-        $instance->rightParenthesis->parent = $instance;
+        $rightParenthesis->parent = $instance;
         $instance->block = $block;
-        $instance->block->parent = $instance;
+        $block->parent = $instance;
         return $instance;
     }
 
@@ -161,6 +163,7 @@ abstract class GeneratedCatch extends CompoundNode
 
     /**
      * @return SeparatedNodesList|Nodes\Type[]
+     * @phpstan-return SeparatedNodesList<\Phi\Nodes\Type>
      */
     public function getTypes(): SeparatedNodesList
     {
@@ -278,13 +281,13 @@ abstract class GeneratedCatch extends CompoundNode
 
     protected function _validate(int $flags): void
     {
+        if ($this->keyword === null) throw ValidationException::childRequired($this, "keyword");
+        if ($this->leftParenthesis === null) throw ValidationException::childRequired($this, "leftParenthesis");
+        if ($this->variable === null) throw ValidationException::childRequired($this, "variable");
+        if ($this->rightParenthesis === null) throw ValidationException::childRequired($this, "rightParenthesis");
+        if ($this->block === null) throw ValidationException::childRequired($this, "block");
         if ($flags & self::VALIDATE_TYPES)
         {
-            if ($this->keyword === null) throw ValidationException::childRequired($this, "keyword");
-            if ($this->leftParenthesis === null) throw ValidationException::childRequired($this, "leftParenthesis");
-            if ($this->variable === null) throw ValidationException::childRequired($this, "variable");
-            if ($this->rightParenthesis === null) throw ValidationException::childRequired($this, "rightParenthesis");
-            if ($this->block === null) throw ValidationException::childRequired($this, "block");
         }
         if ($flags & self::VALIDATE_EXPRESSION_CONTEXT)
         {

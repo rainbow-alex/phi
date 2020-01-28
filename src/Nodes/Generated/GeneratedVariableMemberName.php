@@ -29,6 +29,7 @@ abstract class GeneratedVariableMemberName extends Nodes\MemberName
      */
     private $rightBrace;
 
+
     /**
      * @param Nodes\Expression|Node|string|null $expression
      */
@@ -43,7 +44,7 @@ abstract class GeneratedVariableMemberName extends Nodes\MemberName
     /**
      * @param int $phpVersion
      * @param Token|null $leftBrace
-     * @param Nodes\Expression|null $expression
+     * @param Nodes\Expression $expression
      * @param Token|null $rightBrace
      * @return static
      */
@@ -52,17 +53,11 @@ abstract class GeneratedVariableMemberName extends Nodes\MemberName
         $instance = new static;
         $instance->phpVersion = $phpVersion;
         $instance->leftBrace = $leftBrace;
-        if ($leftBrace)
-        {
-            $instance->leftBrace->parent = $instance;
-        }
+        if ($leftBrace) $leftBrace->parent = $instance;
         $instance->expression = $expression;
-        $instance->expression->parent = $instance;
+        $expression->parent = $instance;
         $instance->rightBrace = $rightBrace;
-        if ($rightBrace)
-        {
-            $instance->rightBrace->parent = $instance;
-        }
+        if ($rightBrace) $rightBrace->parent = $instance;
         return $instance;
     }
 
@@ -169,9 +164,9 @@ abstract class GeneratedVariableMemberName extends Nodes\MemberName
 
     protected function _validate(int $flags): void
     {
+        if ($this->expression === null) throw ValidationException::childRequired($this, "expression");
         if ($flags & self::VALIDATE_TYPES)
         {
-            if ($this->expression === null) throw ValidationException::childRequired($this, "expression");
         }
         if ($flags & self::VALIDATE_EXPRESSION_CONTEXT)
         {

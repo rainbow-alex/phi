@@ -26,6 +26,7 @@ abstract class GeneratedRegularUseStatement extends Nodes\UseStatement
 
     /**
      * @var SeparatedNodesList|Nodes\UseName[]
+     * @phpstan-var SeparatedNodesList<\Phi\Nodes\UseName>
      */
     private $names;
 
@@ -33,6 +34,7 @@ abstract class GeneratedRegularUseStatement extends Nodes\UseStatement
      * @var Token|null
      */
     private $semiColon;
+
 
     /**
      * @param Nodes\UseName $name
@@ -48,7 +50,7 @@ abstract class GeneratedRegularUseStatement extends Nodes\UseStatement
 
     /**
      * @param int $phpVersion
-     * @param Token|null $keyword
+     * @param Token $keyword
      * @param Token|null $type
      * @param mixed[] $names
      * @param Token|null $semiColon
@@ -59,19 +61,13 @@ abstract class GeneratedRegularUseStatement extends Nodes\UseStatement
         $instance = new static;
         $instance->phpVersion = $phpVersion;
         $instance->keyword = $keyword;
-        $instance->keyword->parent = $instance;
+        $keyword->parent = $instance;
         $instance->type = $type;
-        if ($type)
-        {
-            $instance->type->parent = $instance;
-        }
+        if ($type) $type->parent = $instance;
         $instance->names->__initUnchecked($names);
         $instance->names->parent = $instance;
         $instance->semiColon = $semiColon;
-        if ($semiColon)
-        {
-            $instance->semiColon->parent = $instance;
-        }
+        if ($semiColon) $semiColon->parent = $instance;
         return $instance;
     }
 
@@ -150,6 +146,7 @@ abstract class GeneratedRegularUseStatement extends Nodes\UseStatement
 
     /**
      * @return SeparatedNodesList|Nodes\UseName[]
+     * @phpstan-return SeparatedNodesList<\Phi\Nodes\UseName>
      */
     public function getNames(): SeparatedNodesList
     {
@@ -197,9 +194,9 @@ abstract class GeneratedRegularUseStatement extends Nodes\UseStatement
 
     protected function _validate(int $flags): void
     {
+        if ($this->keyword === null) throw ValidationException::childRequired($this, "keyword");
         if ($flags & self::VALIDATE_TYPES)
         {
-            if ($this->keyword === null) throw ValidationException::childRequired($this, "keyword");
         }
         if ($flags & self::VALIDATE_EXPRESSION_CONTEXT)
         {

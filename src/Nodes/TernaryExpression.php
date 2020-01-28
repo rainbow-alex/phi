@@ -16,9 +16,9 @@ class TernaryExpression extends GeneratedTernaryExpression
         }
 
         $this->getTest()->validateContext(self::CTX_READ);
-        if ($this->hasThen())
+        if ($then = $this->getThen())
         {
-            $this->getThen()->validateContext(self::CTX_READ);
+            $then->validateContext(self::CTX_READ);
         }
         $this->getElse()->validateContext(self::CTX_READ);
     }

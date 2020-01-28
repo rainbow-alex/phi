@@ -24,6 +24,7 @@ abstract class GeneratedExpressionStatement extends Nodes\Statement
      */
     private $semiColon;
 
+
     /**
      * @param Nodes\Expression|Node|string|null $expression
      */
@@ -37,7 +38,7 @@ abstract class GeneratedExpressionStatement extends Nodes\Statement
 
     /**
      * @param int $phpVersion
-     * @param Nodes\Expression|null $expression
+     * @param Nodes\Expression $expression
      * @param Token|null $semiColon
      * @return static
      */
@@ -46,12 +47,9 @@ abstract class GeneratedExpressionStatement extends Nodes\Statement
         $instance = new static;
         $instance->phpVersion = $phpVersion;
         $instance->expression = $expression;
-        $instance->expression->parent = $instance;
+        $expression->parent = $instance;
         $instance->semiColon = $semiColon;
-        if ($semiColon)
-        {
-            $instance->semiColon->parent = $instance;
-        }
+        if ($semiColon) $semiColon->parent = $instance;
         return $instance;
     }
 
@@ -128,9 +126,9 @@ abstract class GeneratedExpressionStatement extends Nodes\Statement
 
     protected function _validate(int $flags): void
     {
+        if ($this->expression === null) throw ValidationException::childRequired($this, "expression");
         if ($flags & self::VALIDATE_TYPES)
         {
-            if ($this->expression === null) throw ValidationException::childRequired($this, "expression");
         }
         if ($flags & self::VALIDATE_EXPRESSION_CONTEXT)
         {

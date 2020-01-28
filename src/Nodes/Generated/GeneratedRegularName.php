@@ -16,8 +16,10 @@ abstract class GeneratedRegularName extends Nodes\Name
 {
     /**
      * @var SeparatedNodesList|Token[]
+     * @phpstan-var SeparatedNodesList<\Phi\Token>
      */
     private $parts;
+
 
     /**
      */
@@ -50,6 +52,7 @@ abstract class GeneratedRegularName extends Nodes\Name
 
     /**
      * @return SeparatedNodesList|Token[]
+     * @phpstan-return SeparatedNodesList<\Phi\Token>
      */
     public function getParts(): SeparatedNodesList
     {

@@ -36,6 +36,7 @@ abstract class GeneratedAnonymousFunctionExpression extends Nodes\Expression
 
     /**
      * @var SeparatedNodesList|Nodes\Parameter[]
+     * @phpstan-var SeparatedNodesList<\Phi\Nodes\Parameter>
      */
     private $parameters;
 
@@ -59,6 +60,7 @@ abstract class GeneratedAnonymousFunctionExpression extends Nodes\Expression
      */
     private $body;
 
+
     /**
      */
     public function __construct()
@@ -69,14 +71,14 @@ abstract class GeneratedAnonymousFunctionExpression extends Nodes\Expression
     /**
      * @param int $phpVersion
      * @param Token|null $static
-     * @param Token|null $keyword
+     * @param Token $keyword
      * @param Token|null $byReference
-     * @param Token|null $leftParenthesis
+     * @param Token $leftParenthesis
      * @param mixed[] $parameters
-     * @param Token|null $rightParenthesis
+     * @param Token $rightParenthesis
      * @param Nodes\AnonymousFunctionUse|null $use
      * @param Nodes\ReturnType|null $returnType
-     * @param Nodes\RegularBlock|null $body
+     * @param Nodes\RegularBlock $body
      * @return static
      */
     public static function __instantiateUnchecked($phpVersion, $static, $keyword, $byReference, $leftParenthesis, $parameters, $rightParenthesis, $use, $returnType, $body)
@@ -84,35 +86,23 @@ abstract class GeneratedAnonymousFunctionExpression extends Nodes\Expression
         $instance = new static;
         $instance->phpVersion = $phpVersion;
         $instance->static = $static;
-        if ($static)
-        {
-            $instance->static->parent = $instance;
-        }
+        if ($static) $static->parent = $instance;
         $instance->keyword = $keyword;
-        $instance->keyword->parent = $instance;
+        $keyword->parent = $instance;
         $instance->byReference = $byReference;
-        if ($byReference)
-        {
-            $instance->byReference->parent = $instance;
-        }
+        if ($byReference) $byReference->parent = $instance;
         $instance->leftParenthesis = $leftParenthesis;
-        $instance->leftParenthesis->parent = $instance;
+        $leftParenthesis->parent = $instance;
         $instance->parameters->__initUnchecked($parameters);
         $instance->parameters->parent = $instance;
         $instance->rightParenthesis = $rightParenthesis;
-        $instance->rightParenthesis->parent = $instance;
+        $rightParenthesis->parent = $instance;
         $instance->use = $use;
-        if ($use)
-        {
-            $instance->use->parent = $instance;
-        }
+        if ($use) $use->parent = $instance;
         $instance->returnType = $returnType;
-        if ($returnType)
-        {
-            $instance->returnType->parent = $instance;
-        }
+        if ($returnType) $returnType->parent = $instance;
         $instance->body = $body;
-        $instance->body->parent = $instance;
+        $body->parent = $instance;
         return $instance;
     }
 
@@ -258,6 +248,7 @@ abstract class GeneratedAnonymousFunctionExpression extends Nodes\Expression
 
     /**
      * @return SeparatedNodesList|Nodes\Parameter[]
+     * @phpstan-return SeparatedNodesList<\Phi\Nodes\Parameter>
      */
     public function getParameters(): SeparatedNodesList
     {
@@ -400,12 +391,12 @@ abstract class GeneratedAnonymousFunctionExpression extends Nodes\Expression
 
     protected function _validate(int $flags): void
     {
+        if ($this->keyword === null) throw ValidationException::childRequired($this, "keyword");
+        if ($this->leftParenthesis === null) throw ValidationException::childRequired($this, "leftParenthesis");
+        if ($this->rightParenthesis === null) throw ValidationException::childRequired($this, "rightParenthesis");
+        if ($this->body === null) throw ValidationException::childRequired($this, "body");
         if ($flags & self::VALIDATE_TYPES)
         {
-            if ($this->keyword === null) throw ValidationException::childRequired($this, "keyword");
-            if ($this->leftParenthesis === null) throw ValidationException::childRequired($this, "leftParenthesis");
-            if ($this->rightParenthesis === null) throw ValidationException::childRequired($this, "rightParenthesis");
-            if ($this->body === null) throw ValidationException::childRequired($this, "body");
         }
         if ($flags & self::VALIDATE_EXPRESSION_CONTEXT)
         {

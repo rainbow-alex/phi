@@ -29,6 +29,7 @@ abstract class GeneratedYieldExpression extends Nodes\Expression
      */
     private $expression;
 
+
     /**
      * @param Nodes\Expression|Node|string|null $expression
      */
@@ -42,9 +43,9 @@ abstract class GeneratedYieldExpression extends Nodes\Expression
 
     /**
      * @param int $phpVersion
-     * @param Token|null $keyword
+     * @param Token $keyword
      * @param Nodes\Key|null $key
-     * @param Nodes\Expression|null $expression
+     * @param Nodes\Expression $expression
      * @return static
      */
     public static function __instantiateUnchecked($phpVersion, $keyword, $key, $expression)
@@ -52,14 +53,11 @@ abstract class GeneratedYieldExpression extends Nodes\Expression
         $instance = new static;
         $instance->phpVersion = $phpVersion;
         $instance->keyword = $keyword;
-        $instance->keyword->parent = $instance;
+        $keyword->parent = $instance;
         $instance->key = $key;
-        if ($key)
-        {
-            $instance->key->parent = $instance;
-        }
+        if ($key) $key->parent = $instance;
         $instance->expression = $expression;
-        $instance->expression->parent = $instance;
+        $expression->parent = $instance;
         return $instance;
     }
 
@@ -170,10 +168,10 @@ abstract class GeneratedYieldExpression extends Nodes\Expression
 
     protected function _validate(int $flags): void
     {
+        if ($this->keyword === null) throw ValidationException::childRequired($this, "keyword");
+        if ($this->expression === null) throw ValidationException::childRequired($this, "expression");
         if ($flags & self::VALIDATE_TYPES)
         {
-            if ($this->keyword === null) throw ValidationException::childRequired($this, "keyword");
-            if ($this->expression === null) throw ValidationException::childRequired($this, "expression");
         }
         if ($flags & self::VALIDATE_EXPRESSION_CONTEXT)
         {

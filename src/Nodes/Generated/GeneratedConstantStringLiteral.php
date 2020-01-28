@@ -19,6 +19,7 @@ abstract class GeneratedConstantStringLiteral extends Nodes\Expression
      */
     private $source;
 
+
     /**
      * @param Token|Node|string|null $source
      */
@@ -32,7 +33,7 @@ abstract class GeneratedConstantStringLiteral extends Nodes\Expression
 
     /**
      * @param int $phpVersion
-     * @param Token|null $source
+     * @param Token $source
      * @return static
      */
     public static function __instantiateUnchecked($phpVersion, $source)
@@ -40,7 +41,7 @@ abstract class GeneratedConstantStringLiteral extends Nodes\Expression
         $instance = new static;
         $instance->phpVersion = $phpVersion;
         $instance->source = $source;
-        $instance->source->parent = $instance;
+        $source->parent = $instance;
         return $instance;
     }
 
@@ -87,9 +88,9 @@ abstract class GeneratedConstantStringLiteral extends Nodes\Expression
 
     protected function _validate(int $flags): void
     {
+        if ($this->source === null) throw ValidationException::childRequired($this, "source");
         if ($flags & self::VALIDATE_TYPES)
         {
-            if ($this->source === null) throw ValidationException::childRequired($this, "source");
         }
         if ($flags & self::VALIDATE_EXPRESSION_CONTEXT)
         {

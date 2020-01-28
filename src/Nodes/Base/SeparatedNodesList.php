@@ -6,16 +6,24 @@ use ArrayIterator;
 use Iterator;
 use IteratorAggregate;
 use Phi\Node;
+use Phi\Token;
 
-class SeparatedNodesList extends Node implements IteratorAggregate
+/**
+ * @template T of Node
+ * @extends BaseListNode<T>
+ * @implements IteratorAggregate<T>
+ */
+class SeparatedNodesList extends BaseListNode implements IteratorAggregate
 {
     /**
-     * @var array<Node|null>
+     * @var array<Node|Token|null>
+     * @phpstan-var array<T|Token|null>
      */
     private $nodes = [];
 
     /**
-     * @param array<Node|null> $nodes
+     * @param array<Node|Token|null> $nodes
+     * @phpstan-param array<T|Token|null> $nodes
      */
     public function __initUnchecked(array $nodes): void
     {
@@ -41,12 +49,12 @@ class SeparatedNodesList extends Node implements IteratorAggregate
         \array_splice($this->nodes, $i, 1);
     }
 
-    public function childNodes(): array
+    public function getChildNodes(): array
     {
         return \array_values(\array_filter($this->nodes));
     }
 
-    public function tokens(): iterable
+    public function iterTokens(): iterable
     {
         foreach ($this->nodes as $node)
         {
@@ -57,31 +65,6 @@ class SeparatedNodesList extends Node implements IteratorAggregate
         }
     }
 
-    public function getLeftWhitespace(): string
-    {
-        foreach ($this->nodes as $node)
-        {
-            if ($node)
-            {
-                return $node->getLeftWhitespace();
-            }
-        }
-        return "";
-    }
-
-    public function getRightWhitespace(): string
-    {
-        for ($i = count($this->nodes) - 1; $i >= 0; $i--)
-        {
-            $node = $this->nodes[$i];
-            if ($node)
-            {
-                return $node->getRightWhitespace();
-            }
-        }
-        return "";
-    }
-
     public function _validate(int $flags): void
     {
         // TODO do only compound nodes need this?
@@ -89,6 +72,7 @@ class SeparatedNodesList extends Node implements IteratorAggregate
         {
             if ($node && $i % 2 === 1)
             {
+                /** @phpstan-var T $node */
                 $node->_validate($flags);
             }
         }
@@ -122,13 +106,19 @@ class SeparatedNodesList extends Node implements IteratorAggregate
         echo $indent . "]\n";
     }
 
-    /** @return Iterator|Node[] */
+    /**
+     * @return Iterator<Node>
+     * @phpstan-return Iterator<T>
+     */
     public function getIterator(): Iterator
     {
         return new ArrayIterator($this->getItems());
     }
 
-    /** @return Node[] */
+    /**
+     * @return Node[]
+     * @phpstan-return T[]
+     */
     public function getItems(): array
     {
         $items = [];
@@ -139,10 +129,11 @@ class SeparatedNodesList extends Node implements IteratorAggregate
                 $items[] = $node;
             }
         }
+        /** @var T[] $items convince phpstan */
         return $items;
     }
 
-    /** @return Node[] */
+    /** @return Token[] */
     public function getSeparators(): array
     {
         $separators = [];
@@ -153,9 +144,11 @@ class SeparatedNodesList extends Node implements IteratorAggregate
                 $separators[] = $node;
             }
         }
+        /** @var array<Token> $separators convince phpstan */
         return $separators;
     }
 
+    /** @param T $node */
     public function add(Node $node): void
     {
         if (count($this->nodes) % 2 === 0)

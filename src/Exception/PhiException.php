@@ -6,7 +6,7 @@ use Phi\Node;
 use Phi\Token;
 use Exception;
 
-abstract class PhiException extends Exception
+class PhiException extends Exception
 {
     /** @var Node|null */
     private $node;
@@ -26,7 +26,7 @@ abstract class PhiException extends Exception
     {
         if ($this->node)
         {
-            foreach ($this->node->tokens() as $token)
+            foreach ($this->node->iterTokens() as $token)
             {
                 return $token;
             }
