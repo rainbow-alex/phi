@@ -1,0 +1,8 @@
+{"algo": "permute"}
+
+$v
+$v = ident
+...$v
+&$v
+&$v = ident
+#BLANK#

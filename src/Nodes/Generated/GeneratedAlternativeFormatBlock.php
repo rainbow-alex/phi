@@ -1,65 +1,65 @@
 <?php
 
+declare(strict_types=1);
+
+/**
+ * This code is generated.
+ * @see meta/
+ */
+
 namespace Phi\Nodes\Generated;
 
 use Phi\Node;
 use Phi\Token;
-use Phi\Nodes\Base\CompoundNode;
-use Phi\Nodes\Base\NodesList;
-use Phi\Nodes\Base\SeparatedNodesList;
-use Phi\Exception\MissingNodeException;
-use Phi\NodeConverter;
+use Phi\Exception\TreeException;
+use Phi\NodeCoercer;
 use Phi\Exception\ValidationException;
-use Phi\Nodes as Nodes;
 
-abstract class GeneratedAlternativeFormatBlock extends Nodes\Block
+trait GeneratedAlternativeFormatBlock
 {
     /**
-     * @var Token|null
+     * @var \Phi\Token|null
      */
     private $colon;
 
     /**
-     * @var NodesList|Nodes\Statement[]
-     * @phpstan-var NodesList<\Phi\Nodes\Statement>
+     * @var \Phi\Nodes\Base\NodesList|\Phi\Nodes\Statement[]
+     * @phpstan-var \Phi\Nodes\Base\NodesList<\Phi\Nodes\Statement>
      */
     private $statements;
 
     /**
-     * @var Token|null
+     * @var \Phi\Token|null
      */
     private $endKeyword;
 
     /**
-     * @var Token|null
+     * @var \Phi\Token|null
      */
     private $delimiter;
 
-
     /**
-     * @param Nodes\Statement $statement
+     * @param \Phi\Nodes\Statement $statement
      */
     public function __construct($statement = null)
     {
-        $this->statements = new NodesList();
+        $this->statements = new \Phi\Nodes\Base\NodesList(\Phi\Nodes\Statement::class);
         if ($statement !== null)
         {
-            $this->addStatement($statement);
+            $this->statements->add($statement);
         }
     }
 
     /**
-     * @param int $phpVersion
-     * @param Token $colon
+     * @param \Phi\Token $colon
      * @param mixed[] $statements
-     * @param Token|null $endKeyword
-     * @param Token|null $delimiter
-     * @return static
+     * @param \Phi\Token|null $endKeyword
+     * @param \Phi\Token|null $delimiter
+     * @return self
      */
-    public static function __instantiateUnchecked($phpVersion, $colon, $statements, $endKeyword, $delimiter)
+    public static function __instantiateUnchecked($colon, $statements, $endKeyword, $delimiter)
     {
-        $instance = new static;
-        $instance->phpVersion = $phpVersion;
+        $instance = new self;
         $instance->colon = $colon;
         $colon->parent = $instance;
         $instance->statements->__initUnchecked($statements);
@@ -71,22 +71,38 @@ abstract class GeneratedAlternativeFormatBlock extends Nodes\Block
         return $instance;
     }
 
-    protected function &_getNodeRefs(): array
+    public function getChildNodes(): array
     {
-        $refs = [
-            "colon" => &$this->colon,
-            "statements" => &$this->statements,
-            "endKeyword" => &$this->endKeyword,
-            "delimiter" => &$this->delimiter,
-        ];
-        return $refs;
+        return \array_values(\array_filter([
+            $this->colon,
+            $this->statements,
+            $this->endKeyword,
+            $this->delimiter,
+        ]));
     }
 
-    public function getColon(): Token
+    protected function &getChildRef(Node $childToDetach): Node
+    {
+        if ($this->colon === $childToDetach)
+        {
+            return $this->colon;
+        }
+        if ($this->endKeyword === $childToDetach)
+        {
+            return $this->endKeyword;
+        }
+        if ($this->delimiter === $childToDetach)
+        {
+            return $this->delimiter;
+        }
+        throw new \LogicException();
+    }
+
+    public function getColon(): \Phi\Token
     {
         if ($this->colon === null)
         {
-            throw new MissingNodeException($this, __FUNCTION__);
+            throw TreeException::missingNode($this, "colon");
         }
         return $this->colon;
     }
@@ -97,14 +113,14 @@ abstract class GeneratedAlternativeFormatBlock extends Nodes\Block
     }
 
     /**
-     * @param Token|Node|string|null $colon
+     * @param \Phi\Token|\Phi\Node|string|null $colon
      */
     public function setColon($colon): void
     {
         if ($colon !== null)
         {
-            /** @var Token $colon */
-            $colon = NodeConverter::convert($colon, Token::class, $this->phpVersion);
+            /** @var \Phi\Token $colon */
+            $colon = NodeCoercer::coerce($colon, \Phi\Token::class, $this->getPhpVersion());
             $colon->detach();
             $colon->parent = $this;
         }
@@ -116,25 +132,15 @@ abstract class GeneratedAlternativeFormatBlock extends Nodes\Block
     }
 
     /**
-     * @return NodesList|Nodes\Statement[]
-     * @phpstan-return NodesList<\Phi\Nodes\Statement>
+     * @return \Phi\Nodes\Base\NodesList|\Phi\Nodes\Statement[]
+     * @phpstan-return \Phi\Nodes\Base\NodesList<\Phi\Nodes\Statement>
      */
-    public function getStatements(): NodesList
+    public function getStatements(): \Phi\Nodes\Base\NodesList
     {
         return $this->statements;
     }
 
-    /**
-     * @param Nodes\Statement $statement
-     */
-    public function addStatement($statement): void
-    {
-        /** @var Nodes\Statement $statement */
-        $statement = NodeConverter::convert($statement, Nodes\Statement::class, $this->phpVersion);
-        $this->statements->add($statement);
-    }
-
-    public function getEndKeyword(): ?Token
+    public function getEndKeyword(): ?\Phi\Token
     {
         return $this->endKeyword;
     }
@@ -145,14 +151,14 @@ abstract class GeneratedAlternativeFormatBlock extends Nodes\Block
     }
 
     /**
-     * @param Token|Node|string|null $endKeyword
+     * @param \Phi\Token|\Phi\Node|string|null $endKeyword
      */
     public function setEndKeyword($endKeyword): void
     {
         if ($endKeyword !== null)
         {
-            /** @var Token $endKeyword */
-            $endKeyword = NodeConverter::convert($endKeyword, Token::class, $this->phpVersion);
+            /** @var \Phi\Token $endKeyword */
+            $endKeyword = NodeCoercer::coerce($endKeyword, \Phi\Token::class, $this->getPhpVersion());
             $endKeyword->detach();
             $endKeyword->parent = $this;
         }
@@ -163,7 +169,7 @@ abstract class GeneratedAlternativeFormatBlock extends Nodes\Block
         $this->endKeyword = $endKeyword;
     }
 
-    public function getDelimiter(): ?Token
+    public function getDelimiter(): ?\Phi\Token
     {
         return $this->delimiter;
     }
@@ -174,14 +180,14 @@ abstract class GeneratedAlternativeFormatBlock extends Nodes\Block
     }
 
     /**
-     * @param Token|Node|string|null $delimiter
+     * @param \Phi\Token|\Phi\Node|string|null $delimiter
      */
     public function setDelimiter($delimiter): void
     {
         if ($delimiter !== null)
         {
-            /** @var Token $delimiter */
-            $delimiter = NodeConverter::convert($delimiter, Token::class, $this->phpVersion);
+            /** @var \Phi\Token $delimiter */
+            $delimiter = NodeCoercer::coerce($delimiter, \Phi\Token::class, $this->getPhpVersion());
             $delimiter->detach();
             $delimiter->parent = $this;
         }
@@ -192,18 +198,31 @@ abstract class GeneratedAlternativeFormatBlock extends Nodes\Block
         $this->delimiter = $delimiter;
     }
 
-    protected function _validate(int $flags): void
+    public function _validate(int $flags): void
     {
-        if ($this->colon === null) throw ValidationException::childRequired($this, "colon");
-        if ($flags & self::VALIDATE_TYPES)
-        {
-        }
-        if ($flags & self::VALIDATE_EXPRESSION_CONTEXT)
-        {
-        }
-        if ($flags & self::VALIDATE_TOKENS)
-        {
-        }
-        $this->statements->_validate($flags);
+        if ($this->colon === null)
+            throw ValidationException::missingChild($this, "colon");
+        if ($this->colon->getType() !== 113)
+            throw ValidationException::invalidSyntax($this->colon, [113]);
+        if ($this->endKeyword)
+        if (!\in_array($this->endKeyword->getType(), [169, 170, 171, 172, 173, 174], true))
+            throw ValidationException::invalidSyntax($this->endKeyword, [169, 170, 171, 172, 173, 174]);
+        if ($this->delimiter)
+        if (!\in_array($this->delimiter->getType(), [114, 143], true))
+            throw ValidationException::invalidSyntax($this->delimiter, [114, 143]);
+
+
+        $this->extraValidation($flags);
+
+        foreach ($this->statements as $t)
+            $t->_validate(0);
+    }
+
+    public function _autocorrect(): void
+    {
+        foreach ($this->statements as $t)
+            $t->_autocorrect();
+
+        $this->extraAutocorrect();
     }
 }

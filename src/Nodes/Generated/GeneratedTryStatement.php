@@ -1,87 +1,103 @@
 <?php
 
+declare(strict_types=1);
+
+/**
+ * This code is generated.
+ * @see meta/
+ */
+
 namespace Phi\Nodes\Generated;
 
 use Phi\Node;
 use Phi\Token;
-use Phi\Nodes\Base\CompoundNode;
-use Phi\Nodes\Base\NodesList;
-use Phi\Nodes\Base\SeparatedNodesList;
-use Phi\Exception\MissingNodeException;
-use Phi\NodeConverter;
+use Phi\Exception\TreeException;
+use Phi\NodeCoercer;
 use Phi\Exception\ValidationException;
-use Phi\Nodes as Nodes;
 
-abstract class GeneratedTryStatement extends Nodes\Statement
+trait GeneratedTryStatement
 {
     /**
-     * @var Token|null
+     * @var \Phi\Token|null
      */
     private $keyword;
 
     /**
-     * @var Nodes\RegularBlock|null
+     * @var \Phi\Nodes\Blocks\RegularBlock|null
      */
     private $block;
 
     /**
-     * @var NodesList|Nodes\Catch_[]
-     * @phpstan-var NodesList<\Phi\Nodes\Catch_>
+     * @var \Phi\Nodes\Base\NodesList|\Phi\Nodes\Statements\Catch_[]
+     * @phpstan-var \Phi\Nodes\Base\NodesList<\Phi\Nodes\Statements\Catch_>
      */
-    private $catches;
+    private $catchClauses;
 
     /**
-     * @var Nodes\Finally_|null
+     * @var \Phi\Nodes\Statements\Finally_|null
      */
-    private $finally;
-
+    private $finallyClause;
 
     /**
      */
     public function __construct()
     {
-        $this->catches = new NodesList();
+        $this->catchClauses = new \Phi\Nodes\Base\NodesList(\Phi\Nodes\Statements\Catch_::class);
     }
 
     /**
-     * @param int $phpVersion
-     * @param Token $keyword
-     * @param Nodes\RegularBlock $block
-     * @param mixed[] $catches
-     * @param Nodes\Finally_|null $finally
-     * @return static
+     * @param \Phi\Token $keyword
+     * @param \Phi\Nodes\Blocks\RegularBlock $block
+     * @param mixed[] $catchClauses
+     * @param \Phi\Nodes\Statements\Finally_|null $finallyClause
+     * @return self
      */
-    public static function __instantiateUnchecked($phpVersion, $keyword, $block, $catches, $finally)
+    public static function __instantiateUnchecked($keyword, $block, $catchClauses, $finallyClause)
     {
-        $instance = new static;
-        $instance->phpVersion = $phpVersion;
+        $instance = new self;
         $instance->keyword = $keyword;
         $keyword->parent = $instance;
         $instance->block = $block;
         $block->parent = $instance;
-        $instance->catches->__initUnchecked($catches);
-        $instance->catches->parent = $instance;
-        $instance->finally = $finally;
-        if ($finally) $finally->parent = $instance;
+        $instance->catchClauses->__initUnchecked($catchClauses);
+        $instance->catchClauses->parent = $instance;
+        $instance->finallyClause = $finallyClause;
+        if ($finallyClause) $finallyClause->parent = $instance;
         return $instance;
     }
 
-    protected function &_getNodeRefs(): array
+    public function getChildNodes(): array
     {
-        $refs = [
-            "keyword" => &$this->keyword,
-            "block" => &$this->block,
-            "catches" => &$this->catches,
-            "finally" => &$this->finally,
-        ];
-        return $refs;
+        return \array_values(\array_filter([
+            $this->keyword,
+            $this->block,
+            $this->catchClauses,
+            $this->finallyClause,
+        ]));
     }
 
-    public function getKeyword(): Token
+    protected function &getChildRef(Node $childToDetach): Node
+    {
+        if ($this->keyword === $childToDetach)
+        {
+            return $this->keyword;
+        }
+        if ($this->block === $childToDetach)
+        {
+            return $this->block;
+        }
+        if ($this->finallyClause === $childToDetach)
+        {
+            return $this->finallyClause;
+        }
+        throw new \LogicException();
+    }
+
+    public function getKeyword(): \Phi\Token
     {
         if ($this->keyword === null)
         {
-            throw new MissingNodeException($this, __FUNCTION__);
+            throw TreeException::missingNode($this, "keyword");
         }
         return $this->keyword;
     }
@@ -92,14 +108,14 @@ abstract class GeneratedTryStatement extends Nodes\Statement
     }
 
     /**
-     * @param Token|Node|string|null $keyword
+     * @param \Phi\Token|\Phi\Node|string|null $keyword
      */
     public function setKeyword($keyword): void
     {
         if ($keyword !== null)
         {
-            /** @var Token $keyword */
-            $keyword = NodeConverter::convert($keyword, Token::class, $this->phpVersion);
+            /** @var \Phi\Token $keyword */
+            $keyword = NodeCoercer::coerce($keyword, \Phi\Token::class, $this->getPhpVersion());
             $keyword->detach();
             $keyword->parent = $this;
         }
@@ -110,11 +126,11 @@ abstract class GeneratedTryStatement extends Nodes\Statement
         $this->keyword = $keyword;
     }
 
-    public function getBlock(): Nodes\RegularBlock
+    public function getBlock(): \Phi\Nodes\Blocks\RegularBlock
     {
         if ($this->block === null)
         {
-            throw new MissingNodeException($this, __FUNCTION__);
+            throw TreeException::missingNode($this, "block");
         }
         return $this->block;
     }
@@ -125,14 +141,14 @@ abstract class GeneratedTryStatement extends Nodes\Statement
     }
 
     /**
-     * @param Nodes\RegularBlock|Node|string|null $block
+     * @param \Phi\Nodes\Blocks\RegularBlock|\Phi\Node|string|null $block
      */
     public function setBlock($block): void
     {
         if ($block !== null)
         {
-            /** @var Nodes\RegularBlock $block */
-            $block = NodeConverter::convert($block, Nodes\RegularBlock::class, $this->phpVersion);
+            /** @var \Phi\Nodes\Blocks\RegularBlock $block */
+            $block = NodeCoercer::coerce($block, \Phi\Nodes\Blocks\RegularBlock::class, $this->getPhpVersion());
             $block->detach();
             $block->parent = $this;
         }
@@ -144,71 +160,71 @@ abstract class GeneratedTryStatement extends Nodes\Statement
     }
 
     /**
-     * @return NodesList|Nodes\Catch_[]
-     * @phpstan-return NodesList<\Phi\Nodes\Catch_>
+     * @return \Phi\Nodes\Base\NodesList|\Phi\Nodes\Statements\Catch_[]
+     * @phpstan-return \Phi\Nodes\Base\NodesList<\Phi\Nodes\Statements\Catch_>
      */
-    public function getCatches(): NodesList
+    public function getCatchClauses(): \Phi\Nodes\Base\NodesList
     {
-        return $this->catches;
+        return $this->catchClauses;
+    }
+
+    public function getFinallyClause(): ?\Phi\Nodes\Statements\Finally_
+    {
+        return $this->finallyClause;
+    }
+
+    public function hasFinallyClause(): bool
+    {
+        return $this->finallyClause !== null;
     }
 
     /**
-     * @param Nodes\Catch_ $catch
+     * @param \Phi\Nodes\Statements\Finally_|\Phi\Node|string|null $finallyClause
      */
-    public function addCatch($catch): void
+    public function setFinallyClause($finallyClause): void
     {
-        /** @var Nodes\Catch_ $catch */
-        $catch = NodeConverter::convert($catch, Nodes\Catch_::class, $this->phpVersion);
-        $this->catches->add($catch);
+        if ($finallyClause !== null)
+        {
+            /** @var \Phi\Nodes\Statements\Finally_ $finallyClause */
+            $finallyClause = NodeCoercer::coerce($finallyClause, \Phi\Nodes\Statements\Finally_::class, $this->getPhpVersion());
+            $finallyClause->detach();
+            $finallyClause->parent = $this;
+        }
+        if ($this->finallyClause !== null)
+        {
+            $this->finallyClause->detach();
+        }
+        $this->finallyClause = $finallyClause;
     }
 
-    public function getFinally(): ?Nodes\Finally_
+    public function _validate(int $flags): void
     {
-        return $this->finally;
+        if ($this->keyword === null)
+            throw ValidationException::missingChild($this, "keyword");
+        if ($this->block === null)
+            throw ValidationException::missingChild($this, "block");
+        if ($this->keyword->getType() !== 250)
+            throw ValidationException::invalidSyntax($this->keyword, [250]);
+
+
+        $this->extraValidation($flags);
+
+        $this->block->_validate(0);
+        foreach ($this->catchClauses as $t)
+            $t->_validate(0);
+        if ($this->finallyClause)
+            $this->finallyClause->_validate(0);
     }
 
-    public function hasFinally(): bool
+    public function _autocorrect(): void
     {
-        return $this->finally !== null;
-    }
+        if ($this->block)
+            $this->block->_autocorrect();
+        foreach ($this->catchClauses as $t)
+            $t->_autocorrect();
+        if ($this->finallyClause)
+            $this->finallyClause->_autocorrect();
 
-    /**
-     * @param Nodes\Finally_|Node|string|null $finally
-     */
-    public function setFinally($finally): void
-    {
-        if ($finally !== null)
-        {
-            /** @var Nodes\Finally_ $finally */
-            $finally = NodeConverter::convert($finally, Nodes\Finally_::class, $this->phpVersion);
-            $finally->detach();
-            $finally->parent = $this;
-        }
-        if ($this->finally !== null)
-        {
-            $this->finally->detach();
-        }
-        $this->finally = $finally;
-    }
-
-    protected function _validate(int $flags): void
-    {
-        if ($this->keyword === null) throw ValidationException::childRequired($this, "keyword");
-        if ($this->block === null) throw ValidationException::childRequired($this, "block");
-        if ($flags & self::VALIDATE_TYPES)
-        {
-        }
-        if ($flags & self::VALIDATE_EXPRESSION_CONTEXT)
-        {
-        }
-        if ($flags & self::VALIDATE_TOKENS)
-        {
-        }
-        $this->block->_validate($flags);
-        $this->catches->_validate($flags);
-        if ($this->finally)
-        {
-            $this->finally->_validate($flags);
-        }
+        $this->extraAutocorrect();
     }
 }

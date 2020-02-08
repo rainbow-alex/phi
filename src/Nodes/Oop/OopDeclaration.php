@@ -1,0 +1,11 @@
+<?php
+
+declare(strict_types=1);
+
+namespace Phi\Nodes\Oop;
+
+use Phi\Nodes\Statement;
+
+abstract class OopDeclaration extends Statement
+{
+}

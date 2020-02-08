@@ -1,69 +1,69 @@
 <?php
 
+declare(strict_types=1);
+
+/**
+ * This code is generated.
+ * @see meta/
+ */
+
 namespace Phi\Nodes\Generated;
 
 use Phi\Node;
 use Phi\Token;
-use Phi\Nodes\Base\CompoundNode;
-use Phi\Nodes\Base\NodesList;
-use Phi\Nodes\Base\SeparatedNodesList;
-use Phi\Exception\MissingNodeException;
-use Phi\NodeConverter;
+use Phi\Exception\TreeException;
+use Phi\NodeCoercer;
 use Phi\Exception\ValidationException;
-use Phi\Nodes as Nodes;
 
-abstract class GeneratedProperty extends Nodes\ClassLikeMember
+trait GeneratedProperty
 {
     /**
-     * @var NodesList|Token[]
-     * @phpstan-var NodesList<\Phi\Token>
+     * @var \Phi\Nodes\Base\NodesList|\Phi\Token[]
+     * @phpstan-var \Phi\Nodes\Base\NodesList<\Phi\Token>
      */
     private $modifiers;
 
     /**
-     * @var Token|null
+     * @var \Phi\Token|null
      */
-    private $variable;
+    private $name;
 
     /**
-     * @var Nodes\Default_|null
+     * @var \Phi\Nodes\Helpers\Default_|null
      */
     private $default;
 
     /**
-     * @var Token|null
+     * @var \Phi\Token|null
      */
     private $semiColon;
 
-
     /**
-     * @param Token|Node|string|null $variable
+     * @param \Phi\Token|\Phi\Node|string|null $name
      */
-    public function __construct($variable = null)
+    public function __construct($name = null)
     {
-        $this->modifiers = new NodesList();
-        if ($variable !== null)
+        $this->modifiers = new \Phi\Nodes\Base\NodesList(\Phi\Token::class);
+        if ($name !== null)
         {
-            $this->setVariable($variable);
+            $this->setName($name);
         }
     }
 
     /**
-     * @param int $phpVersion
      * @param mixed[] $modifiers
-     * @param Token $variable
-     * @param Nodes\Default_|null $default
-     * @param Token $semiColon
-     * @return static
+     * @param \Phi\Token $name
+     * @param \Phi\Nodes\Helpers\Default_|null $default
+     * @param \Phi\Token $semiColon
+     * @return self
      */
-    public static function __instantiateUnchecked($phpVersion, $modifiers, $variable, $default, $semiColon)
+    public static function __instantiateUnchecked($modifiers, $name, $default, $semiColon)
     {
-        $instance = new static;
-        $instance->phpVersion = $phpVersion;
+        $instance = new self;
         $instance->modifiers->__initUnchecked($modifiers);
         $instance->modifiers->parent = $instance;
-        $instance->variable = $variable;
-        $variable->parent = $instance;
+        $instance->name = $name;
+        $name->parent = $instance;
         $instance->default = $default;
         if ($default) $default->parent = $instance;
         $instance->semiColon = $semiColon;
@@ -71,70 +71,76 @@ abstract class GeneratedProperty extends Nodes\ClassLikeMember
         return $instance;
     }
 
-    protected function &_getNodeRefs(): array
+    public function getChildNodes(): array
     {
-        $refs = [
-            "modifiers" => &$this->modifiers,
-            "variable" => &$this->variable,
-            "default" => &$this->default,
-            "semiColon" => &$this->semiColon,
-        ];
-        return $refs;
+        return \array_values(\array_filter([
+            $this->modifiers,
+            $this->name,
+            $this->default,
+            $this->semiColon,
+        ]));
+    }
+
+    protected function &getChildRef(Node $childToDetach): Node
+    {
+        if ($this->name === $childToDetach)
+        {
+            return $this->name;
+        }
+        if ($this->default === $childToDetach)
+        {
+            return $this->default;
+        }
+        if ($this->semiColon === $childToDetach)
+        {
+            return $this->semiColon;
+        }
+        throw new \LogicException();
     }
 
     /**
-     * @return NodesList|Token[]
-     * @phpstan-return NodesList<\Phi\Token>
+     * @return \Phi\Nodes\Base\NodesList|\Phi\Token[]
+     * @phpstan-return \Phi\Nodes\Base\NodesList<\Phi\Token>
      */
-    public function getModifiers(): NodesList
+    public function getModifiers(): \Phi\Nodes\Base\NodesList
     {
         return $this->modifiers;
     }
 
-    /**
-     * @param Token $modifier
-     */
-    public function addModifier($modifier): void
+    public function getName(): \Phi\Token
     {
-        /** @var Token $modifier */
-        $modifier = NodeConverter::convert($modifier, Token::class, $this->phpVersion);
-        $this->modifiers->add($modifier);
-    }
-
-    public function getVariable(): Token
-    {
-        if ($this->variable === null)
+        if ($this->name === null)
         {
-            throw new MissingNodeException($this, __FUNCTION__);
+            throw TreeException::missingNode($this, "name");
         }
-        return $this->variable;
+        return $this->name;
     }
 
-    public function hasVariable(): bool
+    public function hasName(): bool
     {
-        return $this->variable !== null;
+        return $this->name !== null;
     }
 
     /**
-     * @param Token|Node|string|null $variable
+     * @param \Phi\Token|\Phi\Node|string|null $name
      */
-    public function setVariable($variable): void
+    public function setName($name): void
     {
-        if ($variable !== null)
+        if ($name !== null)
         {
-            /** @var Token $variable */
-            $variable = NodeConverter::convert($variable, Token::class, $this->phpVersion);
-            $variable->detach();
-            $variable->parent = $this;
+            /** @var \Phi\Token $name */
+            $name = NodeCoercer::coerce($name, \Phi\Token::class, $this->getPhpVersion());
+            $name->detach();
+            $name->parent = $this;
         }
-        if ($this->variable !== null)
+        if ($this->name !== null)
         {
-            $this->variable->detach();
+            $this->name->detach();
         }
-        $this->variable = $variable;
+        $this->name = $name;
     }
 
-    public function getDefault(): ?Nodes\Default_
+    public function getDefault(): ?\Phi\Nodes\Helpers\Default_
     {
         return $this->default;
     }
@@ -145,14 +151,14 @@ abstract class GeneratedProperty extends Nodes\ClassLikeMember
     }
 
     /**
-     * @param Nodes\Default_|Node|string|null $default
+     * @param \Phi\Nodes\Helpers\Default_|\Phi\Node|string|null $default
      */
     public function setDefault($default): void
     {
         if ($default !== null)
         {
-            /** @var Nodes\Default_ $default */
-            $default = NodeConverter::convert($default, Nodes\Default_::class, $this->phpVersion);
+            /** @var \Phi\Nodes\Helpers\Default_ $default */
+            $default = NodeCoercer::coerce($default, \Phi\Nodes\Helpers\Default_::class, $this->getPhpVersion());
             $default->detach();
             $default->parent = $this;
         }
@@ -163,11 +169,11 @@ abstract class GeneratedProperty extends Nodes\ClassLikeMember
         $this->default = $default;
     }
 
-    public function getSemiColon(): Token
+    public function getSemiColon(): \Phi\Token
     {
         if ($this->semiColon === null)
         {
-            throw new MissingNodeException($this, __FUNCTION__);
+            throw TreeException::missingNode($this, "semiColon");
         }
         return $this->semiColon;
     }
@@ -178,14 +184,14 @@ abstract class GeneratedProperty extends Nodes\ClassLikeMember
     }
 
     /**
-     * @param Token|Node|string|null $semiColon
+     * @param \Phi\Token|\Phi\Node|string|null $semiColon
      */
     public function setSemiColon($semiColon): void
     {
         if ($semiColon !== null)
         {
-            /** @var Token $semiColon */
-            $semiColon = NodeConverter::convert($semiColon, Token::class, $this->phpVersion);
+            /** @var \Phi\Token $semiColon */
+            $semiColon = NodeCoercer::coerce($semiColon, \Phi\Token::class, $this->getPhpVersion());
             $semiColon->detach();
             $semiColon->parent = $this;
         }
@@ -196,22 +202,32 @@ abstract class GeneratedProperty extends Nodes\ClassLikeMember
         $this->semiColon = $semiColon;
     }
 
-    protected function _validate(int $flags): void
+    public function _validate(int $flags): void
     {
-        if ($this->variable === null) throw ValidationException::childRequired($this, "variable");
-        if ($this->semiColon === null) throw ValidationException::childRequired($this, "semiColon");
-        if ($flags & self::VALIDATE_TYPES)
-        {
-        }
-        if ($flags & self::VALIDATE_EXPRESSION_CONTEXT)
-        {
-        }
-        if ($flags & self::VALIDATE_TOKENS)
-        {
-        }
+        if ($this->name === null)
+            throw ValidationException::missingChild($this, "name");
+        if ($this->semiColon === null)
+            throw ValidationException::missingChild($this, "semiColon");
+        foreach ($this->modifiers as $t)
+            if (!\in_array($t->getType(), [232, 231, 230, 242], true))
+                throw ValidationException::invalidSyntax($t, [232, 231, 230, 242]);
+        if ($this->name->getType() !== 255)
+            throw ValidationException::invalidSyntax($this->name, [255]);
+        if ($this->semiColon->getType() !== 114)
+            throw ValidationException::invalidSyntax($this->semiColon, [114]);
+
+
+        $this->extraValidation($flags);
+
         if ($this->default)
-        {
-            $this->default->_validate($flags);
-        }
+            $this->default->_validate(0);
+    }
+
+    public function _autocorrect(): void
+    {
+        if ($this->default)
+            $this->default->_autocorrect();
+
+        $this->extraAutocorrect();
     }
 }

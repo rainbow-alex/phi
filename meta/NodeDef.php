@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Phi\Meta;
 
 use Phi\Nodes\Base\NodesList;
@@ -10,91 +12,88 @@ class NodeDef
 {
     /** @var string */
     public $className;
-    /** @var string|null */
-    public $extends = null;
     /** @var NodeChildDef[] */
     public $children = [];
     /** @var string[] */
     public $constructor = [];
+    /** @var int */
+    public $invalidContexts = 0;
+    /** @var bool */
+    public $validateChildren = true;
 
     public function __construct(string $className)
     {
         $this->className = $className;
     }
 
-    public function withExtends(string $extends): self
-    {
-        assert(!$this->extends);
-        $clone = clone $this;
-        $clone->extends = $extends;
-        return $clone;
-    }
-
-    public function withChild(string $name, string $class)
+    /**
+     * @param int|string $validationFlags
+     */
+    public function node(string $name, string $class, $validationFlags = 0)
     {
         assert(!isset($this->children[$name]));
-        $clone = clone $this;
-        $clone->children[$name] = new NodeChildDef(
+        $this->children[$name] = new NodeChildDef(
             $name,
             false,
             $class,
             null,
             null,
-            null
+            null,
+            $validationFlags
         );
-        return $clone;
+        return $this;
     }
 
-    public function withOptChild(string $name, string $class)
+    /**
+     * @param int|string $validationFlags
+     */
+    public function optNode(string $name, string $class, $validationFlags = 0)
     {
         assert(!isset($this->children[$name]));
-        $clone = clone $this;
-        $clone->children[$name] = new NodeChildDef(
+        $this->children[$name] = new NodeChildDef(
             $name,
             true,
             $class,
             null,
             null,
-            null
+            null,
+            $validationFlags
         );
-        return $clone;
+        return $this;
     }
 
-    public function withToken(string $name, $tokenTypes)
+    public function token(string $name, $tokenTypes)
     {
         assert(!isset($this->children[$name]));
-        $clone = clone $this;
-        $clone->children[$name] = new NodeChildDef(
+        $this->children[$name] = new NodeChildDef(
             $name,
             false,
             Token::class,
             null,
-            ensure_array($tokenTypes),
+            self::ensureArray($tokenTypes),
             null
         );
-        return $clone;
+        return $this;
     }
 
-    public function withOptToken(string $name, $tokenTypes)
+    public function optToken(string $name, $tokenTypes)
     {
         assert(!isset($this->children[$name]));
-        $clone = clone $this;
-        $clone->children[$name] = new NodeChildDef(
+        $this->children[$name] = new NodeChildDef(
             $name,
             true,
             Token::class,
             null,
-            ensure_array($tokenTypes),
+            self::ensureArray($tokenTypes),
             null
         );
-        return $clone;
+        return $this;
     }
 
-    public function withList(string $name, string $itemClass): self
+    public function nodeList(string $name, string $itemClass): self
     {
         assert(!isset($this->children[$name]));
-        $clone = clone $this;
-        $clone->children[$name] = new NodeChildDef(
+        $this->children[$name] = new NodeChildDef(
             $name,
             false,
             NodesList::class,
@@ -102,65 +101,86 @@ class NodeDef
             null,
             null
         );
-        return $clone;
+        return $this;
     }
 
     public function withTokenList(string $name, array $tokenTypes): self
     {
         assert(!isset($this->children[$name]));
-        $clone = clone $this;
-        $clone->children[$name] = new NodeChildDef(
+        $this->children[$name] = new NodeChildDef(
             $name,
             false,
             NodesList::class,
             Token::class,
-            ensure_array($tokenTypes),
+            self::ensureArray($tokenTypes),
             null
         );
-        return $clone;
+        return $this;
     }
 
-    public function withSepList(string $name, string $itemClass, $separator): self
+    /**
+     * @param int|string $validationFlags
+     */
+    public function sepNodeList(string $name, string $itemClass, $separator, $validationFlags = 0): self
     {
         assert(!isset($this->children[$name]));
-        $clone = clone $this;
-        $clone->children[$name] = new NodeChildDef(
+        $this->children[$name] = new NodeChildDef(
             $name,
             false,
             SeparatedNodesList::class,
             $itemClass,
             null,
-            ensure_array($separator)
+            self::ensureArray($separator),
+            $validationFlags
         );
-        return $clone;
+        return $this;
     }
 
-    public function withSepTokenList(string $name, $tokenTypes, $separator): self
-    {
-        assert(!isset($this->children[$name]));
-        $clone = clone $this;
-        $clone->children[$name] = new NodeChildDef(
-            $name,
-            false,
-            SeparatedNodesList::class,
-            Token::class,
-            ensure_array($tokenTypes),
-            ensure_array($separator)
-        );
-        return $clone;
-    }
-
-    public function withConstructor(string ...$params): self
+    public function constructor(string ...$params): self
     {
         assert(!$this->constructor);
-        $clone = clone $this;
-        $clone->constructor = $params;
-        return $clone;
+        foreach ($params as $p)
+        {
+            foreach ($this->children as $name => $c)
+            {
+                if ($name === $p || $c->singularName() === $p)
+                {
+                    continue 2;
+                }
+            }
+
+            assert(false);
+        }
+
+        $this->constructor = $params;
+        return $this;
+    }
+
+    public function invalidContexts(int $ctx): self
+    {
+        $this->invalidContexts = $ctx;
+        return $this;
+    }
+
+    public function validateChildren(bool $v): self
+    {
+        $this->validateChildren = $v;
+        return $this;
     }
 
     public function shortClassName(): string
     {
-        $parts = explode("\\", $this->className);
-        return "Generated" . rtrim(array_pop($parts), "_");
+        $parts = \explode("\\", $this->className);
+        return \end($parts);
+    }
+
+    public function shortGeneratedClassName(): string
+    {
+        return "Generated" . \rtrim($this->shortClassName(), "_");
+    }
+
+    private static function ensureArray($v)
+    {
+        return is_array($v) ? $v : [$v];
     }
 }

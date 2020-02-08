@@ -1,37 +1,39 @@
 <?php
 
+declare(strict_types=1);
+
+/**
+ * This code is generated.
+ * @see meta/
+ */
+
 namespace Phi\Nodes\Generated;
 
 use Phi\Node;
 use Phi\Token;
-use Phi\Nodes\Base\CompoundNode;
-use Phi\Nodes\Base\NodesList;
-use Phi\Nodes\Base\SeparatedNodesList;
-use Phi\Exception\MissingNodeException;
-use Phi\NodeConverter;
+use Phi\Exception\TreeException;
+use Phi\NodeCoercer;
 use Phi\Exception\ValidationException;
-use Phi\Nodes as Nodes;
 
-abstract class GeneratedParenthesizedExpression extends Nodes\Expression
+trait GeneratedParenthesizedExpression
 {
     /**
-     * @var Token|null
+     * @var \Phi\Token|null
      */
     private $leftParenthesis;
 
     /**
-     * @var Nodes\Expression|null
+     * @var \Phi\Nodes\Expression|null
      */
     private $expression;
 
     /**
-     * @var Token|null
+     * @var \Phi\Token|null
      */
     private $rightParenthesis;
 
-
     /**
-     * @param Nodes\Expression|Node|string|null $expression
+     * @param \Phi\Nodes\Expression|\Phi\Node|string|null $expression
      */
     public function __construct($expression = null)
     {
@@ -42,16 +44,14 @@ abstract class GeneratedParenthesizedExpression extends Nodes\Expression
     }
 
     /**
-     * @param int $phpVersion
-     * @param Token $leftParenthesis
-     * @param Nodes\Expression $expression
-     * @param Token $rightParenthesis
-     * @return static
+     * @param \Phi\Token $leftParenthesis
+     * @param \Phi\Nodes\Expression $expression
+     * @param \Phi\Token $rightParenthesis
+     * @return self
      */
-    public static function __instantiateUnchecked($phpVersion, $leftParenthesis, $expression, $rightParenthesis)
+    public static function __instantiateUnchecked($leftParenthesis, $expression, $rightParenthesis)
     {
-        $instance = new static;
-        $instance->phpVersion = $phpVersion;
+        $instance = new self;
         $instance->leftParenthesis = $leftParenthesis;
         $leftParenthesis->parent = $instance;
         $instance->expression = $expression;
@@ -61,21 +61,37 @@ abstract class GeneratedParenthesizedExpression extends Nodes\Expression
         return $instance;
     }
 
-    protected function &_getNodeRefs(): array
+    public function getChildNodes(): array
     {
-        $refs = [
-            "leftParenthesis" => &$this->leftParenthesis,
-            "expression" => &$this->expression,
-            "rightParenthesis" => &$this->rightParenthesis,
-        ];
-        return $refs;
+        return \array_values(\array_filter([
+            $this->leftParenthesis,
+            $this->expression,
+            $this->rightParenthesis,
+        ]));
     }
 
-    public function getLeftParenthesis(): Token
+    protected function &getChildRef(Node $childToDetach): Node
+    {
+        if ($this->leftParenthesis === $childToDetach)
+        {
+            return $this->leftParenthesis;
+        }
+        if ($this->expression === $childToDetach)
+        {
+            return $this->expression;
+        }
+        if ($this->rightParenthesis === $childToDetach)
+        {
+            return $this->rightParenthesis;
+        }
+        throw new \LogicException();
+    }
+
+    public function getLeftParenthesis(): \Phi\Token
     {
         if ($this->leftParenthesis === null)
         {
-            throw new MissingNodeException($this, __FUNCTION__);
+            throw TreeException::missingNode($this, "leftParenthesis");
         }
         return $this->leftParenthesis;
     }
@@ -86,14 +102,14 @@ abstract class GeneratedParenthesizedExpression extends Nodes\Expression
     }
 
     /**
-     * @param Token|Node|string|null $leftParenthesis
+     * @param \Phi\Token|\Phi\Node|string|null $leftParenthesis
      */
     public function setLeftParenthesis($leftParenthesis): void
     {
         if ($leftParenthesis !== null)
         {
-            /** @var Token $leftParenthesis */
-            $leftParenthesis = NodeConverter::convert($leftParenthesis, Token::class, $this->phpVersion);
+            /** @var \Phi\Token $leftParenthesis */
+            $leftParenthesis = NodeCoercer::coerce($leftParenthesis, \Phi\Token::class, $this->getPhpVersion());
             $leftParenthesis->detach();
             $leftParenthesis->parent = $this;
         }
@@ -104,11 +120,11 @@ abstract class GeneratedParenthesizedExpression extends Nodes\Expression
         $this->leftParenthesis = $leftParenthesis;
     }
 
-    public function getExpression(): Nodes\Expression
+    public function getExpression(): \Phi\Nodes\Expression
     {
         if ($this->expression === null)
         {
-            throw new MissingNodeException($this, __FUNCTION__);
+            throw TreeException::missingNode($this, "expression");
         }
         return $this->expression;
     }
@@ -119,14 +135,14 @@ abstract class GeneratedParenthesizedExpression extends Nodes\Expression
     }
 
     /**
-     * @param Nodes\Expression|Node|string|null $expression
+     * @param \Phi\Nodes\Expression|\Phi\Node|string|null $expression
      */
     public function setExpression($expression): void
     {
         if ($expression !== null)
         {
-            /** @var Nodes\Expression $expression */
-            $expression = NodeConverter::convert($expression, Nodes\Expression::class, $this->phpVersion);
+            /** @var \Phi\Nodes\Expression $expression */
+            $expression = NodeCoercer::coerce($expression, \Phi\Nodes\Expression::class, $this->getPhpVersion());
             $expression->detach();
             $expression->parent = $this;
         }
@@ -137,11 +153,11 @@ abstract class GeneratedParenthesizedExpression extends Nodes\Expression
         $this->expression = $expression;
     }
 
-    public function getRightParenthesis(): Token
+    public function getRightParenthesis(): \Phi\Token
     {
         if ($this->rightParenthesis === null)
         {
-            throw new MissingNodeException($this, __FUNCTION__);
+            throw TreeException::missingNode($this, "rightParenthesis");
         }
         return $this->rightParenthesis;
     }
@@ -152,14 +168,14 @@ abstract class GeneratedParenthesizedExpression extends Nodes\Expression
     }
 
     /**
-     * @param Token|Node|string|null $rightParenthesis
+     * @param \Phi\Token|\Phi\Node|string|null $rightParenthesis
      */
     public function setRightParenthesis($rightParenthesis): void
     {
         if ($rightParenthesis !== null)
         {
-            /** @var Token $rightParenthesis */
-            $rightParenthesis = NodeConverter::convert($rightParenthesis, Token::class, $this->phpVersion);
+            /** @var \Phi\Token $rightParenthesis */
+            $rightParenthesis = NodeCoercer::coerce($rightParenthesis, \Phi\Token::class, $this->getPhpVersion());
             $rightParenthesis->detach();
             $rightParenthesis->parent = $this;
         }
@@ -170,20 +186,32 @@ abstract class GeneratedParenthesizedExpression extends Nodes\Expression
         $this->rightParenthesis = $rightParenthesis;
     }
 
-    protected function _validate(int $flags): void
+    public function _validate(int $flags): void
     {
-        if ($this->leftParenthesis === null) throw ValidationException::childRequired($this, "leftParenthesis");
-        if ($this->expression === null) throw ValidationException::childRequired($this, "expression");
-        if ($this->rightParenthesis === null) throw ValidationException::childRequired($this, "rightParenthesis");
-        if ($flags & self::VALIDATE_TYPES)
-        {
-        }
-        if ($flags & self::VALIDATE_EXPRESSION_CONTEXT)
-        {
-        }
-        if ($flags & self::VALIDATE_TOKENS)
-        {
-        }
+        if ($this->leftParenthesis === null)
+            throw ValidationException::missingChild($this, "leftParenthesis");
+        if ($this->expression === null)
+            throw ValidationException::missingChild($this, "expression");
+        if ($this->rightParenthesis === null)
+            throw ValidationException::missingChild($this, "rightParenthesis");
+        if ($this->leftParenthesis->getType() !== 105)
+            throw ValidationException::invalidSyntax($this->leftParenthesis, [105]);
+        if ($this->rightParenthesis->getType() !== 106)
+            throw ValidationException::invalidSyntax($this->rightParenthesis, [106]);
+
+        if ($flags & 12)
+            throw ValidationException::invalidExpressionInContext($this);
+
+        $this->extraValidation($flags);
+
         $this->expression->_validate($flags);
+    }
+
+    public function _autocorrect(): void
+    {
+        if ($this->expression)
+            $this->expression->_autocorrect();
+
+        $this->extraAutocorrect();
     }
 }

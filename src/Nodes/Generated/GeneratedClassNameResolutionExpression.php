@@ -1,37 +1,39 @@
 <?php
 
+declare(strict_types=1);
+
+/**
+ * This code is generated.
+ * @see meta/
+ */
+
 namespace Phi\Nodes\Generated;
 
 use Phi\Node;
 use Phi\Token;
-use Phi\Nodes\Base\CompoundNode;
-use Phi\Nodes\Base\NodesList;
-use Phi\Nodes\Base\SeparatedNodesList;
-use Phi\Exception\MissingNodeException;
-use Phi\NodeConverter;
+use Phi\Exception\TreeException;
+use Phi\NodeCoercer;
 use Phi\Exception\ValidationException;
-use Phi\Nodes as Nodes;
 
-abstract class GeneratedClassNameResolutionExpression extends Nodes\Expression
+trait GeneratedClassNameResolutionExpression
 {
     /**
-     * @var Nodes\Expression|null
+     * @var \Phi\Nodes\Expression|null
      */
     private $class;
 
     /**
-     * @var Token|null
+     * @var \Phi\Token|null
      */
     private $operator;
 
     /**
-     * @var Token|null
+     * @var \Phi\Token|null
      */
     private $keyword;
 
-
     /**
-     * @param Nodes\Expression|Node|string|null $class
+     * @param \Phi\Nodes\Expression|\Phi\Node|string|null $class
      */
     public function __construct($class = null)
     {
@@ -42,16 +44,14 @@ abstract class GeneratedClassNameResolutionExpression extends Nodes\Expression
     }
 
     /**
-     * @param int $phpVersion
-     * @param Nodes\Expression $class
-     * @param Token $operator
-     * @param Token $keyword
-     * @return static
+     * @param \Phi\Nodes\Expression $class
+     * @param \Phi\Token $operator
+     * @param \Phi\Token $keyword
+     * @return self
      */
-    public static function __instantiateUnchecked($phpVersion, $class, $operator, $keyword)
+    public static function __instantiateUnchecked($class, $operator, $keyword)
     {
-        $instance = new static;
-        $instance->phpVersion = $phpVersion;
+        $instance = new self;
         $instance->class = $class;
         $class->parent = $instance;
         $instance->operator = $operator;
@@ -61,21 +61,37 @@ abstract class GeneratedClassNameResolutionExpression extends Nodes\Expression
         return $instance;
     }
 
-    protected function &_getNodeRefs(): array
+    public function getChildNodes(): array
     {
-        $refs = [
-            "class" => &$this->class,
-            "operator" => &$this->operator,
-            "keyword" => &$this->keyword,
-        ];
-        return $refs;
+        return \array_values(\array_filter([
+            $this->class,
+            $this->operator,
+            $this->keyword,
+        ]));
     }
 
-    public function getClass(): Nodes\Expression
+    protected function &getChildRef(Node $childToDetach): Node
+    {
+        if ($this->class === $childToDetach)
+        {
+            return $this->class;
+        }
+        if ($this->operator === $childToDetach)
+        {
+            return $this->operator;
+        }
+        if ($this->keyword === $childToDetach)
+        {
+            return $this->keyword;
+        }
+        throw new \LogicException();
+    }
+
+    public function getClass(): \Phi\Nodes\Expression
     {
         if ($this->class === null)
         {
-            throw new MissingNodeException($this, __FUNCTION__);
+            throw TreeException::missingNode($this, "class");
         }
         return $this->class;
     }
@@ -86,14 +102,14 @@ abstract class GeneratedClassNameResolutionExpression extends Nodes\Expression
     }
 
     /**
-     * @param Nodes\Expression|Node|string|null $class
+     * @param \Phi\Nodes\Expression|\Phi\Node|string|null $class
      */
     public function setClass($class): void
     {
         if ($class !== null)
         {
-            /** @var Nodes\Expression $class */
-            $class = NodeConverter::convert($class, Nodes\Expression::class, $this->phpVersion);
+            /** @var \Phi\Nodes\Expression $class */
+            $class = NodeCoercer::coerce($class, \Phi\Nodes\Expression::class, $this->getPhpVersion());
             $class->detach();
             $class->parent = $this;
         }
@@ -104,11 +120,11 @@ abstract class GeneratedClassNameResolutionExpression extends Nodes\Expression
         $this->class = $class;
     }
 
-    public function getOperator(): Token
+    public function getOperator(): \Phi\Token
     {
         if ($this->operator === null)
         {
-            throw new MissingNodeException($this, __FUNCTION__);
+            throw TreeException::missingNode($this, "operator");
         }
         return $this->operator;
     }
@@ -119,14 +135,14 @@ abstract class GeneratedClassNameResolutionExpression extends Nodes\Expression
     }
 
     /**
-     * @param Token|Node|string|null $operator
+     * @param \Phi\Token|\Phi\Node|string|null $operator
      */
     public function setOperator($operator): void
     {
         if ($operator !== null)
         {
-            /** @var Token $operator */
-            $operator = NodeConverter::convert($operator, Token::class, $this->phpVersion);
+            /** @var \Phi\Token $operator */
+            $operator = NodeCoercer::coerce($operator, \Phi\Token::class, $this->getPhpVersion());
             $operator->detach();
             $operator->parent = $this;
         }
@@ -137,11 +153,11 @@ abstract class GeneratedClassNameResolutionExpression extends Nodes\Expression
         $this->operator = $operator;
     }
 
-    public function getKeyword(): Token
+    public function getKeyword(): \Phi\Token
     {
         if ($this->keyword === null)
         {
-            throw new MissingNodeException($this, __FUNCTION__);
+            throw TreeException::missingNode($this, "keyword");
         }
         return $this->keyword;
     }
@@ -152,14 +168,14 @@ abstract class GeneratedClassNameResolutionExpression extends Nodes\Expression
     }
 
     /**
-     * @param Token|Node|string|null $keyword
+     * @param \Phi\Token|\Phi\Node|string|null $keyword
      */
     public function setKeyword($keyword): void
     {
         if ($keyword !== null)
         {
-            /** @var Token $keyword */
-            $keyword = NodeConverter::convert($keyword, Token::class, $this->phpVersion);
+            /** @var \Phi\Token $keyword */
+            $keyword = NodeCoercer::coerce($keyword, \Phi\Token::class, $this->getPhpVersion());
             $keyword->detach();
             $keyword->parent = $this;
         }
@@ -170,20 +186,32 @@ abstract class GeneratedClassNameResolutionExpression extends Nodes\Expression
         $this->keyword = $keyword;
     }
 
-    protected function _validate(int $flags): void
+    public function _validate(int $flags): void
     {
-        if ($this->class === null) throw ValidationException::childRequired($this, "class");
-        if ($this->operator === null) throw ValidationException::childRequired($this, "operator");
-        if ($this->keyword === null) throw ValidationException::childRequired($this, "keyword");
-        if ($flags & self::VALIDATE_TYPES)
-        {
-        }
-        if ($flags & self::VALIDATE_EXPRESSION_CONTEXT)
-        {
-        }
-        if ($flags & self::VALIDATE_TOKENS)
-        {
-        }
-        $this->class->_validate($flags);
+        if ($this->class === null)
+            throw ValidationException::missingChild($this, "class");
+        if ($this->operator === null)
+            throw ValidationException::missingChild($this, "operator");
+        if ($this->keyword === null)
+            throw ValidationException::missingChild($this, "keyword");
+        if ($this->operator->getType() !== 162)
+            throw ValidationException::invalidSyntax($this->operator, [162]);
+        if ($this->keyword->getType() !== 140)
+            throw ValidationException::invalidSyntax($this->keyword, [140]);
+
+        if ($flags & 14)
+            throw ValidationException::invalidExpressionInContext($this);
+
+        $this->extraValidation($flags);
+
+        $this->class->_validate(1);
+    }
+
+    public function _autocorrect(): void
+    {
+        if ($this->class)
+            $this->class->_autocorrect();
+
+        $this->extraAutocorrect();
     }
 }

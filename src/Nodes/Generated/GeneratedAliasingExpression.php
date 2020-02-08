@@ -1,128 +1,148 @@
 <?php
 
+declare(strict_types=1);
+
+/**
+ * This code is generated.
+ * @see meta/
+ */
+
 namespace Phi\Nodes\Generated;
 
 use Phi\Node;
 use Phi\Token;
-use Phi\Nodes\Base\CompoundNode;
-use Phi\Nodes\Base\NodesList;
-use Phi\Nodes\Base\SeparatedNodesList;
-use Phi\Exception\MissingNodeException;
-use Phi\NodeConverter;
+use Phi\Exception\TreeException;
+use Phi\NodeCoercer;
 use Phi\Exception\ValidationException;
-use Phi\Nodes as Nodes;
 
-abstract class GeneratedAliasingExpression extends Nodes\Expression
+trait GeneratedAliasingExpression
 {
     /**
-     * @var Nodes\Expression|null
+     * @var \Phi\Nodes\Expression|null
      */
-    private $alias;
+    private $left;
 
     /**
-     * @var Token|null
+     * @var \Phi\Token|null
      */
     private $operator1;
 
     /**
-     * @var Token|null
+     * @var \Phi\Token|null
      */
     private $operator2;
 
     /**
-     * @var Nodes\Expression|null
+     * @var \Phi\Nodes\Expression|null
      */
-    private $value;
-
+    private $right;
 
     /**
-     * @param Nodes\Expression|Node|string|null $alias
-     * @param Nodes\Expression|Node|string|null $value
+     * @param \Phi\Nodes\Expression|\Phi\Node|string|null $left
+     * @param \Phi\Nodes\Expression|\Phi\Node|string|null $right
      */
-    public function __construct($alias = null, $value = null)
+    public function __construct($left = null, $right = null)
     {
-        if ($alias !== null)
+        if ($left !== null)
         {
-            $this->setAlias($alias);
+            $this->setLeft($left);
         }
-        if ($value !== null)
+        if ($right !== null)
         {
-            $this->setValue($value);
+            $this->setRight($right);
         }
     }
 
     /**
-     * @param int $phpVersion
-     * @param Nodes\Expression $alias
-     * @param Token $operator1
-     * @param Token $operator2
-     * @param Nodes\Expression $value
-     * @return static
+     * @param \Phi\Nodes\Expression $left
+     * @param \Phi\Token $operator1
+     * @param \Phi\Token $operator2
+     * @param \Phi\Nodes\Expression $right
+     * @return self
      */
-    public static function __instantiateUnchecked($phpVersion, $alias, $operator1, $operator2, $value)
+    public static function __instantiateUnchecked($left, $operator1, $operator2, $right)
     {
-        $instance = new static;
-        $instance->phpVersion = $phpVersion;
-        $instance->alias = $alias;
-        $alias->parent = $instance;
+        $instance = new self;
+        $instance->left = $left;
+        $left->parent = $instance;
         $instance->operator1 = $operator1;
         $operator1->parent = $instance;
         $instance->operator2 = $operator2;
         $operator2->parent = $instance;
-        $instance->value = $value;
-        $value->parent = $instance;
+        $instance->right = $right;
+        $right->parent = $instance;
         return $instance;
     }
 
-    protected function &_getNodeRefs(): array
+    public function getChildNodes(): array
     {
-        $refs = [
-            "alias" => &$this->alias,
-            "operator1" => &$this->operator1,
-            "operator2" => &$this->operator2,
-            "value" => &$this->value,
-        ];
-        return $refs;
+        return \array_values(\array_filter([
+            $this->left,
+            $this->operator1,
+            $this->operator2,
+            $this->right,
+        ]));
     }
 
-    public function getAlias(): Nodes\Expression
+    protected function &getChildRef(Node $childToDetach): Node
     {
-        if ($this->alias === null)
+        if ($this->left === $childToDetach)
         {
-            throw new MissingNodeException($this, __FUNCTION__);
+            return $this->left;
         }
-        return $this->alias;
+        if ($this->operator1 === $childToDetach)
+        {
+            return $this->operator1;
+        }
+        if ($this->operator2 === $childToDetach)
+        {
+            return $this->operator2;
+        }
+        if ($this->right === $childToDetach)
+        {
+            return $this->right;
+        }
+        throw new \LogicException();
     }
 
-    public function hasAlias(): bool
+    public function getLeft(): \Phi\Nodes\Expression
     {
-        return $this->alias !== null;
+        if ($this->left === null)
+        {
+            throw TreeException::missingNode($this, "left");
+        }
+        return $this->left;
+    }
+
+    public function hasLeft(): bool
+    {
+        return $this->left !== null;
     }
 
     /**
-     * @param Nodes\Expression|Node|string|null $alias
+     * @param \Phi\Nodes\Expression|\Phi\Node|string|null $left
      */
-    public function setAlias($alias): void
+    public function setLeft($left): void
     {
-        if ($alias !== null)
+        if ($left !== null)
         {
-            /** @var Nodes\Expression $alias */
-            $alias = NodeConverter::convert($alias, Nodes\Expression::class, $this->phpVersion);
-            $alias->detach();
-            $alias->parent = $this;
+            /** @var \Phi\Nodes\Expression $left */
+            $left = NodeCoercer::coerce($left, \Phi\Nodes\Expression::class, $this->getPhpVersion());
+            $left->detach();
+            $left->parent = $this;
         }
-        if ($this->alias !== null)
+        if ($this->left !== null)
         {
-            $this->alias->detach();
+            $this->left->detach();
         }
-        $this->alias = $alias;
+        $this->left = $left;
     }
 
-    public function getOperator1(): Token
+    public function getOperator1(): \Phi\Token
     {
         if ($this->operator1 === null)
         {
-            throw new MissingNodeException($this, __FUNCTION__);
+            throw TreeException::missingNode($this, "operator1");
         }
         return $this->operator1;
     }
@@ -133,14 +153,14 @@ abstract class GeneratedAliasingExpression extends Nodes\Expression
     }
 
     /**
-     * @param Token|Node|string|null $operator1
+     * @param \Phi\Token|\Phi\Node|string|null $operator1
      */
     public function setOperator1($operator1): void
     {
         if ($operator1 !== null)
         {
-            /** @var Token $operator1 */
-            $operator1 = NodeConverter::convert($operator1, Token::class, $this->phpVersion);
+            /** @var \Phi\Token $operator1 */
+            $operator1 = NodeCoercer::coerce($operator1, \Phi\Token::class, $this->getPhpVersion());
             $operator1->detach();
             $operator1->parent = $this;
         }
@@ -151,11 +171,11 @@ abstract class GeneratedAliasingExpression extends Nodes\Expression
         $this->operator1 = $operator1;
     }
 
-    public function getOperator2(): Token
+    public function getOperator2(): \Phi\Token
     {
         if ($this->operator2 === null)
         {
-            throw new MissingNodeException($this, __FUNCTION__);
+            throw TreeException::missingNode($this, "operator2");
         }
         return $this->operator2;
     }
@@ -166,14 +186,14 @@ abstract class GeneratedAliasingExpression extends Nodes\Expression
     }
 
     /**
-     * @param Token|Node|string|null $operator2
+     * @param \Phi\Token|\Phi\Node|string|null $operator2
      */
     public function setOperator2($operator2): void
     {
         if ($operator2 !== null)
         {
-            /** @var Token $operator2 */
-            $operator2 = NodeConverter::convert($operator2, Token::class, $this->phpVersion);
+            /** @var \Phi\Token $operator2 */
+            $operator2 = NodeCoercer::coerce($operator2, \Phi\Token::class, $this->getPhpVersion());
             $operator2->detach();
             $operator2->parent = $this;
         }
@@ -184,55 +204,70 @@ abstract class GeneratedAliasingExpression extends Nodes\Expression
         $this->operator2 = $operator2;
     }
 
-    public function getValue(): Nodes\Expression
+    public function getRight(): \Phi\Nodes\Expression
     {
-        if ($this->value === null)
+        if ($this->right === null)
         {
-            throw new MissingNodeException($this, __FUNCTION__);
+            throw TreeException::missingNode($this, "right");
         }
-        return $this->value;
+        return $this->right;
     }
 
-    public function hasValue(): bool
+    public function hasRight(): bool
     {
-        return $this->value !== null;
+        return $this->right !== null;
     }
 
     /**
-     * @param Nodes\Expression|Node|string|null $value
+     * @param \Phi\Nodes\Expression|\Phi\Node|string|null $right
      */
-    public function setValue($value): void
+    public function setRight($right): void
     {
-        if ($value !== null)
+        if ($right !== null)
         {
-            /** @var Nodes\Expression $value */
-            $value = NodeConverter::convert($value, Nodes\Expression::class, $this->phpVersion);
-            $value->detach();
-            $value->parent = $this;
+            /** @var \Phi\Nodes\Expression $right */
+            $right = NodeCoercer::coerce($right, \Phi\Nodes\Expression::class, $this->getPhpVersion());
+            $right->detach();
+            $right->parent = $this;
         }
-        if ($this->value !== null)
+        if ($this->right !== null)
         {
-            $this->value->detach();
+            $this->right->detach();
         }
-        $this->value = $value;
+        $this->right = $right;
     }
 
-    protected function _validate(int $flags): void
+    public function _validate(int $flags): void
     {
-        if ($this->alias === null) throw ValidationException::childRequired($this, "alias");
-        if ($this->operator1 === null) throw ValidationException::childRequired($this, "operator1");
-        if ($this->operator2 === null) throw ValidationException::childRequired($this, "operator2");
-        if ($this->value === null) throw ValidationException::childRequired($this, "value");
-        if ($flags & self::VALIDATE_TYPES)
-        {
-        }
-        if ($flags & self::VALIDATE_EXPRESSION_CONTEXT)
-        {
-        }
-        if ($flags & self::VALIDATE_TOKENS)
-        {
-        }
-        $this->alias->_validate($flags);
-        $this->value->_validate($flags);
+        if ($this->left === null)
+            throw ValidationException::missingChild($this, "left");
+        if ($this->operator1 === null)
+            throw ValidationException::missingChild($this, "operator1");
+        if ($this->operator2 === null)
+            throw ValidationException::missingChild($this, "operator2");
+        if ($this->right === null)
+            throw ValidationException::missingChild($this, "right");
+        if ($this->operator1->getType() !== 116)
+            throw ValidationException::invalidSyntax($this->operator1, [116]);
+        if ($this->operator2->getType() !== 104)
+            throw ValidationException::invalidSyntax($this->operator2, [104]);
+
+        if ($flags & 14)
+            throw ValidationException::invalidExpressionInContext($this);
+
+        $this->extraValidation($flags);
+
+        $this->left->_validate(4);
+        $this->right->_validate(8);
+    }
+
+    public function _autocorrect(): void
+    {
+        if ($this->left)
+            $this->left->_autocorrect();
+        if ($this->right)
+            $this->right->_autocorrect();
+
+        $this->extraAutocorrect();
     }
 }

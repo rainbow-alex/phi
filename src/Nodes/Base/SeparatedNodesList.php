@@ -1,20 +1,27 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Phi\Nodes\Base;
 
-use ArrayIterator;
-use Iterator;
+use Countable;
 use IteratorAggregate;
+use Phi\Exception\TodoException;
 use Phi\Node;
 use Phi\Token;
 
 /**
  * @template T of Node
- * @extends BaseListNode<T>
  * @implements IteratorAggregate<T>
  */
-class SeparatedNodesList extends BaseListNode implements IteratorAggregate
+class SeparatedNodesList extends Node implements Countable, IteratorAggregate
 {
+    /**
+     * @var string
+     * @phpstan-var class-string<T>
+     */
+    private $type;
+
     /**
      * @var array<Node|Token|null>
      * @phpstan-var array<T|Token|null>
@@ -22,14 +29,41 @@ class SeparatedNodesList extends BaseListNode implements IteratorAggregate
     private $nodes = [];
 
     /**
+     * @var Node[]
+     * @phpstan-var T[]
+     */
+    private $items = [];
+
+    /**
+     * @phpstan-param class-string<T> $type
+     */
+    public function __construct(string $type)
+    {
+        $this->type = $type;
+    }
+
+    /**
      * @param array<Node|Token|null> $nodes
      * @phpstan-param array<T|Token|null> $nodes
      */
     public function __initUnchecked(array $nodes): void
     {
-        $this->nodes = $nodes;
-        foreach ($nodes as $n)
+        if (\count($nodes) % 2 === 1)
         {
+            $nodes[] = null;
+        }
+
+        $this->nodes = $nodes;
+
+        foreach ($nodes as $i => $n)
+        {
+            if ($i % 2 === 0)
+            {
+                /** @phpstan-var T $nAsT */
+                $nAsT = $n;
+                $this->items[] = $nAsT;
+            }
+
             if ($n)
             {
                 $n->parent = $this;
@@ -39,14 +73,7 @@ class SeparatedNodesList extends BaseListNode implements IteratorAggregate
 
     protected function detachChild(Node $childToDetach): void
     {
-        $i = \array_search($childToDetach, $this->nodes, true);
-
-        if ($i === false)
-        {
-            throw new \RuntimeException($childToDetach . " is not attached to " . $this);
-        }
-
-        \array_splice($this->nodes, $i, 1);
+        throw new TodoException();
     }
 
     public function getChildNodes(): array
@@ -60,22 +87,19 @@ class SeparatedNodesList extends BaseListNode implements IteratorAggregate
         {
             if ($node)
             {
-                yield from $node->tokens();
+                yield from $node->iterTokens();
             }
         }
     }
 
-    public function _validate(int $flags): void
+    public function validate(): void
     {
-        // TODO do only compound nodes need this?
-        foreach ($this->nodes as $i => $node)
+        foreach ($this->items as $item)
         {
-            if ($node && $i % 2 === 1)
-            {
-                /** @phpstan-var T $node */
-                $node->_validate($flags);
-            }
+            $item->validate();
         }
+
+        parent::validate();
     }
 
     public function toPhp(): string
@@ -101,18 +125,32 @@ class SeparatedNodesList extends BaseListNode implements IteratorAggregate
             {
                 $node->debugDump($indent . "    ");
             }
+            else
+            {
+                echo $indent . "~\n";
+            }
         }
 
         echo $indent . "]\n";
     }
 
-    /**
-     * @return Iterator<Node>
-     * @phpstan-return Iterator<T>
-     */
-    public function getIterator(): Iterator
+    public function convertToPhpParserNode()
     {
-        return new ArrayIterator($this->getItems());
+        return \array_map(function (Node $n) { return $n->convertToPhpParserNode(); }, $this->items);
+    }
+
+    public function count(): int
+    {
+        return \count($this->items);
+    }
+
+    /**
+     * @return \Iterator<Node>
+     * @phpstan-return \Iterator<T>
+     */
+    public function getIterator()
+    {
+        return new \ArrayIterator($this->items);
     }
 
     /**
@@ -121,43 +159,49 @@ class SeparatedNodesList extends BaseListNode implements IteratorAggregate
      */
     public function getItems(): array
     {
-        $items = [];
-        foreach ($this->nodes as $i => $node)
-        {
-            if ($node && $i % 2 === 1)
-            {
-                $items[] = $node;
-            }
-        }
-        /** @var T[] $items convince phpstan */
-        return $items;
+        return $this->items;
     }
 
-    /** @return Token[] */
+    /** @return array<Token|null> */
     public function getSeparators(): array
     {
         $separators = [];
         foreach ($this->nodes as $i => $node)
         {
-            if ($node && $i % 2 === 0)
+            if ($node && $i % 2 === 1)
             {
                 $separators[] = $node;
             }
         }
-        /** @var array<Token> $separators convince phpstan */
+        /** @var array<Token|null> $separators convince phpstan */
         return $separators;
     }
 
-    /** @param T $node */
-    public function add(Node $node): void
+    /**
+     * @phpstan-param T $node
+     */
+    public function add(Node $node, Token $separator = null): void
     {
-        if (count($this->nodes) % 2 === 0)
+        if (!$node instanceof $this->type)
         {
-            $this->nodes[] = null;
+            throw new \InvalidArgumentException("Added item should be of type " . $this->type);
         }
 
         $node->detach();
         $node->parent = $this;
+        $this->items[] = $node;
         $this->nodes[] = $node;
+
+        if ($separator)
+        {
+            $separator->detach();
+            $separator->parent = $this;
+        }
+        $this->nodes[] = $separator;
+    }
+
+    public function hasTrailingSeparator(): bool
+    {
+        return $this->nodes && end($this->nodes) !== null;
     }
 }

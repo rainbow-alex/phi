@@ -1,0 +1,15 @@
+{"algo": "weightedPermute", "max": 12}
+
+Expr\KeywordOrExpression::__instantiateUnchecked(EXPR, `or`, EXPR) [[4]]
+Expr\KeywordAndExpression::__instantiateUnchecked(EXPR, `and`, EXPR) [[4]]
+Expr\KeywordXorExpression::__instantiateUnchecked(EXPR, `xor`, EXPR) [[4]]
+Expr\YieldExpression::__instantiateUnchecked(`yield`, KEY, EXPR) [[4]]
+Expr\YieldExpression::__instantiateUnchecked(`yield`, null, null) [[4]]
+Expr\YieldFromExpression::__instantiateUnchecked(`yield from`, EXPR) [[4]]
+Expr\AddExpression::__instantiateUnchecked(EXPR, `+`, EXPR) [[4]]
+Expr\SubtractExpression::__instantiateUnchecked(EXPR, `-`, EXPR) [[4]]
+Expr\ConcatExpression::__instantiateUnchecked(EXPR, `.`, EXPR) [[4]]
+Expr\MultiplyExpression::__instantiateUnchecked(EXPR, `*`, EXPR) [[4]]
+Expr\DivideExpression::__instantiateUnchecked(EXPR, `/`, EXPR) [[4]]
+Expr\ModuloExpression::__instantiateUnchecked(EXPR, `%`, EXPR) [[4]]
+$v

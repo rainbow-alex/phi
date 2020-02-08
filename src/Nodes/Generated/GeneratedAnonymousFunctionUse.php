@@ -1,60 +1,60 @@
 <?php
 
+declare(strict_types=1);
+
+/**
+ * This code is generated.
+ * @see meta/
+ */
+
 namespace Phi\Nodes\Generated;
 
 use Phi\Node;
 use Phi\Token;
-use Phi\Nodes\Base\CompoundNode;
-use Phi\Nodes\Base\NodesList;
-use Phi\Nodes\Base\SeparatedNodesList;
-use Phi\Exception\MissingNodeException;
-use Phi\NodeConverter;
+use Phi\Exception\TreeException;
+use Phi\NodeCoercer;
 use Phi\Exception\ValidationException;
-use Phi\Nodes as Nodes;
 
-abstract class GeneratedAnonymousFunctionUse extends CompoundNode
+trait GeneratedAnonymousFunctionUse
 {
     /**
-     * @var Token|null
+     * @var \Phi\Token|null
      */
     private $keyword;
 
     /**
-     * @var Token|null
+     * @var \Phi\Token|null
      */
     private $leftParenthesis;
 
     /**
-     * @var SeparatedNodesList|Nodes\AnonymousFunctionUseBinding[]
-     * @phpstan-var SeparatedNodesList<\Phi\Nodes\AnonymousFunctionUseBinding>
+     * @var \Phi\Nodes\Base\SeparatedNodesList|\Phi\Nodes\Expressions\AnonymousFunctionUseBinding[]
+     * @phpstan-var \Phi\Nodes\Base\SeparatedNodesList<\Phi\Nodes\Expressions\AnonymousFunctionUseBinding>
      */
     private $bindings;
 
     /**
-     * @var Token|null
+     * @var \Phi\Token|null
      */
     private $rightParenthesis;
-
 
     /**
      */
     public function __construct()
     {
-        $this->bindings = new SeparatedNodesList();
+        $this->bindings = new \Phi\Nodes\Base\SeparatedNodesList(\Phi\Nodes\Expressions\AnonymousFunctionUseBinding::class);
     }
 
     /**
-     * @param int $phpVersion
-     * @param Token $keyword
-     * @param Token $leftParenthesis
+     * @param \Phi\Token $keyword
+     * @param \Phi\Token $leftParenthesis
      * @param mixed[] $bindings
-     * @param Token $rightParenthesis
-     * @return static
+     * @param \Phi\Token $rightParenthesis
+     * @return self
      */
-    public static function __instantiateUnchecked($phpVersion, $keyword, $leftParenthesis, $bindings, $rightParenthesis)
+    public static function __instantiateUnchecked($keyword, $leftParenthesis, $bindings, $rightParenthesis)
     {
-        $instance = new static;
-        $instance->phpVersion = $phpVersion;
+        $instance = new self;
         $instance->keyword = $keyword;
         $keyword->parent = $instance;
         $instance->leftParenthesis = $leftParenthesis;
@@ -66,22 +66,38 @@ abstract class GeneratedAnonymousFunctionUse extends CompoundNode
         return $instance;
     }
 
-    protected function &_getNodeRefs(): array
+    public function getChildNodes(): array
     {
-        $refs = [
-            "keyword" => &$this->keyword,
-            "leftParenthesis" => &$this->leftParenthesis,
-            "bindings" => &$this->bindings,
-            "rightParenthesis" => &$this->rightParenthesis,
-        ];
-        return $refs;
+        return \array_values(\array_filter([
+            $this->keyword,
+            $this->leftParenthesis,
+            $this->bindings,
+            $this->rightParenthesis,
+        ]));
     }
 
-    public function getKeyword(): Token
+    protected function &getChildRef(Node $childToDetach): Node
+    {
+        if ($this->keyword === $childToDetach)
+        {
+            return $this->keyword;
+        }
+        if ($this->leftParenthesis === $childToDetach)
+        {
+            return $this->leftParenthesis;
+        }
+        if ($this->rightParenthesis === $childToDetach)
+        {
+            return $this->rightParenthesis;
+        }
+        throw new \LogicException();
+    }
+
+    public function getKeyword(): \Phi\Token
     {
         if ($this->keyword === null)
         {
-            throw new MissingNodeException($this, __FUNCTION__);
+            throw TreeException::missingNode($this, "keyword");
         }
         return $this->keyword;
     }
@@ -92,14 +108,14 @@ abstract class GeneratedAnonymousFunctionUse extends CompoundNode
     }
 
     /**
-     * @param Token|Node|string|null $keyword
+     * @param \Phi\Token|\Phi\Node|string|null $keyword
      */
     public function setKeyword($keyword): void
     {
         if ($keyword !== null)
         {
-            /** @var Token $keyword */
-            $keyword = NodeConverter::convert($keyword, Token::class, $this->phpVersion);
+            /** @var \Phi\Token $keyword */
+            $keyword = NodeCoercer::coerce($keyword, \Phi\Token::class, $this->getPhpVersion());
             $keyword->detach();
             $keyword->parent = $this;
         }
@@ -110,11 +126,11 @@ abstract class GeneratedAnonymousFunctionUse extends CompoundNode
         $this->keyword = $keyword;
     }
 
-    public function getLeftParenthesis(): Token
+    public function getLeftParenthesis(): \Phi\Token
     {
         if ($this->leftParenthesis === null)
         {
-            throw new MissingNodeException($this, __FUNCTION__);
+            throw TreeException::missingNode($this, "leftParenthesis");
         }
         return $this->leftParenthesis;
     }
@@ -125,14 +141,14 @@ abstract class GeneratedAnonymousFunctionUse extends CompoundNode
     }
 
     /**
-     * @param Token|Node|string|null $leftParenthesis
+     * @param \Phi\Token|\Phi\Node|string|null $leftParenthesis
      */
     public function setLeftParenthesis($leftParenthesis): void
     {
         if ($leftParenthesis !== null)
         {
-            /** @var Token $leftParenthesis */
-            $leftParenthesis = NodeConverter::convert($leftParenthesis, Token::class, $this->phpVersion);
+            /** @var \Phi\Token $leftParenthesis */
+            $leftParenthesis = NodeCoercer::coerce($leftParenthesis, \Phi\Token::class, $this->getPhpVersion());
             $leftParenthesis->detach();
             $leftParenthesis->parent = $this;
         }
@@ -144,29 +160,19 @@ abstract class GeneratedAnonymousFunctionUse extends CompoundNode
     }
 
     /**
-     * @return SeparatedNodesList|Nodes\AnonymousFunctionUseBinding[]
-     * @phpstan-return SeparatedNodesList<\Phi\Nodes\AnonymousFunctionUseBinding>
+     * @return \Phi\Nodes\Base\SeparatedNodesList|\Phi\Nodes\Expressions\AnonymousFunctionUseBinding[]
+     * @phpstan-return \Phi\Nodes\Base\SeparatedNodesList<\Phi\Nodes\Expressions\AnonymousFunctionUseBinding>
      */
-    public function getBindings(): SeparatedNodesList
+    public function getBindings(): \Phi\Nodes\Base\SeparatedNodesList
     {
         return $this->bindings;
     }
 
-    /**
-     * @param Nodes\AnonymousFunctionUseBinding $binding
-     */
-    public function addBinding($binding): void
-    {
-        /** @var Nodes\AnonymousFunctionUseBinding $binding */
-        $binding = NodeConverter::convert($binding, Nodes\AnonymousFunctionUseBinding::class, $this->phpVersion);
-        $this->bindings->add($binding);
-    }
-
-    public function getRightParenthesis(): Token
+    public function getRightParenthesis(): \Phi\Token
     {
         if ($this->rightParenthesis === null)
         {
-            throw new MissingNodeException($this, __FUNCTION__);
+            throw TreeException::missingNode($this, "rightParenthesis");
         }
         return $this->rightParenthesis;
     }
@@ -177,14 +183,14 @@ abstract class GeneratedAnonymousFunctionUse extends CompoundNode
     }
 
     /**
-     * @param Token|Node|string|null $rightParenthesis
+     * @param \Phi\Token|\Phi\Node|string|null $rightParenthesis
      */
     public function setRightParenthesis($rightParenthesis): void
     {
         if ($rightParenthesis !== null)
         {
-            /** @var Token $rightParenthesis */
-            $rightParenthesis = NodeConverter::convert($rightParenthesis, Token::class, $this->phpVersion);
+            /** @var \Phi\Token $rightParenthesis */
+            $rightParenthesis = NodeCoercer::coerce($rightParenthesis, \Phi\Token::class, $this->getPhpVersion());
             $rightParenthesis->detach();
             $rightParenthesis->parent = $this;
         }
@@ -195,20 +201,36 @@ abstract class GeneratedAnonymousFunctionUse extends CompoundNode
         $this->rightParenthesis = $rightParenthesis;
     }
 
-    protected function _validate(int $flags): void
+    public function _validate(int $flags): void
     {
-        if ($this->keyword === null) throw ValidationException::childRequired($this, "keyword");
-        if ($this->leftParenthesis === null) throw ValidationException::childRequired($this, "leftParenthesis");
-        if ($this->rightParenthesis === null) throw ValidationException::childRequired($this, "rightParenthesis");
-        if ($flags & self::VALIDATE_TYPES)
-        {
-        }
-        if ($flags & self::VALIDATE_EXPRESSION_CONTEXT)
-        {
-        }
-        if ($flags & self::VALIDATE_TOKENS)
-        {
-        }
-        $this->bindings->_validate($flags);
+        if ($this->keyword === null)
+            throw ValidationException::missingChild($this, "keyword");
+        if ($this->leftParenthesis === null)
+            throw ValidationException::missingChild($this, "leftParenthesis");
+        if ($this->rightParenthesis === null)
+            throw ValidationException::missingChild($this, "rightParenthesis");
+        if ($this->keyword->getType() !== 253)
+            throw ValidationException::invalidSyntax($this->keyword, [253]);
+        if ($this->leftParenthesis->getType() !== 105)
+            throw ValidationException::invalidSyntax($this->leftParenthesis, [105]);
+        foreach ($this->bindings->getSeparators() as $t)
+            if ($t && $t->getType() !== 109)
+                throw ValidationException::invalidSyntax($t, [109]);
+        if ($this->rightParenthesis->getType() !== 106)
+            throw ValidationException::invalidSyntax($this->rightParenthesis, [106]);
+
+
+        $this->extraValidation($flags);
+
+        foreach ($this->bindings as $t)
+            $t->_validate(0);
+    }
+
+    public function _autocorrect(): void
+    {
+        foreach ($this->bindings as $t)
+            $t->_autocorrect();
+
+        $this->extraAutocorrect();
     }
 }

@@ -1,119 +1,135 @@
 <?php
 
+declare(strict_types=1);
+
+/**
+ * This code is generated.
+ * @see meta/
+ */
+
 namespace Phi\Nodes\Generated;
 
 use Phi\Node;
 use Phi\Token;
-use Phi\Nodes\Base\CompoundNode;
-use Phi\Nodes\Base\NodesList;
-use Phi\Nodes\Base\SeparatedNodesList;
-use Phi\Exception\MissingNodeException;
-use Phi\NodeConverter;
+use Phi\Exception\TreeException;
+use Phi\NodeCoercer;
 use Phi\Exception\ValidationException;
-use Phi\Nodes as Nodes;
 
-abstract class GeneratedInstanceofExpression extends Nodes\Expression
+trait GeneratedInstanceofExpression
 {
     /**
-     * @var Nodes\Expression|null
+     * @var \Phi\Nodes\Expression|null
      */
-    private $value;
+    private $expression;
 
     /**
-     * @var Token|null
+     * @var \Phi\Token|null
      */
     private $operator;
 
     /**
-     * @var Nodes\Expression|null
+     * @var \Phi\Nodes\Expression|null
      */
-    private $type;
-
+    private $class;
 
     /**
-     * @param Nodes\Expression|Node|string|null $value
-     * @param Nodes\Expression|Node|string|null $type
+     * @param \Phi\Nodes\Expression|\Phi\Node|string|null $expression
+     * @param \Phi\Nodes\Expression|\Phi\Node|string|null $class
      */
-    public function __construct($value = null, $type = null)
+    public function __construct($expression = null, $class = null)
     {
-        if ($value !== null)
+        if ($expression !== null)
         {
-            $this->setValue($value);
+            $this->setExpression($expression);
         }
-        if ($type !== null)
+        if ($class !== null)
         {
-            $this->setType($type);
+            $this->setClass($class);
         }
     }
 
     /**
-     * @param int $phpVersion
-     * @param Nodes\Expression $value
-     * @param Token $operator
-     * @param Nodes\Expression $type
-     * @return static
+     * @param \Phi\Nodes\Expression $expression
+     * @param \Phi\Token $operator
+     * @param \Phi\Nodes\Expression $class
+     * @return self
      */
-    public static function __instantiateUnchecked($phpVersion, $value, $operator, $type)
+    public static function __instantiateUnchecked($expression, $operator, $class)
     {
-        $instance = new static;
-        $instance->phpVersion = $phpVersion;
-        $instance->value = $value;
-        $value->parent = $instance;
+        $instance = new self;
+        $instance->expression = $expression;
+        $expression->parent = $instance;
         $instance->operator = $operator;
         $operator->parent = $instance;
-        $instance->type = $type;
-        $type->parent = $instance;
+        $instance->class = $class;
+        $class->parent = $instance;
         return $instance;
     }
 
-    protected function &_getNodeRefs(): array
+    public function getChildNodes(): array
     {
-        $refs = [
-            "value" => &$this->value,
-            "operator" => &$this->operator,
-            "type" => &$this->type,
-        ];
-        return $refs;
+        return \array_values(\array_filter([
+            $this->expression,
+            $this->operator,
+            $this->class,
+        ]));
     }
 
-    public function getValue(): Nodes\Expression
+    protected function &getChildRef(Node $childToDetach): Node
     {
-        if ($this->value === null)
+        if ($this->expression === $childToDetach)
         {
-            throw new MissingNodeException($this, __FUNCTION__);
+            return $this->expression;
         }
-        return $this->value;
+        if ($this->operator === $childToDetach)
+        {
+            return $this->operator;
+        }
+        if ($this->class === $childToDetach)
+        {
+            return $this->class;
+        }
+        throw new \LogicException();
     }
 
-    public function hasValue(): bool
+    public function getExpression(): \Phi\Nodes\Expression
     {
-        return $this->value !== null;
+        if ($this->expression === null)
+        {
+            throw TreeException::missingNode($this, "expression");
+        }
+        return $this->expression;
+    }
+
+    public function hasExpression(): bool
+    {
+        return $this->expression !== null;
     }
 
     /**
-     * @param Nodes\Expression|Node|string|null $value
+     * @param \Phi\Nodes\Expression|\Phi\Node|string|null $expression
      */
-    public function setValue($value): void
+    public function setExpression($expression): void
     {
-        if ($value !== null)
+        if ($expression !== null)
         {
-            /** @var Nodes\Expression $value */
-            $value = NodeConverter::convert($value, Nodes\Expression::class, $this->phpVersion);
-            $value->detach();
-            $value->parent = $this;
+            /** @var \Phi\Nodes\Expression $expression */
+            $expression = NodeCoercer::coerce($expression, \Phi\Nodes\Expression::class, $this->getPhpVersion());
+            $expression->detach();
+            $expression->parent = $this;
         }
-        if ($this->value !== null)
+        if ($this->expression !== null)
         {
-            $this->value->detach();
+            $this->expression->detach();
         }
-        $this->value = $value;
+        $this->expression = $expression;
     }
 
-    public function getOperator(): Token
+    public function getOperator(): \Phi\Token
     {
         if ($this->operator === null)
         {
-            throw new MissingNodeException($this, __FUNCTION__);
+            throw TreeException::missingNode($this, "operator");
         }
         return $this->operator;
     }
@@ -124,14 +140,14 @@ abstract class GeneratedInstanceofExpression extends Nodes\Expression
     }
 
     /**
-     * @param Token|Node|string|null $operator
+     * @param \Phi\Token|\Phi\Node|string|null $operator
      */
     public function setOperator($operator): void
     {
         if ($operator !== null)
         {
-            /** @var Token $operator */
-            $operator = NodeConverter::convert($operator, Token::class, $this->phpVersion);
+            /** @var \Phi\Token $operator */
+            $operator = NodeCoercer::coerce($operator, \Phi\Token::class, $this->getPhpVersion());
             $operator->detach();
             $operator->parent = $this;
         }
@@ -142,54 +158,66 @@ abstract class GeneratedInstanceofExpression extends Nodes\Expression
         $this->operator = $operator;
     }
 
-    public function getType(): Nodes\Expression
+    public function getClass(): \Phi\Nodes\Expression
     {
-        if ($this->type === null)
+        if ($this->class === null)
         {
-            throw new MissingNodeException($this, __FUNCTION__);
+            throw TreeException::missingNode($this, "class");
         }
-        return $this->type;
+        return $this->class;
     }
 
-    public function hasType(): bool
+    public function hasClass(): bool
     {
-        return $this->type !== null;
+        return $this->class !== null;
     }
 
     /**
-     * @param Nodes\Expression|Node|string|null $type
+     * @param \Phi\Nodes\Expression|\Phi\Node|string|null $class
      */
-    public function setType($type): void
+    public function setClass($class): void
     {
-        if ($type !== null)
+        if ($class !== null)
         {
-            /** @var Nodes\Expression $type */
-            $type = NodeConverter::convert($type, Nodes\Expression::class, $this->phpVersion);
-            $type->detach();
-            $type->parent = $this;
+            /** @var \Phi\Nodes\Expression $class */
+            $class = NodeCoercer::coerce($class, \Phi\Nodes\Expression::class, $this->getPhpVersion());
+            $class->detach();
+            $class->parent = $this;
         }
-        if ($this->type !== null)
+        if ($this->class !== null)
         {
-            $this->type->detach();
+            $this->class->detach();
         }
-        $this->type = $type;
+        $this->class = $class;
     }
 
-    protected function _validate(int $flags): void
+    public function _validate(int $flags): void
     {
-        if ($this->value === null) throw ValidationException::childRequired($this, "value");
-        if ($this->operator === null) throw ValidationException::childRequired($this, "operator");
-        if ($this->type === null) throw ValidationException::childRequired($this, "type");
-        if ($flags & self::VALIDATE_TYPES)
-        {
-        }
-        if ($flags & self::VALIDATE_EXPRESSION_CONTEXT)
-        {
-        }
-        if ($flags & self::VALIDATE_TOKENS)
-        {
-        }
-        $this->value->_validate($flags);
-        $this->type->_validate($flags);
+        if ($this->expression === null)
+            throw ValidationException::missingChild($this, "expression");
+        if ($this->operator === null)
+            throw ValidationException::missingChild($this, "operator");
+        if ($this->class === null)
+            throw ValidationException::missingChild($this, "class");
+        if ($this->operator->getType() !== 195)
+            throw ValidationException::invalidSyntax($this->operator, [195]);
+
+        if ($flags & 14)
+            throw ValidationException::invalidExpressionInContext($this);
+
+        $this->extraValidation($flags);
+
+        $this->expression->_validate(1);
+        $this->class->_validate(1);
+    }
+
+    public function _autocorrect(): void
+    {
+        if ($this->expression)
+            $this->expression->_autocorrect();
+        if ($this->class)
+            $this->class->_autocorrect();
+
+        $this->extraAutocorrect();
     }
 }

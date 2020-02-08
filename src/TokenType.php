@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Phi;
 
 use ReflectionClass;
@@ -28,7 +30,7 @@ abstract class TokenType
     public const S_AT = 119;
     public const S_LEFT_SQUARE_BRACKET = 120;
     public const S_RIGHT_SQUARE_BRACKET = 121;
-    public const S_CARAT = 122;
+    public const S_CARET = 122;
     public const S_BACKTICK = 123;
     public const S_LEFT_CURLY_BRACE = 124;
     public const S_VERTICAL_BAR = 125;
@@ -56,7 +58,11 @@ abstract class TokenType
     public const T_CONST = 147;
     public const T_CONSTANT_ENCAPSED_STRING = 148;
     public const T_CONTINUE = 149;
-    public const T_CURLY_OPEN = 150; // within interpolated strings this is the php type instead of "{"; TODO hide this behavior?
+    /**
+     * Not used
+     * @see TokenType::S_LEFT_CURLY_BRACE
+     */
+    public const T_CURLY_OPEN = 150;
     public const T_DEC = 151;
     public const T_DECLARE = 152;
     public const T_DEFAULT = 153;
@@ -168,7 +174,6 @@ abstract class TokenType
     public const T_YIELD = 259;
     public const T_YIELD_FROM = 260;
 
-    public const T_IMPLICIT_SEMICOLON = 998;
     public const T_EOF = 999;
 
     /** @return int[] */
@@ -180,10 +185,12 @@ abstract class TokenType
     /** @return array<string, int> */
     private static function getMap(): array
     {
-        return \array_filter(
+        static $map;
+        $map = $map ?? \array_filter(
             (new ReflectionClass(__CLASS__))->getConstants(),
             'is_int'
         );
+        return $map;
     }
 
     /** @return array<string|int, int> */
@@ -213,7 +220,7 @@ abstract class TokenType
             "@" => self::S_AT,
             "[" => self::S_LEFT_SQUARE_BRACKET,
             "]" => self::S_RIGHT_SQUARE_BRACKET,
-            "^" => self::S_CARAT,
+            "^" => self::S_CARET,
             "`" => self::S_BACKTICK,
             "{" => self::S_LEFT_CURLY_BRACE,
             "|" => self::S_VERTICAL_BAR,
@@ -352,8 +359,7 @@ abstract class TokenType
             \T_XOR_EQUAL => self::T_XOR_EQUAL,
             \T_YIELD => self::T_YIELD,
             \T_YIELD_FROM => self::T_YIELD_FROM,
-            // TODO add tokens from other versions?
-            // wrap constants that aren't always defined in @\constant('T_FOOBAR'),
+            // note: php T_ constants that aren't defined in all versions should be wrapped in @\constant('T_FN')
         ]);
         return $map;
     }
@@ -365,26 +371,399 @@ abstract class TokenType
         return $name;
     }
 
+    private const NEEDS_WHITESPACE = [
+        [self::S_DOLLAR, self::T_STRING],
+        [self::S_DOT, self::T_DNUMBER],
+        [self::S_DOT, self::T_LNUMBER],
+        [self::S_FORWARD_SLASH, self::S_ASTERISK],
+        [self::S_FORWARD_SLASH, self::S_FORWARD_SLASH],
+        [self::S_FORWARD_SLASH, self::T_DIV_EQUAL],
+        [self::S_FORWARD_SLASH, self::T_MUL_EQUAL],
+        [self::S_FORWARD_SLASH, self::T_POW],
+        [self::S_FORWARD_SLASH, self::T_POW_EQUAL],
+        [self::S_LT, self::S_GT],
+        [self::S_LT, self::T_IS_GREATER_OR_EQUAL],
+        [self::S_LT, self::T_SR],
+        [self::S_LT, self::T_SR_EQUAL],
+        [self::T_DNUMBER, self::T_DNUMBER],
+        [self::T_DNUMBER, self::T_LNUMBER],
+        [self::T_LNUMBER, self::S_DOT],
+        [self::T_LNUMBER, self::T_CONCAT_EQUAL],
+        [self::T_LNUMBER, self::T_DNUMBER],
+        [self::T_LNUMBER, self::T_ELLIPSIS],
+        [self::T_LNUMBER, self::T_LNUMBER],
+        [self::T_STRING, self::T_DNUMBER],
+        [self::T_STRING, self::T_LNUMBER],
+        [self::T_STRING, self::T_STRING],
+        [self::T_VARIABLE, self::T_DNUMBER],
+        [self::T_VARIABLE, self::T_LNUMBER],
+        [self::T_VARIABLE, self::T_STRING],
+    ];
+
+    /**
+     * Determines if two tokens need some whitespace in between them in order to be parsed correctly.
+     * E.g. in `function foo() {}` whitespace is required between `function` and `foo`.
+     *
+     * Within interpolated strings any whitespace becomes part of a T_ENCAPSED_AND_WHITESPACE token or is invalid,
+     * for those tokens `false` is returned.
+     */
+    public static function requireSeparatingWhitespace(int $type1, int $type2): bool
+    {
+        // very special case, ${ is only lexed inside interpolated strings
+        if ($type1 === self::S_DOLLAR && $type2 === self::S_LEFT_CURLY_BRACE)
+        {
+            return false;
+        }
+
+        $src1 = self::AUTOCORRECT[$type1] ?? null;
+        $src2 = self::AUTOCORRECT[$type2] ?? null;
+
+        // check if part of the next token changes the first one
+        if (isset($src1, $src2))
+        {
+            $src = $src1 . $src2;
+            for ($i = \strlen($src1) + 1; $i <= \strlen($src1 . $src2); $i++)
+            {
+                if (\in_array(\substr($src, 0, $i), self::AUTOCORRECT, true))
+                {
+                    return true;
+                }
+            }
+        }
+
+        // treat keywords like regular strings
+        if ($src1 && \preg_match('{[A-Za-z_]$}', $src1))
+        {
+            $type1 = self::T_STRING;
+        }
+        if ($src2 && \preg_match('{^[A-Za-z_]}', $src2))
+        {
+            $type2 = self::T_STRING;
+        }
+
+        return \in_array([$type1, $type2], self::NEEDS_WHITESPACE, true);
+    }
+
     public const CASTS = [
-        TokenType::T_ARRAY_CAST,
-        TokenType::T_BOOL_CAST,
-        TokenType::T_DOUBLE_CAST,
-        TokenType::T_INT_CAST,
-        TokenType::T_OBJECT_CAST,
-        TokenType::T_STRING_CAST,
-        TokenType::T_UNSET_CAST,
+        self::T_ARRAY_CAST,
+        self::T_BOOL_CAST,
+        self::T_DOUBLE_CAST,
+        self::T_INT_CAST,
+        self::T_OBJECT_CAST,
+        self::T_STRING_CAST,
+        self::T_UNSET_CAST,
     ];
 
     public const COMBINED_ASSIGNMENTS = [
-        TokenType::T_PLUS_EQUAL, TokenType::T_MINUS_EQUAL, TokenType::T_CONCAT_EQUAL,
-        TokenType::T_MUL_EQUAL, TokenType::T_DIV_EQUAL, TokenType::T_MOD_EQUAL,
-        TokenType::T_POW_EQUAL,
-        TokenType::T_AND_EQUAL, TokenType::T_OR_EQUAL, TokenType::T_XOR_EQUAL,
-        TokenType::T_SL_EQUAL, TokenType::T_SR_EQUAL,
+        self::T_PLUS_EQUAL, self::T_MINUS_EQUAL, self::T_CONCAT_EQUAL,
+        self::T_MUL_EQUAL, self::T_DIV_EQUAL, self::T_MOD_EQUAL,
+        self::T_POW_EQUAL,
+        self::T_AND_EQUAL, self::T_OR_EQUAL, self::T_XOR_EQUAL,
+        self::T_SL_EQUAL, self::T_SR_EQUAL,
     ];
 
     public const MAGIC_CONSTANTS = [
-        TokenType::T_DIR, TokenType::T_FILE, TokenType::T_LINE,
-        TokenType::T_FUNC_C, TokenType::T_CLASS_C, TokenType::T_METHOD_C
+        self::T_DIR, self::T_FILE, self::T_LINE,
+        self::T_FUNC_C, self::T_CLASS_C, self::T_METHOD_C,
+        self::T_TRAIT_C, self::T_NS_C,
+    ];
+
+    // TODO remove? -- needs test coverage
+    // probably also needs emulation?
+    public const RESERVED = [
+        self::T_ARRAY,
+        self::T_AS,
+        self::T_BREAK,
+        self::T_CALLABLE,
+        self::T_CASE,
+        self::T_CATCH,
+        self::T_CLASS,
+        self::T_CLASS_C,
+        self::T_CLONE,
+        self::T_CONST,
+        self::T_CONTINUE,
+        self::T_DECLARE,
+        self::T_DEFAULT,
+        self::T_DIR,
+        self::T_DO,
+        self::T_ECHO,
+        self::T_ELSE,
+        self::T_ELSEIF,
+        self::T_EMPTY,
+        self::T_ENDDECLARE,
+        self::T_ENDFOR,
+        self::T_ENDFOREACH,
+        self::T_ENDIF,
+        self::T_ENDSWITCH,
+        self::T_ENDWHILE,
+        self::T_EVAL,
+        self::T_EXIT,
+        self::T_EXTENDS,
+        self::T_FILE,
+        self::T_FINALLY,
+        self::T_FOR,
+        self::T_FOREACH,
+        self::T_FUNC_C,
+        self::T_FUNCTION,
+        self::T_GLOBAL,
+        self::T_GOTO,
+//        self::T_HALT_COMPILER,
+        self::T_IF,
+        self::T_IMPLEMENTS,
+        self::T_INCLUDE,
+        self::T_INCLUDE_ONCE,
+        self::T_INSTANCEOF,
+        self::T_INSTEADOF,
+        self::T_INTERFACE,
+        self::T_ISSET,
+        self::T_LINE,
+        self::T_LIST,
+        self::T_LOGICAL_AND,
+        self::T_LOGICAL_OR,
+        self::T_LOGICAL_XOR,
+        self::T_METHOD_C,
+        self::T_NAMESPACE,
+        self::T_NEW,
+        self::T_NS_C,
+        self::T_PRINT,
+        self::T_REQUIRE,
+        self::T_REQUIRE_ONCE,
+        self::T_RETURN,
+        self::T_SWITCH,
+        self::T_THROW,
+        self::T_TRAIT,
+        self::T_TRAIT_C,
+        self::T_TRY,
+        self::T_UNSET,
+        self::T_USE,
+        self::T_VAR,
+        self::T_WHILE,
+        self::T_YIELD,
+    ];
+
+    public const SEMI_RESERVED = [
+        self::T_ARRAY,
+        self::T_AS,
+        self::T_BREAK,
+        self::T_CALLABLE,
+        self::T_CASE,
+        self::T_CATCH,
+        self::T_CLASS,
+        self::T_CLASS_C,
+        self::T_CLONE,
+        self::T_CONST,
+        self::T_CONTINUE,
+        self::T_DECLARE,
+        self::T_DEFAULT,
+        self::T_DIR,
+        self::T_DO,
+        self::T_ECHO,
+        self::T_ELSE,
+        self::T_ELSEIF,
+        self::T_EMPTY,
+        self::T_ENDDECLARE,
+        self::T_ENDFOR,
+        self::T_ENDFOREACH,
+        self::T_ENDIF,
+        self::T_ENDSWITCH,
+        self::T_ENDWHILE,
+        self::T_EVAL,
+        self::T_EXIT,
+        self::T_EXTENDS,
+        self::T_FILE,
+        self::T_FINALLY,
+        self::T_FOR,
+        self::T_FOREACH,
+        self::T_FUNC_C,
+        self::T_FUNCTION,
+        self::T_GLOBAL,
+        self::T_GOTO,
+//        self::T_HALT_COMPILER,
+        self::T_IF,
+        self::T_IMPLEMENTS,
+        self::T_INCLUDE,
+        self::T_INCLUDE_ONCE,
+        self::T_INSTANCEOF,
+        self::T_INSTEADOF,
+        self::T_INTERFACE,
+        self::T_ISSET,
+        self::T_LINE,
+        self::T_LIST,
+        self::T_LOGICAL_AND,
+        self::T_LOGICAL_OR,
+        self::T_LOGICAL_XOR,
+        self::T_METHOD_C,
+        self::T_NAMESPACE,
+        self::T_NEW,
+        self::T_NS_C,
+        self::T_PRINT,
+        self::T_REQUIRE,
+        self::T_REQUIRE_ONCE,
+        self::T_RETURN,
+        self::T_SWITCH,
+        self::T_THROW,
+        self::T_TRAIT,
+        self::T_TRAIT_C,
+        self::T_TRY,
+        self::T_UNSET,
+        self::T_USE,
+        self::T_VAR,
+        self::T_WHILE,
+        self::T_YIELD,
+
+        self::T_STATIC,
+        self::T_ABSTRACT,
+        self::T_FINAL,
+        self::T_PRIVATE,
+        self::T_PROTECTED,
+        self::T_PUBLIC,
+    ];
+
+    public const AUTOCORRECT = [
+        self::S_AMPERSAND => '&',
+        self::S_ASTERISK => '*',
+        self::S_AT => '@',
+        self::S_BACKTICK => '`',
+        self::S_CARET => '^',
+        self::S_COLON => ':',
+        self::S_COMMA => ',',
+        self::S_DOLLAR => '$',
+        self::S_DOT => '.',
+        self::S_EQUALS => '=',
+        self::S_EXCLAMATION_MARK => '!',
+        self::S_FORWARD_SLASH => '/',
+        self::S_GT => '>',
+        self::S_LEFT_CURLY_BRACE => '{',
+        self::S_LEFT_PAREN => '(',
+        self::S_LEFT_SQUARE_BRACKET => '[',
+        self::S_LT => '<',
+        self::S_MINUS => '-',
+        self::S_MODULO => '%',
+        self::S_PLUS => '+',
+        self::S_QUESTION_MARK => '?',
+        self::S_RIGHT_CURLY_BRACE => '}',
+        self::S_RIGHT_PAREN => ')',
+        self::S_RIGHT_SQUARE_BRACKET => ']',
+        self::S_SEMICOLON => ';',
+        self::S_TILDE => '~',
+        self::S_VERTICAL_BAR => '|',
+        self::T_ABSTRACT => 'abstract',
+        self::T_AND_EQUAL => '&=',
+        self::T_ARRAY => 'array',
+        self::T_ARRAY_CAST => '(array)',
+        self::T_AS => 'as',
+        self::T_BOOLEAN_AND => '&&',
+        self::T_BOOLEAN_OR => '||',
+        self::T_BOOL_CAST => '(bool)',
+        self::T_BREAK => 'break',
+        self::T_CALLABLE => 'callable',
+        self::T_CASE => 'case',
+        self::T_CATCH => 'catch',
+        self::T_CLASS => 'class',
+        self::T_CLASS_C => '__CLASS__',
+        self::T_CLONE => 'clone',
+        self::T_CLOSE_TAG => '?>',
+        self::T_COALESCE => '??',
+        self::T_CONCAT_EQUAL => '.=',
+        self::T_CONST => 'const',
+        self::T_CONTINUE => 'continue',
+        self::T_DEC => '--',
+        self::T_DECLARE => 'declare',
+        self::T_DEFAULT => 'default',
+        self::T_DIR => '__DIR__',
+        self::T_DIV_EQUAL => '/=',
+        self::T_DO => 'do',
+        self::T_DOLLAR_OPEN_CURLY_BRACES => '${',
+        self::T_DOUBLE_ARROW => '=>',
+        self::T_DOUBLE_CAST => '(float)',
+        self::T_DOUBLE_COLON => '::',
+        self::T_ECHO => 'echo',
+        self::T_ELLIPSIS => '...',
+        self::T_ELSE => 'else',
+        self::T_ELSEIF => 'elseif',
+        self::T_EMPTY => 'empty',
+        self::T_ENDDECLARE => 'enddeclare',
+        self::T_ENDFOR => 'endfor',
+        self::T_ENDFOREACH => 'endforeach',
+        self::T_ENDIF => 'endif',
+        self::T_ENDSWITCH => 'endswitch',
+        self::T_ENDWHILE => 'endwhile',
+        self::T_EVAL => 'eval',
+        self::T_EXIT => 'exit',
+        self::T_EXTENDS => 'extends',
+        self::T_FILE => '__FILE__',
+        self::T_FINAL => 'final',
+        self::T_FINALLY => 'finally',
+        self::T_FOR => 'for',
+        self::T_FOREACH => 'foreach',
+        self::T_FUNCTION => 'function',
+        self::T_FUNC_C => '__FUNCTION__',
+        self::T_GLOBAL => 'global',
+        self::T_GOTO => 'goto',
+        self::T_HALT_COMPILER => '__halt_compiler',
+        self::T_IF => 'if',
+        self::T_IMPLEMENTS => 'implements',
+        self::T_INC => '++',
+        self::T_INCLUDE => 'include',
+        self::T_INCLUDE_ONCE => 'include_once',
+        self::T_INSTANCEOF => 'instanceof',
+        self::T_INSTEADOF => 'insteadof',
+        self::T_INTERFACE => 'interface',
+        self::T_INT_CAST => '(int)',
+        self::T_ISSET => 'isset',
+        self::T_IS_EQUAL => '==',
+        self::T_IS_GREATER_OR_EQUAL => '>=',
+        self::T_IS_IDENTICAL => '===',
+        self::T_IS_NOT_EQUAL => '!=',
+        self::T_IS_NOT_IDENTICAL => '!==',
+        self::T_IS_SMALLER_OR_EQUAL => '<=',
+        self::T_LINE => '__LINE__',
+        self::T_LIST => 'list',
+        self::T_LOGICAL_AND => 'and',
+        self::T_LOGICAL_OR => 'or',
+        self::T_LOGICAL_XOR => 'xor',
+        self::T_METHOD_C => '__METHOD__',
+        self::T_MINUS_EQUAL => '-=',
+        self::T_MOD_EQUAL => '%=',
+        self::T_MUL_EQUAL => '*=',
+        self::T_NAMESPACE => 'namespace',
+        self::T_NEW => 'new',
+        self::T_NS_C => '__NAMESPACE__',
+        self::T_NS_SEPARATOR => '\\',
+        self::T_OBJECT_CAST => '(object)',
+        self::T_OBJECT_OPERATOR => '->',
+        self::T_OPEN_TAG => '<?php ', // note a byte of whitespace is always part of the token
+        self::T_OPEN_TAG_WITH_ECHO => '<?=',
+        self::T_OR_EQUAL => '|=',
+        self::T_PLUS_EQUAL => '+=',
+        self::T_POW => '**',
+        self::T_POW_EQUAL => '**=',
+        self::T_PRINT => 'print',
+        self::T_PRIVATE => 'private',
+        self::T_PROTECTED => 'protected',
+        self::T_PUBLIC => 'public',
+        self::T_REQUIRE => 'require',
+        self::T_REQUIRE_ONCE => 'require_once',
+        self::T_RETURN => 'return',
+        self::T_SL => '<<',
+        self::T_SL_EQUAL => '<<=',
+        self::T_SPACESHIP => '<=>',
+        self::T_SR => '>>',
+        self::T_SR_EQUAL => '>>=',
+        self::T_STATIC => 'static',
+        self::T_STRING_CAST => '(string)',
+        self::T_SWITCH => 'switch',
+        self::T_THROW => 'throw',
+        self::T_TRAIT => 'trait',
+        self::T_TRAIT_C => '__TRAIT__',
+        self::T_TRY => 'try',
+        self::T_UNSET => 'unset',
+        self::T_UNSET_CAST => '(unset)',
+        self::T_USE => 'use',
+        self::T_VAR => 'var',
+        self::T_WHILE => 'while',
+        self::T_XOR_EQUAL => '^=',
+        self::T_YIELD => 'yield',
+        self::T_YIELD_FROM => 'yield from',
     ];
 }

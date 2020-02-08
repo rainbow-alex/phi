@@ -1,0 +1,46 @@
+{"algo": "permute"}
+
+function ident() {}
+function &ident() {}
+function ident($v, $v) {}
+function ident($v = 0, &$v, ...$v) {}
+function ident(&...$v) {}
+function ident(...$v = 0) {}
+function ident($v = EXPR) {}
+function ident($v,) {}
+function ident(): EXPR {}
+function ident() { STMT }
+
+if ($v) STMT
+if ($v) STMT elseif ($v) STMT
+if ($v) STMT elseif ($v) STMT elseif ($v) STMT
+if ($v) STMT else STMT
+if ($v) STMT elseif ($v) STMT else STMT
+if ($v) STMT else if ($v) STMT else STMT
+if ($v): STMT endif;
+if ($v): STMT elseif: ($v): STMT endif;
+if ($v): STMT elseif: ($v) STMT elseif: ($v) STMT endif;
+if ($v): STMT else: STMT endif;
+if ($v): STMT elseif ($v): STMT else: STMT endif;
+if ($v): STMT else if ($v): STMT else: STMT endif;
+
+for (;;) STMT
+for (EXPR; $v; $v) {}
+for ($v; EXPR; $v) {}
+for ($v; $v; EXPR) {}
+for ($v, $v; $v, $v; $v, $v) {}
+for (;;): STMT endfor;
+
+foreach ($v as $v) STMT
+foreach (EXPR as $v) {}
+foreach ($v as EXPR) {}
+foreach ($v as &EXPR) {}
+foreach ($v as $v => EXPR) {}
+foreach ($v as $v => &EXPR) {}
+foreach ($v as EXPR => $v) {}
+foreach ($v as $v): STMT endforeach;
+
+while ($v) STMT
+while ($v): STMT endwhile;
+
+{ STMT }

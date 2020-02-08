@@ -1,11 +1,13 @@
 <?php
 
-/** @noinspection PhpFullyQualifiedNameUsageInspection */
+declare(strict_types=1);
 
 namespace Phi;
 
 use Phi\Exception\ParseException;
 use Phi\Nodes;
+use Phi\Nodes\Expression as Expr;
+use Phi\TokenType as T;
 
 class Parser
 {
@@ -19,14 +21,9 @@ class Parser
     private $tokens = [];
     /** @var int */
     private $i = 0;
-    // TODO move these checks to Node::validate()
-    /** @var int */
-    private $loopDepth = 0;
 
     /** @var (int|string)[] */
     private $types = [];
-    /** @var string */
-    private $typezip = "";
 
     public function __construct(int $phpVersion)
     {
@@ -41,13 +38,14 @@ class Parser
     {
         $this->init((new Lexer($this->phpVersion))->lex($filename, $source));
 
-        $ast = $this->parseRoot();
-
-        $this->deinit();
-
-        $ast->validate(Node::VALIDATE_EXPRESSION_CONTEXT);
-
-        return $ast;
+        try
+        {
+            return $this->parseRoot();
+        }
+        finally
+        {
+            $this->deinit();
+        }
     }
 
     /**
@@ -60,19 +58,16 @@ class Parser
         try
         {
             $ast = $this->statement(self::STMT_LEVEL_TOP);
-            if ($this->types[$this->i] !== TokenType::T_EOF)
+            if ($this->types[$this->i] !== 999)
             {
                 throw ParseException::unexpected($this->tokens[$this->i]);
             }
+            return $ast;
         }
         finally
         {
             $this->deinit();
         }
-
-        $ast->validate(Node::VALIDATE_EXPRESSION_CONTEXT);
-
-        return $ast;
     }
 
     /**
@@ -85,76 +80,16 @@ class Parser
         try
         {
             $ast = $this->expression();
-            if ($this->types[$this->i] !== TokenType::T_EOF)
+            if ($this->types[$this->i] !== 999)
             {
                 throw ParseException::unexpected($this->tokens[$this->i]);
             }
+            return $ast;
         }
         finally
         {
             $this->deinit();
         }
-
-        // since this is an expression, all we want to check is if nested expressions have the right context
-        // we don't yet know what context the root expression is going to be in
-        // TODO test coverage
-        $ast->validateContext(0);
-
-        return $ast;
-    }
-
-    /**
-     * @throws ParseException
-     */
-    public function parseFragment(string $source): Node
-    {
-        $tokens = (new Lexer($this->phpVersion))->lexFragment($source);
-
-        if (\count($tokens) === 2) // a single token + eof
-        {
-            return $tokens[0];
-        }
-
-        $this->init($tokens);
-
-        try
-        {
-            $statements = [];
-            while ($this->types[$this->i] !== TokenType::T_EOF)
-            {
-                $statements[] = $this->statement(self::STMT_LEVEL_TOP);
-            }
-        }
-        finally
-        {
-            $this->deinit();
-        }
-
-        if (count($statements) !== 1)
-        {
-            $node = new Nodes\RegularBlock();
-            $node->setLeftBrace(new Token(TokenType::S_LEFT_CURLY_BRACE, '')); // TODO fix
-            foreach ($statements as $statement)
-            {
-                $node->addStatement($statement);
-            }
-            $node->setRightBrace(new Token(TokenType::S_RIGHT_CURLY_BRACE, '')); // TODO fix
-        }
-        else
-        {
-            $node = $statements[0];
-        }
-
-        // TODO can we parse a non-read expression this way? -- we should; but this would ruin tests!
-        $node->validate(Node::VALIDATE_EXPRESSION_CONTEXT);
-
-        if ($node instanceof Nodes\ExpressionStatement && !$node->getSemiColon())
-        {
-            $node = $node->getExpression();
-            $node->detach();
-        }
-
-        return $node;
     }
 
     /**
@@ -164,7 +99,6 @@ class Parser
     {
         $this->tokens = $tokens;
         $this->i = 0;
-        $this->loopDepth = 0;
 
         // push some extra eof tokens to eliminate the need for out of bounds checks when peeking
         $eof = \end($tokens);
@@ -179,24 +113,12 @@ class Parser
         {
             $this->types[] = $token->getType();
         }
-
-        $typezip = "";
-        foreach ($this->types as $t)
-        {
-            $typezip .= \in_array($t, [
-                TokenType::S_RIGHT_PAREN, TokenType::S_RIGHT_CURLY_BRACE, TokenType::S_RIGHT_SQUARE_BRACKET,
-                TokenType::S_COMMA, TokenType::S_SEMICOLON, TokenType::S_COLON,
-                TokenType::T_AS, TokenType::T_DOUBLE_ARROW,
-            ], true) ? "000" : $t;
-        }
-        $this->typezip = $typezip;
     }
 
     private function deinit(): void
     {
         $this->tokens = [];
         $this->types = [];
-        $this->typezip = "";
     }
 
     private function peek(int $ahead = 0): Token
@@ -218,14 +140,14 @@ class Parser
     {
         $statements = [];
 
-        while ($this->types[$this->i] !== TokenType::T_EOF)
+        while ($this->types[$this->i] !== 999)
         {
             $statements[] = $this->statement(self::STMT_LEVEL_TOP);
         }
 
-        $eof = $this->read(TokenType::T_EOF);
+        $eof = $this->read(999);
 
-        return Nodes\RootNode::__instantiateUnchecked($this->phpVersion, $statements, $eof);
+        return Nodes\RootNode::__instantiateUnchecked($statements, $eof);
     }
 
     private const STMT_LEVEL_TOP = 1;
@@ -234,7 +156,7 @@ class Parser
 
     private function statement(int $level = self::STMT_LEVEL_OTHER): Nodes\Statement
     {
-        if ($this->types[$this->i] === TokenType::T_NAMESPACE)
+        if ($this->types[$this->i] === 216)
         {
             if ($level !== self::STMT_LEVEL_TOP)
             {
@@ -243,7 +165,7 @@ class Parser
 
             return $this->namespace_();
         }
-        else if ($this->types[$this->i] === TokenType::T_USE)
+        else if ($this->types[$this->i] === 253)
         {
             if ($level === self::STMT_LEVEL_OTHER)
             {
@@ -252,79 +174,70 @@ class Parser
 
             return $this->use_();
         }
-        else if ($this->types[$this->i] === TokenType::T_ABSTRACT || $this->types[$this->i] === TokenType::T_CLASS || $this->types[$this->i] === TokenType::T_FINAL)
+        else if ($this->types[$this->i] === 128 || $this->types[$this->i] === 140 || $this->types[$this->i] === 180)
         {
             return $this->class_();
         }
-        else if ($this->types[$this->i] === TokenType::T_INTERFACE)
+        else if ($this->types[$this->i] === 197)
         {
             return $this->interface_();
         }
-        else if ($this->types[$this->i] === TokenType::T_TRAIT)
+        else if ($this->types[$this->i] === 248)
         {
             return $this->trait_();
         }
-        else if ($this->types[$this->i] === TokenType::T_BREAK)
+        else if ($this->types[$this->i] === 136)
         {
             $keyword = $this->tokens[$this->i++];
 
-            if (!$this->loopDepth)
-            {
-                throw ParseException::unexpected($keyword);
-            }
-
             $levels = null;
-            if ($this->types[$this->i] === TokenType::T_LNUMBER)
+            if ($this->types[$this->i] === 208)
             {
-                $levels = Nodes\IntegerLiteral::__instantiateUnchecked($this->phpVersion, $this->tokens[$this->i++]);
-                if ($levels->getValue() <= 0 || $levels->getValue() > $this->loopDepth)
-                {
-                    throw ParseException::unexpected($levels->getToken());
-                }
+                $levels = Nodes\Expressions\IntegerLiteral::__instantiateUnchecked($this->tokens[$this->i++]);
             }
 
             $semiColon = $this->statementDelimiter();
-            return Nodes\BreakStatement::__instantiateUnchecked($this->phpVersion, $keyword, $levels, $semiColon);
+            return Nodes\Statements\BreakStatement::__instantiateUnchecked($keyword, $levels, $semiColon);
         }
-        else if ($this->types[$this->i] === TokenType::T_CONTINUE)
+        else if ($this->types[$this->i] === 147)
+        {
+            $keyword = $this->tokens[$this->i++];
+            $name = $this->read(243);
+            $equals = $this->read(116);
+            $value = $this->expression();
+            $delimiter = $this->statementDelimiter();
+            return Nodes\Statements\ConstStatement::__instantiateUnchecked($keyword, $name, $equals, $value, $delimiter);
+        }
+        else if ($this->types[$this->i] === 149)
         {
             $keyword = $this->tokens[$this->i++];
 
-            if (!$this->loopDepth)
-            {
-                throw ParseException::unexpected($keyword);
-            }
-
             $levels = null;
-            if ($this->types[$this->i] === TokenType::T_LNUMBER)
+            if ($this->types[$this->i] === 208)
             {
-                $levels = Nodes\IntegerLiteral::__instantiateUnchecked($this->phpVersion, $this->tokens[$this->i++]);
-                if ($levels->getValue() <= 0 || $levels->getValue() > $this->loopDepth)
-                {
-                    throw ParseException::unexpected($levels->getToken());
-                }
+                $levels = Nodes\Expressions\IntegerLiteral::__instantiateUnchecked($this->tokens[$this->i++]);
             }
 
             $semiColon = $this->statementDelimiter();
-            return Nodes\ContinueStatement::__instantiateUnchecked($this->phpVersion, $keyword, $levels, $semiColon);
+            return Nodes\Statements\ContinueStatement::__instantiateUnchecked($keyword, $levels, $semiColon);
         }
-        else if ($this->types[$this->i] === TokenType::T_DECLARE)
+        else if ($this->types[$this->i] === 152)
         {
             $keyword = $this->tokens[$this->i++];
-            $leftParenthesis = $this->read(TokenType::S_LEFT_PAREN);
-            $directives = [null];
+            $leftParenthesis = $this->read(105);
+            $directives = [];
             do
             {
-                $directiveKey = $this->read(TokenType::T_STRING);
-                $directiveEquals = $this->read(TokenType::S_EQUALS);
+                $directiveKey = $this->read(243);
+                $directiveEquals = $this->read(116);
                 $directiveValue = $this->expression();
-                $directives[] = Nodes\DeclareDirective::__instantiateUnchecked($this->phpVersion, $directiveKey, $directiveEquals, $directiveValue);
+                $directives[] = Nodes\Statements\DeclareDirective::__instantiateUnchecked($directiveKey, $directiveEquals, $directiveValue);
             }
-            while ($this->types[$this->i] === TokenType::S_COMMA && $directives[] = $this->tokens[$this->i++]);
-            $rightParenthesis = $this->read(TokenType::S_RIGHT_PAREN);
+            while ($this->types[$this->i] === 109 && $directives[] = $this->tokens[$this->i++]);
+            $rightParenthesis = $this->read(106);
             if (!$this->endOfStatement())
             {
-                $block = $this->block($level); // TODO test level
+                $block = $this->block($level);
                 $semiColon = null;
             }
             else
@@ -332,7 +245,7 @@ class Parser
                 $block = null;
                 $semiColon = $this->statementDelimiter();
             }
-            return Nodes\DeclareStatement::__instantiateUnchecked($this->phpVersion,
+            return Nodes\Statements\DeclareStatement::__instantiateUnchecked(
                 $keyword,
                 $leftParenthesis,
                 $directives,
@@ -341,20 +254,16 @@ class Parser
                 $semiColon
             );
         }
-        else if ($this->types[$this->i] === TokenType::T_DO)
+        else if ($this->types[$this->i] === 157)
         {
             $keyword1 = $this->tokens[$this->i++];
-
-            $this->loopDepth++;
             $block = $this->block();
-            $this->loopDepth--;
-
-            $keyword2 = $this->read(TokenType::T_WHILE);
-            $leftParenthesis = $this->read(TokenType::S_LEFT_PAREN);
+            $keyword2 = $this->read(256);
+            $leftParenthesis = $this->read(105);
             $test = $this->expression();
-            $rightParenthesis = $this->read(TokenType::S_RIGHT_PAREN);
+            $rightParenthesis = $this->read(106);
             $semiColon = $this->statementDelimiter();
-            return Nodes\DoWhileStatement::__instantiateUnchecked($this->phpVersion,
+            return Nodes\Statements\DoWhileStatement::__instantiateUnchecked(
                 $keyword1,
                 $block,
                 $keyword2,
@@ -364,68 +273,66 @@ class Parser
                 $semiColon
             );
         }
-        else if ($this->types[$this->i] === TokenType::T_ECHO || $this->types[$this->i] === TokenType::T_OPEN_TAG_WITH_ECHO)
+        else if ($this->types[$this->i] === 163 || $this->types[$this->i] === 224)
         {
             $keyword = $this->tokens[$this->i++];
-            $expressions = [null];
+            $expressions = [];
             $expressions[] = $this->expression();
-            while ($this->types[$this->i] === TokenType::S_COMMA)
+            while ($this->types[$this->i] === 109)
             {
                 $expressions[] = $this->tokens[$this->i++];
                 $expressions[] = $this->expression();
             }
             $semiColon = $this->statementDelimiter();
-            return Nodes\EchoStatement::__instantiateUnchecked($this->phpVersion, $keyword, $expressions, $semiColon);
+            return Nodes\Statements\EchoStatement::__instantiateUnchecked($keyword, $expressions, $semiColon);
         }
-        else if ($this->types[$this->i] === TokenType::T_FOR)
+        else if ($this->types[$this->i] === 182)
         {
             $keyword = $this->tokens[$this->i++];
-            $leftParenthesis = $this->read(TokenType::S_LEFT_PAREN);
+            $leftParenthesis = $this->read(105);
 
-            $init = [null];
-            if ($this->types[$this->i] !== TokenType::S_SEMICOLON)
+            $init = [];
+            if ($this->types[$this->i] !== 114)
             {
                 $init[] = $this->expression();
-                while ($this->types[$this->i] === TokenType::S_COMMA)
+                while ($this->types[$this->i] === 109)
                 {
                     $init[] = $this->tokens[$this->i++];
                     $init[] = $this->expression();
                 }
             }
 
-            $separator1 = $this->types[$this->i] === TokenType::S_COMMA ? $this->tokens[$this->i++] : $this->read(TokenType::S_SEMICOLON);
+            $separator1 = $this->types[$this->i] === 109 ? $this->tokens[$this->i++] : $this->read(114);
 
-            $test = [null];
-            if ($this->types[$this->i] !== TokenType::S_SEMICOLON)
+            $test = [];
+            if ($this->types[$this->i] !== 114)
             {
                 $test[] = $this->expression();
-                while ($this->types[$this->i] === TokenType::S_COMMA)
+                while ($this->types[$this->i] === 109)
                 {
                     $test[] = $this->tokens[$this->i++];
                     $test[] = $this->expression();
                 }
             }
 
-            $separator2 = $this->types[$this->i] === TokenType::S_COMMA ? $this->tokens[$this->i++] : $this->read(TokenType::S_SEMICOLON);
+            $separator2 = $this->types[$this->i] === 109 ? $this->tokens[$this->i++] : $this->read(114);
 
-            $step = [null];
-            if ($this->types[$this->i] !== TokenType::S_RIGHT_PAREN)
+            $step = [];
+            if ($this->types[$this->i] !== 106)
             {
                 $step[] = $this->expression();
-                while ($this->types[$this->i] === TokenType::S_COMMA)
+                while ($this->types[$this->i] === 109)
                 {
                     $step[] = $this->tokens[$this->i++];
                     $step[] = $this->expression();
                 }
             }
 
-            $rightParenthesis = $this->read(TokenType::S_RIGHT_PAREN);
+            $rightParenthesis = $this->read(106);
 
-            $this->loopDepth++;
-            $block = $this->types[$this->i] === TokenType::S_COLON ? $this->altBlock(TokenType::T_ENDFOR) : $this->block();
-            $this->loopDepth--;
+            $block = $this->types[$this->i] === 113 ? $this->altBlock(170) : $this->block();
 
-            return Nodes\ForStatement::__instantiateUnchecked($this->phpVersion,
+            return Nodes\Statements\ForStatement::__instantiateUnchecked(
                 $keyword,
                 $leftParenthesis,
                 $init,
@@ -437,27 +344,27 @@ class Parser
                 $block
             );
         }
-        else if ($this->types[$this->i] === TokenType::T_FOREACH)
+        else if ($this->types[$this->i] === 183)
         {
             $keyword = $this->tokens[$this->i++];
-            $leftParenthesis = $this->read(TokenType::S_LEFT_PAREN);
+            $leftParenthesis = $this->read(105);
             $iterable = $this->expression();
-            $as = $this->read(TokenType::T_AS);
+            $as = $this->read(132);
 
             $key = $byReference = null;
-            $byReference = $this->types[$this->i] === TokenType::S_AMPERSAND ? $this->tokens[$this->i++] : null;
+            $byReference = $this->types[$this->i] === 104 ? $this->tokens[$this->i++] : null;
             $value = $this->simpleExpression();
 
-            if ($this->types[$this->i] === TokenType::T_DOUBLE_ARROW)
+            if ($this->types[$this->i] === 160)
             {
                 if ($byReference)
                 {
                     throw ParseException::unexpected($this->tokens[$this->i]);
                 }
 
-                $key = Nodes\Key::__instantiateUnchecked($this->phpVersion, $value, $this->tokens[$this->i++]);
+                $key = Nodes\Helpers\Key::__instantiateUnchecked($value, $this->tokens[$this->i++]);
 
-                if ($this->types[$this->i] === TokenType::S_AMPERSAND)
+                if ($this->types[$this->i] === 104)
                 {
                     $byReference = $this->tokens[$this->i++];
                 }
@@ -465,13 +372,11 @@ class Parser
                 $value = $this->simpleExpression();
             }
 
-            $rightParenthesis = $this->read(TokenType::S_RIGHT_PAREN);
+            $rightParenthesis = $this->read(106);
 
-            $this->loopDepth++;
-            $block = $this->types[$this->i] === TokenType::S_COLON ? $this->altBlock(TokenType::T_ENDFOREACH) : $this->block();
-            $this->loopDepth--;
+            $block = $this->types[$this->i] === 113 ? $this->altBlock(171) : $this->block();
 
-            return Nodes\ForeachStatement::__instantiateUnchecked($this->phpVersion,
+            return Nodes\Statements\ForeachStatement::__instantiateUnchecked(
                 $keyword,
                 $leftParenthesis,
                 $iterable,
@@ -484,22 +389,22 @@ class Parser
             );
         }
         else if (
-            $this->types[$this->i] === TokenType::T_FUNCTION
+            $this->types[$this->i] === 184
             && (
-                $this->types[$this->i + 1] === TokenType::T_STRING
-                || $this->types[$this->i + 1] === TokenType::S_AMPERSAND && $this->types[$this->i + 2] === TokenType::T_STRING
+                $this->types[$this->i + 1] === 243
+                || $this->types[$this->i + 1] === 104 && $this->types[$this->i + 2] === 243
             )
         )
         {
             $keyword = $this->tokens[$this->i++];
-            $byReference = $this->types[$this->i] === TokenType::S_AMPERSAND ? $this->tokens[$this->i++] : null;
+            $byReference = $this->types[$this->i] === 104 ? $this->tokens[$this->i++] : null;
             $name = $this->tokens[$this->i++];
-            $leftParenthesis = $this->read(TokenType::S_LEFT_PAREN);
+            $leftParenthesis = $this->read(105);
             $parameters = $this->parameters();
-            $rightParenthesis = $this->read(TokenType::S_RIGHT_PAREN);
+            $rightParenthesis = $this->read(106);
             $returnType = $this->returnType();
-            $body = $this->functionBlock();
-            return Nodes\FunctionStatement::__instantiateUnchecked($this->phpVersion,
+            $body = $this->regularBlock();
+            return Nodes\Statements\FunctionStatement::__instantiateUnchecked(
                 $keyword,
                 $byReference,
                 $name,
@@ -510,40 +415,40 @@ class Parser
                 $body
             );
         }
-        else if ($this->types[$this->i] === TokenType::T_GOTO)
+        else if ($this->types[$this->i] === 187)
         {
             $keyword = $this->tokens[$this->i++];
-            $label = $this->read(TokenType::T_STRING);
+            $label = $this->read(243);
             $semiColon = $this->statementDelimiter();
-            return Nodes\GotoStatement::__instantiateUnchecked($this->phpVersion,
+            return Nodes\Statements\GotoStatement::__instantiateUnchecked(
                 $keyword,
                 $label,
                 $semiColon
             );
         }
-        else if ($this->types[$this->i] === TokenType::T_IF)
+        else if ($this->types[$this->i] === 189)
         {
             $keyword = $this->tokens[$this->i++];
-            $leftParenthesis = $this->read(TokenType::S_LEFT_PAREN);
+            $leftParenthesis = $this->read(105);
             $test = $this->expression();
-            $rightParenthesis = $this->read(TokenType::S_RIGHT_PAREN);
-            if ($altSyntax = ($this->types[$this->i] === TokenType::S_COLON))
+            $rightParenthesis = $this->read(106);
+            if ($altSyntax = ($this->types[$this->i] === 113))
             {
-                $block = $this->altBlock(TokenType::T_ENDIF, [TokenType::T_ELSE, TokenType::T_ELSEIF]);
+                $block = $this->altBlock(172, [165, 166]);
             }
             else
             {
                 $block = $this->block();
             }
             $elseifs = [];
-            while ($this->types[$this->i] === TokenType::T_ELSEIF)
+            while ($this->types[$this->i] === 166)
             {
                 $elseifKeyword = $this->tokens[$this->i++];
-                $elseifLeftParenthesis = $this->read(TokenType::S_LEFT_PAREN);
+                $elseifLeftParenthesis = $this->read(105);
                 $elseifTest = $this->expression();
-                $elseifRightParenthesis = $this->read(TokenType::S_RIGHT_PAREN);
-                $elseifBlock = $altSyntax ? $this->altBlock(TokenType::T_ENDIF, [TokenType::T_ELSE, TokenType::T_ELSEIF]) : $this->block();
-                $elseifs[] = Nodes\Elseif_::__instantiateUnchecked($this->phpVersion,
+                $elseifRightParenthesis = $this->read(106);
+                $elseifBlock = $altSyntax ? $this->altBlock(172, [165, 166]) : $this->block();
+                $elseifs[] = Nodes\Statements\Elseif_::__instantiateUnchecked(
                     $elseifKeyword,
                     $elseifLeftParenthesis,
                     $elseifTest,
@@ -552,13 +457,13 @@ class Parser
                 );
             }
             $else = null;
-            if ($this->types[$this->i] === TokenType::T_ELSE)
+            if ($this->types[$this->i] === 165)
             {
                 $elseKeyword = $this->tokens[$this->i++];
-                $elseBlock = $altSyntax ? $this->altBlock(TokenType::T_ENDIF) : $this->block();
-                $else = Nodes\Else_::__instantiateUnchecked($this->phpVersion, $elseKeyword, $elseBlock);
+                $elseBlock = $altSyntax ? $this->altBlock(172) : $this->block();
+                $else = Nodes\Statements\Else_::__instantiateUnchecked($elseKeyword, $elseBlock);
             }
-            return Nodes\IfStatement::__instantiateUnchecked($this->phpVersion,
+            return Nodes\Statements\IfStatement::__instantiateUnchecked(
                 $keyword,
                 $leftParenthesis,
                 $test,
@@ -568,105 +473,100 @@ class Parser
                 $else
             );
         }
-        else if ($this->types[$this->i] === TokenType::T_RETURN)
+        else if ($this->types[$this->i] === 235)
         {
             $keyword = $this->tokens[$this->i++];
             $expression = !$this->endOfStatement() ? $this->expression() : null;
             $semiColon = $this->statementDelimiter();
-            return Nodes\ReturnStatement::__instantiateUnchecked($this->phpVersion, $keyword, $expression, $semiColon);
+            return Nodes\Statements\ReturnStatement::__instantiateUnchecked($keyword, $expression, $semiColon);
         }
-        else if ($this->types[$this->i] === TokenType::T_STATIC && $this->types[$this->i + 1] === TokenType::T_VARIABLE)
+        else if ($this->types[$this->i] === 242 && $this->types[$this->i + 1] === 255)
         {
             $keyword = $this->tokens[$this->i++];
-            $variables = [null];
+            $variables = [];
             do
             {
-                $variable = $this->read(TokenType::T_VARIABLE);
+                $variable = $this->read(255);
                 $default = $this->default_();
-                $variables[] = Nodes\StaticVariable::__instantiateUnchecked($this->phpVersion, $variable, $default);
+                $variables[] = Nodes\Statements\StaticVariable::__instantiateUnchecked($variable, $default);
             }
-            while ($this->types[$this->i] === TokenType::S_COMMA && $variables[] = $this->tokens[$this->i++]);
+            while ($this->types[$this->i] === 109 && $variables[] = $this->tokens[$this->i++]);
             $semiColon = $this->statementDelimiter();
-            return Nodes\StaticVariableDeclaration::__instantiateUnchecked($this->phpVersion, $keyword, $variables, $semiColon);
+            return Nodes\Statements\StaticVariableStatement::__instantiateUnchecked($keyword, $variables, $semiColon);
         }
-        else if ($this->types[$this->i] === TokenType::T_SWITCH)
+        else if ($this->types[$this->i] === 246)
         {
             $keyword = $this->tokens[$this->i++];
 
-            $leftParenthesis = $this->read(TokenType::S_LEFT_PAREN);
+            $leftParenthesis = $this->read(105);
             $value = $this->expression();
-            $rightParenthesis = $this->read(TokenType::S_RIGHT_PAREN);
+            $rightParenthesis = $this->read(106);
 
-            $this->loopDepth++;
-            $leftBrace = $this->read(TokenType::S_LEFT_CURLY_BRACE);
+            $leftBrace = $this->read(124);
 
             $cases = [];
-            while ($this->types[$this->i] !== TokenType::T_DEFAULT && $this->types[$this->i] !== TokenType::S_RIGHT_CURLY_BRACE)
+            while ($this->types[$this->i] !== 126)
             {
-                $caseKeyword = $this->read(TokenType::T_CASE);
-                $caseValue = $this->expression();
-                $caseDelimiter = $this->types[$this->i] === TokenType::S_SEMICOLON ? $this->tokens[$this->i++] : $this->read(TokenType::S_COLON);
+                if ($this->types[$this->i] === 153)
+                {
+                    $caseKeyword = $this->tokens[$this->i++];
+                }
+                else
+                {
+                    $caseKeyword = $this->read(138);
+                }
+                $caseValue = null;
+                if ($this->types[$this->i] !== 113)
+                {
+                    $caseValue = $this->expression();
+                }
+                $caseDelimiter = $this->types[$this->i] === 114 ? $this->tokens[$this->i++] : $this->read(113);
                 $caseStatements = [];
-                while ($this->types[$this->i] !== TokenType::T_CASE && $this->types[$this->i] !== TokenType::T_DEFAULT && $this->types[$this->i] !== TokenType::S_RIGHT_CURLY_BRACE)
+                while ($this->types[$this->i] !== 138 && $this->types[$this->i] !== 153 && $this->types[$this->i] !== 126)
                 {
                     $caseStatements[] = $this->statement();
                 }
-                $cases[] = Nodes\SwitchCase::__instantiateUnchecked($this->phpVersion, $caseKeyword, $caseValue, $caseDelimiter, $caseStatements);
+                $cases[] = Nodes\Statements\SwitchCase::__instantiateUnchecked($caseKeyword, $caseValue, $caseDelimiter, $caseStatements);
             }
-            $default = null;
-            if ($this->types[$this->i] === TokenType::T_DEFAULT)
-            {
-                $defaultKeyword = $this->tokens[$this->i++];
-                $defaultColon = $this->read(TokenType::S_COLON);
-                $defaultStatements = [];
-                while ($this->types[$this->i] !== TokenType::S_RIGHT_CURLY_BRACE)
-                {
-                    $defaultStatements[] = $this->statement();
-                }
-                $default = Nodes\SwitchDefault::__instantiateUnchecked($this->phpVersion, $defaultKeyword, $defaultColon, $defaultStatements);
-            }
+            $rightBrace = $this->read(126);
 
-            $rightBrace = $this->read(TokenType::S_RIGHT_CURLY_BRACE);
-            $this->loopDepth--;
-
-            return Nodes\SwitchStatement::__instantiateUnchecked($this->phpVersion,
+            return Nodes\Statements\SwitchStatement::__instantiateUnchecked(
                 $keyword,
                 $leftParenthesis,
                 $value,
                 $rightParenthesis,
                 $leftBrace,
                 $cases,
-                $default,
                 $rightBrace
             );
         }
-        else if ($this->types[$this->i] === TokenType::T_THROW)
+        else if ($this->types[$this->i] === 247)
         {
             $keyword = $this->tokens[$this->i++];
             $expression = $this->expression();
             $semiColon = $this->statementDelimiter();
-            return Nodes\ThrowStatement::__instantiateUnchecked($this->phpVersion, $keyword, $expression, $semiColon);
+            return Nodes\Statements\ThrowStatement::__instantiateUnchecked($keyword, $expression, $semiColon);
         }
-        else if ($this->types[$this->i] === TokenType::T_TRY)
+        else if ($this->types[$this->i] === 250)
         {
             $keyword = $this->tokens[$this->i++];
             $block = $this->regularBlock();
             $catches = [];
-            while ($this->types[$this->i] === TokenType::T_CATCH)
+            while ($this->types[$this->i] === 139)
             {
                 $catchKeyword = $this->tokens[$this->i++];
-                $catchLeftParenthesis = $this->read(TokenType::S_LEFT_PAREN);
-                $catchTypes = [null];
-                $catchTypes[] = Nodes\NamedType::__instantiateUnchecked($this->phpVersion, $this->name());
-                while ($this->types[$this->i] === TokenType::S_VERTICAL_BAR)
+                $catchLeftParenthesis = $this->read(105);
+                $catchTypes = [];
+                $catchTypes[] = Nodes\Types\NamedType::__instantiateUnchecked($this->name());
+                while ($this->types[$this->i] === 125)
                 {
                     $catchTypes[] = $this->tokens[$this->i++];
-                    $catchTypes[] = Nodes\NamedType::__instantiateUnchecked($this->phpVersion, $this->name());
+                    $catchTypes[] = Nodes\Types\NamedType::__instantiateUnchecked($this->name());
                 }
-                $catchVariable = $this->read(TokenType::T_VARIABLE);
-                $catchRightParenthesis = $this->read(TokenType::S_RIGHT_PAREN);
+                $catchVariable = $this->read(255);
+                $catchRightParenthesis = $this->read(106);
                 $catchBlock = $this->regularBlock();
-                $catches[] = Nodes\Catch_::__instantiateUnchecked($this->phpVersion,
+                $catches[] = Nodes\Statements\Catch_::__instantiateUnchecked(
                     $catchKeyword,
                     $catchLeftParenthesis,
                     $catchTypes,
@@ -676,76 +576,74 @@ class Parser
                 );
             }
             $finally = null;
-            if ($this->types[$this->i] === TokenType::T_FINALLY)
+            if ($this->types[$this->i] === 181)
             {
                 $finallyKeyword = $this->tokens[$this->i++];
                 $finallyBlock = $this->regularBlock();
-                $finally = Nodes\Finally_::__instantiateUnchecked($this->phpVersion, $finallyKeyword, $finallyBlock);
+                $finally = Nodes\Statements\Finally_::__instantiateUnchecked($finallyKeyword, $finallyBlock);
             }
-            return Nodes\TryStatement::__instantiateUnchecked($this->phpVersion, $keyword, $block, $catches, $finally);
+            return Nodes\Statements\TryStatement::__instantiateUnchecked($keyword, $block, $catches, $finally);
         }
-        else if ($this->types[$this->i] === TokenType::T_WHILE)
+        else if ($this->types[$this->i] === 256)
         {
             $keyword = $this->tokens[$this->i++];
-            $leftParenthesis = $this->read(TokenType::S_LEFT_PAREN);
+            $leftParenthesis = $this->read(105);
             $test = $this->expression();
-            $rightParenthesis = $this->read(TokenType::S_RIGHT_PAREN);
+            $rightParenthesis = $this->read(106);
 
-            $this->loopDepth++;
-            $block = $this->types[$this->i] === TokenType::S_COLON ? $this->altBlock(TokenType::T_ENDWHILE) : $this->block();
-            $this->loopDepth--;
+            $block = $this->types[$this->i] === 113 ? $this->altBlock(174) : $this->block();
 
-            return Nodes\WhileStatement::__instantiateUnchecked($this->phpVersion, $keyword, $leftParenthesis, $test, $rightParenthesis, $block);
+            return Nodes\Statements\WhileStatement::__instantiateUnchecked($keyword, $leftParenthesis, $test, $rightParenthesis, $block);
         }
-        else if ($this->types[$this->i] === TokenType::T_UNSET)
+        else if ($this->types[$this->i] === 251)
         {
             $keyword = $this->tokens[$this->i++];
-            $leftParenthesis = $this->read(TokenType::S_LEFT_PAREN);
-            $expressions = [null];
+            $leftParenthesis = $this->read(105);
+            $expressions = [];
             do
             {
                 $expressions[] = $this->simpleExpression();
             }
-            while ($this->types[$this->i] === TokenType::S_COMMA && $expressions[] = $this->tokens[$this->i++]);
-            $rightParenthesis = $this->read(TokenType::S_RIGHT_PAREN);
+            while ($this->types[$this->i] === 109 && $expressions[] = $this->tokens[$this->i++]);
+            $rightParenthesis = $this->read(106);
             $semiColon = $this->statementDelimiter();
-            return Nodes\UnsetStatement::__instantiateUnchecked($this->phpVersion, $keyword, $leftParenthesis, $expressions, $rightParenthesis, $semiColon);
+            return Nodes\Statements\UnsetStatement::__instantiateUnchecked($keyword, $leftParenthesis, $expressions, $rightParenthesis, $semiColon);
         }
-        else if ($this->types[$this->i] === TokenType::S_LEFT_CURLY_BRACE)
+        else if ($this->types[$this->i] === 124)
         {
-            return Nodes\BlockStatement::__instantiateUnchecked($this->phpVersion, $this->regularBlock());
+            return Nodes\Statements\BlockStatement::__instantiateUnchecked($this->regularBlock());
         }
-        else if ($this->types[$this->i] === TokenType::T_STRING && $this->types[$this->i + 1] === TokenType::S_COLON)
+        else if ($this->types[$this->i] === 243 && $this->types[$this->i + 1] === 113)
         {
-            return Nodes\LabelStatement::__instantiateUnchecked($this->phpVersion, $this->tokens[$this->i++], $this->tokens[$this->i++]);
+            return Nodes\Statements\LabelStatement::__instantiateUnchecked($this->tokens[$this->i++], $this->tokens[$this->i++]);
         }
-        else if ($this->types[$this->i] === TokenType::T_INLINE_HTML || $this->types[$this->i] === TokenType::T_OPEN_TAG)
+        else if ($this->types[$this->i] === 194 || $this->types[$this->i] === 223)
         {
-            $content = $this->types[$this->i] === TokenType::T_INLINE_HTML ? $this->tokens[$this->i++] : null;
-            $open = $this->types[$this->i] === TokenType::T_OPEN_TAG ? $this->tokens[$this->i++] :     null;
-            return Nodes\InlineHtmlStatement::__instantiateUnchecked($this->phpVersion, $content, $open);
+            $content = $this->types[$this->i] === 194 ? $this->tokens[$this->i++] : null;
+            $open = $this->types[$this->i] === 223 ? $this->tokens[$this->i++] :     null;
+            return Nodes\Statements\InlineHtmlStatement::__instantiateUnchecked($content, $open);
         }
-        else if ($this->types[$this->i] === TokenType::S_SEMICOLON || $this->types[$this->i] === TokenType::T_CLOSE_TAG)
+        else if ($this->types[$this->i] === 114 || $this->types[$this->i] === 143)
         {
-            return Nodes\NopStatement::__instantiateUnchecked($this->phpVersion, $this->tokens[$this->i++]);
+            return Nodes\Statements\NopStatement::__instantiateUnchecked($this->tokens[$this->i++]);
         }
         else
         {
             $expression = $this->expression();
             $semiColon = $this->statementDelimiter();
-            return Nodes\ExpressionStatement::__instantiateUnchecked($this->phpVersion, $expression, $semiColon);
+            return Nodes\Statements\ExpressionStatement::__instantiateUnchecked($expression, $semiColon);
         }
     }
 
-    private function namespace_(): Nodes\NamespaceStatement
+    private function namespace_(): Nodes\Statements\NamespaceStatement
     {
-        $keyword = $this->read(TokenType::T_NAMESPACE);
+        $keyword = $this->read(216);
         $name = null;
-        if ($this->types[$this->i] !== TokenType::S_LEFT_CURLY_BRACE && $this->types[$this->i] !== TokenType::S_SEMICOLON)
+        if ($this->types[$this->i] !== 124)
         {
             $name = $this->name();
         }
-        if ($this->types[$this->i] === TokenType::S_LEFT_CURLY_BRACE)
+        if ($this->types[$this->i] === 124)
         {
             $block = $this->regularBlock(self::STMT_LEVEL_NAMESPACE);
             $semiColon = null;
@@ -755,129 +653,128 @@ class Parser
             $block = null;
             $semiColon = $this->statementDelimiter();
         }
-        return Nodes\NamespaceStatement::__instantiateUnchecked($this->phpVersion, $keyword, $name, $block, $semiColon);
+        return Nodes\Statements\NamespaceStatement::__instantiateUnchecked($keyword, $name, $block, $semiColon);
     }
 
-    private function use_(): Nodes\UseStatement
+    private function use_(): Nodes\Statements\UseStatement
     {
-        $keyword = $this->read(TokenType::T_USE);
-        $type = $this->types[$this->i] === TokenType::T_FUNCTION || $this->types[$this->i] === TokenType::T_CONST ? $this->tokens[$this->i++] : null;
-        // TODO take advantage of $uses being the same for both forms and simplify this...
-        if ($this->types[$this->i] === TokenType::S_LEFT_CURLY_BRACE)
+        $keyword = $this->read(253);
+        $type = null;
+        if ($this->types[$this->i] === 184 || $this->types[$this->i] === 147)
         {
-            $prefix = null;
+            $type = $this->tokens[$this->i++];
+        }
+
+        $firstName = null;
+        if ($this->types[$this->i] === 219 || $this->types[$this->i] === 243)
+        {
+            $firstName = $this->name();
+        }
+
+        if ($this->types[$this->i] === 219)
+        {
+            assert($firstName !== null);
+            $prefix = $firstName;
+            unset($firstName);
+            $prefix->getParts()->add($this->tokens[$this->i++]);
+            $leftBrace = $this->read(124);
+            $rightBrace = null;
         }
         else
         {
-            $name = $this->name();
-            if ($this->types[$this->i] !== TokenType::T_NS_SEPARATOR || $this->types[$this->i + 1] !== TokenType::S_LEFT_CURLY_BRACE)
-            {
-                $uses = [null];
-                $alias = null;
-                if ($this->types[$this->i] === TokenType::T_AS)
-                {
-                    $aliasKeyword = $this->tokens[$this->i++];
-                    $alias = Nodes\UseAlias::__instantiateUnchecked($this->phpVersion, $aliasKeyword, $this->read(TokenType::T_STRING));
-                }
-                $uses[] = Nodes\UseName::__instantiateUnchecked($this->phpVersion, $name, $alias);
-                while ($this->types[$this->i] === TokenType::S_COMMA)
-                {
-                    $uses[] = $this->tokens[$this->i++];
-                    $name = $this->name();
-                    $alias = null;
-                    if ($this->types[$this->i] === TokenType::T_AS)
-                    {
-                        $aliasKeyword = $this->tokens[$this->i++];
-                        $alias = Nodes\UseAlias::__instantiateUnchecked($this->phpVersion, $aliasKeyword, $this->read(TokenType::T_STRING));
-                    }
-                    $uses[] = Nodes\UseName::__instantiateUnchecked($this->phpVersion, $name, $alias);
-                }
-                $semiColon = $this->statementDelimiter();
-                return Nodes\RegularUseStatement::__instantiateUnchecked($this->phpVersion,
-                    $keyword,
-                    $type,
-                    $uses,
-                    $semiColon
-                );
-            }
-            $prefix = Nodes\GroupedUsePrefix::__instantiateUnchecked($this->phpVersion, $name, $this->tokens[$this->i++]);
+            $prefix = null;
+            $leftBrace = $rightBrace = null;
         }
-        $leftBrace = $this->tokens[$this->i++];
-        $uses = [null];
-        do
+
+        $declarations = [];
+        while (true)
         {
-            $useName = $this->name();
-            $useAlias = null;
-            if ($this->types[$this->i] === TokenType::T_AS)
+            $name = $firstName ?? $this->name();
+            unset($firstName);
+
+            $alias = null;
+            if ($this->types[$this->i] === 132)
             {
-                $useAliasKeyword = $this->tokens[$this->i++];
-                $useAlias = Nodes\UseAlias::__instantiateUnchecked($this->phpVersion, $useAliasKeyword, $this->read(TokenType::T_STRING));
+                $aliasKeyword = $this->tokens[$this->i++];
+                $alias = Nodes\Statements\UseAlias::__instantiateUnchecked($aliasKeyword, $this->read(243));
             }
-            $uses[] = Nodes\UseName::__instantiateUnchecked($this->phpVersion, $useName, $useAlias);
-            if ($this->types[$this->i] !== TokenType::S_COMMA)
+
+            $declarations[] = Nodes\Statements\UseDeclaration::__instantiateUnchecked($name, $alias);
+
+            if ($this->types[$this->i] === 109)
             {
+                $declarations[] = $this->tokens[$this->i++];
+            }
+            else
+            {
+                $declarations[] = null;
                 break;
             }
-            $uses[] = $this->tokens[$this->i++];
+
+            if ($leftBrace && $this->types[$this->i] === 126)
+            {
+                $rightBrace = $this->tokens[$this->i++];
+                break;
+            }
         }
-        while ($this->types[$this->i] !== TokenType::S_RIGHT_CURLY_BRACE);
-        $rightBrace = $this->tokens[$this->i++];
+
         $semiColon = $this->statementDelimiter();
-        return Nodes\GroupedUseStatement::__instantiateUnchecked($this->phpVersion,
+
+        return Nodes\Statements\UseStatement::__instantiateUnchecked(
             $keyword,
             $type,
             $prefix,
             $leftBrace,
-            $uses,
+            $declarations,
             $rightBrace,
             $semiColon
         );
     }
 
-    private function class_(): Nodes\ClassStatement
+    private function class_(): Nodes\Oop\ClassDeclaration
     {
         $modifiers = [];
-        while (in_array($this->types[$this->i], [TokenType::T_ABSTRACT, TokenType::T_FINAL], true))
+        while (in_array($this->types[$this->i], [128, 180], true))
         {
             $modifiers[] = $this->tokens[$this->i++];
         }
-        $keyword = $this->read(TokenType::T_CLASS);
-        $name = $this->read(TokenType::T_STRING);
-        if ($this->types[$this->i] === TokenType::T_EXTENDS)
+        $keyword = $this->read(140);
+        $name = $this->read(243);
+        if ($this->types[$this->i] === 178)
         {
             $extendsKeyword = $this->tokens[$this->i++];
-            $extendsNames = [null];
+            $extendsNames = [];
             $extendsNames[] = $this->name();
-            $extends = Nodes\Extends_::__instantiateUnchecked($this->phpVersion, $extendsKeyword, $extendsNames);
+            $extends = Nodes\Oop\Extends_::__instantiateUnchecked($extendsKeyword, $extendsNames);
         }
         else
         {
             $extends = null;
         }
-        if ($this->types[$this->i] === TokenType::T_IMPLEMENTS)
+        if ($this->types[$this->i] === 190)
         {
             $implementsKeyword = $this->tokens[$this->i++];
-            $implementsNames = [null];
+            $implementsNames = [];
             $implementsNames[] = $this->name();
-            while ($this->types[$this->i] === TokenType::S_COMMA)
+            while ($this->types[$this->i] === 109)
             {
                 $implementsNames[] = $this->tokens[$this->i++];
                 $implementsNames[] = $this->name();
             }
-            $implements = Nodes\Implements_::__instantiateUnchecked($this->phpVersion, $implementsKeyword, $implementsNames);
+            $implements = Nodes\Oop\Implements_::__instantiateUnchecked($implementsKeyword, $implementsNames);
         }
         else
         {
             $implements = null;
         }
-        $leftBrace = $this->read(TokenType::S_LEFT_CURLY_BRACE);
+        $leftBrace = $this->read(124);
         $members = [];
-        while ($this->types[$this->i] !== TokenType::S_RIGHT_CURLY_BRACE)
+        while ($this->types[$this->i] !== 126)
         {
             $members[] = $this->classLikeMember();
         }
-        $rightBrace = $this->read(TokenType::S_RIGHT_CURLY_BRACE);
-        return Nodes\ClassStatement::__instantiateUnchecked($this->phpVersion,
+        $rightBrace = $this->read(126);
+        return Nodes\Oop\ClassDeclaration::__instantiateUnchecked(
             $modifiers,
             $keyword,
             $name,
@@ -889,34 +786,34 @@ class Parser
         );
     }
 
-    private function interface_(): Nodes\InterfaceStatement
+    private function interface_(): Nodes\Oop\InterfaceDeclaration
     {
-        $keyword = $this->read(TokenType::T_INTERFACE);
-        $name = $this->read(TokenType::T_STRING);
-        if ($this->types[$this->i] === TokenType::T_EXTENDS)
+        $keyword = $this->read(197);
+        $name = $this->read(243);
+        if ($this->types[$this->i] === 178)
         {
             $extendsKeyword = $this->tokens[$this->i++];
-            $extendsNames = [null];
+            $extendsNames = [];
             $extendsNames[] = $this->name();
-            while ($this->types[$this->i] === TokenType::S_COMMA)
+            while ($this->types[$this->i] === 109)
             {
                 $extendsNames[] = $this->tokens[$this->i++];
                 $extendsNames[] = $this->name();
             }
-            $extends = Nodes\Extends_::__instantiateUnchecked($this->phpVersion, $extendsKeyword, $extendsNames);
+            $extends = Nodes\Oop\Extends_::__instantiateUnchecked($extendsKeyword, $extendsNames);
         }
         else
         {
             $extends = null;
         }
-        $leftBrace = $this->read(TokenType::S_LEFT_CURLY_BRACE);
+        $leftBrace = $this->read(124);
         $members = [];
-        while ($this->types[$this->i] !== TokenType::S_RIGHT_CURLY_BRACE)
+        while ($this->types[$this->i] !== 126)
         {
             $members[] = $this->classLikeMember();
         }
-        $rightBrace = $this->read(TokenType::S_RIGHT_CURLY_BRACE);
-        return Nodes\InterfaceStatement::__instantiateUnchecked($this->phpVersion,
+        $rightBrace = $this->read(126);
+        return Nodes\Oop\InterfaceDeclaration::__instantiateUnchecked(
             $keyword,
             $name,
             $extends,
@@ -926,18 +823,18 @@ class Parser
         );
     }
 
-    private function trait_(): Nodes\TraitStatement
+    private function trait_(): Nodes\Oop\TraitDeclaration
     {
-        $keyword = $this->read(TokenType::T_TRAIT);
-        $name = $this->read(TokenType::T_STRING);
-        $leftBrace = $this->read(TokenType::S_LEFT_CURLY_BRACE);
+        $keyword = $this->read(248);
+        $name = $this->read(243);
+        $leftBrace = $this->read(124);
         $members = [];
-        while ($this->types[$this->i] !== TokenType::S_RIGHT_CURLY_BRACE)
+        while ($this->types[$this->i] !== 126)
         {
             $members[] = $this->classLikeMember();
         }
-        $rightBrace = $this->read(TokenType::S_RIGHT_CURLY_BRACE);
-        return Nodes\TraitStatement::__instantiateUnchecked($this->phpVersion,
+        $rightBrace = $this->read(126);
+        return Nodes\Oop\TraitDeclaration::__instantiateUnchecked(
             $keyword,
             $name,
             $leftBrace,
@@ -946,34 +843,46 @@ class Parser
         );
     }
 
-    private function classLikeMember(): Nodes\ClassLikeMember
+    private function classLikeMember(): Nodes\Oop\OopMember
     {
         $modifiers = [];
-        while (\in_array($this->types[$this->i], [TokenType::T_ABSTRACT, TokenType::T_FINAL, TokenType::T_PUBLIC, TokenType::T_PROTECTED, TokenType::T_PRIVATE, TokenType::T_STATIC], true))
+        while (\in_array($this->types[$this->i], [128, 180, 232, 231, 230, 242], true))
         {
             $modifiers[] = $this->tokens[$this->i++];
         }
 
-        if ($this->types[$this->i] === TokenType::T_FUNCTION)
+        if ($this->types[$this->i] === 184)
         {
             $keyword = $this->tokens[$this->i++];
-            $byReference = $this->types[$this->i] === TokenType::S_AMPERSAND ? $this->tokens[$this->i++] : null;
-            $name = $this->read(TokenType::T_STRING);
-            $leftParenthesis = $this->read(TokenType::S_LEFT_PAREN);
+            $byReference = $this->types[$this->i] === 104 ? $this->tokens[$this->i++] : null;
+            if ($this->types[$this->i] === 243)
+            {
+                $name = $this->tokens[$this->i++];
+            }
+            else if (\in_array($this->types[$this->i], T::SEMI_RESERVED, true))
+            {
+                $this->tokens[$this->i]->_fudgeType(243);
+                $name = $this->tokens[$this->i++];
+            }
+            else
+            {
+                throw ParseException::unexpected($this->tokens[$this->i]);
+            }
+            $leftParenthesis = $this->read(105);
             $parameters = $this->parameters();
-            $rightParenthesis = $this->read(TokenType::S_RIGHT_PAREN);
+            $rightParenthesis = $this->read(106);
             $returnType = $this->returnType();
-            if ($this->types[$this->i] === TokenType::S_SEMICOLON)
+            if ($this->types[$this->i] === 114)
             {
                 $body = null;
                 $semiColon = $this->tokens[$this->i++];
             }
             else
             {
-                $body = $this->functionBlock();
+                $body = $this->regularBlock();
                 $semiColon = null;
             }
-            return Nodes\Method::__instantiateUnchecked($this->phpVersion,
+            return Nodes\Oop\Method::__instantiateUnchecked(
                 $modifiers,
                 $keyword,
                 $byReference,
@@ -986,37 +895,87 @@ class Parser
                 $semiColon
             );
         }
-        else if ($this->types[$this->i] === TokenType::T_CONST)
+        else if ($this->types[$this->i] === 147)
         {
             $keyword = $this->tokens[$this->i++];
-            $name = $this->read(TokenType::T_STRING);
-            $equals = $this->read(TokenType::S_EQUALS);
-            $value = $this->expression();
-            $semiColon = $this->read(TokenType::S_SEMICOLON);
-            return Nodes\ClassConstant::__instantiateUnchecked($this->phpVersion, $modifiers, $keyword, $name, $equals, $value, $semiColon);
-        }
-        else if ($this->types[$this->i] === TokenType::T_USE)
-        {
-            $keyword = $this->tokens[$this->i++];
-            $names = [null];
-            do
+            if ($this->types[$this->i] === 243)
             {
-                $names[] = $this->name();
+                $name = $this->tokens[$this->i++];
             }
-            while ($this->types[$this->i] === TokenType::S_COMMA && $names[] = $this->read(TokenType::S_COMMA));
-            $leftBrace = $rightBrace = $semiColon = null;
-            $modifications = [];
-            if ($this->types[$this->i] === TokenType::S_LEFT_CURLY_BRACE)
+            else if (\in_array($this->types[$this->i], T::SEMI_RESERVED, true))
             {
-                $leftBrace = $this->tokens[$this->i++];
-                die(); // TODO
-                $rightBrace = $this->read(TokenType::S_RIGHT_CURLY_BRACE);
+                $this->tokens[$this->i]->_fudgeType(243);
+                $name = $this->tokens[$this->i++];
             }
             else
             {
-                $semiColon = $this->read(TokenType::S_SEMICOLON);
+                throw ParseException::unexpected($this->tokens[$this->i]);
             }
-            return Nodes\TraitUse::__instantiateUnchecked($this->phpVersion,
+            $equals = $this->read(116);
+            $value = $this->expression();
+            $semiColon = $this->read(114);
+            return Nodes\Oop\ClassConstant::__instantiateUnchecked($modifiers, $keyword, $name, $equals, $value, $semiColon);
+        }
+        else if ($this->types[$this->i] === 253)
+        {
+            $keyword = $this->tokens[$this->i++];
+            $names = [$this->name()];
+            while ($this->types[$this->i] === 109)
+            {
+                $names[] = $this->tokens[$this->i++];
+                $names[] = $this->name();
+            }
+            $leftBrace = $rightBrace = $semiColon = null;
+            $modifications = [];
+            if ($this->types[$this->i] === 124)
+            {
+                $leftBrace = $this->tokens[$this->i++];
+                if ($this->types[$this->i + 1] === 132 || $this->types[$this->i] === 196)
+                {
+                    $ref = Nodes\Oop\TraitMethodRef::__instantiateUnchecked(null, null, $this->read(243));
+                }
+                else
+                {
+                    $trait = $this->name();
+                    $doubleColon = $this->read(162);
+                    $method = $this->read(243);
+                    $ref = Nodes\Oop\TraitMethodRef::__instantiateUnchecked($trait, $doubleColon, $method);
+                }
+                if ($this->types[$this->i] === 196)
+                {
+                    $modKeyword = $this->tokens[$this->i++];
+                    $excluded = [$this->name()];
+                    while ($this->types[$this->i] === 109)
+                    {
+                        $excluded[] = $this->tokens[$this->i++];
+                        $excluded[] = $this->name();
+                    }
+                    $modSemi = $this->read(114);
+                    $modifications[] = Nodes\Oop\TraitUseInsteadof::__instantiateUnchecked($ref, $modKeyword, $excluded, $modSemi);
+                }
+                else if ($this->types[$this->i] === 132)
+                {
+                    $modKeyword = $this->tokens[$this->i++];
+                    $modifier = null;
+                    if ($this->types[$this->i] === 232 || $this->types[$this->i] === 231 || $this->types[$this->i] === 230)
+                    {
+                        $modifier = $this->tokens[$this->i++];
+                    }
+                    $alias = $this->read(243);
+                    $modSemi = $this->read(114);
+                    $modifications[] = Nodes\Oop\TraitUseAs::__instantiateUnchecked($ref, $modKeyword, $modifier, $alias, $modSemi);
+                }
+                else
+                {
+                    throw ParseException::unexpected($this->tokens[$this->i]);
+                }
+                $rightBrace = $this->read(126);
+            }
+            else
+            {
+                $semiColon = $this->read(114);
+            }
+            return Nodes\Oop\TraitUse::__instantiateUnchecked(
                 $keyword,
                 $names,
                 $leftBrace,
@@ -1027,100 +986,71 @@ class Parser
         }
         else
         {
-            $variable = $this->read(TokenType::T_VARIABLE);
+            $variable = $this->read(255);
             $default = $this->default_();
-            $semiColon = $this->read(TokenType::S_SEMICOLON);
-            return Nodes\Property::__instantiateUnchecked($this->phpVersion, $modifiers, $variable, $default, $semiColon);
+            $semiColon = $this->read(114);
+            return Nodes\Oop\Property::__instantiateUnchecked($modifiers, $variable, $default, $semiColon);
         }
     }
 
     private function endOfStatement(): bool
     {
         $t = $this->types[$this->i];
-        return $t === TokenType::S_SEMICOLON || $t === TokenType::T_CLOSE_TAG || $t === TokenType::T_EOF;
+        return $t === 114 || $t === 143 || $t === 999;
     }
 
     private function statementDelimiter(): Token
     {
-        if ($this->types[$this->i] === TokenType::T_CLOSE_TAG)
+        if ($this->types[$this->i] === 143)
         {
             return $this->tokens[$this->i++];
         }
         else
         {
-            return $this->read(TokenType::S_SEMICOLON);
+            return $this->read(114);
         }
     }
 
-    private const PRECEDENCE_ASSIGN_LVALUE = 70;
-    private const PRECEDENCE_POW = 62;
-    private const PRECEDENCE_CAST = 61;
-    private const PRECEDENCE_INSTANCEOF = 60;
-    private const PRECEDENCE_BOOLEAN_NOT = 50;
-    private const PRECEDENCE_MUL = 49;
-    private const PRECEDENCE_PLUS = 48;
-    private const PRECEDENCE_SHIFT = 47;
-    private const PRECEDENCE_COMPARISON2 = 37;
-    private const PRECEDENCE_COMPARISON1 = 36;
-    private const PRECEDENCE_BITWISE_AND = 35;
-    private const PRECEDENCE_BITWISE_XOR = 34;
-    private const PRECEDENCE_BITWISE_OR = 33;
-    private const PRECEDENCE_BOOLEAN_AND_SYMBOL = 32;
-    private const PRECEDENCE_BOOLEAN_OR_SYMBOL = 31;
-    private const PRECEDENCE_COALESCE = 26;
-    private const PRECEDENCE_TERNARY = 25;
-    private const PRECEDENCE_ASSIGN_RVALUE = 24;
-    private const PRECEDENCE_BOOLEAN_AND_KEYWORD = 13;
-    private const PRECEDENCE_BOOLEAN_XOR_KEYWORD = 12;
-    private const PRECEDENCE_BOOLEAN_OR_KEYWORD = 11;
-
     private function expression(int $minPrecedence = 0): Nodes\Expression
     {
-        if ($minPrecedence <= self::PRECEDENCE_ASSIGN_LVALUE)
-        {
-            $left = $this->simpleExpression();
+        $left = $this->simpleExpression();
 
-            if ($this->types[$this->i] === TokenType::S_EQUALS)
+        if ($this->types[$this->i] === 116)
+        {
+            if ($this->types[$this->i + 1] === 104)
             {
-                if ($this->types[$this->i + 1] === TokenType::S_AMPERSAND)
-                {
-                    $operator1 = $this->tokens[$this->i++];
-                    $operator2 = $this->tokens[$this->i++];
-                    $right = $this->simpleExpression();
-                    $left = Nodes\AliasingExpression::__instantiateUnchecked($this->phpVersion, $left, $operator1, $operator2, $right);
-                }
-                else
-                {
-                    $operator = $this->tokens[$this->i++];
-                    $value = $this->expression(self::PRECEDENCE_ASSIGN_RVALUE);
-                    $left = Nodes\RegularAssignmentExpression::__instantiateUnchecked($this->phpVersion, $left, $operator, $value);
-                }
+                $operator1 = $this->tokens[$this->i++];
+                $operator2 = $this->tokens[$this->i++];
+                $right = $this->simpleExpression();
+                $left = Nodes\Expressions\AliasingExpression::__instantiateUnchecked($left, $operator1, $operator2, $right);
             }
-            else if (\in_array($this->types[$this->i], TokenType::COMBINED_ASSIGNMENTS, true))
+            else
             {
                 $operator = $this->tokens[$this->i++];
-                $value = $this->expression(self::PRECEDENCE_ASSIGN_RVALUE);
-                $left = Nodes\CombinedAssignmentExpression::__instantiateUnchecked($this->phpVersion, $left, $operator, $value);
+                $value = $this->expression(25);
+                $left = Nodes\Expressions\AssignmentExpression::__instantiateUnchecked($left, $operator, $value);
             }
         }
-        else
+        else if (\in_array($this->types[$this->i], T::COMBINED_ASSIGNMENTS, true))
         {
-            $left = $this->simpleExpression();
+            $operator = $this->tokens[$this->i++];
+            $value = $this->expression(25);
+            $left = Nodes\Expressions\CombinedAssignmentExpression::__instantiateUnchecked($left, $operator, $value);
         }
 
         while (true)
         {
-            if ($minPrecedence <= self::PRECEDENCE_POW && $this->types[$this->i] === TokenType::T_POW)
+            if ($minPrecedence <= 62 && $this->types[$this->i] === 227)
             {
                 $operator = $this->tokens[$this->i++];
-                $right = $this->expression(self::PRECEDENCE_POW);
-                $left = Nodes\PowerExpression::__instantiateUnchecked($this->phpVersion, $left, $operator, $right);
+                $right = $this->expression(62);
+                $left = Nodes\Expressions\PowerExpression::__instantiateUnchecked($left, $operator, $right);
             }
-            else if ($minPrecedence <= self::PRECEDENCE_INSTANCEOF && $this->types[$this->i] === TokenType::T_INSTANCEOF)
+            else if ($minPrecedence <= 60 && $this->types[$this->i] === 195)
             {
                 $operator = $this->tokens[$this->i++];
                 $type = $this->simpleExpression(true);
-                $left = Nodes\InstanceofExpression::__instantiateUnchecked($this->phpVersion, $left, $operator, $type);
+                $left = Nodes\Expressions\InstanceofExpression::__instantiateUnchecked($left, $operator, $type);
             }
             else
             {
@@ -1128,27 +1058,27 @@ class Parser
             }
         }
 
-        if ($minPrecedence <= self::PRECEDENCE_MUL)
+        if ($minPrecedence <= 49)
         {
             while (true)
             {
-                if ($this->types[$this->i] === TokenType::S_ASTERISK)
+                if ($this->types[$this->i] === 107)
                 {
                     $operator = $this->tokens[$this->i++];
-                    $right = $this->expression(self::PRECEDENCE_MUL + 1);
-                    $left = Nodes\MultiplyExpression::__instantiateUnchecked($this->phpVersion, $left, $operator, $right);
+                    $right = $this->expression(49 + 1);
+                    $left = Nodes\Expressions\MultiplyExpression::__instantiateUnchecked($left, $operator, $right);
                 }
-                else if ($this->types[$this->i] === TokenType::S_FORWARD_SLASH)
+                else if ($this->types[$this->i] === 112)
                 {
                     $operator = $this->tokens[$this->i++];
-                    $right = $this->expression(self::PRECEDENCE_MUL + 1);
-                    $left = Nodes\DivideExpression::__instantiateUnchecked($this->phpVersion, $left, $operator, $right);
+                    $right = $this->expression(49 + 1);
+                    $left = Nodes\Expressions\DivideExpression::__instantiateUnchecked($left, $operator, $right);
                 }
-                else if ($this->types[$this->i] === TokenType::S_MODULO)
+                else if ($this->types[$this->i] === 103)
                 {
                     $operator = $this->tokens[$this->i++];
-                    $right = $this->expression(self::PRECEDENCE_MUL + 1);
-                    $left = Nodes\ModuloExpression::__instantiateUnchecked($this->phpVersion, $left, $operator, $right);
+                    $right = $this->expression(49 + 1);
+                    $left = Nodes\Expressions\ModuloExpression::__instantiateUnchecked($left, $operator, $right);
                 }
                 else
                 {
@@ -1157,27 +1087,27 @@ class Parser
             }
         }
 
-        if ($minPrecedence <= self::PRECEDENCE_PLUS)
+        if ($minPrecedence <= 48)
         {
             while (true)
             {
-                if ($this->types[$this->i] === TokenType::S_PLUS)
+                if ($this->types[$this->i] === 108)
                 {
                     $operator = $this->tokens[$this->i++];
-                    $right = $this->expression(self::PRECEDENCE_PLUS + 1);
-                    $left = Nodes\AddExpression::__instantiateUnchecked($this->phpVersion, $left, $operator, $right);
+                    $right = $this->expression(48 + 1);
+                    $left = Nodes\Expressions\AddExpression::__instantiateUnchecked($left, $operator, $right);
                 }
-                else if ($this->types[$this->i] === TokenType::S_MINUS)
+                else if ($this->types[$this->i] === 110)
                 {
                     $operator = $this->tokens[$this->i++];
-                    $right = $this->expression(self::PRECEDENCE_PLUS + 1);
-                    $left = Nodes\SubtractExpression::__instantiateUnchecked($this->phpVersion, $left, $operator, $right);
+                    $right = $this->expression(48 + 1);
+                    $left = Nodes\Expressions\SubtractExpression::__instantiateUnchecked($left, $operator, $right);
                 }
-                else if ($this->types[$this->i] === TokenType::S_DOT)
+                else if ($this->types[$this->i] === 111)
                 {
                     $operator = $this->tokens[$this->i++];
-                    $right = $this->expression(self::PRECEDENCE_PLUS + 1);
-                    $left = Nodes\ConcatExpression::__instantiateUnchecked($this->phpVersion, $left, $operator, $right);
+                    $right = $this->expression(48 + 1);
+                    $left = Nodes\Expressions\ConcatExpression::__instantiateUnchecked($left, $operator, $right);
                 }
                 else
                 {
@@ -1186,21 +1116,21 @@ class Parser
             }
         }
 
-        if ($minPrecedence <= self::PRECEDENCE_SHIFT)
+        if ($minPrecedence <= 47)
         {
             while (true)
             {
-                if ($this->types[$this->i] === TokenType::T_SL)
+                if ($this->types[$this->i] === 236)
                 {
                     $operator = $this->tokens[$this->i++];
-                    $right = $this->expression(self::PRECEDENCE_SHIFT + 1);
-                    $left = Nodes\ShiftLeftExpression::__instantiateUnchecked($this->phpVersion, $left, $operator, $right);
+                    $right = $this->expression(47 + 1);
+                    $left = Nodes\Expressions\ShiftLeftExpression::__instantiateUnchecked($left, $operator, $right);
                 }
-                if ($this->types[$this->i] === TokenType::T_SR)
+                else if ($this->types[$this->i] === 239)
                 {
                     $operator = $this->tokens[$this->i++];
-                    $right = $this->expression(self::PRECEDENCE_SHIFT + 1);
-                    $left = Nodes\ShiftRightExpression::__instantiateUnchecked($this->phpVersion, $left, $operator, $right);
+                    $right = $this->expression(47 + 1);
+                    $left = Nodes\Expressions\ShiftRightExpression::__instantiateUnchecked($left, $operator, $right);
                 }
                 else
                 {
@@ -1209,168 +1139,168 @@ class Parser
             }
         }
 
-        if ($minPrecedence <= self::PRECEDENCE_COMPARISON2)
+        if ($minPrecedence <= 37)
         {
-            if ($this->types[$this->i] === TokenType::S_LT)
+            if ($this->types[$this->i] === 115)
             {
                 $operator = $this->tokens[$this->i++];
-                $right = $this->expression(self::PRECEDENCE_COMPARISON2 + 1);
-                $left = Nodes\LessThanExpression::__instantiateUnchecked($this->phpVersion, $left, $operator, $right);
+                $right = $this->expression(37 + 1);
+                $left = Nodes\Expressions\LessThanExpression::__instantiateUnchecked($left, $operator, $right);
             }
-            else if ($this->types[$this->i] === TokenType::T_IS_SMALLER_OR_EQUAL)
+            else if ($this->types[$this->i] === 205)
             {
                 $operator = $this->tokens[$this->i++];
-                $right = $this->expression(self::PRECEDENCE_COMPARISON2 + 1);
-                $left = Nodes\LessThanOrEqualsExpression::__instantiateUnchecked($this->phpVersion, $left, $operator, $right);
+                $right = $this->expression(37 + 1);
+                $left = Nodes\Expressions\LessThanOrEqualsExpression::__instantiateUnchecked($left, $operator, $right);
             }
-            else if ($this->types[$this->i] === TokenType::S_GT)
+            else if ($this->types[$this->i] === 117)
             {
                 $operator = $this->tokens[$this->i++];
-                $right = $this->expression(self::PRECEDENCE_COMPARISON2 + 1);
-                $left = Nodes\GreaterThanExpression::__instantiateUnchecked($this->phpVersion, $left, $operator, $right);
+                $right = $this->expression(37 + 1);
+                $left = Nodes\Expressions\GreaterThanExpression::__instantiateUnchecked($left, $operator, $right);
             }
-            else if ($this->types[$this->i] === TokenType::T_IS_GREATER_OR_EQUAL)
+            else if ($this->types[$this->i] === 201)
             {
                 $operator = $this->tokens[$this->i++];
-                $right = $this->expression(self::PRECEDENCE_COMPARISON2 + 1);
-                $left = Nodes\GreaterThanOrEqualsExpression::__instantiateUnchecked($this->phpVersion, $left, $operator, $right);
+                $right = $this->expression(37 + 1);
+                $left = Nodes\Expressions\GreaterThanOrEqualsExpression::__instantiateUnchecked($left, $operator, $right);
             }
         }
 
-        if ($minPrecedence <= self::PRECEDENCE_COMPARISON1)
+        if ($minPrecedence <= 36)
         {
-            if ($this->types[$this->i] === TokenType::T_IS_IDENTICAL)
+            if ($this->types[$this->i] === 202)
             {
                 $operator = $this->tokens[$this->i++];
-                $right = $this->expression(self::PRECEDENCE_COMPARISON1 + 1);
-                $left = Nodes\IsIdenticalExpression::__instantiateUnchecked($this->phpVersion, $left, $operator, $right);
+                $right = $this->expression(36 + 1);
+                $left = Nodes\Expressions\IsIdenticalExpression::__instantiateUnchecked($left, $operator, $right);
             }
-            else if ($this->types[$this->i] === TokenType::T_IS_NOT_IDENTICAL)
+            else if ($this->types[$this->i] === 204)
             {
                 $operator = $this->tokens[$this->i++];
-                $right = $this->expression(self::PRECEDENCE_COMPARISON1 + 1);
-                $left = Nodes\IsNotIdenticalExpression::__instantiateUnchecked($this->phpVersion, $left, $operator, $right);
+                $right = $this->expression(36 + 1);
+                $left = Nodes\Expressions\IsNotIdenticalExpression::__instantiateUnchecked($left, $operator, $right);
             }
-            else if ($this->types[$this->i] === TokenType::T_IS_EQUAL)
+            else if ($this->types[$this->i] === 200)
             {
                 $operator = $this->tokens[$this->i++];
-                $right = $this->expression(self::PRECEDENCE_COMPARISON1 + 1);
-                $left = Nodes\IsEqualExpression::__instantiateUnchecked($this->phpVersion, $left, $operator, $right);
+                $right = $this->expression(36 + 1);
+                $left = Nodes\Expressions\IsEqualExpression::__instantiateUnchecked($left, $operator, $right);
             }
-            else if ($this->types[$this->i] === TokenType::T_IS_NOT_EQUAL)
+            else if ($this->types[$this->i] === 203)
             {
                 $operator = $this->tokens[$this->i++];
-                $right = $this->expression(self::PRECEDENCE_COMPARISON1 + 1);
-                $left = Nodes\IsNotEqualExpression::__instantiateUnchecked($this->phpVersion, $left, $operator, $right);
+                $right = $this->expression(36 + 1);
+                $left = Nodes\Expressions\IsNotEqualExpression::__instantiateUnchecked($left, $operator, $right);
             }
-            else if ($this->types[$this->i] === TokenType::T_SPACESHIP)
+            else if ($this->types[$this->i] === 238)
             {
                 $operator = $this->tokens[$this->i++];
-                $right = $this->expression(self::PRECEDENCE_COMPARISON1 + 1);
-                $left = Nodes\SpaceshipExpression::__instantiateUnchecked($this->phpVersion, $left, $operator, $right);
+                $right = $this->expression(36 + 1);
+                $left = Nodes\Expressions\SpaceshipExpression::__instantiateUnchecked($left, $operator, $right);
             }
         }
 
-        if ($minPrecedence <= self::PRECEDENCE_BITWISE_AND)
+        if ($minPrecedence <= 35)
         {
-            while ($this->types[$this->i] === TokenType::S_AMPERSAND)
+            while ($this->types[$this->i] === 104)
             {
                 $operator = $this->tokens[$this->i++];
-                $right = $this->expression(self::PRECEDENCE_BITWISE_AND + 1);
-                $left = Nodes\BitwiseAndExpression::__instantiateUnchecked($this->phpVersion, $left, $operator, $right);
+                $right = $this->expression(35 + 1);
+                $left = Nodes\Expressions\BitwiseAndExpression::__instantiateUnchecked($left, $operator, $right);
             }
         }
 
-        if ($minPrecedence <= self::PRECEDENCE_BITWISE_XOR)
+        if ($minPrecedence <= 34)
         {
-            while ($this->types[$this->i] === TokenType::S_CARAT)
+            while ($this->types[$this->i] === 122)
             {
                 $operator = $this->tokens[$this->i++];
-                $right = $this->expression(self::PRECEDENCE_BITWISE_XOR + 1);
-                $left = Nodes\BitwiseXorExpression::__instantiateUnchecked($this->phpVersion, $left, $operator, $right);
+                $right = $this->expression(34 + 1);
+                $left = Nodes\Expressions\BitwiseXorExpression::__instantiateUnchecked($left, $operator, $right);
             }
         }
 
-        if ($minPrecedence <= self::PRECEDENCE_BITWISE_OR)
+        if ($minPrecedence <= 33)
         {
-            while ($this->types[$this->i] === TokenType::S_VERTICAL_BAR)
+            while ($this->types[$this->i] === 125)
             {
                 $operator = $this->tokens[$this->i++];
-                $right = $this->expression(self::PRECEDENCE_BITWISE_OR + 1);
-                $left = Nodes\BitwiseOrExpression::__instantiateUnchecked($this->phpVersion, $left, $operator, $right);
+                $right = $this->expression(33 + 1);
+                $left = Nodes\Expressions\BitwiseOrExpression::__instantiateUnchecked($left, $operator, $right);
             }
         }
 
-        if ($minPrecedence <= self::PRECEDENCE_BOOLEAN_AND_SYMBOL)
+        if ($minPrecedence <= 32)
         {
-            while ($this->types[$this->i] === TokenType::T_BOOLEAN_AND)
+            while ($this->types[$this->i] === 133)
             {
                 $operator = $this->tokens[$this->i++];
-                $right = $this->expression(self::PRECEDENCE_BOOLEAN_AND_SYMBOL + 1);
-                $left = Nodes\SymbolBooleanAndExpression::__instantiateUnchecked($this->phpVersion, $left, $operator, $right);
+                $right = $this->expression(32 + 1);
+                $left = Nodes\Expressions\SymbolAndExpression::__instantiateUnchecked($left, $operator, $right);
             }
         }
 
-        if ($minPrecedence <= self::PRECEDENCE_BOOLEAN_OR_SYMBOL)
+        if ($minPrecedence <= 31)
         {
-            while ($this->types[$this->i] === TokenType::T_BOOLEAN_OR)
+            while ($this->types[$this->i] === 134)
             {
                 $operator = $this->tokens[$this->i++];
-                $right = $this->expression(self::PRECEDENCE_BOOLEAN_OR_SYMBOL + 1);
-                $left = Nodes\SymbolBooleanOrExpression::__instantiateUnchecked($this->phpVersion, $left, $operator, $right);
+                $right = $this->expression(31 + 1);
+                $left = Nodes\Expressions\SymbolOrExpression::__instantiateUnchecked($left, $operator, $right);
             }
         }
 
-        if ($minPrecedence <= self::PRECEDENCE_COALESCE)
+        if ($minPrecedence <= 26)
         {
-            while ($this->types[$this->i] === TokenType::T_COALESCE)
+            if ($this->types[$this->i] === 144)
             {
                 $operator = $this->tokens[$this->i++];
-                $right = $this->expression(self::PRECEDENCE_COALESCE + 1);
-                $left = Nodes\CoalesceExpression::__instantiateUnchecked($this->phpVersion, $left, $operator, $right);
+                $right = $this->expression(26);
+                $left = Nodes\Expressions\CoalesceExpression::__instantiateUnchecked($left, $operator, $right);
             }
         }
 
-        if ($minPrecedence <= self::PRECEDENCE_TERNARY)
+        if ($minPrecedence <= 25)
         {
-            while ($this->types[$this->i] === TokenType::S_QUESTION_MARK)
+            while ($this->types[$this->i] === 118)
             {
                 $questionMark = $this->tokens[$this->i++];
                 // note: no precedence is passed here, delimiters on both sides allow for e.g. 1 ? 2 and 3 : 4
-                $then = $this->types[$this->i] !== TokenType::S_COLON ? $this->expression() : null;
-                $colon = $this->read(TokenType::S_COLON);
-                $else = $this->expression(self::PRECEDENCE_TERNARY + 1);
-                $left = Nodes\TernaryExpression::__instantiateUnchecked($this->phpVersion, $left, $questionMark, $then, $colon, $else);
+                $then = $this->types[$this->i] !== 113 ? $this->expression() : null;
+                $colon = $this->read(113);
+                $else = $this->expression(25 + 1);
+                $left = Nodes\Expressions\TernaryExpression::__instantiateUnchecked($left, $questionMark, $then, $colon, $else);
             }
         }
 
-        if ($minPrecedence <= self::PRECEDENCE_BOOLEAN_AND_KEYWORD)
+        if ($minPrecedence <= 13)
         {
-            while ($this->types[$this->i] === TokenType::T_LOGICAL_AND)
+            while ($this->types[$this->i] === 209)
             {
                 $operator = $this->tokens[$this->i++];
-                $right = $this->expression(self::PRECEDENCE_BOOLEAN_AND_KEYWORD + 1);
-                $left = Nodes\KeywordBooleanAndExpression::__instantiateUnchecked($this->phpVersion, $left, $operator, $right);
+                $right = $this->expression(13 + 1);
+                $left = Nodes\Expressions\KeywordAndExpression::__instantiateUnchecked($left, $operator, $right);
             }
         }
 
-        if ($minPrecedence <= self::PRECEDENCE_BOOLEAN_XOR_KEYWORD)
+        if ($minPrecedence <= 12)
         {
-            while ($this->types[$this->i] === TokenType::T_LOGICAL_XOR)
+            while ($this->types[$this->i] === 211)
             {
                 $operator = $this->tokens[$this->i++];
-                $right = $this->expression(self::PRECEDENCE_BOOLEAN_XOR_KEYWORD + 1);
-                $left = Nodes\KeywordBooleanXorExpression::__instantiateUnchecked($this->phpVersion, $left, $operator, $right);
+                $right = $this->expression(12 + 1);
+                $left = Nodes\Expressions\KeywordXorExpression::__instantiateUnchecked($left, $operator, $right);
             }
         }
 
-        if ($minPrecedence <= self::PRECEDENCE_BOOLEAN_OR_KEYWORD)
+        if ($minPrecedence <= 11)
         {
-            while ($this->types[$this->i] === TokenType::T_LOGICAL_OR)
+            while ($this->types[$this->i] === 210)
             {
                 $operator = $this->tokens[$this->i++];
-                $right = $this->expression(self::PRECEDENCE_BOOLEAN_OR_KEYWORD + 1);
-                $left = Nodes\KeywordBooleanOrExpression::__instantiateUnchecked($this->phpVersion, $left, $operator, $right);
+                $right = $this->expression(11 + 1);
+                $left = Nodes\Expressions\KeywordOrExpression::__instantiateUnchecked($left, $operator, $right);
             }
         }
 
@@ -1379,271 +1309,292 @@ class Parser
 
     private function simpleExpression(bool $newable = false): Nodes\Expression
     {
-        if ($this->types[$this->i] === TokenType::T_VARIABLE)
+        if ($this->types[$this->i] === 255)
         {
-            $node = Nodes\RegularVariableExpression::__instantiateUnchecked($this->phpVersion, $this->tokens[$this->i++]);
+            $node = Nodes\Expressions\NormalVariableExpression::__instantiateUnchecked($this->tokens[$this->i++]);
         }
-        else if ($this->types[$this->i] === TokenType::S_DOLLAR)
+        else if ($this->types[$this->i] === 102)
         {
             $node = $this->variableVariable();
         }
-        else if ($this->types[$this->i] === TokenType::T_STRING || $this->types[$this->i] === TokenType::T_NS_SEPARATOR)
+        else if ($this->types[$this->i] === 243 || $this->types[$this->i] === 219)
         {
-            $node = Nodes\NameExpression::__instantiateUnchecked($this->phpVersion, $this->name());
+            $node = Nodes\Expressions\NameExpression::__instantiateUnchecked($this->name());
         }
-        else if ($this->types[$this->i] === TokenType::T_STATIC && $this->types[$this->i + 1] !== TokenType::T_FUNCTION)
+        else if ($this->types[$this->i] === 242 && $this->types[$this->i + 1] !== 184)
         {
-            $node = Nodes\NameExpression::__instantiateUnchecked($this->phpVersion, Nodes\SpecialName::__instantiateUnchecked($this->phpVersion, $this->tokens[$this->i++]));
+            $node = Nodes\Expressions\NameExpression::__instantiateUnchecked($this->name());
         }
         else if ($newable)
         {
             throw ParseException::unexpected($this->tokens[$this->i]);
         }
-        else if ($this->types[$this->i] === TokenType::T_CONSTANT_ENCAPSED_STRING)
+        else if ($this->types[$this->i] === 148)
         {
-            $node = Nodes\ConstantStringLiteral::__instantiateUnchecked($this->phpVersion, $this->tokens[$this->i++]);
+            $node = Nodes\Expressions\SingleQuotedStringLiteral::__instantiateUnchecked($this->tokens[$this->i++]);
         }
-        else if ($this->types[$this->i] === TokenType::S_DOUBLE_QUOTE || $this->types[$this->i] === TokenType::T_START_HEREDOC)
+        else if ($this->types[$this->i] === 101)
         {
             $leftDelimiter = $this->tokens[$this->i++];
-            $parts = [];
-            while ($this->types[$this->i] !== TokenType::S_DOUBLE_QUOTE && $this->types[$this->i] !== TokenType::T_END_HEREDOC)
+            $parts = $this->stringParts(101);
+            $rightDelimiter = $this->tokens[$this->i++];
+            $node = Nodes\Expressions\DoubleQuotedStringLiteral::__instantiateUnchecked($leftDelimiter, $parts, $rightDelimiter);
+        }
+        else if ($this->types[$this->i] === 241)
+        {
+            $leftDelimiter = $this->tokens[$this->i++];
+            if ($leftDelimiter->getSource()[3] === "'")
             {
-                if ($this->types[$this->i] === TokenType::T_ENCAPSED_AND_WHITESPACE)
+                if ($this->types[$this->i] === 175)
                 {
-                    $parts[] = Nodes\ConstantInterpolatedStringPart::__instantiateUnchecked($this->phpVersion, $this->tokens[$this->i++]);
-                }
-                else if ($this->types[$this->i] === TokenType::T_CURLY_OPEN)
-                {
-                    $leftBrace = $this->tokens[$this->i++];
-                    $expression = $this->expression();
-                    $rightBrace = $this->read(TokenType::S_RIGHT_CURLY_BRACE);
-                    $parts[] = Nodes\ComplexInterpolatedStringExpression::__instantiateUnchecked($this->phpVersion, $leftBrace, $expression, $rightBrace);
+                    $content = null;
+                    $rightDelimiter = $this->tokens[$this->i++];
                 }
                 else
                 {
-                    $parts[] = Nodes\SimpleInterpolatedStringExpression::__instantiateUnchecked($this->phpVersion, $this->expression());
+                    $content = $this->read(168);
+                    $rightDelimiter = $this->read(175);
                 }
+                $node = Nodes\Expressions\NowdocStringLiteral::__instantiateUnchecked($leftDelimiter, $content, $rightDelimiter);
             }
-            $rightDelimiter = $this->tokens[$this->i++];
-            $node = Nodes\InterpolatedString::__instantiateUnchecked($this->phpVersion, $leftDelimiter, $parts, $rightDelimiter);
+            else
+            {
+                $parts = $this->stringParts(175);
+                $rightDelimiter = $this->tokens[$this->i++];
+                $node = Nodes\Expressions\HeredocStringLiteral::__instantiateUnchecked($leftDelimiter, $parts, $rightDelimiter);
+            }
         }
-        else if ($this->types[$this->i] === TokenType::T_START_HEREDOC)
+        else if ($this->types[$this->i] === 208)
         {
-            $this->tokens[$this->i++]->debugDump();
-            var_dump(__FILE__, __LINE__);
-            die(); // TODO
+            $node = Nodes\Expressions\IntegerLiteral::__instantiateUnchecked($this->tokens[$this->i++]);
         }
-        else if ($this->types[$this->i] === TokenType::T_LNUMBER)
+        else if ($this->types[$this->i] === 156)
         {
-            $node = Nodes\IntegerLiteral::__instantiateUnchecked($this->phpVersion, $this->tokens[$this->i++]);
+            $node = Nodes\Expressions\FloatLiteral::__instantiateUnchecked($this->tokens[$this->i++]);
         }
-        else if ($this->types[$this->i] === TokenType::T_DNUMBER)
-        {
-            $node = Nodes\FloatLiteral::__instantiateUnchecked($this->phpVersion, $this->tokens[$this->i++]);
-        }
-        else if ($this->types[$this->i] === TokenType::T_NEW)
+        else if ($this->types[$this->i] === 217)
         {
             $keyword = $this->tokens[$this->i++];
             $class = $this->simpleExpression(true);
             $leftParenthesis = $rightParenthesis = null;
             $arguments = [];
-            if ($this->types[$this->i] === TokenType::S_LEFT_PAREN)
+            if ($this->types[$this->i] === 105)
             {
                 $leftParenthesis = $this->tokens[$this->i++];
                 $arguments = $this->arguments();
-                $rightParenthesis = $this->read(TokenType::S_RIGHT_PAREN);
+                $rightParenthesis = $this->read(106);
             }
-            $node = Nodes\NewExpression::__instantiateUnchecked($this->phpVersion, $keyword, $class, $leftParenthesis, $arguments, $rightParenthesis);
+            $node = Nodes\Expressions\NewExpression::__instantiateUnchecked($keyword, $class, $leftParenthesis, $arguments, $rightParenthesis);
         }
-        else if ($this->types[$this->i] === TokenType::S_LEFT_SQUARE_BRACKET)
+        else if ($this->types[$this->i] === 120)
         {
             $leftBracket = $this->tokens[$this->i++];
-            $items = $this->arrayItems(TokenType::S_RIGHT_SQUARE_BRACKET);
-            $rightBracket = $this->read(TokenType::S_RIGHT_SQUARE_BRACKET);
-            $node = Nodes\ShortArrayExpression::__instantiateUnchecked($this->phpVersion, $leftBracket, $items, $rightBracket);
+            $items = $this->arrayItems(121);
+            $rightBracket = $this->read(121);
+            $node = Nodes\Expressions\ShortArrayExpression::__instantiateUnchecked($leftBracket, $items, $rightBracket);
         }
-        else if ($this->types[$this->i] === TokenType::T_ARRAY)
+        else if ($this->types[$this->i] === 130)
         {
             $keyword = $this->tokens[$this->i++];
-            $leftParenthesis = $this->read(TokenType::S_LEFT_PAREN);
-            $items = $this->arrayItems(TokenType::S_RIGHT_PAREN);
-            $rightParenthesis = $this->read(TokenType::S_RIGHT_PAREN);
-            $node = Nodes\LongArrayExpression::__instantiateUnchecked($this->phpVersion, $keyword, $leftParenthesis, $items, $rightParenthesis);
+            $leftParenthesis = $this->read(105);
+            $items = $this->arrayItems(106);
+            $rightParenthesis = $this->read(106);
+            $node = Nodes\Expressions\LongArrayExpression::__instantiateUnchecked($keyword, $leftParenthesis, $items, $rightParenthesis);
         }
-        else if ($this->types[$this->i] === TokenType::S_LEFT_PAREN)
+        else if ($this->types[$this->i] === 105)
         {
             $leftParenthesis = $this->tokens[$this->i++];
             $expression = $this->expression();
-            $rightParenthesis = $this->read(TokenType::S_RIGHT_PAREN);
-            $node = Nodes\ParenthesizedExpression::__instantiateUnchecked($this->phpVersion, $leftParenthesis, $expression, $rightParenthesis);
+            $rightParenthesis = $this->read(106);
+            $node = Nodes\Expressions\ParenthesizedExpression::__instantiateUnchecked($leftParenthesis, $expression, $rightParenthesis);
         }
-        else if ($this->types[$this->i] === TokenType::T_ISSET)
+        else if ($this->types[$this->i] === 199)
         {
             $keyword = $this->tokens[$this->i++];
-            $leftParenthesis = $this->read(TokenType::S_LEFT_PAREN);
-            $expressions = [null];
+            $leftParenthesis = $this->read(105);
+            $items = [];
             do
             {
-                $expressions[] = $this->expression();
+                $items[] = $this->expression();
             }
-            while ($this->types[$this->i] === TokenType::S_COMMA && $expressions[] = $this->tokens[$this->i++]);
-            $rightParenthesis = $this->read(TokenType::S_RIGHT_PAREN);
-            $node = Nodes\IssetExpression::__instantiateUnchecked($this->phpVersion, $keyword, $leftParenthesis, $expressions, $rightParenthesis);
+            while ($this->types[$this->i] === 109 && $items[] = $this->tokens[$this->i++]);
+            $rightParenthesis = $this->read(106);
+            $node = Nodes\Expressions\IssetExpression::__instantiateUnchecked($keyword, $leftParenthesis, $items, $rightParenthesis);
         }
-        else if ($this->types[$this->i] === TokenType::T_EMPTY)
+        else if ($this->types[$this->i] === 167)
         {
             $keyword = $this->tokens[$this->i++];
-            $leftParenthesis = $this->read(TokenType::S_LEFT_PAREN);
+            $leftParenthesis = $this->read(105);
             $expression = $this->expression();
-            $rightParenthesis = $this->read(TokenType::S_RIGHT_PAREN);
-            $node = Nodes\EmptyExpression::__instantiateUnchecked($this->phpVersion, $keyword, $leftParenthesis, $expression, $rightParenthesis);
+            $rightParenthesis = $this->read(106);
+            $node = Nodes\Expressions\EmptyExpression::__instantiateUnchecked($keyword, $leftParenthesis, $expression, $rightParenthesis);
         }
-        else if ($this->types[$this->i] === TokenType::T_DEC)
+        else if ($this->types[$this->i] === 151)
         {
             $operator = $this->tokens[$this->i++];
             $expression = $this->simpleExpression();
-            $node = Nodes\PreDecrementExpression::__instantiateUnchecked($this->phpVersion, $operator, $expression);
+            $node = Nodes\Expressions\PreDecrementExpression::__instantiateUnchecked($operator, $expression);
         }
-        else if ($this->types[$this->i] === TokenType::T_INC)
+        else if ($this->types[$this->i] === 191)
         {
             $operator = $this->tokens[$this->i++];
             $expression = $this->simpleExpression();
-            $node = Nodes\PreIncrementExpression::__instantiateUnchecked($this->phpVersion, $operator, $expression);
+            $node = Nodes\Expressions\PreIncrementExpression::__instantiateUnchecked($operator, $expression);
         }
-        else if (\in_array($this->types[$this->i], TokenType::MAGIC_CONSTANTS, true))
+        else if (\in_array($this->types[$this->i], T::MAGIC_CONSTANTS, true))
         {
-            $node = Nodes\MagicConstant::__instantiateUnchecked($this->phpVersion, $this->tokens[$this->i++]);
+            $node = Nodes\Expressions\MagicConstant::__instantiateUnchecked($this->tokens[$this->i++]);
         }
-        else if ($this->types[$this->i] === TokenType::T_CLONE)
+        else if ($this->types[$this->i] === 142)
         {
             $keyword = $this->tokens[$this->i++];
-            $expression = $this->expression(self::PRECEDENCE_ASSIGN_LVALUE);
-            $node = Nodes\CloneExpression::__instantiateUnchecked($this->phpVersion, $keyword, $expression);
+            $expression = $this->expression(70);
+            $node = Nodes\Expressions\CloneExpression::__instantiateUnchecked($keyword, $expression);
         }
-        else if ($this->types[$this->i] === TokenType::S_EXCLAMATION_MARK)
+        else if ($this->types[$this->i] === 100)
         {
             $operator = $this->tokens[$this->i++];
-            $expression = $this->expression(self::PRECEDENCE_BOOLEAN_NOT);
-            $node = Nodes\BooleanNotExpression::__instantiateUnchecked($this->phpVersion, $operator, $expression);
+            $expression = $this->expression(50);
+            $node = Nodes\Expressions\NotExpression::__instantiateUnchecked($operator, $expression);
         }
-        else if ($this->types[$this->i] === TokenType::T_YIELD)
+        else if ($this->types[$this->i] === 259)
         {
             $keyword = $this->tokens[$this->i++];
             $key = null;
-            $expression = $this->expression(self::PRECEDENCE_TERNARY);
-            if ($this->types[$this->i] === TokenType::T_DOUBLE_ARROW)
+            $next = $this->tokens[$this->i];
+            $expression = null;
+            try
             {
-                $key = Nodes\Key::__instantiateUnchecked($this->phpVersion, $expression, $this->tokens[$this->i++]);
-                $expression = $this->expression(self::PRECEDENCE_TERNARY);
+                $expression = $this->expression(25);
             }
-            $node = Nodes\YieldExpression::__instantiateUnchecked($this->phpVersion, $keyword, $key, $expression);
+            catch (ParseException $e)
+            {
+                if ($this->tokens[$this->i] !== $next)
+                {
+                    throw $e;
+                }
+            }
+            if ($expression && $this->types[$this->i] === 160)
+            {
+                $key = Nodes\Helpers\Key::__instantiateUnchecked($expression, $this->tokens[$this->i++]);
+                $expression = $this->expression(25);
+            }
+            $node = Nodes\Expressions\YieldExpression::__instantiateUnchecked($keyword, $key, $expression);
         }
-        else if ($this->types[$this->i] === TokenType::T_YIELD_FROM)
+        else if ($this->types[$this->i] === 260)
         {
             $keyword = $this->tokens[$this->i++];
-            $expression = $this->expression(self::PRECEDENCE_TERNARY);
-            $node = Nodes\YieldFromExpression::__instantiateUnchecked($this->phpVersion, $keyword, $expression);
+            $expression = $this->expression(25);
+            $node = Nodes\Expressions\YieldFromExpression::__instantiateUnchecked($keyword, $expression);
         }
-        else if (in_array($this->types[$this->i], [TokenType::T_INCLUDE, TokenType::T_INCLUDE_ONCE, TokenType::T_REQUIRE, TokenType::T_REQUIRE_ONCE], true))
+        else if (in_array($this->types[$this->i], [192, 193, 233, 234], true))
         {
             $keyword = $this->tokens[$this->i++];
             $expression = $this->expression();
-            $node = Nodes\IncludeLikeExpression::__instantiateUnchecked($this->phpVersion, $keyword, $expression);
+            $node = Nodes\Expressions\IncludeLikeExpression::__instantiateUnchecked($keyword, $expression);
         }
-        else if ($this->types[$this->i] === TokenType::S_TILDE)
+        else if ($this->types[$this->i] === 127)
         {
             $symbol = $this->tokens[$this->i++];
-            $expression = $this->expression(self::PRECEDENCE_ASSIGN_LVALUE);
-            $node = Nodes\BitwiseNotExpression::__instantiateUnchecked($this->phpVersion, $symbol, $expression);
+            $expression = $this->expression(62);
+            $node = Nodes\Expressions\BitwiseNotExpression::__instantiateUnchecked($symbol, $expression);
         }
-        else if ($this->types[$this->i] === TokenType::S_MINUS)
+        else if ($this->types[$this->i] === 110)
         {
             $symbol = $this->tokens[$this->i++];
-            $expression = $this->expression(self::PRECEDENCE_ASSIGN_LVALUE);
-            $node = Nodes\UnaryMinusExpression::__instantiateUnchecked($this->phpVersion, $symbol, $expression);
+            $expression = $this->expression(62);
+            $node = Nodes\Expressions\UnaryMinusExpression::__instantiateUnchecked($symbol, $expression);
         }
-        else if ($this->types[$this->i] === TokenType::S_PLUS)
+        else if ($this->types[$this->i] === 108)
         {
             $symbol = $this->tokens[$this->i++];
-            $expression = $this->expression(self::PRECEDENCE_ASSIGN_LVALUE);
-            $node = Nodes\UnaryPlusExpression::__instantiateUnchecked($this->phpVersion, $symbol, $expression);
+            $expression = $this->expression(62);
+            $node = Nodes\Expressions\UnaryPlusExpression::__instantiateUnchecked($symbol, $expression);
         }
-        else if (\in_array($this->types[$this->i], TokenType::CASTS, true))
+        else if (\in_array($this->types[$this->i], T::CASTS, true))
         {
             $cast = $this->tokens[$this->i++];
-            $expression = $this->expression(self::PRECEDENCE_CAST);
-            $node = Nodes\CastExpression::__instantiateUnchecked($this->phpVersion, $cast, $expression);
+            $expression = $this->expression(61);
+            $node = Nodes\Expressions\CastExpression::__instantiateUnchecked($cast, $expression);
         }
-        else if ($this->types[$this->i] === TokenType::S_AT)
+        else if ($this->types[$this->i] === 119)
         {
             $operator = $this->tokens[$this->i++];
-            $expression = $this->expression(self::PRECEDENCE_POW); // TODO test precedence...
-            $node = Nodes\SuppressErrorsExpression::__instantiateUnchecked($this->phpVersion, $operator, $expression);
+            $expression = $this->expression(62);
+            $node = Nodes\Expressions\SuppressErrorsExpression::__instantiateUnchecked($operator, $expression);
         }
-        else if ($this->types[$this->i] === TokenType::T_LIST)
+        else if ($this->types[$this->i] === 207)
         {
             $keyword = $this->tokens[$this->i++];
-            $leftParenthesis = $this->read(TokenType::S_LEFT_PAREN);
-            $expressions = [null];
-            do
+            $leftParenthesis = $this->read(105);
+            $items = $this->arrayItems(106);
+            $rightParenthesis = $this->tokens[$this->i++];
+            $node = Nodes\Expressions\ListExpression::__instantiateUnchecked($keyword, $leftParenthesis, $items, $rightParenthesis);
+        }
+        else if ($this->types[$this->i] === 177)
+        {
+            $keyword = $this->tokens[$this->i++];
+            if ($this->types[$this->i] === 105)
             {
-                $expressions[] = $this->simpleExpression();
+                $leftParenthesis = $this->read(105);
+                $expression = $this->types[$this->i] !== 106 ? $this->expression() : null;
+                $rightParenthesis = $this->read(106);
             }
-            while ($this->types[$this->i] === TokenType::S_COMMA && $expressions[] = $this->tokens[$this->i++]);
-            $rightParenthesis = $this->read(TokenType::S_RIGHT_PAREN);
-            $node = Nodes\ListExpression::__instantiateUnchecked($this->phpVersion, $keyword, $leftParenthesis, $expressions, $rightParenthesis);
+            else
+            {
+                $leftParenthesis = $expression = $rightParenthesis = null;
+            }
+            $node = Nodes\Expressions\ExitExpression::__instantiateUnchecked($keyword, $leftParenthesis, $expression, $rightParenthesis);
         }
-        else if ($this->types[$this->i] === TokenType::T_EXIT)
+        else if ($this->types[$this->i] === 229)
         {
             $keyword = $this->tokens[$this->i++];
-            $leftParenthesis = $this->read(TokenType::S_LEFT_PAREN);
-            $expression = $this->types[$this->i] !== TokenType::S_RIGHT_PAREN ? $this->expression() : null;
-            $rightParenthesis = $this->read(TokenType::S_RIGHT_PAREN);
-            $node = Nodes\ExitExpression::__instantiateUnchecked($this->phpVersion, $keyword, $leftParenthesis, $expression, $rightParenthesis);
+            $expression = $this->expression(25);
+            $node = Nodes\Expressions\PrintExpression::__instantiateUnchecked($keyword, $expression);
         }
-        else if ($this->types[$this->i] === TokenType::T_PRINT)
+        else if ($this->types[$this->i] === 176)
         {
             $keyword = $this->tokens[$this->i++];
-            $expression = $this->expression(self::PRECEDENCE_BOOLEAN_NOT);
-            $node = Nodes\PrintExpression::__instantiateUnchecked($this->phpVersion, $keyword, $expression);
-        }
-        else if ($this->types[$this->i] === TokenType::T_EVAL)
-        {
-            $keyword = $this->tokens[$this->i++];
-            $leftParenthesis = $this->read(TokenType::S_LEFT_PAREN);
+            $leftParenthesis = $this->read(105);
             $expression = $this->expression();
-            $rightParenthesis = $this->read(TokenType::S_RIGHT_PAREN);
-            $node = Nodes\EvalExpression::__instantiateUnchecked($this->phpVersion, $keyword, $leftParenthesis, $expression, $rightParenthesis);
+            $rightParenthesis = $this->read(106);
+            $node = Nodes\Expressions\EvalExpression::__instantiateUnchecked($keyword, $leftParenthesis, $expression, $rightParenthesis);
+        }
+        else if ($this->types[$this->i] === 123)
+        {
+            $leftDelimiter = $this->tokens[$this->i++];
+            $command = $this->read(168);
+            $rightDelimiter = $this->read(123);
+            $node = Nodes\Expressions\ExecExpression::__instantiateUnchecked($leftDelimiter, $command, $rightDelimiter);
         }
         else if (
-            $this->types[$this->i] === TokenType::T_FUNCTION ||
-            ($this->types[$this->i] === TokenType::T_STATIC && $this->types[$this->i + 1] === TokenType::T_FUNCTION)
+            $this->types[$this->i] === 184 ||
+            ($this->types[$this->i] === 242 && $this->types[$this->i + 1] === 184)
         )
         {
-            $static = $this->types[$this->i] === TokenType::T_STATIC ? $this->tokens[$this->i++] : null;
+            $static = $this->types[$this->i] === 242 ? $this->tokens[$this->i++] : null;
             $keyword = $this->tokens[$this->i++];
-            $byReference = $this->types[$this->i] === TokenType::S_AMPERSAND ? $this->tokens[$this->i++] : null;
-            $leftParenthesis = $this->read(TokenType::S_LEFT_PAREN);
+            $byReference = $this->types[$this->i] === 104 ? $this->tokens[$this->i++] : null;
+            $leftParenthesis = $this->read(105);
             $parameters = $this->parameters();
-            $rightParenthesis = $this->read(TokenType::S_RIGHT_PAREN);
+            $rightParenthesis = $this->read(106);
             $use = null;
-            if ($this->types[$this->i] === TokenType::T_USE)
+            if ($this->types[$this->i] === 253)
             {
                 $useKeyword = $this->tokens[$this->i++];
-                $useLeftParenthesis = $this->read(TokenType::S_LEFT_PAREN);
-                $useBindings = [null];
+                $useLeftParenthesis = $this->read(105);
+                $useBindings = [];
                 while (true)
                 {
                     $useBindingByReference = null;
-                    if ($this->types[$this->i] === TokenType::S_AMPERSAND)
+                    if ($this->types[$this->i] === 104)
                     {
                         $useBindingByReference = $this->tokens[$this->i++];
                     }
-                    $useBindingVariable = $this->read(TokenType::T_VARIABLE);
-                    $useBindings[] = Nodes\AnonymousFunctionUseBinding::__instantiateUnchecked($this->phpVersion, $useBindingByReference, $useBindingVariable);
+                    $useBindingVariable = $this->read(255);
+                    $useBindings[] = Nodes\Expressions\AnonymousFunctionUseBinding::__instantiateUnchecked($useBindingByReference, $useBindingVariable);
 
-                    if ($this->types[$this->i] === TokenType::S_COMMA)
+                    if ($this->types[$this->i] === 109)
                     {
                         $useBindings[] = $this->tokens[$this->i++];
                     }
@@ -1652,14 +1603,14 @@ class Parser
                         break;
                     }
                 }
-                $useRightParenthesis = $this->read(TokenType::S_RIGHT_PAREN);
-                $use = Nodes\AnonymousFunctionUse::__instantiateUnchecked($this->phpVersion, $useKeyword, $useLeftParenthesis, $useBindings, $useRightParenthesis);
+                $useRightParenthesis = $this->read(106);
+                $use = Nodes\Expressions\AnonymousFunctionUse::__instantiateUnchecked($useKeyword, $useLeftParenthesis, $useBindings, $useRightParenthesis);
             }
             $returnType = $this->returnType();
 
-            $body = $this->functionBlock();
+            $body = $this->regularBlock();
 
-            $node = Nodes\AnonymousFunctionExpression::__instantiateUnchecked($this->phpVersion,
+            $node = Nodes\Expressions\AnonymousFunctionExpression::__instantiateUnchecked(
                 $static,
                 $keyword,
                 $byReference,
@@ -1678,7 +1629,7 @@ class Parser
 
         while (true)
         {
-            if ($this->types[$this->i] === TokenType::T_OBJECT_OPERATOR)
+            if ($this->types[$this->i] === 222)
             {
                 $operator = $this->tokens[$this->i++];
 
@@ -1686,20 +1637,20 @@ class Parser
                 // expr->v -> access the property named 'v'
                 // new expr->v -> instantiate the class named by expr->v
                 // new expr->v() -> same, () is part of the NewExpression
-                if ($this->types[$this->i] !== TokenType::S_LEFT_PAREN || $newable)
+                if ($this->types[$this->i] !== 105 || $newable)
                 {
-                    $node = Nodes\PropertyAccessExpression::__instantiateUnchecked($this->phpVersion, $node, $operator, $name);
+                    $node = Nodes\Expressions\PropertyAccessExpression::__instantiateUnchecked($node, $operator, $name);
                 }
                 // expr->v() -> call the method named v
                 else
                 {
                     $leftParenthesis = $this->tokens[$this->i++];
                     $arguments = $this->arguments();
-                    $rightParenthesis = $this->read(TokenType::S_RIGHT_PAREN);
-                    $node = Nodes\MethodCallExpression::__instantiateUnchecked($this->phpVersion, $node, $operator, $name, $leftParenthesis, $arguments, $rightParenthesis);
+                    $rightParenthesis = $this->read(106);
+                    $node = Nodes\Expressions\MethodCallExpression::__instantiateUnchecked($node, $operator, $name, $leftParenthesis, $arguments, $rightParenthesis);
                 }
             }
-            else if ($this->types[$this->i] === TokenType::S_LEFT_PAREN)
+            else if ($this->types[$this->i] === 105)
             {
                 // new expr() -> () always belongs to new
                 if ($newable)
@@ -1709,26 +1660,25 @@ class Parser
 
                 $leftParenthesis = $this->tokens[$this->i++];
                 $arguments = $this->arguments();
-                $rightParenthesis = $this->read(TokenType::S_RIGHT_PAREN);
-                $node = Nodes\FunctionCallExpression::__instantiateUnchecked($this->phpVersion, $node, $leftParenthesis, $arguments, $rightParenthesis);
+                $rightParenthesis = $this->read(106);
+                $node = Nodes\Expressions\FunctionCallExpression::__instantiateUnchecked($node, $leftParenthesis, $arguments, $rightParenthesis);
             }
-            else if ($this->types[$this->i] === TokenType::S_LEFT_SQUARE_BRACKET)
+            else if ($this->types[$this->i] === 120)
             {
                 $leftBracket = $this->tokens[$this->i++];
-                $index = $this->types[$this->i] === TokenType::S_RIGHT_SQUARE_BRACKET ? null : $this->expression();
-                $rightBracket = $this->read(TokenType::S_RIGHT_SQUARE_BRACKET);
-                $node = Nodes\ArrayAccessExpression::__instantiateUnchecked($this->phpVersion, $node, $leftBracket, $index, $rightBracket);
+                $index = $this->types[$this->i] === 121 ? null : $this->expression();
+                $rightBracket = $this->read(121);
+                $node = Nodes\Expressions\ArrayAccessExpression::__instantiateUnchecked($node, $leftBracket, $index, $rightBracket);
             }
-            else if ($this->types[$this->i] === TokenType::T_DOUBLE_COLON)
+            else if ($this->types[$this->i] === 162)
             {
-                // TODO manual test coverage for error messages, esp. in combination with new
-
                 $operator = $this->tokens[$this->i++];
 
                 switch ($this->types[$this->i])
                 {
                     /** @noinspection PhpMissingBreakStatementInspection */
-                    case TokenType::T_STRING:
+                    case 243:
+                        doubleColonString:
                         $name = $this->tokens[$this->i++];
                         // new expr::a -> parse error
                         // new expr::a() -> parse error
@@ -1737,49 +1687,50 @@ class Parser
                             throw ParseException::unexpected($this->tokens[$this->i]);
                         }
                         // expr::a -> access constant 'a'
-                        else if ($this->types[$this->i] !== TokenType::S_LEFT_PAREN)
+                        else if ($this->types[$this->i] !== 105)
                         {
-                            $node = Nodes\ConstantAccessExpression::__instantiateUnchecked($this->phpVersion, $node, $operator, $name);
+                            $node = Nodes\Expressions\ConstantAccessExpression::__instantiateUnchecked($node, $operator, $name);
                             break;
                         }
                         // expr::a() -> call static method 'a'
                         else
                         {
-                            $memberName = Nodes\RegularMemberName::__instantiateUnchecked($this->phpVersion, $name);
+                            $memberName = Nodes\Helpers\NormalMemberName::__instantiateUnchecked($name);
                             goto staticCall;
                         }
 
                     /** @noinspection PhpMissingBreakStatementInspection */
-                    case TokenType::T_VARIABLE:
-                        $variable = Nodes\RegularVariableExpression::__instantiateUnchecked($this->phpVersion, $this->tokens[$this->i++]);
+                    case 255:
+                        $variable = Nodes\Expressions\NormalVariableExpression::__instantiateUnchecked($this->tokens[$this->i++]);
                         foundVariable:
                         // expr::$v -> access the static property named 'v'
                         // new expr::$v -> instantiate the class named by the value of expr::$v
                         // new expr::$v() -> same, () is part of the NewExpression
-                        if ($this->types[$this->i] !== TokenType::S_LEFT_PAREN || $newable)
+                        if ($this->types[$this->i] !== 105 || $newable)
                         {
-                            $node = Nodes\StaticPropertyAccessExpression::__instantiateUnchecked($this->phpVersion, $node, $operator, $variable);
+                            $node = Nodes\Expressions\StaticPropertyAccessExpression::__instantiateUnchecked($node, $operator, $variable);
                             break;
                         }
                         // expr::$v() -> $v refers to method named by the value of the variable $v
                         else
                         {
-                            $memberName = Nodes\VariableMemberName::__instantiateUnchecked($this->phpVersion, null, $variable, null);
+                            $memberName = Nodes\Helpers\VariableMemberName::__instantiateUnchecked(null, $variable, null);
                             goto staticCall;
                         }
 
                     /** @noinspection PhpMissingBreakStatementInspection */
-                    case TokenType::S_DOLLAR:
+                    case 102:
                         $variable = $this->variableVariable();
                         // all variations are the same as `expr::$v`, except the variable is variable
                         goto foundVariable;
 
-                    case TokenType::S_LEFT_CURLY_BRACE:
+                    /** @noinspection PhpMissingBreakStatementInspection */
+                    case 124:
                         $memberName = $this->memberName();
                         // expr::{expr} -> parse error
                         // new expr::{expr} -> parse error
                         // new expr::{expr}() -> parse error
-                        if ($this->types[$this->i] !== TokenType::S_LEFT_PAREN || $newable)
+                        if ($this->types[$this->i] !== 105 || $newable)
                         {
                             throw ParseException::unexpected($this->tokens[$this->i]);
                         }
@@ -1789,26 +1740,32 @@ class Parser
                             goto staticCall;
                         }
 
-                    staticCall:
-                        // we jump here when we positively decide on a static call, and have set up $memberName
-                        /** @var Nodes\MemberName $memberName */
-                        $leftParenthesis = $this->read(TokenType::S_LEFT_PAREN);
-                        $arguments = $this->arguments();
-                        $rightParenthesis = $this->read(TokenType::S_RIGHT_PAREN);
-                        $node = Nodes\StaticMethodCallExpression::__instantiateUnchecked($this->phpVersion, $node, $operator, $memberName, $leftParenthesis, $arguments, $rightParenthesis);
+                    /** @noinspection PhpMissingBreakStatementInspection */
+                    case 140:
+                        if ($this->types[$this->i + 1] === 105)
+                        {
+                            // expr::class() is a static method call of the static method named 'class'
+                            goto fudgeSpecialNameToString;
+                        }
+                        $keyword = $this->tokens[$this->i++];
+                        $node = Nodes\Expressions\ClassNameResolutionExpression::__instantiateUnchecked($node, $operator, $keyword);
                         break;
 
-                    // TODO case T_STATIC etc
-                    // which is either an access for the constant static or a call for the method static
-                    // we'll probaby want to goto into to the T_STRING case here...
+                    staticCall:
+                        // we jump here when we positively decide on a static call, and have set up $memberName
+                        /** @var \Phi\Nodes\Helpers\MemberName $memberName */
+                        $leftParenthesis = $this->read(105);
+                        $arguments = $this->arguments();
+                        $rightParenthesis = $this->read(106);
+                        $node = Nodes\Expressions\StaticMethodCallExpression::__instantiateUnchecked($node, $operator, $memberName, $leftParenthesis, $arguments, $rightParenthesis);
+                        break;
+
                     default:
-                        if ($this->tokens[$this->i]->getSource() === "class")
+                        fudgeSpecialNameToString:
+                        if (\in_array($this->types[$this->i], T::SEMI_RESERVED, true))
                         {
-                            // TODO what is this!? undoing of Lexer/$forceIdentifier? maybe we should force the identifier in the parser
-                            // TODO property handle reserved, semi reserved
-                            $keyword = $this->tokens[$this->i++]->_withType(TokenType::T_CLASS);
-                            $node = Nodes\ClassNameResolutionExpression::__instantiateUnchecked($this->phpVersion, $node, $operator, $keyword);
-                            break;
+                            $this->tokens[$this->i]->_fudgeType(243);
+                            goto doubleColonString;
                         }
                         else
                         {
@@ -1822,15 +1779,15 @@ class Parser
             }
         }
 
-        if ($this->types[$this->i] === TokenType::T_DEC)
+        if ($this->types[$this->i] === 151)
         {
             $operator = $this->tokens[$this->i++];
-            $node = Nodes\PostDecrementExpression::__instantiateUnchecked($this->phpVersion, $node, $operator);
+            $node = Nodes\Expressions\PostDecrementExpression::__instantiateUnchecked($node, $operator);
         }
-        else if ($this->types[$this->i] === TokenType::T_INC)
+        else if ($this->types[$this->i] === 191)
         {
             $operator = $this->tokens[$this->i++];
-            $node = Nodes\PostIncrementExpression::__instantiateUnchecked($this->phpVersion, $node, $operator);
+            $node = Nodes\Expressions\PostIncrementExpression::__instantiateUnchecked($node, $operator);
         }
 
         return $node;
@@ -1838,43 +1795,34 @@ class Parser
 
     private function block(int $level = self::STMT_LEVEL_OTHER): Nodes\Block
     {
-        if ($this->types[$this->i] === TokenType::S_LEFT_CURLY_BRACE)
+        if ($this->types[$this->i] === 124)
         {
             return $this->regularBlock($level);
         }
         else
         {
-            return Nodes\ImplicitBlock::__instantiateUnchecked($this->phpVersion, $this->statement());
+            return Nodes\Blocks\ImplicitBlock::__instantiateUnchecked($this->statement());
         }
     }
 
-    private function functionBlock(): Nodes\RegularBlock
-    {
-        $loopDepth = $this->loopDepth;
-        $this->loopDepth = 0;
-        $block = $this->regularBlock();
-        $this->loopDepth = $loopDepth;
-        return $block;
-    }
-
-    private function regularBlock(int $level = self::STMT_LEVEL_OTHER): Nodes\RegularBlock
+    private function regularBlock(int $level = self::STMT_LEVEL_OTHER): Nodes\Blocks\RegularBlock
     {
         $leftBrace = $this->tokens[$this->i++];
         $statements = [];
-        while ($this->types[$this->i] !== TokenType::S_RIGHT_CURLY_BRACE)
+        while ($this->types[$this->i] !== 126)
         {
             $statements[] = $this->statement($level);
         }
-        $rightBrace = $this->read(TokenType::S_RIGHT_CURLY_BRACE);
-        return Nodes\RegularBlock::__instantiateUnchecked($this->phpVersion, $leftBrace, $statements, $rightBrace);
+        $rightBrace = $this->read(126);
+        return Nodes\Blocks\RegularBlock::__instantiateUnchecked($leftBrace, $statements, $rightBrace);
     }
 
     /**
      * @param array<int> $implicitEndKeywords
      */
-    private function altBlock(int $endKeywordType, array $implicitEndKeywords = []): Nodes\AlternativeFormatBlock
+    private function altBlock(int $endKeywordType, array $implicitEndKeywords = []): Nodes\Blocks\AlternativeFormatBlock
     {
-        $colon = $this->read(TokenType::S_COLON);
+        $colon = $this->read(113);
 
         $statements = [];
         while ($this->types[$this->i] !== $endKeywordType && !in_array($this->types[$this->i], $implicitEndKeywords, true))
@@ -1892,18 +1840,18 @@ class Parser
             $endKeyword = $semiColon = null;
         }
 
-        return Nodes\AlternativeFormatBlock::__instantiateUnchecked($this->phpVersion, $colon, $statements, $endKeyword, $semiColon);
+        return Nodes\Blocks\AlternativeFormatBlock::__instantiateUnchecked($colon, $statements, $endKeyword, $semiColon);
     }
 
-    /** @return array<Nodes\Parameter|Token|null> */
+    /** @return array<\Phi\Nodes\Helpers\Parameter|Token|null> */
     private function parameters(): array
     {
-        $nodes = [null];
-        if ($this->types[$this->i] !== TokenType::S_RIGHT_PAREN)
+        $nodes = [];
+        if ($this->types[$this->i] !== 106)
         {
             $nodes[] = $this->parameter();
         }
-        while ($this->types[$this->i] === TokenType::S_COMMA)
+        while ($this->types[$this->i] === 109)
         {
             $nodes[] = $this->tokens[$this->i++];
             $nodes[] = $this->parameter();
@@ -1911,52 +1859,52 @@ class Parser
         return $nodes;
     }
 
-    private function parameter(): Nodes\Parameter
+    private function parameter(): Nodes\Helpers\Parameter
     {
         $type = $byReference = $ellipsis = null;
 
-        if ($this->types[$this->i] !== TokenType::S_AMPERSAND && $this->types[$this->i] !== TokenType::T_VARIABLE && $this->types[$this->i] !== TokenType::T_ELLIPSIS)
+        if ($this->types[$this->i] !== 104 && $this->types[$this->i] !== 255 && $this->types[$this->i] !== 164)
         {
             $type = $this->type();
         }
 
-        if ($this->types[$this->i] === TokenType::S_AMPERSAND)
+        if ($this->types[$this->i] === 104)
         {
             $byReference = $this->tokens[$this->i++];
         }
 
-        if ($this->types[$this->i] === TokenType::T_ELLIPSIS)
+        if ($this->types[$this->i] === 164)
         {
             $ellipsis = $this->tokens[$this->i++];
         }
 
-        $variable = $this->read(TokenType::T_VARIABLE);
+        $variable = $this->read(255);
 
-        if ($ellipsis && $this->types[$this->i] === TokenType::S_EQUALS)
+        if ($ellipsis && $this->types[$this->i] === 116)
         {
             throw ParseException::unexpected($this->tokens[$this->i]);
         }
         $default = $this->default_();
 
-        return Nodes\Parameter::__instantiateUnchecked($this->phpVersion, $type, $byReference, $ellipsis, $variable, $default);
+        return Nodes\Helpers\Parameter::__instantiateUnchecked($type, $byReference, $ellipsis, $variable, $default);
     }
 
-    /** @return array<Nodes\Argument|Token|null> */
+    /** @return array<\Phi\Nodes\Helpers\Argument|Token|null> */
     private function arguments(): array
     {
-        $arguments = [null];
-        while ($this->types[$this->i] !== TokenType::S_RIGHT_PAREN)
+        $arguments = [];
+        while ($this->types[$this->i] !== 106)
         {
-            $unpack = $this->types[$this->i] === TokenType::T_ELLIPSIS ? $this->tokens[$this->i++] : null;
+            $unpack = $this->types[$this->i] === 164 ? $this->tokens[$this->i++] : null;
             $value = $this->expression();
-            $arguments[] = Nodes\Argument::__instantiateUnchecked($this->phpVersion, $unpack, $value);
+            $arguments[] = Nodes\Helpers\Argument::__instantiateUnchecked($unpack, $value);
 
-            if ($this->types[$this->i] === TokenType::S_COMMA)
+            if ($this->types[$this->i] === 109)
             {
                 $arguments[] = $this->tokens[$this->i++];
 
                 // trailing comma is not allowed before 7.4
-                if ($this->phpVersion < PhpVersion::PHP_7_4 && $this->types[$this->i] === TokenType::S_RIGHT_PAREN)
+                if ($this->phpVersion < PhpVersion::PHP_7_4 && $this->types[$this->i] === 106)
                 {
                     throw ParseException::unexpected($this->tokens[$this->i]);
                 }
@@ -1970,13 +1918,13 @@ class Parser
         return $arguments;
     }
 
-    private function returnType(): ?Nodes\ReturnType
+    private function returnType(): ?Nodes\Helpers\ReturnType
     {
-        if ($this->types[$this->i] === TokenType::S_COLON)
+        if ($this->types[$this->i] === 113)
         {
             $symbol = $this->tokens[$this->i++];
             $type = $this->type();
-            return Nodes\ReturnType::__instantiateUnchecked($this->phpVersion, $symbol, $type);
+            return Nodes\Helpers\ReturnType::__instantiateUnchecked($symbol, $type);
         }
         else
         {
@@ -1986,52 +1934,50 @@ class Parser
 
     private function type(): Nodes\Type
     {
-        $nullableSymbol = $this->types[$this->i] === TokenType::S_QUESTION_MARK ? $this->tokens[$this->i++] : null;
-
-        if (in_array($this->types[$this->i], [TokenType::T_ARRAY, TokenType::T_CALLABLE], true))
-        {
-            $type = Nodes\SpecialType::__instantiateUnchecked($this->phpVersion, $this->tokens[$this->i++]);
-        }
-        else
-        {
-            $type = Nodes\NamedType::__instantiateUnchecked($this->phpVersion, $this->name());
-        }
-
+        $nullableSymbol = $this->types[$this->i] === 118 ? $this->tokens[$this->i++] : null;
+        $type = Nodes\Types\NamedType::__instantiateUnchecked($this->name());
         if ($nullableSymbol)
         {
-            $type = Nodes\NullableType::__instantiateUnchecked($this->phpVersion, $nullableSymbol, $type);
+            $type = Nodes\Types\NullableType::__instantiateUnchecked($nullableSymbol, $type);
         }
-
         return $type;
     }
 
-    private function name(): Nodes\Name
+    private function name(): Nodes\Helpers\Name
     {
-        if ($this->types[$this->i] === TokenType::T_STATIC)
+        $parts = [];
+        switch ($this->types[$this->i])
         {
-            return Nodes\SpecialName::__instantiateUnchecked($this->phpVersion, $this->tokens[$this->i++]);
+            case 242:
+            case 130:
+            case 137:
+                $parts[] = $this->tokens[$this->i++];
+                break;
+            /** @noinspection PhpMissingBreakStatementInspection */
+            case 219:
+                $parts[] = $this->tokens[$this->i++];
+            default:
+                $parts[] = $this->read(243);
+                while ($this->types[$this->i] === 219)
+                {
+                    $parts[] = $this->tokens[$this->i++];
+                    $parts[] = $this->read(243);
+                }
         }
-        else
+        if (!$parts)
         {
-            $parts = [];
-            $parts[] = $this->types[$this->i] === TokenType::T_NS_SEPARATOR ? $this->tokens[$this->i++] : null;
-            $parts[] = $this->read(TokenType::T_STRING);
-            while ($this->types[$this->i] === TokenType::T_NS_SEPARATOR && $this->types[$this->i + 1] === TokenType::T_STRING)
-            {
-                $parts[] = $this->tokens[$this->i++];
-                $parts[] = $this->tokens[$this->i++];
-            }
-            return Nodes\RegularName::__instantiateUnchecked($this->phpVersion, $parts);
+            throw ParseException::unexpected($this->tokens[$this->i]);
         }
+        return Nodes\Helpers\Name::__instantiateUnchecked($parts);
     }
 
-    private function default_(): ?Nodes\Default_
+    private function default_(): ?Nodes\Helpers\Default_
     {
-        if ($this->types[$this->i] === TokenType::S_EQUALS)
+        if ($this->types[$this->i] === 116)
         {
             $symbol = $this->tokens[$this->i++];
             $value = $this->expression();
-            return Nodes\Default_::__instantiateUnchecked($this->phpVersion, $symbol, $value);
+            return Nodes\Helpers\Default_::__instantiateUnchecked($symbol, $value);
         }
         else
         {
@@ -2039,28 +1985,28 @@ class Parser
         }
     }
 
-    private function memberName(): Nodes\MemberName
+    private function memberName(): Nodes\Helpers\MemberName
     {
-        if ($this->types[$this->i] === TokenType::T_STRING)
+        if ($this->types[$this->i] === 243)
         {
-            return Nodes\RegularMemberName::__instantiateUnchecked($this->phpVersion, $this->tokens[$this->i++]);
+            return Nodes\Helpers\NormalMemberName::__instantiateUnchecked($this->tokens[$this->i++]);
         }
-        else if ($this->types[$this->i] === TokenType::T_VARIABLE)
+        else if ($this->types[$this->i] === 255)
         {
-            $expression = Nodes\RegularVariableExpression::__instantiateUnchecked($this->phpVersion, $this->tokens[$this->i++]);
-            return Nodes\VariableMemberName::__instantiateUnchecked($this->phpVersion, null, $expression, null);
+            $expression = Nodes\Expressions\NormalVariableExpression::__instantiateUnchecked($this->tokens[$this->i++]);
+            return Nodes\Helpers\VariableMemberName::__instantiateUnchecked(null, $expression, null);
         }
-        else if ($this->types[$this->i] === TokenType::S_DOLLAR)
+        else if ($this->types[$this->i] === 102)
         {
             $expression = $this->variableVariable();
-            return Nodes\VariableMemberName::__instantiateUnchecked($this->phpVersion, null, $expression, null);
+            return Nodes\Helpers\VariableMemberName::__instantiateUnchecked(null, $expression, null);
         }
-        else if ($this->types[$this->i] === TokenType::S_LEFT_CURLY_BRACE)
+        else if ($this->types[$this->i] === 124)
         {
             $leftBrace = $this->tokens[$this->i++];
             $expr = $this->expression();
-            $rightBrace = $this->read(TokenType::S_RIGHT_CURLY_BRACE);
-            return Nodes\VariableMemberName::__instantiateUnchecked($this->phpVersion, $leftBrace, $expr, $rightBrace);
+            $rightBrace = $this->read(126);
+            return Nodes\Helpers\VariableMemberName::__instantiateUnchecked($leftBrace, $expr, $rightBrace);
         }
         else
         {
@@ -2068,59 +2014,59 @@ class Parser
         }
     }
 
-    private function variableVariable(): Nodes\VariableVariableExpression
+    private function variableVariable(): Nodes\Expressions\VariableVariableExpression
     {
-        $dollar = $this->read(TokenType::S_DOLLAR);
+        $dollar = $this->read(102);
         $leftBrace = $rightBrace = null;
-        if ($this->types[$this->i] === TokenType::T_VARIABLE)
+        if ($this->types[$this->i] === 255)
         {
-            $expression = Nodes\RegularVariableExpression::__instantiateUnchecked($this->phpVersion, $this->tokens[$this->i++]);
+            $expression = Nodes\Expressions\NormalVariableExpression::__instantiateUnchecked($this->tokens[$this->i++]);
         }
-        else if ($this->types[$this->i] === TokenType::S_DOLLAR)
+        else if ($this->types[$this->i] === 102)
         {
             $expression = $this->variableVariable();
         }
-        else if ($this->types[$this->i] === TokenType::S_LEFT_CURLY_BRACE)
+        else if ($this->types[$this->i] === 124)
         {
             $leftBrace = $this->tokens[$this->i++];
             $expression = $this->expression();
-            $rightBrace = $this->read(TokenType::S_RIGHT_CURLY_BRACE);
+            $rightBrace = $this->read(126);
         }
         else
         {
             throw ParseException::unexpected($this->tokens[$this->i]);
         }
 
-        return Nodes\VariableVariableExpression::__instantiateUnchecked($this->phpVersion, $dollar, $leftBrace, $expression, $rightBrace);
+        return Nodes\Expressions\VariableVariableExpression::__instantiateUnchecked($dollar, $leftBrace, $expression, $rightBrace);
     }
 
     /** @return array<Node|null> */
     private function arrayItems(int $delimiter): array
     {
-        $items = [null];
+        $items = [];
         while ($this->types[$this->i] !== $delimiter)
         {
             $key = $byReference = $value = null;
 
-            if ($this->types[$this->i] !== TokenType::S_COMMA && $this->types[$this->i] !== $delimiter)
+            if ($this->types[$this->i] !== 109 && $this->types[$this->i] !== $delimiter)
             {
-                if ($this->types[$this->i] === TokenType::S_AMPERSAND)
+                if ($this->types[$this->i] === 104)
                 {
                     $byReference = $this->tokens[$this->i++];
                 }
 
                 $value = $this->expression();
 
-                if ($this->types[$this->i] === TokenType::T_DOUBLE_ARROW)
+                if ($this->types[$this->i] === 160)
                 {
                     if ($byReference)
                     {
                         throw ParseException::unexpected($this->tokens[$this->i]);
                     }
 
-                    $key = Nodes\Key::__instantiateUnchecked($this->phpVersion, $value, $this->tokens[$this->i++]);
+                    $key = Nodes\Helpers\Key::__instantiateUnchecked($value, $this->tokens[$this->i++]);
 
-                    if ($this->types[$this->i] === TokenType::S_AMPERSAND)
+                    if ($this->types[$this->i] === 104)
                     {
                         $byReference = $this->tokens[$this->i++];
                     }
@@ -2129,9 +2075,9 @@ class Parser
                 }
             }
 
-            $items[] = Nodes\ArrayItem::__instantiateUnchecked($this->phpVersion, $key, $byReference, $value);
+            $items[] = Nodes\Expressions\ArrayItem::__instantiateUnchecked($key, $byReference, $value);
 
-            if ($this->types[$this->i] === TokenType::S_COMMA)
+            if ($this->types[$this->i] === 109)
             {
                 $items[] = $this->tokens[$this->i++];
             }
@@ -2141,5 +2087,74 @@ class Parser
             }
         }
         return $items;
+    }
+
+    /** @return \Phi\Nodes\Expressions\StringInterpolation\InterpolatedStringPart[] */
+    private function stringParts(int $delimiter): array
+    {
+        $parts = [];
+        while ($this->types[$this->i] !== $delimiter)
+        {
+            if ($this->types[$this->i] === 168)
+            {
+                $parts[] = Nodes\Expressions\StringInterpolation\ConstantInterpolatedStringPart::__instantiateUnchecked($this->tokens[$this->i++]);
+            }
+            else if ($this->types[$this->i] === 255)
+            {
+                $var = Nodes\Expressions\StringInterpolation\NormalInterpolatedStringVariable::__instantiateUnchecked($this->tokens[$this->i++]);
+                if ($this->types[$this->i] === 120)
+                {
+                    $leftBracket = $this->tokens[$this->i++];
+                    $minus = $this->types[$this->i] === 110 ? $this->tokens[$this->i++] : null;
+                    $value = $this->tokens[$this->i++];
+                    // TODO screw this, emulate this ugliness away and validate the expression type
+                    if ($value->getType() !== 220 && $value->getType() !== 243 && $value->getType() !== 255)
+                    {
+                        throw ParseException::unexpected($value);
+                    }
+                    $index = Nodes\Expressions\StringInterpolation\InterpolatedArrayAccessIndex::__instantiateUnchecked($minus, $value);
+                    $rightBracket = $this->read(121);
+                    $parts[] = Nodes\Expressions\StringInterpolation\ArrayAccessInterpolatedStringVariable::__instantiateUnchecked($var, $leftBracket, $index, $rightBracket);
+                }
+                else if ($this->types[$this->i] === 222)
+                {
+                    $operator = $this->tokens[$this->i++];
+                    $name = $this->read(243);
+                    $parts[] = Nodes\Expressions\StringInterpolation\PropertyAccessInterpolatedStringVariable::__instantiateUnchecked($var, $operator, $name);
+                }
+                else
+                {
+                    $parts[] = $var;
+                }
+            }
+            else if ($this->types[$this->i] === 159)
+            {
+                $leftDelimiter = $this->tokens[$this->i++];
+                if ($this->types[$this->i] === 245 && $this->types[$this->i + 1] === 126)
+                {
+                    $name = $this->tokens[$this->i++];
+                    $rightDelimiter = $this->tokens[$this->i++];
+                    $parts[] = Nodes\Expressions\StringInterpolation\BracedInterpolatedStringVariable::__instantiateUnchecked($leftDelimiter, $name, $rightDelimiter);
+                }
+                else
+                {
+                    $name = $this->expression();
+                    $rightDelimiter = $this->read(126);
+                    $parts[] = Nodes\Expressions\StringInterpolation\VariableInterpolatedStringVariable::__instantiateUnchecked($leftDelimiter, $name, $rightDelimiter);
+                }
+            }
+            else if ($this->types[$this->i] === 124)
+            {
+                $leftBrace = $this->tokens[$this->i++];
+                $expression = $this->simpleExpression();
+                $rightBrace = $this->read(126);
+                $parts[] = Nodes\Expressions\StringInterpolation\InterpolatedStringExpression::__instantiateUnchecked($leftBrace, $expression, $rightBrace);
+            }
+            else
+            {
+                throw ParseException::unexpected($this->tokens[$this->i]);
+            }
+        }
+        return $parts;
     }
 }

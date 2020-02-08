@@ -1,27 +1,29 @@
 <?php
 
+declare(strict_types=1);
+
+/**
+ * This code is generated.
+ * @see meta/
+ */
+
 namespace Phi\Nodes\Generated;
 
 use Phi\Node;
 use Phi\Token;
-use Phi\Nodes\Base\CompoundNode;
-use Phi\Nodes\Base\NodesList;
-use Phi\Nodes\Base\SeparatedNodesList;
-use Phi\Exception\MissingNodeException;
-use Phi\NodeConverter;
+use Phi\Exception\TreeException;
+use Phi\NodeCoercer;
 use Phi\Exception\ValidationException;
-use Phi\Nodes as Nodes;
 
-abstract class GeneratedIntegerLiteral extends Nodes\NumberLiteral
+trait GeneratedIntegerLiteral
 {
     /**
-     * @var Token|null
+     * @var \Phi\Token|null
      */
     private $token;
 
-
     /**
-     * @param Token|Node|string|null $token
+     * @param \Phi\Token|\Phi\Node|string|null $token
      */
     public function __construct($token = null)
     {
@@ -32,32 +34,38 @@ abstract class GeneratedIntegerLiteral extends Nodes\NumberLiteral
     }
 
     /**
-     * @param int $phpVersion
-     * @param Token $token
-     * @return static
+     * @param \Phi\Token $token
+     * @return self
      */
-    public static function __instantiateUnchecked($phpVersion, $token)
+    public static function __instantiateUnchecked($token)
     {
-        $instance = new static;
-        $instance->phpVersion = $phpVersion;
+        $instance = new self;
         $instance->token = $token;
         $token->parent = $instance;
         return $instance;
     }
 
-    protected function &_getNodeRefs(): array
+    public function getChildNodes(): array
     {
-        $refs = [
-            "token" => &$this->token,
-        ];
-        return $refs;
+        return \array_values(\array_filter([
+            $this->token,
+        ]));
     }
 
-    public function getToken(): Token
+    protected function &getChildRef(Node $childToDetach): Node
+    {
+        if ($this->token === $childToDetach)
+        {
+            return $this->token;
+        }
+        throw new \LogicException();
+    }
+
+    public function getToken(): \Phi\Token
     {
         if ($this->token === null)
         {
-            throw new MissingNodeException($this, __FUNCTION__);
+            throw TreeException::missingNode($this, "token");
         }
         return $this->token;
     }
@@ -68,14 +76,14 @@ abstract class GeneratedIntegerLiteral extends Nodes\NumberLiteral
     }
 
     /**
-     * @param Token|Node|string|null $token
+     * @param \Phi\Token|\Phi\Node|string|null $token
      */
     public function setToken($token): void
     {
         if ($token !== null)
         {
-            /** @var Token $token */
-            $token = NodeConverter::convert($token, Token::class, $this->phpVersion);
+            /** @var \Phi\Token $token */
+            $token = NodeCoercer::coerce($token, \Phi\Token::class, $this->getPhpVersion());
             $token->detach();
             $token->parent = $this;
         }
@@ -86,17 +94,23 @@ abstract class GeneratedIntegerLiteral extends Nodes\NumberLiteral
         $this->token = $token;
     }
 
-    protected function _validate(int $flags): void
+    public function _validate(int $flags): void
     {
-        if ($this->token === null) throw ValidationException::childRequired($this, "token");
-        if ($flags & self::VALIDATE_TYPES)
-        {
-        }
-        if ($flags & self::VALIDATE_EXPRESSION_CONTEXT)
-        {
-        }
-        if ($flags & self::VALIDATE_TOKENS)
-        {
-        }
+        if ($this->token === null)
+            throw ValidationException::missingChild($this, "token");
+        if ($this->token->getType() !== 208)
+            throw ValidationException::invalidSyntax($this->token, [208]);
+
+        if ($flags & 14)
+            throw ValidationException::invalidExpressionInContext($this);
+
+        $this->extraValidation($flags);
+
+    }
+
+    public function _autocorrect(): void
+    {
+
+        $this->extraAutocorrect();
     }
 }

@@ -1,84 +1,78 @@
 <?php
 
+declare(strict_types=1);
+
+/**
+ * This code is generated.
+ * @see meta/
+ */
+
 namespace Phi\Nodes\Generated;
 
 use Phi\Node;
 use Phi\Token;
-use Phi\Nodes\Base\CompoundNode;
-use Phi\Nodes\Base\NodesList;
-use Phi\Nodes\Base\SeparatedNodesList;
-use Phi\Exception\MissingNodeException;
-use Phi\NodeConverter;
+use Phi\Exception\TreeException;
+use Phi\NodeCoercer;
 use Phi\Exception\ValidationException;
-use Phi\Nodes as Nodes;
 
-abstract class GeneratedSwitchStatement extends Nodes\Statement
+trait GeneratedSwitchStatement
 {
     /**
-     * @var Token|null
+     * @var \Phi\Token|null
      */
     private $keyword;
 
     /**
-     * @var Token|null
+     * @var \Phi\Token|null
      */
     private $leftParenthesis;
 
     /**
-     * @var Nodes\Expression|null
+     * @var \Phi\Nodes\Expression|null
      */
     private $value;
 
     /**
-     * @var Token|null
+     * @var \Phi\Token|null
      */
     private $rightParenthesis;
 
     /**
-     * @var Token|null
+     * @var \Phi\Token|null
      */
     private $leftBrace;
 
     /**
-     * @var NodesList|Nodes\SwitchCase[]
-     * @phpstan-var NodesList<\Phi\Nodes\SwitchCase>
+     * @var \Phi\Nodes\Base\NodesList|\Phi\Nodes\Statements\SwitchCase[]
+     * @phpstan-var \Phi\Nodes\Base\NodesList<\Phi\Nodes\Statements\SwitchCase>
      */
     private $cases;
 
     /**
-     * @var Nodes\SwitchDefault|null
-     */
-    private $default;
-
-    /**
-     * @var Token|null
+     * @var \Phi\Token|null
      */
     private $rightBrace;
-
 
     /**
      */
     public function __construct()
     {
-        $this->cases = new NodesList();
+        $this->cases = new \Phi\Nodes\Base\NodesList(\Phi\Nodes\Statements\SwitchCase::class);
     }
 
     /**
-     * @param int $phpVersion
-     * @param Token $keyword
-     * @param Token $leftParenthesis
-     * @param Nodes\Expression $value
-     * @param Token $rightParenthesis
-     * @param Token $leftBrace
+     * @param \Phi\Token $keyword
+     * @param \Phi\Token $leftParenthesis
+     * @param \Phi\Nodes\Expression $value
+     * @param \Phi\Token $rightParenthesis
+     * @param \Phi\Token $leftBrace
      * @param mixed[] $cases
-     * @param Nodes\SwitchDefault|null $default
-     * @param Token $rightBrace
-     * @return static
+     * @param \Phi\Token $rightBrace
+     * @return self
      */
-    public static function __instantiateUnchecked($phpVersion, $keyword, $leftParenthesis, $value, $rightParenthesis, $leftBrace, $cases, $default, $rightBrace)
+    public static function __instantiateUnchecked($keyword, $leftParenthesis, $value, $rightParenthesis, $leftBrace, $cases, $rightBrace)
     {
-        $instance = new static;
-        $instance->phpVersion = $phpVersion;
+        $instance = new self;
         $instance->keyword = $keyword;
         $keyword->parent = $instance;
         $instance->leftParenthesis = $leftParenthesis;
@@ -91,33 +85,58 @@ abstract class GeneratedSwitchStatement extends Nodes\Statement
         $leftBrace->parent = $instance;
         $instance->cases->__initUnchecked($cases);
         $instance->cases->parent = $instance;
-        $instance->default = $default;
-        if ($default) $default->parent = $instance;
         $instance->rightBrace = $rightBrace;
         $rightBrace->parent = $instance;
         return $instance;
     }
 
-    protected function &_getNodeRefs(): array
+    public function getChildNodes(): array
     {
-        $refs = [
-            "keyword" => &$this->keyword,
-            "leftParenthesis" => &$this->leftParenthesis,
-            "value" => &$this->value,
-            "rightParenthesis" => &$this->rightParenthesis,
-            "leftBrace" => &$this->leftBrace,
-            "cases" => &$this->cases,
-            "default" => &$this->default,
-            "rightBrace" => &$this->rightBrace,
-        ];
-        return $refs;
+        return \array_values(\array_filter([
+            $this->keyword,
+            $this->leftParenthesis,
+            $this->value,
+            $this->rightParenthesis,
+            $this->leftBrace,
+            $this->cases,
+            $this->rightBrace,
+        ]));
     }
 
-    public function getKeyword(): Token
+    protected function &getChildRef(Node $childToDetach): Node
+    {
+        if ($this->keyword === $childToDetach)
+        {
+            return $this->keyword;
+        }
+        if ($this->leftParenthesis === $childToDetach)
+        {
+            return $this->leftParenthesis;
+        }
+        if ($this->value === $childToDetach)
+        {
+            return $this->value;
+        }
+        if ($this->rightParenthesis === $childToDetach)
+        {
+            return $this->rightParenthesis;
+        }
+        if ($this->leftBrace === $childToDetach)
+        {
+            return $this->leftBrace;
+        }
+        if ($this->rightBrace === $childToDetach)
+        {
+            return $this->rightBrace;
+        }
+        throw new \LogicException();
+    }
+
+    public function getKeyword(): \Phi\Token
     {
         if ($this->keyword === null)
         {
-            throw new MissingNodeException($this, __FUNCTION__);
+            throw TreeException::missingNode($this, "keyword");
         }
         return $this->keyword;
     }
@@ -128,14 +147,14 @@ abstract class GeneratedSwitchStatement extends Nodes\Statement
     }
 
     /**
-     * @param Token|Node|string|null $keyword
+     * @param \Phi\Token|\Phi\Node|string|null $keyword
      */
     public function setKeyword($keyword): void
     {
         if ($keyword !== null)
         {
-            /** @var Token $keyword */
-            $keyword = NodeConverter::convert($keyword, Token::class, $this->phpVersion);
+            /** @var \Phi\Token $keyword */
+            $keyword = NodeCoercer::coerce($keyword, \Phi\Token::class, $this->getPhpVersion());
             $keyword->detach();
             $keyword->parent = $this;
         }
@@ -146,11 +165,11 @@ abstract class GeneratedSwitchStatement extends Nodes\Statement
         $this->keyword = $keyword;
     }
 
-    public function getLeftParenthesis(): Token
+    public function getLeftParenthesis(): \Phi\Token
     {
         if ($this->leftParenthesis === null)
         {
-            throw new MissingNodeException($this, __FUNCTION__);
+            throw TreeException::missingNode($this, "leftParenthesis");
         }
         return $this->leftParenthesis;
     }
@@ -161,14 +180,14 @@ abstract class GeneratedSwitchStatement extends Nodes\Statement
     }
 
     /**
-     * @param Token|Node|string|null $leftParenthesis
+     * @param \Phi\Token|\Phi\Node|string|null $leftParenthesis
      */
     public function setLeftParenthesis($leftParenthesis): void
     {
         if ($leftParenthesis !== null)
         {
-            /** @var Token $leftParenthesis */
-            $leftParenthesis = NodeConverter::convert($leftParenthesis, Token::class, $this->phpVersion);
+            /** @var \Phi\Token $leftParenthesis */
+            $leftParenthesis = NodeCoercer::coerce($leftParenthesis, \Phi\Token::class, $this->getPhpVersion());
             $leftParenthesis->detach();
             $leftParenthesis->parent = $this;
         }
@@ -179,11 +198,11 @@ abstract class GeneratedSwitchStatement extends Nodes\Statement
         $this->leftParenthesis = $leftParenthesis;
     }
 
-    public function getValue(): Nodes\Expression
+    public function getValue(): \Phi\Nodes\Expression
     {
         if ($this->value === null)
         {
-            throw new MissingNodeException($this, __FUNCTION__);
+            throw TreeException::missingNode($this, "value");
         }
         return $this->value;
     }
@@ -194,14 +213,14 @@ abstract class GeneratedSwitchStatement extends Nodes\Statement
     }
 
     /**
-     * @param Nodes\Expression|Node|string|null $value
+     * @param \Phi\Nodes\Expression|\Phi\Node|string|null $value
      */
     public function setValue($value): void
     {
         if ($value !== null)
         {
-            /** @var Nodes\Expression $value */
-            $value = NodeConverter::convert($value, Nodes\Expression::class, $this->phpVersion);
+            /** @var \Phi\Nodes\Expression $value */
+            $value = NodeCoercer::coerce($value, \Phi\Nodes\Expression::class, $this->getPhpVersion());
             $value->detach();
             $value->parent = $this;
         }
@@ -212,11 +231,11 @@ abstract class GeneratedSwitchStatement extends Nodes\Statement
         $this->value = $value;
     }
 
-    public function getRightParenthesis(): Token
+    public function getRightParenthesis(): \Phi\Token
     {
         if ($this->rightParenthesis === null)
         {
-            throw new MissingNodeException($this, __FUNCTION__);
+            throw TreeException::missingNode($this, "rightParenthesis");
         }
         return $this->rightParenthesis;
     }
@@ -227,14 +246,14 @@ abstract class GeneratedSwitchStatement extends Nodes\Statement
     }
 
     /**
-     * @param Token|Node|string|null $rightParenthesis
+     * @param \Phi\Token|\Phi\Node|string|null $rightParenthesis
      */
     public function setRightParenthesis($rightParenthesis): void
     {
         if ($rightParenthesis !== null)
         {
-            /** @var Token $rightParenthesis */
-            $rightParenthesis = NodeConverter::convert($rightParenthesis, Token::class, $this->phpVersion);
+            /** @var \Phi\Token $rightParenthesis */
+            $rightParenthesis = NodeCoercer::coerce($rightParenthesis, \Phi\Token::class, $this->getPhpVersion());
             $rightParenthesis->detach();
             $rightParenthesis->parent = $this;
         }
@@ -245,11 +264,11 @@ abstract class GeneratedSwitchStatement extends Nodes\Statement
         $this->rightParenthesis = $rightParenthesis;
     }
 
-    public function getLeftBrace(): Token
+    public function getLeftBrace(): \Phi\Token
     {
         if ($this->leftBrace === null)
         {
-            throw new MissingNodeException($this, __FUNCTION__);
+            throw TreeException::missingNode($this, "leftBrace");
         }
         return $this->leftBrace;
     }
@@ -260,14 +279,14 @@ abstract class GeneratedSwitchStatement extends Nodes\Statement
     }
 
     /**
-     * @param Token|Node|string|null $leftBrace
+     * @param \Phi\Token|\Phi\Node|string|null $leftBrace
      */
     public function setLeftBrace($leftBrace): void
     {
         if ($leftBrace !== null)
         {
-            /** @var Token $leftBrace */
-            $leftBrace = NodeConverter::convert($leftBrace, Token::class, $this->phpVersion);
+            /** @var \Phi\Token $leftBrace */
+            $leftBrace = NodeCoercer::coerce($leftBrace, \Phi\Token::class, $this->getPhpVersion());
             $leftBrace->detach();
             $leftBrace->parent = $this;
         }
@@ -279,58 +298,19 @@ abstract class GeneratedSwitchStatement extends Nodes\Statement
     }
 
     /**
-     * @return NodesList|Nodes\SwitchCase[]
-     * @phpstan-return NodesList<\Phi\Nodes\SwitchCase>
+     * @return \Phi\Nodes\Base\NodesList|\Phi\Nodes\Statements\SwitchCase[]
+     * @phpstan-return \Phi\Nodes\Base\NodesList<\Phi\Nodes\Statements\SwitchCase>
      */
-    public function getCases(): NodesList
+    public function getCases(): \Phi\Nodes\Base\NodesList
     {
         return $this->cases;
     }
 
-    /**
-     * @param Nodes\SwitchCase $cas
-     */
-    public function addCas($cas): void
-    {
-        /** @var Nodes\SwitchCase $cas */
-        $cas = NodeConverter::convert($cas, Nodes\SwitchCase::class, $this->phpVersion);
-        $this->cases->add($cas);
-    }
-
-    public function getDefault(): ?Nodes\SwitchDefault
-    {
-        return $this->default;
-    }
-
-    public function hasDefault(): bool
-    {
-        return $this->default !== null;
-    }
-
-    /**
-     * @param Nodes\SwitchDefault|Node|string|null $default
-     */
-    public function setDefault($default): void
-    {
-        if ($default !== null)
-        {
-            /** @var Nodes\SwitchDefault $default */
-            $default = NodeConverter::convert($default, Nodes\SwitchDefault::class, $this->phpVersion);
-            $default->detach();
-            $default->parent = $this;
-        }
-        if ($this->default !== null)
-        {
-            $this->default->detach();
-        }
-        $this->default = $default;
-    }
-
-    public function getRightBrace(): Token
+    public function getRightBrace(): \Phi\Token
     {
         if ($this->rightBrace === null)
         {
-            throw new MissingNodeException($this, __FUNCTION__);
+            throw TreeException::missingNode($this, "rightBrace");
         }
         return $this->rightBrace;
     }
@@ -341,14 +321,14 @@ abstract class GeneratedSwitchStatement extends Nodes\Statement
     }
 
     /**
-     * @param Token|Node|string|null $rightBrace
+     * @param \Phi\Token|\Phi\Node|string|null $rightBrace
      */
     public function setRightBrace($rightBrace): void
     {
         if ($rightBrace !== null)
         {
-            /** @var Token $rightBrace */
-            $rightBrace = NodeConverter::convert($rightBrace, Token::class, $this->phpVersion);
+            /** @var \Phi\Token $rightBrace */
+            $rightBrace = NodeCoercer::coerce($rightBrace, \Phi\Token::class, $this->getPhpVersion());
             $rightBrace->detach();
             $rightBrace->parent = $this;
         }
@@ -359,28 +339,46 @@ abstract class GeneratedSwitchStatement extends Nodes\Statement
         $this->rightBrace = $rightBrace;
     }
 
-    protected function _validate(int $flags): void
+    public function _validate(int $flags): void
     {
-        if ($this->keyword === null) throw ValidationException::childRequired($this, "keyword");
-        if ($this->leftParenthesis === null) throw ValidationException::childRequired($this, "leftParenthesis");
-        if ($this->value === null) throw ValidationException::childRequired($this, "value");
-        if ($this->rightParenthesis === null) throw ValidationException::childRequired($this, "rightParenthesis");
-        if ($this->leftBrace === null) throw ValidationException::childRequired($this, "leftBrace");
-        if ($this->rightBrace === null) throw ValidationException::childRequired($this, "rightBrace");
-        if ($flags & self::VALIDATE_TYPES)
-        {
-        }
-        if ($flags & self::VALIDATE_EXPRESSION_CONTEXT)
-        {
-        }
-        if ($flags & self::VALIDATE_TOKENS)
-        {
-        }
-        $this->value->_validate($flags);
-        $this->cases->_validate($flags);
-        if ($this->default)
-        {
-            $this->default->_validate($flags);
-        }
+        if ($this->keyword === null)
+            throw ValidationException::missingChild($this, "keyword");
+        if ($this->leftParenthesis === null)
+            throw ValidationException::missingChild($this, "leftParenthesis");
+        if ($this->value === null)
+            throw ValidationException::missingChild($this, "value");
+        if ($this->rightParenthesis === null)
+            throw ValidationException::missingChild($this, "rightParenthesis");
+        if ($this->leftBrace === null)
+            throw ValidationException::missingChild($this, "leftBrace");
+        if ($this->rightBrace === null)
+            throw ValidationException::missingChild($this, "rightBrace");
+        if ($this->keyword->getType() !== 246)
+            throw ValidationException::invalidSyntax($this->keyword, [246]);
+        if ($this->leftParenthesis->getType() !== 105)
+            throw ValidationException::invalidSyntax($this->leftParenthesis, [105]);
+        if ($this->rightParenthesis->getType() !== 106)
+            throw ValidationException::invalidSyntax($this->rightParenthesis, [106]);
+        if ($this->leftBrace->getType() !== 124)
+            throw ValidationException::invalidSyntax($this->leftBrace, [124]);
+        if ($this->rightBrace->getType() !== 126)
+            throw ValidationException::invalidSyntax($this->rightBrace, [126]);
+
+
+        $this->extraValidation($flags);
+
+        $this->value->_validate(1);
+        foreach ($this->cases as $t)
+            $t->_validate(0);
+    }
+
+    public function _autocorrect(): void
+    {
+        if ($this->value)
+            $this->value->_autocorrect();
+        foreach ($this->cases as $t)
+            $t->_autocorrect();
+
+        $this->extraAutocorrect();
     }
 }

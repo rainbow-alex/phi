@@ -1,10 +1,12 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Phi\Exception;
 
+use Exception;
 use Phi\Node;
 use Phi\Token;
-use Exception;
 
 class PhiException extends Exception
 {
@@ -39,12 +41,6 @@ class PhiException extends Exception
     {
         $token = $this->token();
         return $token ? $token->getLine() : null;
-    }
-
-    public function getSourceColumn(): ?int
-    {
-        $token = $this->token();
-        return $token ? $token->getColumn() : null;
     }
 
     public function getSourceFilename(): ?string

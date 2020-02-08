@@ -6,24 +6,26 @@
     },
     "autoload-dev": {
         "psr-4": {
-            "Phi\\Tests\\": "tests/",
-            "Phi\\Meta\\": "meta/"
+            "Phi\\Meta\\": "meta/",
+            "Phi\\Tests\\": "tests/"
         }
     },
     "require-dev": {
         "ext-json": "*",
-        "phpunit/phpunit": "^8.0",
-        "phpstan/phpstan-strict-rules": "^0.12.2",
         "nikic/php-parser": "^4.3",
+        "phpdocumentor/reflection-docblock": "^4.3",
+        "phpstan/phpstan": "^0.12.8",
+        "phpstan/phpstan-strict-rules": "^0.12.2",
+        "phpunit/phpunit": "^8.0",
         "symfony/finder": "^5.0"
     },
     "scripts": {
-        "build": "composer phpstan && ",
-        "generate": "php meta/bin/generate_nodes.php; php meta/bin/optimize_parser.php; php meta/bin/generate_parser_tests.php",
-        "test": "vendor/bin/phpunit --stop-on-error --stop-on-failure",
-        "phpstan": "vendor/bin/phpstan a"
+        "build": "composer phpunit && composer phpstan",
+        "generate": "php meta/bin/generate_nodes.php; php meta/bin/optimize_parser.php; php meta/bin/generate_parser_test_fuzz.php",
+        "test": "vendor/bin/phpunit --stop-on-error",
+        "phpstan": "vendor/bin/phpstan analyze"
     },
-    "require": {
-        "phpstan/phpstan": "^0.12.8"
+    "config": {
+        "sort-packages": true
     }
 }

@@ -1,0 +1,28 @@
+{"algo": "permute"}
+
+while (0) break;
+while (0) break -1;
+while (0) break 0;
+while (0) break 1;
+while (0) break EXPR;
+while (0) { function ident() { break; } }
+
+while (0) continue;
+while (0) continue -1;
+while (0) continue 0;
+while (0) continue 1;
+while (0) continue EXPR;
+while (0) { function ident() { continue; } }
+
+echo EXPR;
+echo $v, $v;
+
+return EXPR;
+return;
+
+throw EXPR;
+
+function ident() { yield; }
+function ident() { yield EXPR; }
+function ident() { yield EXPR => $v; }
+function ident() { yield $v => EXPR; }

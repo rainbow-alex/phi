@@ -1,8 +1,10 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Phi\Tests\Nodes;
 
-use Phi\Nodes\IssetExpression;
+use Phi\Nodes\Expressions\IssetExpression;
 use Phi\Token;
 use Phi\TokenType;
 use PHPUnit\Framework\TestCase;

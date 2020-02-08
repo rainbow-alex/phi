@@ -13,6 +13,7 @@ if (count($argv) > 1)
     foreach (array_slice($argv, 1) as $arg)
     {
         echo $arg . "\n";
+        $arg = str_replace('\n', "\n", $arg);
 
         echo "\e[45mphp -l\e[0m\n";
         system('echo ' . escapeshellarg('<?php ' . $arg) . ' | php -l');
@@ -34,6 +35,7 @@ if (count($argv) > 1)
         {
             $ast2 = (new \Phi\Parser(PhpVersion::PHP_7_2))->parse(null, "<?php " . $arg);
             $ast2->debugDump();
+            $ast2->validate();
 
             echo "\e[45mphi (php-parser compat)\e[0m\n";
             try

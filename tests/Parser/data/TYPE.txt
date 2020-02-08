@@ -1,0 +1,9 @@
+{"algo": "permute"}
+
+ident
+ident\ident
+?ident
+array
+string
+iterable
+ident|ident

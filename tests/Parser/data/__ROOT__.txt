@@ -1,0 +1,9 @@
+{"algo": "permute"}
+
+<?php EXPR_FULL;
+<?php EXPR_SYNTAX;
+<?php EXPR_STRING
+<?php EXPR_CTX_CONTEXT
+<?php STMT_COMPOUND
+<?php STMT_SINGLE
+<?php WORD_CONTEXT

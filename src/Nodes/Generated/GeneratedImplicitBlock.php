@@ -1,27 +1,29 @@
 <?php
 
+declare(strict_types=1);
+
+/**
+ * This code is generated.
+ * @see meta/
+ */
+
 namespace Phi\Nodes\Generated;
 
 use Phi\Node;
 use Phi\Token;
-use Phi\Nodes\Base\CompoundNode;
-use Phi\Nodes\Base\NodesList;
-use Phi\Nodes\Base\SeparatedNodesList;
-use Phi\Exception\MissingNodeException;
-use Phi\NodeConverter;
+use Phi\Exception\TreeException;
+use Phi\NodeCoercer;
 use Phi\Exception\ValidationException;
-use Phi\Nodes as Nodes;
 
-abstract class GeneratedImplicitBlock extends Nodes\Block
+trait GeneratedImplicitBlock
 {
     /**
-     * @var Nodes\Statement|null
+     * @var \Phi\Nodes\Statement|null
      */
     private $statement;
 
-
     /**
-     * @param Nodes\Statement|Node|string|null $statement
+     * @param \Phi\Nodes\Statement|\Phi\Node|string|null $statement
      */
     public function __construct($statement = null)
     {
@@ -32,32 +34,38 @@ abstract class GeneratedImplicitBlock extends Nodes\Block
     }
 
     /**
-     * @param int $phpVersion
-     * @param Nodes\Statement $statement
-     * @return static
+     * @param \Phi\Nodes\Statement $statement
+     * @return self
      */
-    public static function __instantiateUnchecked($phpVersion, $statement)
+    public static function __instantiateUnchecked($statement)
     {
-        $instance = new static;
-        $instance->phpVersion = $phpVersion;
+        $instance = new self;
         $instance->statement = $statement;
         $statement->parent = $instance;
         return $instance;
     }
 
-    protected function &_getNodeRefs(): array
+    public function getChildNodes(): array
     {
-        $refs = [
-            "statement" => &$this->statement,
-        ];
-        return $refs;
+        return \array_values(\array_filter([
+            $this->statement,
+        ]));
     }
 
-    public function getStatement(): Nodes\Statement
+    protected function &getChildRef(Node $childToDetach): Node
+    {
+        if ($this->statement === $childToDetach)
+        {
+            return $this->statement;
+        }
+        throw new \LogicException();
+    }
+
+    public function getStatement(): \Phi\Nodes\Statement
     {
         if ($this->statement === null)
         {
-            throw new MissingNodeException($this, __FUNCTION__);
+            throw TreeException::missingNode($this, "statement");
         }
         return $this->statement;
     }
@@ -68,14 +76,14 @@ abstract class GeneratedImplicitBlock extends Nodes\Block
     }
 
     /**
-     * @param Nodes\Statement|Node|string|null $statement
+     * @param \Phi\Nodes\Statement|\Phi\Node|string|null $statement
      */
     public function setStatement($statement): void
     {
         if ($statement !== null)
         {
-            /** @var Nodes\Statement $statement */
-            $statement = NodeConverter::convert($statement, Nodes\Statement::class, $this->phpVersion);
+            /** @var \Phi\Nodes\Statement $statement */
+            $statement = NodeCoercer::coerce($statement, \Phi\Nodes\Statement::class, $this->getPhpVersion());
             $statement->detach();
             $statement->parent = $this;
         }
@@ -86,18 +94,22 @@ abstract class GeneratedImplicitBlock extends Nodes\Block
         $this->statement = $statement;
     }
 
-    protected function _validate(int $flags): void
+    public function _validate(int $flags): void
     {
-        if ($this->statement === null) throw ValidationException::childRequired($this, "statement");
-        if ($flags & self::VALIDATE_TYPES)
-        {
-        }
-        if ($flags & self::VALIDATE_EXPRESSION_CONTEXT)
-        {
-        }
-        if ($flags & self::VALIDATE_TOKENS)
-        {
-        }
-        $this->statement->_validate($flags);
+        if ($this->statement === null)
+            throw ValidationException::missingChild($this, "statement");
+
+
+        $this->extraValidation($flags);
+
+        $this->statement->_validate(0);
+    }
+
+    public function _autocorrect(): void
+    {
+        if ($this->statement)
+            $this->statement->_autocorrect();
+
+        $this->extraAutocorrect();
     }
 }

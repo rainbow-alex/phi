@@ -1,119 +1,135 @@
 <?php
 
+declare(strict_types=1);
+
+/**
+ * This code is generated.
+ * @see meta/
+ */
+
 namespace Phi\Nodes\Generated;
 
 use Phi\Node;
 use Phi\Token;
-use Phi\Nodes\Base\CompoundNode;
-use Phi\Nodes\Base\NodesList;
-use Phi\Nodes\Base\SeparatedNodesList;
-use Phi\Exception\MissingNodeException;
-use Phi\NodeConverter;
+use Phi\Exception\TreeException;
+use Phi\NodeCoercer;
 use Phi\Exception\ValidationException;
-use Phi\Nodes as Nodes;
 
-abstract class GeneratedCombinedAssignmentExpression extends Nodes\Expression
+trait GeneratedCombinedAssignmentExpression
 {
     /**
-     * @var Nodes\Expression|null
+     * @var \Phi\Nodes\Expression|null
      */
-    private $lvalue;
+    private $left;
 
     /**
-     * @var Token|null
+     * @var \Phi\Token|null
      */
     private $operator;
 
     /**
-     * @var Nodes\Expression|null
+     * @var \Phi\Nodes\Expression|null
      */
-    private $value;
-
+    private $right;
 
     /**
-     * @param Nodes\Expression|Node|string|null $lvalue
-     * @param Nodes\Expression|Node|string|null $value
+     * @param \Phi\Nodes\Expression|\Phi\Node|string|null $left
+     * @param \Phi\Nodes\Expression|\Phi\Node|string|null $right
      */
-    public function __construct($lvalue = null, $value = null)
+    public function __construct($left = null, $right = null)
     {
-        if ($lvalue !== null)
+        if ($left !== null)
         {
-            $this->setLvalue($lvalue);
+            $this->setLeft($left);
         }
-        if ($value !== null)
+        if ($right !== null)
         {
-            $this->setValue($value);
+            $this->setRight($right);
         }
     }
 
     /**
-     * @param int $phpVersion
-     * @param Nodes\Expression $lvalue
-     * @param Token $operator
-     * @param Nodes\Expression $value
-     * @return static
+     * @param \Phi\Nodes\Expression $left
+     * @param \Phi\Token $operator
+     * @param \Phi\Nodes\Expression $right
+     * @return self
      */
-    public static function __instantiateUnchecked($phpVersion, $lvalue, $operator, $value)
+    public static function __instantiateUnchecked($left, $operator, $right)
     {
-        $instance = new static;
-        $instance->phpVersion = $phpVersion;
-        $instance->lvalue = $lvalue;
-        $lvalue->parent = $instance;
+        $instance = new self;
+        $instance->left = $left;
+        $left->parent = $instance;
         $instance->operator = $operator;
         $operator->parent = $instance;
-        $instance->value = $value;
-        $value->parent = $instance;
+        $instance->right = $right;
+        $right->parent = $instance;
         return $instance;
     }
 
-    protected function &_getNodeRefs(): array
+    public function getChildNodes(): array
     {
-        $refs = [
-            "lvalue" => &$this->lvalue,
-            "operator" => &$this->operator,
-            "value" => &$this->value,
-        ];
-        return $refs;
+        return \array_values(\array_filter([
+            $this->left,
+            $this->operator,
+            $this->right,
+        ]));
     }
 
-    public function getLvalue(): Nodes\Expression
+    protected function &getChildRef(Node $childToDetach): Node
     {
-        if ($this->lvalue === null)
+        if ($this->left === $childToDetach)
         {
-            throw new MissingNodeException($this, __FUNCTION__);
+            return $this->left;
         }
-        return $this->lvalue;
+        if ($this->operator === $childToDetach)
+        {
+            return $this->operator;
+        }
+        if ($this->right === $childToDetach)
+        {
+            return $this->right;
+        }
+        throw new \LogicException();
     }
 
-    public function hasLvalue(): bool
+    public function getLeft(): \Phi\Nodes\Expression
     {
-        return $this->lvalue !== null;
+        if ($this->left === null)
+        {
+            throw TreeException::missingNode($this, "left");
+        }
+        return $this->left;
+    }
+
+    public function hasLeft(): bool
+    {
+        return $this->left !== null;
     }
 
     /**
-     * @param Nodes\Expression|Node|string|null $lvalue
+     * @param \Phi\Nodes\Expression|\Phi\Node|string|null $left
      */
-    public function setLvalue($lvalue): void
+    public function setLeft($left): void
     {
-        if ($lvalue !== null)
+        if ($left !== null)
         {
-            /** @var Nodes\Expression $lvalue */
-            $lvalue = NodeConverter::convert($lvalue, Nodes\Expression::class, $this->phpVersion);
-            $lvalue->detach();
-            $lvalue->parent = $this;
+            /** @var \Phi\Nodes\Expression $left */
+            $left = NodeCoercer::coerce($left, \Phi\Nodes\Expression::class, $this->getPhpVersion());
+            $left->detach();
+            $left->parent = $this;
         }
-        if ($this->lvalue !== null)
+        if ($this->left !== null)
         {
-            $this->lvalue->detach();
+            $this->left->detach();
         }
-        $this->lvalue = $lvalue;
+        $this->left = $left;
     }
 
-    public function getOperator(): Token
+    public function getOperator(): \Phi\Token
     {
         if ($this->operator === null)
         {
-            throw new MissingNodeException($this, __FUNCTION__);
+            throw TreeException::missingNode($this, "operator");
         }
         return $this->operator;
     }
@@ -124,14 +140,14 @@ abstract class GeneratedCombinedAssignmentExpression extends Nodes\Expression
     }
 
     /**
-     * @param Token|Node|string|null $operator
+     * @param \Phi\Token|\Phi\Node|string|null $operator
      */
     public function setOperator($operator): void
     {
         if ($operator !== null)
         {
-            /** @var Token $operator */
-            $operator = NodeConverter::convert($operator, Token::class, $this->phpVersion);
+            /** @var \Phi\Token $operator */
+            $operator = NodeCoercer::coerce($operator, \Phi\Token::class, $this->getPhpVersion());
             $operator->detach();
             $operator->parent = $this;
         }
@@ -142,54 +158,66 @@ abstract class GeneratedCombinedAssignmentExpression extends Nodes\Expression
         $this->operator = $operator;
     }
 
-    public function getValue(): Nodes\Expression
+    public function getRight(): \Phi\Nodes\Expression
     {
-        if ($this->value === null)
+        if ($this->right === null)
         {
-            throw new MissingNodeException($this, __FUNCTION__);
+            throw TreeException::missingNode($this, "right");
         }
-        return $this->value;
+        return $this->right;
     }
 
-    public function hasValue(): bool
+    public function hasRight(): bool
     {
-        return $this->value !== null;
+        return $this->right !== null;
     }
 
     /**
-     * @param Nodes\Expression|Node|string|null $value
+     * @param \Phi\Nodes\Expression|\Phi\Node|string|null $right
      */
-    public function setValue($value): void
+    public function setRight($right): void
     {
-        if ($value !== null)
+        if ($right !== null)
         {
-            /** @var Nodes\Expression $value */
-            $value = NodeConverter::convert($value, Nodes\Expression::class, $this->phpVersion);
-            $value->detach();
-            $value->parent = $this;
+            /** @var \Phi\Nodes\Expression $right */
+            $right = NodeCoercer::coerce($right, \Phi\Nodes\Expression::class, $this->getPhpVersion());
+            $right->detach();
+            $right->parent = $this;
         }
-        if ($this->value !== null)
+        if ($this->right !== null)
         {
-            $this->value->detach();
+            $this->right->detach();
         }
-        $this->value = $value;
+        $this->right = $right;
     }
 
-    protected function _validate(int $flags): void
+    public function _validate(int $flags): void
     {
-        if ($this->lvalue === null) throw ValidationException::childRequired($this, "lvalue");
-        if ($this->operator === null) throw ValidationException::childRequired($this, "operator");
-        if ($this->value === null) throw ValidationException::childRequired($this, "value");
-        if ($flags & self::VALIDATE_TYPES)
-        {
-        }
-        if ($flags & self::VALIDATE_EXPRESSION_CONTEXT)
-        {
-        }
-        if ($flags & self::VALIDATE_TOKENS)
-        {
-        }
-        $this->lvalue->_validate($flags);
-        $this->value->_validate($flags);
+        if ($this->left === null)
+            throw ValidationException::missingChild($this, "left");
+        if ($this->operator === null)
+            throw ValidationException::missingChild($this, "operator");
+        if ($this->right === null)
+            throw ValidationException::missingChild($this, "right");
+        if (!\in_array($this->operator->getType(), [226, 213, 146, 215, 155, 214, 228, 129, 225, 258, 237, 240], true))
+            throw ValidationException::invalidSyntax($this->operator, [226, 213, 146, 215, 155, 214, 228, 129, 225, 258, 237, 240]);
+
+        if ($flags & 14)
+            throw ValidationException::invalidExpressionInContext($this);
+
+        $this->extraValidation($flags);
+
+        $this->left->_validate(3);
+        $this->right->_validate(1);
+    }
+
+    public function _autocorrect(): void
+    {
+        if ($this->left)
+            $this->left->_autocorrect();
+        if ($this->right)
+            $this->right->_autocorrect();
+
+        $this->extraAutocorrect();
     }
 }

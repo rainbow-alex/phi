@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Phi\Tests\Testing;
 
 use Phi\Node;
@@ -10,6 +12,7 @@ use Phi\Token;
 use Phi\Nodes;
 use Phi\TokenType;
 
+/** TODO replace this by assertion traits? */
 class TestRepr
 {
     /** @param Token[] $tokens */
@@ -25,7 +28,7 @@ class TestRepr
 
     public static function node(Node $node): string
     {
-        if ($node instanceof Nodes\IntegerLiteral)
+        if ($node instanceof Nodes\Expressions\IntegerLiteral)
         {
             return $node->getToken()->getSource();
         }

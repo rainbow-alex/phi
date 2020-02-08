@@ -1,37 +1,39 @@
 <?php
 
+declare(strict_types=1);
+
+/**
+ * This code is generated.
+ * @see meta/
+ */
+
 namespace Phi\Nodes\Generated;
 
 use Phi\Node;
 use Phi\Token;
-use Phi\Nodes\Base\CompoundNode;
-use Phi\Nodes\Base\NodesList;
-use Phi\Nodes\Base\SeparatedNodesList;
-use Phi\Exception\MissingNodeException;
-use Phi\NodeConverter;
+use Phi\Exception\TreeException;
+use Phi\NodeCoercer;
 use Phi\Exception\ValidationException;
-use Phi\Nodes as Nodes;
 
-abstract class GeneratedArrayItem extends CompoundNode
+trait GeneratedArrayItem
 {
     /**
-     * @var Nodes\Key|null
+     * @var \Phi\Nodes\Helpers\Key|null
      */
     private $key;
 
     /**
-     * @var Token|null
+     * @var \Phi\Token|null
      */
     private $byReference;
 
     /**
-     * @var Nodes\Expression|null
+     * @var \Phi\Nodes\Expression|null
      */
     private $value;
 
-
     /**
-     * @param Nodes\Expression|Node|string|null $value
+     * @param \Phi\Nodes\Expression|\Phi\Node|string|null $value
      */
     public function __construct($value = null)
     {
@@ -42,16 +44,14 @@ abstract class GeneratedArrayItem extends CompoundNode
     }
 
     /**
-     * @param int $phpVersion
-     * @param Nodes\Key|null $key
-     * @param Token|null $byReference
-     * @param Nodes\Expression|null $value
-     * @return static
+     * @param \Phi\Nodes\Helpers\Key|null $key
+     * @param \Phi\Token|null $byReference
+     * @param \Phi\Nodes\Expression|null $value
+     * @return self
      */
-    public static function __instantiateUnchecked($phpVersion, $key, $byReference, $value)
+    public static function __instantiateUnchecked($key, $byReference, $value)
     {
-        $instance = new static;
-        $instance->phpVersion = $phpVersion;
+        $instance = new self;
         $instance->key = $key;
         if ($key) $key->parent = $instance;
         $instance->byReference = $byReference;
@@ -61,17 +61,33 @@ abstract class GeneratedArrayItem extends CompoundNode
         return $instance;
     }
 
-    protected function &_getNodeRefs(): array
+    public function getChildNodes(): array
     {
-        $refs = [
-            "key" => &$this->key,
-            "byReference" => &$this->byReference,
-            "value" => &$this->value,
-        ];
-        return $refs;
+        return \array_values(\array_filter([
+            $this->key,
+            $this->byReference,
+            $this->value,
+        ]));
     }
 
-    public function getKey(): ?Nodes\Key
+    protected function &getChildRef(Node $childToDetach): Node
+    {
+        if ($this->key === $childToDetach)
+        {
+            return $this->key;
+        }
+        if ($this->byReference === $childToDetach)
+        {
+            return $this->byReference;
+        }
+        if ($this->value === $childToDetach)
+        {
+            return $this->value;
+        }
+        throw new \LogicException();
+    }
+
+    public function getKey(): ?\Phi\Nodes\Helpers\Key
     {
         return $this->key;
     }
@@ -82,14 +98,14 @@ abstract class GeneratedArrayItem extends CompoundNode
     }
 
     /**
-     * @param Nodes\Key|Node|string|null $key
+     * @param \Phi\Nodes\Helpers\Key|\Phi\Node|string|null $key
      */
     public function setKey($key): void
     {
         if ($key !== null)
         {
-            /** @var Nodes\Key $key */
-            $key = NodeConverter::convert($key, Nodes\Key::class, $this->phpVersion);
+            /** @var \Phi\Nodes\Helpers\Key $key */
+            $key = NodeCoercer::coerce($key, \Phi\Nodes\Helpers\Key::class, $this->getPhpVersion());
             $key->detach();
             $key->parent = $this;
         }
@@ -100,7 +116,7 @@ abstract class GeneratedArrayItem extends CompoundNode
         $this->key = $key;
     }
 
-    public function getByReference(): ?Token
+    public function getByReference(): ?\Phi\Token
     {
         return $this->byReference;
     }
@@ -111,14 +127,14 @@ abstract class GeneratedArrayItem extends CompoundNode
     }
 
     /**
-     * @param Token|Node|string|null $byReference
+     * @param \Phi\Token|\Phi\Node|string|null $byReference
      */
     public function setByReference($byReference): void
     {
         if ($byReference !== null)
         {
-            /** @var Token $byReference */
-            $byReference = NodeConverter::convert($byReference, Token::class, $this->phpVersion);
+            /** @var \Phi\Token $byReference */
+            $byReference = NodeCoercer::coerce($byReference, \Phi\Token::class, $this->getPhpVersion());
             $byReference->detach();
             $byReference->parent = $this;
         }
@@ -129,7 +145,7 @@ abstract class GeneratedArrayItem extends CompoundNode
         $this->byReference = $byReference;
     }
 
-    public function getValue(): ?Nodes\Expression
+    public function getValue(): ?\Phi\Nodes\Expression
     {
         return $this->value;
     }
@@ -140,14 +156,14 @@ abstract class GeneratedArrayItem extends CompoundNode
     }
 
     /**
-     * @param Nodes\Expression|Node|string|null $value
+     * @param \Phi\Nodes\Expression|\Phi\Node|string|null $value
      */
     public function setValue($value): void
     {
         if ($value !== null)
         {
-            /** @var Nodes\Expression $value */
-            $value = NodeConverter::convert($value, Nodes\Expression::class, $this->phpVersion);
+            /** @var \Phi\Nodes\Expression $value */
+            $value = NodeCoercer::coerce($value, \Phi\Nodes\Expression::class, $this->getPhpVersion());
             $value->detach();
             $value->parent = $this;
         }
@@ -158,24 +174,28 @@ abstract class GeneratedArrayItem extends CompoundNode
         $this->value = $value;
     }
 
-    protected function _validate(int $flags): void
+    public function _validate(int $flags): void
     {
-        if ($flags & self::VALIDATE_TYPES)
-        {
-        }
-        if ($flags & self::VALIDATE_EXPRESSION_CONTEXT)
-        {
-        }
-        if ($flags & self::VALIDATE_TOKENS)
-        {
-        }
+        if ($this->byReference)
+        if ($this->byReference->getType() !== 104)
+            throw ValidationException::invalidSyntax($this->byReference, [104]);
+
+
+        $this->extraValidation($flags);
+
         if ($this->key)
-        {
-            $this->key->_validate($flags);
-        }
+            $this->key->_validate(1);
         if ($this->value)
-        {
             $this->value->_validate($flags);
-        }
+    }
+
+    public function _autocorrect(): void
+    {
+        if ($this->key)
+            $this->key->_autocorrect();
+        if ($this->value)
+            $this->value->_autocorrect();
+
+        $this->extraAutocorrect();
     }
 }

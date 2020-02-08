@@ -1,60 +1,60 @@
 <?php
 
+declare(strict_types=1);
+
+/**
+ * This code is generated.
+ * @see meta/
+ */
+
 namespace Phi\Nodes\Generated;
 
 use Phi\Node;
 use Phi\Token;
-use Phi\Nodes\Base\CompoundNode;
-use Phi\Nodes\Base\NodesList;
-use Phi\Nodes\Base\SeparatedNodesList;
-use Phi\Exception\MissingNodeException;
-use Phi\NodeConverter;
+use Phi\Exception\TreeException;
+use Phi\NodeCoercer;
 use Phi\Exception\ValidationException;
-use Phi\Nodes as Nodes;
 
-abstract class GeneratedLongArrayExpression extends Nodes\Expression
+trait GeneratedLongArrayExpression
 {
     /**
-     * @var Token|null
+     * @var \Phi\Token|null
      */
     private $keyword;
 
     /**
-     * @var Token|null
+     * @var \Phi\Token|null
      */
     private $leftParenthesis;
 
     /**
-     * @var SeparatedNodesList|Nodes\ArrayItem[]
-     * @phpstan-var SeparatedNodesList<\Phi\Nodes\ArrayItem>
+     * @var \Phi\Nodes\Base\SeparatedNodesList|\Phi\Nodes\Expressions\ArrayItem[]
+     * @phpstan-var \Phi\Nodes\Base\SeparatedNodesList<\Phi\Nodes\Expressions\ArrayItem>
      */
     private $items;
 
     /**
-     * @var Token|null
+     * @var \Phi\Token|null
      */
     private $rightParenthesis;
-
 
     /**
      */
     public function __construct()
     {
-        $this->items = new SeparatedNodesList();
+        $this->items = new \Phi\Nodes\Base\SeparatedNodesList(\Phi\Nodes\Expressions\ArrayItem::class);
     }
 
     /**
-     * @param int $phpVersion
-     * @param Token $keyword
-     * @param Token $leftParenthesis
+     * @param \Phi\Token $keyword
+     * @param \Phi\Token $leftParenthesis
      * @param mixed[] $items
-     * @param Token $rightParenthesis
-     * @return static
+     * @param \Phi\Token $rightParenthesis
+     * @return self
      */
-    public static function __instantiateUnchecked($phpVersion, $keyword, $leftParenthesis, $items, $rightParenthesis)
+    public static function __instantiateUnchecked($keyword, $leftParenthesis, $items, $rightParenthesis)
     {
-        $instance = new static;
-        $instance->phpVersion = $phpVersion;
+        $instance = new self;
         $instance->keyword = $keyword;
         $keyword->parent = $instance;
         $instance->leftParenthesis = $leftParenthesis;
@@ -66,22 +66,38 @@ abstract class GeneratedLongArrayExpression extends Nodes\Expression
         return $instance;
     }
 
-    protected function &_getNodeRefs(): array
+    public function getChildNodes(): array
     {
-        $refs = [
-            "keyword" => &$this->keyword,
-            "leftParenthesis" => &$this->leftParenthesis,
-            "items" => &$this->items,
-            "rightParenthesis" => &$this->rightParenthesis,
-        ];
-        return $refs;
+        return \array_values(\array_filter([
+            $this->keyword,
+            $this->leftParenthesis,
+            $this->items,
+            $this->rightParenthesis,
+        ]));
     }
 
-    public function getKeyword(): Token
+    protected function &getChildRef(Node $childToDetach): Node
+    {
+        if ($this->keyword === $childToDetach)
+        {
+            return $this->keyword;
+        }
+        if ($this->leftParenthesis === $childToDetach)
+        {
+            return $this->leftParenthesis;
+        }
+        if ($this->rightParenthesis === $childToDetach)
+        {
+            return $this->rightParenthesis;
+        }
+        throw new \LogicException();
+    }
+
+    public function getKeyword(): \Phi\Token
     {
         if ($this->keyword === null)
         {
-            throw new MissingNodeException($this, __FUNCTION__);
+            throw TreeException::missingNode($this, "keyword");
         }
         return $this->keyword;
     }
@@ -92,14 +108,14 @@ abstract class GeneratedLongArrayExpression extends Nodes\Expression
     }
 
     /**
-     * @param Token|Node|string|null $keyword
+     * @param \Phi\Token|\Phi\Node|string|null $keyword
      */
     public function setKeyword($keyword): void
     {
         if ($keyword !== null)
         {
-            /** @var Token $keyword */
-            $keyword = NodeConverter::convert($keyword, Token::class, $this->phpVersion);
+            /** @var \Phi\Token $keyword */
+            $keyword = NodeCoercer::coerce($keyword, \Phi\Token::class, $this->getPhpVersion());
             $keyword->detach();
             $keyword->parent = $this;
         }
@@ -110,11 +126,11 @@ abstract class GeneratedLongArrayExpression extends Nodes\Expression
         $this->keyword = $keyword;
     }
 
-    public function getLeftParenthesis(): Token
+    public function getLeftParenthesis(): \Phi\Token
     {
         if ($this->leftParenthesis === null)
         {
-            throw new MissingNodeException($this, __FUNCTION__);
+            throw TreeException::missingNode($this, "leftParenthesis");
         }
         return $this->leftParenthesis;
     }
@@ -125,14 +141,14 @@ abstract class GeneratedLongArrayExpression extends Nodes\Expression
     }
 
     /**
-     * @param Token|Node|string|null $leftParenthesis
+     * @param \Phi\Token|\Phi\Node|string|null $leftParenthesis
      */
     public function setLeftParenthesis($leftParenthesis): void
     {
         if ($leftParenthesis !== null)
         {
-            /** @var Token $leftParenthesis */
-            $leftParenthesis = NodeConverter::convert($leftParenthesis, Token::class, $this->phpVersion);
+            /** @var \Phi\Token $leftParenthesis */
+            $leftParenthesis = NodeCoercer::coerce($leftParenthesis, \Phi\Token::class, $this->getPhpVersion());
             $leftParenthesis->detach();
             $leftParenthesis->parent = $this;
         }
@@ -144,29 +160,19 @@ abstract class GeneratedLongArrayExpression extends Nodes\Expression
     }
 
     /**
-     * @return SeparatedNodesList|Nodes\ArrayItem[]
-     * @phpstan-return SeparatedNodesList<\Phi\Nodes\ArrayItem>
+     * @return \Phi\Nodes\Base\SeparatedNodesList|\Phi\Nodes\Expressions\ArrayItem[]
+     * @phpstan-return \Phi\Nodes\Base\SeparatedNodesList<\Phi\Nodes\Expressions\ArrayItem>
      */
-    public function getItems(): SeparatedNodesList
+    public function getItems(): \Phi\Nodes\Base\SeparatedNodesList
     {
         return $this->items;
     }
 
-    /**
-     * @param Nodes\ArrayItem $item
-     */
-    public function addItem($item): void
-    {
-        /** @var Nodes\ArrayItem $item */
-        $item = NodeConverter::convert($item, Nodes\ArrayItem::class, $this->phpVersion);
-        $this->items->add($item);
-    }
-
-    public function getRightParenthesis(): Token
+    public function getRightParenthesis(): \Phi\Token
     {
         if ($this->rightParenthesis === null)
         {
-            throw new MissingNodeException($this, __FUNCTION__);
+            throw TreeException::missingNode($this, "rightParenthesis");
         }
         return $this->rightParenthesis;
     }
@@ -177,14 +183,14 @@ abstract class GeneratedLongArrayExpression extends Nodes\Expression
     }
 
     /**
-     * @param Token|Node|string|null $rightParenthesis
+     * @param \Phi\Token|\Phi\Node|string|null $rightParenthesis
      */
     public function setRightParenthesis($rightParenthesis): void
     {
         if ($rightParenthesis !== null)
         {
-            /** @var Token $rightParenthesis */
-            $rightParenthesis = NodeConverter::convert($rightParenthesis, Token::class, $this->phpVersion);
+            /** @var \Phi\Token $rightParenthesis */
+            $rightParenthesis = NodeCoercer::coerce($rightParenthesis, \Phi\Token::class, $this->getPhpVersion());
             $rightParenthesis->detach();
             $rightParenthesis->parent = $this;
         }
@@ -195,20 +201,36 @@ abstract class GeneratedLongArrayExpression extends Nodes\Expression
         $this->rightParenthesis = $rightParenthesis;
     }
 
-    protected function _validate(int $flags): void
+    public function _validate(int $flags): void
     {
-        if ($this->keyword === null) throw ValidationException::childRequired($this, "keyword");
-        if ($this->leftParenthesis === null) throw ValidationException::childRequired($this, "leftParenthesis");
-        if ($this->rightParenthesis === null) throw ValidationException::childRequired($this, "rightParenthesis");
-        if ($flags & self::VALIDATE_TYPES)
-        {
-        }
-        if ($flags & self::VALIDATE_EXPRESSION_CONTEXT)
-        {
-        }
-        if ($flags & self::VALIDATE_TOKENS)
-        {
-        }
-        $this->items->_validate($flags);
+        if ($this->keyword === null)
+            throw ValidationException::missingChild($this, "keyword");
+        if ($this->leftParenthesis === null)
+            throw ValidationException::missingChild($this, "leftParenthesis");
+        if ($this->rightParenthesis === null)
+            throw ValidationException::missingChild($this, "rightParenthesis");
+        if ($this->keyword->getType() !== 130)
+            throw ValidationException::invalidSyntax($this->keyword, [130]);
+        if ($this->leftParenthesis->getType() !== 105)
+            throw ValidationException::invalidSyntax($this->leftParenthesis, [105]);
+        foreach ($this->items->getSeparators() as $t)
+            if ($t && $t->getType() !== 109)
+                throw ValidationException::invalidSyntax($t, [109]);
+        if ($this->rightParenthesis->getType() !== 106)
+            throw ValidationException::invalidSyntax($this->rightParenthesis, [106]);
+
+        if ($flags & 12)
+            throw ValidationException::invalidExpressionInContext($this);
+
+        $this->extraValidation($flags);
+
+    }
+
+    public function _autocorrect(): void
+    {
+        foreach ($this->items as $t)
+            $t->_autocorrect();
+
+        $this->extraAutocorrect();
     }
 }

@@ -1,32 +1,34 @@
 <?php
 
+declare(strict_types=1);
+
+/**
+ * This code is generated.
+ * @see meta/
+ */
+
 namespace Phi\Nodes\Generated;
 
 use Phi\Node;
 use Phi\Token;
-use Phi\Nodes\Base\CompoundNode;
-use Phi\Nodes\Base\NodesList;
-use Phi\Nodes\Base\SeparatedNodesList;
-use Phi\Exception\MissingNodeException;
-use Phi\NodeConverter;
+use Phi\Exception\TreeException;
+use Phi\NodeCoercer;
 use Phi\Exception\ValidationException;
-use Phi\Nodes as Nodes;
 
-abstract class GeneratedPostDecrementExpression extends Nodes\CrementExpression
+trait GeneratedPostDecrementExpression
 {
     /**
-     * @var Nodes\Expression|null
+     * @var \Phi\Nodes\Expression|null
      */
     private $expression;
 
     /**
-     * @var Token|null
+     * @var \Phi\Token|null
      */
     private $operator;
 
-
     /**
-     * @param Nodes\Expression|Node|string|null $expression
+     * @param \Phi\Nodes\Expression|\Phi\Node|string|null $expression
      */
     public function __construct($expression = null)
     {
@@ -37,15 +39,13 @@ abstract class GeneratedPostDecrementExpression extends Nodes\CrementExpression
     }
 
     /**
-     * @param int $phpVersion
-     * @param Nodes\Expression $expression
-     * @param Token $operator
-     * @return static
+     * @param \Phi\Nodes\Expression $expression
+     * @param \Phi\Token $operator
+     * @return self
      */
-    public static function __instantiateUnchecked($phpVersion, $expression, $operator)
+    public static function __instantiateUnchecked($expression, $operator)
     {
-        $instance = new static;
-        $instance->phpVersion = $phpVersion;
+        $instance = new self;
         $instance->expression = $expression;
         $expression->parent = $instance;
         $instance->operator = $operator;
@@ -53,20 +53,32 @@ abstract class GeneratedPostDecrementExpression extends Nodes\CrementExpression
         return $instance;
     }
 
-    protected function &_getNodeRefs(): array
+    public function getChildNodes(): array
     {
-        $refs = [
-            "expression" => &$this->expression,
-            "operator" => &$this->operator,
-        ];
-        return $refs;
+        return \array_values(\array_filter([
+            $this->expression,
+            $this->operator,
+        ]));
     }
 
-    public function getExpression(): Nodes\Expression
+    protected function &getChildRef(Node $childToDetach): Node
+    {
+        if ($this->expression === $childToDetach)
+        {
+            return $this->expression;
+        }
+        if ($this->operator === $childToDetach)
+        {
+            return $this->operator;
+        }
+        throw new \LogicException();
+    }
+
+    public function getExpression(): \Phi\Nodes\Expression
     {
         if ($this->expression === null)
         {
-            throw new MissingNodeException($this, __FUNCTION__);
+            throw TreeException::missingNode($this, "expression");
         }
         return $this->expression;
     }
@@ -77,14 +89,14 @@ abstract class GeneratedPostDecrementExpression extends Nodes\CrementExpression
     }
 
     /**
-     * @param Nodes\Expression|Node|string|null $expression
+     * @param \Phi\Nodes\Expression|\Phi\Node|string|null $expression
      */
     public function setExpression($expression): void
     {
         if ($expression !== null)
         {
-            /** @var Nodes\Expression $expression */
-            $expression = NodeConverter::convert($expression, Nodes\Expression::class, $this->phpVersion);
+            /** @var \Phi\Nodes\Expression $expression */
+            $expression = NodeCoercer::coerce($expression, \Phi\Nodes\Expression::class, $this->getPhpVersion());
             $expression->detach();
             $expression->parent = $this;
         }
@@ -95,11 +107,11 @@ abstract class GeneratedPostDecrementExpression extends Nodes\CrementExpression
         $this->expression = $expression;
     }
 
-    public function getOperator(): Token
+    public function getOperator(): \Phi\Token
     {
         if ($this->operator === null)
         {
-            throw new MissingNodeException($this, __FUNCTION__);
+            throw TreeException::missingNode($this, "operator");
         }
         return $this->operator;
     }
@@ -110,14 +122,14 @@ abstract class GeneratedPostDecrementExpression extends Nodes\CrementExpression
     }
 
     /**
-     * @param Token|Node|string|null $operator
+     * @param \Phi\Token|\Phi\Node|string|null $operator
      */
     public function setOperator($operator): void
     {
         if ($operator !== null)
         {
-            /** @var Token $operator */
-            $operator = NodeConverter::convert($operator, Token::class, $this->phpVersion);
+            /** @var \Phi\Token $operator */
+            $operator = NodeCoercer::coerce($operator, \Phi\Token::class, $this->getPhpVersion());
             $operator->detach();
             $operator->parent = $this;
         }
@@ -128,19 +140,28 @@ abstract class GeneratedPostDecrementExpression extends Nodes\CrementExpression
         $this->operator = $operator;
     }
 
-    protected function _validate(int $flags): void
+    public function _validate(int $flags): void
     {
-        if ($this->expression === null) throw ValidationException::childRequired($this, "expression");
-        if ($this->operator === null) throw ValidationException::childRequired($this, "operator");
-        if ($flags & self::VALIDATE_TYPES)
-        {
-        }
-        if ($flags & self::VALIDATE_EXPRESSION_CONTEXT)
-        {
-        }
-        if ($flags & self::VALIDATE_TOKENS)
-        {
-        }
-        $this->expression->_validate($flags);
+        if ($this->expression === null)
+            throw ValidationException::missingChild($this, "expression");
+        if ($this->operator === null)
+            throw ValidationException::missingChild($this, "operator");
+        if ($this->operator->getType() !== 151)
+            throw ValidationException::invalidSyntax($this->operator, [151]);
+
+        if ($flags & 14)
+            throw ValidationException::invalidExpressionInContext($this);
+
+        $this->extraValidation($flags);
+
+        $this->expression->_validate(3);
+    }
+
+    public function _autocorrect(): void
+    {
+        if ($this->expression)
+            $this->expression->_autocorrect();
+
+        $this->extraAutocorrect();
     }
 }

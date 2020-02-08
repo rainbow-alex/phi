@@ -1,64 +1,64 @@
 <?php
 
+declare(strict_types=1);
+
+/**
+ * This code is generated.
+ * @see meta/
+ */
+
 namespace Phi\Nodes\Generated;
 
 use Phi\Node;
 use Phi\Token;
-use Phi\Nodes\Base\CompoundNode;
-use Phi\Nodes\Base\NodesList;
-use Phi\Nodes\Base\SeparatedNodesList;
-use Phi\Exception\MissingNodeException;
-use Phi\NodeConverter;
+use Phi\Exception\TreeException;
+use Phi\NodeCoercer;
 use Phi\Exception\ValidationException;
-use Phi\Nodes as Nodes;
 
-abstract class GeneratedSwitchCase extends CompoundNode
+trait GeneratedSwitchCase
 {
     /**
-     * @var Token|null
+     * @var \Phi\Token|null
      */
     private $keyword;
 
     /**
-     * @var Nodes\Expression|null
+     * @var \Phi\Nodes\Expression|null
      */
     private $value;
 
     /**
-     * @var Token|null
+     * @var \Phi\Token|null
      */
     private $colon;
 
     /**
-     * @var NodesList|Nodes\Statement[]
-     * @phpstan-var NodesList<\Phi\Nodes\Statement>
+     * @var \Phi\Nodes\Base\NodesList|\Phi\Nodes\Statement[]
+     * @phpstan-var \Phi\Nodes\Base\NodesList<\Phi\Nodes\Statement>
      */
     private $statements;
-
 
     /**
      */
     public function __construct()
     {
-        $this->statements = new NodesList();
+        $this->statements = new \Phi\Nodes\Base\NodesList(\Phi\Nodes\Statement::class);
     }
 
     /**
-     * @param int $phpVersion
-     * @param Token $keyword
-     * @param Nodes\Expression $value
-     * @param Token $colon
+     * @param \Phi\Token $keyword
+     * @param \Phi\Nodes\Expression|null $value
+     * @param \Phi\Token $colon
      * @param mixed[] $statements
-     * @return static
+     * @return self
      */
-    public static function __instantiateUnchecked($phpVersion, $keyword, $value, $colon, $statements)
+    public static function __instantiateUnchecked($keyword, $value, $colon, $statements)
     {
-        $instance = new static;
-        $instance->phpVersion = $phpVersion;
+        $instance = new self;
         $instance->keyword = $keyword;
         $keyword->parent = $instance;
         $instance->value = $value;
-        $value->parent = $instance;
+        if ($value) $value->parent = $instance;
         $instance->colon = $colon;
         $colon->parent = $instance;
         $instance->statements->__initUnchecked($statements);
@@ -66,22 +66,38 @@ abstract class GeneratedSwitchCase extends CompoundNode
         return $instance;
     }
 
-    protected function &_getNodeRefs(): array
+    public function getChildNodes(): array
     {
-        $refs = [
-            "keyword" => &$this->keyword,
-            "value" => &$this->value,
-            "colon" => &$this->colon,
-            "statements" => &$this->statements,
-        ];
-        return $refs;
+        return \array_values(\array_filter([
+            $this->keyword,
+            $this->value,
+            $this->colon,
+            $this->statements,
+        ]));
     }
 
-    public function getKeyword(): Token
+    protected function &getChildRef(Node $childToDetach): Node
+    {
+        if ($this->keyword === $childToDetach)
+        {
+            return $this->keyword;
+        }
+        if ($this->value === $childToDetach)
+        {
+            return $this->value;
+        }
+        if ($this->colon === $childToDetach)
+        {
+            return $this->colon;
+        }
+        throw new \LogicException();
+    }
+
+    public function getKeyword(): \Phi\Token
     {
         if ($this->keyword === null)
         {
-            throw new MissingNodeException($this, __FUNCTION__);
+            throw TreeException::missingNode($this, "keyword");
         }
         return $this->keyword;
     }
@@ -92,14 +108,14 @@ abstract class GeneratedSwitchCase extends CompoundNode
     }
 
     /**
-     * @param Token|Node|string|null $keyword
+     * @param \Phi\Token|\Phi\Node|string|null $keyword
      */
     public function setKeyword($keyword): void
     {
         if ($keyword !== null)
         {
-            /** @var Token $keyword */
-            $keyword = NodeConverter::convert($keyword, Token::class, $this->phpVersion);
+            /** @var \Phi\Token $keyword */
+            $keyword = NodeCoercer::coerce($keyword, \Phi\Token::class, $this->getPhpVersion());
             $keyword->detach();
             $keyword->parent = $this;
         }
@@ -110,12 +126,8 @@ abstract class GeneratedSwitchCase extends CompoundNode
         $this->keyword = $keyword;
     }
 
-    public function getValue(): Nodes\Expression
+    public function getValue(): ?\Phi\Nodes\Expression
     {
-        if ($this->value === null)
-        {
-            throw new MissingNodeException($this, __FUNCTION__);
-        }
         return $this->value;
     }
 
@@ -125,14 +137,14 @@ abstract class GeneratedSwitchCase extends CompoundNode
     }
 
     /**
-     * @param Nodes\Expression|Node|string|null $value
+     * @param \Phi\Nodes\Expression|\Phi\Node|string|null $value
      */
     public function setValue($value): void
     {
         if ($value !== null)
         {
-            /** @var Nodes\Expression $value */
-            $value = NodeConverter::convert($value, Nodes\Expression::class, $this->phpVersion);
+            /** @var \Phi\Nodes\Expression $value */
+            $value = NodeCoercer::coerce($value, \Phi\Nodes\Expression::class, $this->getPhpVersion());
             $value->detach();
             $value->parent = $this;
         }
@@ -143,11 +155,11 @@ abstract class GeneratedSwitchCase extends CompoundNode
         $this->value = $value;
     }
 
-    public function getColon(): Token
+    public function getColon(): \Phi\Token
     {
         if ($this->colon === null)
         {
-            throw new MissingNodeException($this, __FUNCTION__);
+            throw TreeException::missingNode($this, "colon");
         }
         return $this->colon;
     }
@@ -158,14 +170,14 @@ abstract class GeneratedSwitchCase extends CompoundNode
     }
 
     /**
-     * @param Token|Node|string|null $colon
+     * @param \Phi\Token|\Phi\Node|string|null $colon
      */
     public function setColon($colon): void
     {
         if ($colon !== null)
         {
-            /** @var Token $colon */
-            $colon = NodeConverter::convert($colon, Token::class, $this->phpVersion);
+            /** @var \Phi\Token $colon */
+            $colon = NodeCoercer::coerce($colon, \Phi\Token::class, $this->getPhpVersion());
             $colon->detach();
             $colon->parent = $this;
         }
@@ -177,39 +189,41 @@ abstract class GeneratedSwitchCase extends CompoundNode
     }
 
     /**
-     * @return NodesList|Nodes\Statement[]
-     * @phpstan-return NodesList<\Phi\Nodes\Statement>
+     * @return \Phi\Nodes\Base\NodesList|\Phi\Nodes\Statement[]
+     * @phpstan-return \Phi\Nodes\Base\NodesList<\Phi\Nodes\Statement>
      */
-    public function getStatements(): NodesList
+    public function getStatements(): \Phi\Nodes\Base\NodesList
     {
         return $this->statements;
     }
 
-    /**
-     * @param Nodes\Statement $statement
-     */
-    public function addStatement($statement): void
+    public function _validate(int $flags): void
     {
-        /** @var Nodes\Statement $statement */
-        $statement = NodeConverter::convert($statement, Nodes\Statement::class, $this->phpVersion);
-        $this->statements->add($statement);
+        if ($this->keyword === null)
+            throw ValidationException::missingChild($this, "keyword");
+        if ($this->colon === null)
+            throw ValidationException::missingChild($this, "colon");
+        if (!\in_array($this->keyword->getType(), [138, 153], true))
+            throw ValidationException::invalidSyntax($this->keyword, [138, 153]);
+        if (!\in_array($this->colon->getType(), [113, 114], true))
+            throw ValidationException::invalidSyntax($this->colon, [113, 114]);
+
+
+        $this->extraValidation($flags);
+
+        if ($this->value)
+            $this->value->_validate(1);
+        foreach ($this->statements as $t)
+            $t->_validate(0);
     }
 
-    protected function _validate(int $flags): void
+    public function _autocorrect(): void
     {
-        if ($this->keyword === null) throw ValidationException::childRequired($this, "keyword");
-        if ($this->value === null) throw ValidationException::childRequired($this, "value");
-        if ($this->colon === null) throw ValidationException::childRequired($this, "colon");
-        if ($flags & self::VALIDATE_TYPES)
-        {
-        }
-        if ($flags & self::VALIDATE_EXPRESSION_CONTEXT)
-        {
-        }
-        if ($flags & self::VALIDATE_TOKENS)
-        {
-        }
-        $this->value->_validate($flags);
-        $this->statements->_validate($flags);
+        if ($this->value)
+            $this->value->_autocorrect();
+        foreach ($this->statements as $t)
+            $t->_autocorrect();
+
+        $this->extraAutocorrect();
     }
 }

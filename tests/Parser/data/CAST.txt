@@ -1,0 +1,13 @@
+{"algo": "permute"}
+
+(array)
+(bool)
+(boolean)
+(double)
+(float)
+(int)
+(integer)
+(object)
+(real)
+(string)
+(unset)

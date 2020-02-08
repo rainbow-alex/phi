@@ -1,34 +1,36 @@
 <?php
 
+declare(strict_types=1);
+
+/**
+ * This code is generated.
+ * @see meta/
+ */
+
 namespace Phi\Nodes\Generated;
 
 use Phi\Node;
 use Phi\Token;
-use Phi\Nodes\Base\CompoundNode;
-use Phi\Nodes\Base\NodesList;
-use Phi\Nodes\Base\SeparatedNodesList;
-use Phi\Exception\MissingNodeException;
-use Phi\NodeConverter;
+use Phi\Exception\TreeException;
+use Phi\NodeCoercer;
 use Phi\Exception\ValidationException;
-use Phi\Nodes as Nodes;
 
-abstract class GeneratedDeclareDirective extends CompoundNode
+trait GeneratedDeclareDirective
 {
     /**
-     * @var Token|null
+     * @var \Phi\Token|null
      */
     private $key;
 
     /**
-     * @var Token|null
+     * @var \Phi\Token|null
      */
     private $equals;
 
     /**
-     * @var Nodes\Expression|null
+     * @var \Phi\Nodes\Expression|null
      */
     private $value;
-
 
     /**
      */
@@ -37,16 +39,14 @@ abstract class GeneratedDeclareDirective extends CompoundNode
     }
 
     /**
-     * @param int $phpVersion
-     * @param Token $key
-     * @param Token $equals
-     * @param Nodes\Expression $value
-     * @return static
+     * @param \Phi\Token $key
+     * @param \Phi\Token $equals
+     * @param \Phi\Nodes\Expression $value
+     * @return self
      */
-    public static function __instantiateUnchecked($phpVersion, $key, $equals, $value)
+    public static function __instantiateUnchecked($key, $equals, $value)
     {
-        $instance = new static;
-        $instance->phpVersion = $phpVersion;
+        $instance = new self;
         $instance->key = $key;
         $key->parent = $instance;
         $instance->equals = $equals;
@@ -56,21 +56,37 @@ abstract class GeneratedDeclareDirective extends CompoundNode
         return $instance;
     }
 
-    protected function &_getNodeRefs(): array
+    public function getChildNodes(): array
     {
-        $refs = [
-            "key" => &$this->key,
-            "equals" => &$this->equals,
-            "value" => &$this->value,
-        ];
-        return $refs;
+        return \array_values(\array_filter([
+            $this->key,
+            $this->equals,
+            $this->value,
+        ]));
     }
 
-    public function getKey(): Token
+    protected function &getChildRef(Node $childToDetach): Node
+    {
+        if ($this->key === $childToDetach)
+        {
+            return $this->key;
+        }
+        if ($this->equals === $childToDetach)
+        {
+            return $this->equals;
+        }
+        if ($this->value === $childToDetach)
+        {
+            return $this->value;
+        }
+        throw new \LogicException();
+    }
+
+    public function getKey(): \Phi\Token
     {
         if ($this->key === null)
         {
-            throw new MissingNodeException($this, __FUNCTION__);
+            throw TreeException::missingNode($this, "key");
         }
         return $this->key;
     }
@@ -81,14 +97,14 @@ abstract class GeneratedDeclareDirective extends CompoundNode
     }
 
     /**
-     * @param Token|Node|string|null $key
+     * @param \Phi\Token|\Phi\Node|string|null $key
      */
     public function setKey($key): void
     {
         if ($key !== null)
         {
-            /** @var Token $key */
-            $key = NodeConverter::convert($key, Token::class, $this->phpVersion);
+            /** @var \Phi\Token $key */
+            $key = NodeCoercer::coerce($key, \Phi\Token::class, $this->getPhpVersion());
             $key->detach();
             $key->parent = $this;
         }
@@ -99,11 +115,11 @@ abstract class GeneratedDeclareDirective extends CompoundNode
         $this->key = $key;
     }
 
-    public function getEquals(): Token
+    public function getEquals(): \Phi\Token
     {
         if ($this->equals === null)
         {
-            throw new MissingNodeException($this, __FUNCTION__);
+            throw TreeException::missingNode($this, "equals");
         }
         return $this->equals;
     }
@@ -114,14 +130,14 @@ abstract class GeneratedDeclareDirective extends CompoundNode
     }
 
     /**
-     * @param Token|Node|string|null $equals
+     * @param \Phi\Token|\Phi\Node|string|null $equals
      */
     public function setEquals($equals): void
     {
         if ($equals !== null)
         {
-            /** @var Token $equals */
-            $equals = NodeConverter::convert($equals, Token::class, $this->phpVersion);
+            /** @var \Phi\Token $equals */
+            $equals = NodeCoercer::coerce($equals, \Phi\Token::class, $this->getPhpVersion());
             $equals->detach();
             $equals->parent = $this;
         }
@@ -132,11 +148,11 @@ abstract class GeneratedDeclareDirective extends CompoundNode
         $this->equals = $equals;
     }
 
-    public function getValue(): Nodes\Expression
+    public function getValue(): \Phi\Nodes\Expression
     {
         if ($this->value === null)
         {
-            throw new MissingNodeException($this, __FUNCTION__);
+            throw TreeException::missingNode($this, "value");
         }
         return $this->value;
     }
@@ -147,14 +163,14 @@ abstract class GeneratedDeclareDirective extends CompoundNode
     }
 
     /**
-     * @param Nodes\Expression|Node|string|null $value
+     * @param \Phi\Nodes\Expression|\Phi\Node|string|null $value
      */
     public function setValue($value): void
     {
         if ($value !== null)
         {
-            /** @var Nodes\Expression $value */
-            $value = NodeConverter::convert($value, Nodes\Expression::class, $this->phpVersion);
+            /** @var \Phi\Nodes\Expression $value */
+            $value = NodeCoercer::coerce($value, \Phi\Nodes\Expression::class, $this->getPhpVersion());
             $value->detach();
             $value->parent = $this;
         }
@@ -165,20 +181,30 @@ abstract class GeneratedDeclareDirective extends CompoundNode
         $this->value = $value;
     }
 
-    protected function _validate(int $flags): void
+    public function _validate(int $flags): void
     {
-        if ($this->key === null) throw ValidationException::childRequired($this, "key");
-        if ($this->equals === null) throw ValidationException::childRequired($this, "equals");
-        if ($this->value === null) throw ValidationException::childRequired($this, "value");
-        if ($flags & self::VALIDATE_TYPES)
-        {
-        }
-        if ($flags & self::VALIDATE_EXPRESSION_CONTEXT)
-        {
-        }
-        if ($flags & self::VALIDATE_TOKENS)
-        {
-        }
-        $this->value->_validate($flags);
+        if ($this->key === null)
+            throw ValidationException::missingChild($this, "key");
+        if ($this->equals === null)
+            throw ValidationException::missingChild($this, "equals");
+        if ($this->value === null)
+            throw ValidationException::missingChild($this, "value");
+        if ($this->key->getType() !== 243)
+            throw ValidationException::invalidSyntax($this->key, [243]);
+        if ($this->equals->getType() !== 116)
+            throw ValidationException::invalidSyntax($this->equals, [116]);
+
+
+        $this->extraValidation($flags);
+
+        $this->value->_validate(0);
+    }
+
+    public function _autocorrect(): void
+    {
+        if ($this->value)
+            $this->value->_autocorrect();
+
+        $this->extraAutocorrect();
     }
 }

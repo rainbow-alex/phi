@@ -1,90 +1,92 @@
 <?php
 
+declare(strict_types=1);
+
+/**
+ * This code is generated.
+ * @see meta/
+ */
+
 namespace Phi\Nodes\Generated;
 
 use Phi\Node;
 use Phi\Token;
-use Phi\Nodes\Base\CompoundNode;
-use Phi\Nodes\Base\NodesList;
-use Phi\Nodes\Base\SeparatedNodesList;
-use Phi\Exception\MissingNodeException;
-use Phi\NodeConverter;
+use Phi\Exception\TreeException;
+use Phi\NodeCoercer;
 use Phi\Exception\ValidationException;
-use Phi\Nodes as Nodes;
 
-abstract class GeneratedForStatement extends Nodes\Statement
+trait GeneratedForStatement
 {
     /**
-     * @var Token|null
+     * @var \Phi\Token|null
      */
     private $keyword;
 
     /**
-     * @var Token|null
+     * @var \Phi\Token|null
      */
     private $leftParenthesis;
 
     /**
-     * @var SeparatedNodesList|Nodes\Expression[]
-     * @phpstan-var SeparatedNodesList<\Phi\Nodes\Expression>
+     * @var \Phi\Nodes\Base\SeparatedNodesList|\Phi\Nodes\Expression[]
+     * @phpstan-var \Phi\Nodes\Base\SeparatedNodesList<\Phi\Nodes\Expression>
      */
-    private $inits;
+    private $initExpressions;
 
     /**
-     * @var Token|null
+     * @var \Phi\Token|null
      */
     private $separator1;
 
     /**
-     * @var SeparatedNodesList|Nodes\Expression[]
-     * @phpstan-var SeparatedNodesList<\Phi\Nodes\Expression>
+     * @var \Phi\Nodes\Base\SeparatedNodesList|\Phi\Nodes\Expression[]
+     * @phpstan-var \Phi\Nodes\Base\SeparatedNodesList<\Phi\Nodes\Expression>
      */
-    private $tests;
+    private $conditionExpressions;
 
     /**
-     * @var Token|null
+     * @var \Phi\Token|null
      */
     private $separator2;
 
     /**
-     * @var SeparatedNodesList|Nodes\Expression[]
-     * @phpstan-var SeparatedNodesList<\Phi\Nodes\Expression>
+     * @var \Phi\Nodes\Base\SeparatedNodesList|\Phi\Nodes\Expression[]
+     * @phpstan-var \Phi\Nodes\Base\SeparatedNodesList<\Phi\Nodes\Expression>
      */
-    private $steps;
+    private $stepExpressions;
 
     /**
-     * @var Token|null
+     * @var \Phi\Token|null
      */
     private $rightParenthesis;
 
     /**
-     * @var Nodes\Block|null
+     * @var \Phi\Nodes\Block|null
      */
     private $block;
 
-
     /**
-     * @param Nodes\Expression $init
-     * @param Nodes\Expression $test
-     * @param Nodes\Expression $step
-     * @param Nodes\Block|Node|string|null $block
+     * @param \Phi\Nodes\Expression $initExpression
+     * @param \Phi\Nodes\Expression $conditionExpression
+     * @param \Phi\Nodes\Expression $stepExpression
+     * @param \Phi\Nodes\Block|\Phi\Node|string|null $block
      */
-    public function __construct($init = null, $test = null, $step = null, $block = null)
+    public function __construct($initExpression = null, $conditionExpression = null, $stepExpression = null, $block = null)
     {
-        $this->inits = new SeparatedNodesList();
-        if ($init !== null)
+        $this->initExpressions = new \Phi\Nodes\Base\SeparatedNodesList(\Phi\Nodes\Expression::class);
+        if ($initExpression !== null)
         {
-            $this->addInit($init);
+            $this->initExpressions->add($initExpression);
         }
-        $this->tests = new SeparatedNodesList();
-        if ($test !== null)
+        $this->conditionExpressions = new \Phi\Nodes\Base\SeparatedNodesList(\Phi\Nodes\Expression::class);
+        if ($conditionExpression !== null)
         {
-            $this->addTest($test);
+            $this->conditionExpressions->add($conditionExpression);
         }
-        $this->steps = new SeparatedNodesList();
-        if ($step !== null)
+        $this->stepExpressions = new \Phi\Nodes\Base\SeparatedNodesList(\Phi\Nodes\Expression::class);
+        if ($stepExpression !== null)
         {
-            $this->addStep($step);
+            $this->stepExpressions->add($stepExpression);
         }
         if ($block !== null)
         {
@@ -93,36 +95,34 @@ abstract class GeneratedForStatement extends Nodes\Statement
     }
 
     /**
-     * @param int $phpVersion
-     * @param Token $keyword
-     * @param Token $leftParenthesis
-     * @param mixed[] $inits
-     * @param Token $separator1
-     * @param mixed[] $tests
-     * @param Token $separator2
-     * @param mixed[] $steps
-     * @param Token $rightParenthesis
-     * @param Nodes\Block $block
-     * @return static
+     * @param \Phi\Token $keyword
+     * @param \Phi\Token $leftParenthesis
+     * @param mixed[] $initExpressions
+     * @param \Phi\Token $separator1
+     * @param mixed[] $conditionExpressions
+     * @param \Phi\Token $separator2
+     * @param mixed[] $stepExpressions
+     * @param \Phi\Token $rightParenthesis
+     * @param \Phi\Nodes\Block $block
+     * @return self
      */
-    public static function __instantiateUnchecked($phpVersion, $keyword, $leftParenthesis, $inits, $separator1, $tests, $separator2, $steps, $rightParenthesis, $block)
+    public static function __instantiateUnchecked($keyword, $leftParenthesis, $initExpressions, $separator1, $conditionExpressions, $separator2, $stepExpressions, $rightParenthesis, $block)
     {
-        $instance = new static;
-        $instance->phpVersion = $phpVersion;
+        $instance = new self;
         $instance->keyword = $keyword;
         $keyword->parent = $instance;
         $instance->leftParenthesis = $leftParenthesis;
         $leftParenthesis->parent = $instance;
-        $instance->inits->__initUnchecked($inits);
-        $instance->inits->parent = $instance;
+        $instance->initExpressions->__initUnchecked($initExpressions);
+        $instance->initExpressions->parent = $instance;
         $instance->separator1 = $separator1;
         $separator1->parent = $instance;
-        $instance->tests->__initUnchecked($tests);
-        $instance->tests->parent = $instance;
+        $instance->conditionExpressions->__initUnchecked($conditionExpressions);
+        $instance->conditionExpressions->parent = $instance;
         $instance->separator2 = $separator2;
         $separator2->parent = $instance;
-        $instance->steps->__initUnchecked($steps);
-        $instance->steps->parent = $instance;
+        $instance->stepExpressions->__initUnchecked($stepExpressions);
+        $instance->stepExpressions->parent = $instance;
         $instance->rightParenthesis = $rightParenthesis;
         $rightParenthesis->parent = $instance;
         $instance->block = $block;
@@ -130,27 +130,55 @@ abstract class GeneratedForStatement extends Nodes\Statement
         return $instance;
     }
 
-    protected function &_getNodeRefs(): array
+    public function getChildNodes(): array
     {
-        $refs = [
-            "keyword" => &$this->keyword,
-            "leftParenthesis" => &$this->leftParenthesis,
-            "inits" => &$this->inits,
-            "separator1" => &$this->separator1,
-            "tests" => &$this->tests,
-            "separator2" => &$this->separator2,
-            "steps" => &$this->steps,
-            "rightParenthesis" => &$this->rightParenthesis,
-            "block" => &$this->block,
-        ];
-        return $refs;
+        return \array_values(\array_filter([
+            $this->keyword,
+            $this->leftParenthesis,
+            $this->initExpressions,
+            $this->separator1,
+            $this->conditionExpressions,
+            $this->separator2,
+            $this->stepExpressions,
+            $this->rightParenthesis,
+            $this->block,
+        ]));
     }
 
-    public function getKeyword(): Token
+    protected function &getChildRef(Node $childToDetach): Node
+    {
+        if ($this->keyword === $childToDetach)
+        {
+            return $this->keyword;
+        }
+        if ($this->leftParenthesis === $childToDetach)
+        {
+            return $this->leftParenthesis;
+        }
+        if ($this->separator1 === $childToDetach)
+        {
+            return $this->separator1;
+        }
+        if ($this->separator2 === $childToDetach)
+        {
+            return $this->separator2;
+        }
+        if ($this->rightParenthesis === $childToDetach)
+        {
+            return $this->rightParenthesis;
+        }
+        if ($this->block === $childToDetach)
+        {
+            return $this->block;
+        }
+        throw new \LogicException();
+    }
+
+    public function getKeyword(): \Phi\Token
     {
         if ($this->keyword === null)
         {
-            throw new MissingNodeException($this, __FUNCTION__);
+            throw TreeException::missingNode($this, "keyword");
         }
         return $this->keyword;
     }
@@ -161,14 +189,14 @@ abstract class GeneratedForStatement extends Nodes\Statement
     }
 
     /**
-     * @param Token|Node|string|null $keyword
+     * @param \Phi\Token|\Phi\Node|string|null $keyword
      */
     public function setKeyword($keyword): void
     {
         if ($keyword !== null)
         {
-            /** @var Token $keyword */
-            $keyword = NodeConverter::convert($keyword, Token::class, $this->phpVersion);
+            /** @var \Phi\Token $keyword */
+            $keyword = NodeCoercer::coerce($keyword, \Phi\Token::class, $this->getPhpVersion());
             $keyword->detach();
             $keyword->parent = $this;
         }
@@ -179,11 +207,11 @@ abstract class GeneratedForStatement extends Nodes\Statement
         $this->keyword = $keyword;
     }
 
-    public function getLeftParenthesis(): Token
+    public function getLeftParenthesis(): \Phi\Token
     {
         if ($this->leftParenthesis === null)
         {
-            throw new MissingNodeException($this, __FUNCTION__);
+            throw TreeException::missingNode($this, "leftParenthesis");
         }
         return $this->leftParenthesis;
     }
@@ -194,14 +222,14 @@ abstract class GeneratedForStatement extends Nodes\Statement
     }
 
     /**
-     * @param Token|Node|string|null $leftParenthesis
+     * @param \Phi\Token|\Phi\Node|string|null $leftParenthesis
      */
     public function setLeftParenthesis($leftParenthesis): void
     {
         if ($leftParenthesis !== null)
         {
-            /** @var Token $leftParenthesis */
-            $leftParenthesis = NodeConverter::convert($leftParenthesis, Token::class, $this->phpVersion);
+            /** @var \Phi\Token $leftParenthesis */
+            $leftParenthesis = NodeCoercer::coerce($leftParenthesis, \Phi\Token::class, $this->getPhpVersion());
             $leftParenthesis->detach();
             $leftParenthesis->parent = $this;
         }
@@ -213,29 +241,19 @@ abstract class GeneratedForStatement extends Nodes\Statement
     }
 
     /**
-     * @return SeparatedNodesList|Nodes\Expression[]
-     * @phpstan-return SeparatedNodesList<\Phi\Nodes\Expression>
+     * @return \Phi\Nodes\Base\SeparatedNodesList|\Phi\Nodes\Expression[]
+     * @phpstan-return \Phi\Nodes\Base\SeparatedNodesList<\Phi\Nodes\Expression>
      */
-    public function getInits(): SeparatedNodesList
+    public function getInitExpressions(): \Phi\Nodes\Base\SeparatedNodesList
     {
-        return $this->inits;
+        return $this->initExpressions;
     }
 
-    /**
-     * @param Nodes\Expression $init
-     */
-    public function addInit($init): void
-    {
-        /** @var Nodes\Expression $init */
-        $init = NodeConverter::convert($init, Nodes\Expression::class, $this->phpVersion);
-        $this->inits->add($init);
-    }
-
-    public function getSeparator1(): Token
+    public function getSeparator1(): \Phi\Token
     {
         if ($this->separator1 === null)
         {
-            throw new MissingNodeException($this, __FUNCTION__);
+            throw TreeException::missingNode($this, "separator1");
         }
         return $this->separator1;
     }
@@ -246,14 +264,14 @@ abstract class GeneratedForStatement extends Nodes\Statement
     }
 
     /**
-     * @param Token|Node|string|null $separator1
+     * @param \Phi\Token|\Phi\Node|string|null $separator1
      */
     public function setSeparator1($separator1): void
     {
         if ($separator1 !== null)
         {
-            /** @var Token $separator1 */
-            $separator1 = NodeConverter::convert($separator1, Token::class, $this->phpVersion);
+            /** @var \Phi\Token $separator1 */
+            $separator1 = NodeCoercer::coerce($separator1, \Phi\Token::class, $this->getPhpVersion());
             $separator1->detach();
             $separator1->parent = $this;
         }
@@ -265,29 +283,19 @@ abstract class GeneratedForStatement extends Nodes\Statement
     }
 
     /**
-     * @return SeparatedNodesList|Nodes\Expression[]
-     * @phpstan-return SeparatedNodesList<\Phi\Nodes\Expression>
+     * @return \Phi\Nodes\Base\SeparatedNodesList|\Phi\Nodes\Expression[]
+     * @phpstan-return \Phi\Nodes\Base\SeparatedNodesList<\Phi\Nodes\Expression>
      */
-    public function getTests(): SeparatedNodesList
+    public function getConditionExpressions(): \Phi\Nodes\Base\SeparatedNodesList
     {
-        return $this->tests;
+        return $this->conditionExpressions;
     }
 
-    /**
-     * @param Nodes\Expression $test
-     */
-    public function addTest($test): void
-    {
-        /** @var Nodes\Expression $test */
-        $test = NodeConverter::convert($test, Nodes\Expression::class, $this->phpVersion);
-        $this->tests->add($test);
-    }
-
-    public function getSeparator2(): Token
+    public function getSeparator2(): \Phi\Token
     {
         if ($this->separator2 === null)
         {
-            throw new MissingNodeException($this, __FUNCTION__);
+            throw TreeException::missingNode($this, "separator2");
         }
         return $this->separator2;
     }
@@ -298,14 +306,14 @@ abstract class GeneratedForStatement extends Nodes\Statement
     }
 
     /**
-     * @param Token|Node|string|null $separator2
+     * @param \Phi\Token|\Phi\Node|string|null $separator2
      */
     public function setSeparator2($separator2): void
     {
         if ($separator2 !== null)
         {
-            /** @var Token $separator2 */
-            $separator2 = NodeConverter::convert($separator2, Token::class, $this->phpVersion);
+            /** @var \Phi\Token $separator2 */
+            $separator2 = NodeCoercer::coerce($separator2, \Phi\Token::class, $this->getPhpVersion());
             $separator2->detach();
             $separator2->parent = $this;
         }
@@ -317,29 +325,19 @@ abstract class GeneratedForStatement extends Nodes\Statement
     }
 
     /**
-     * @return SeparatedNodesList|Nodes\Expression[]
-     * @phpstan-return SeparatedNodesList<\Phi\Nodes\Expression>
+     * @return \Phi\Nodes\Base\SeparatedNodesList|\Phi\Nodes\Expression[]
+     * @phpstan-return \Phi\Nodes\Base\SeparatedNodesList<\Phi\Nodes\Expression>
      */
-    public function getSteps(): SeparatedNodesList
+    public function getStepExpressions(): \Phi\Nodes\Base\SeparatedNodesList
     {
-        return $this->steps;
+        return $this->stepExpressions;
     }
 
-    /**
-     * @param Nodes\Expression $step
-     */
-    public function addStep($step): void
-    {
-        /** @var Nodes\Expression $step */
-        $step = NodeConverter::convert($step, Nodes\Expression::class, $this->phpVersion);
-        $this->steps->add($step);
-    }
-
-    public function getRightParenthesis(): Token
+    public function getRightParenthesis(): \Phi\Token
     {
         if ($this->rightParenthesis === null)
         {
-            throw new MissingNodeException($this, __FUNCTION__);
+            throw TreeException::missingNode($this, "rightParenthesis");
         }
         return $this->rightParenthesis;
     }
@@ -350,14 +348,14 @@ abstract class GeneratedForStatement extends Nodes\Statement
     }
 
     /**
-     * @param Token|Node|string|null $rightParenthesis
+     * @param \Phi\Token|\Phi\Node|string|null $rightParenthesis
      */
     public function setRightParenthesis($rightParenthesis): void
     {
         if ($rightParenthesis !== null)
         {
-            /** @var Token $rightParenthesis */
-            $rightParenthesis = NodeConverter::convert($rightParenthesis, Token::class, $this->phpVersion);
+            /** @var \Phi\Token $rightParenthesis */
+            $rightParenthesis = NodeCoercer::coerce($rightParenthesis, \Phi\Token::class, $this->getPhpVersion());
             $rightParenthesis->detach();
             $rightParenthesis->parent = $this;
         }
@@ -368,11 +366,11 @@ abstract class GeneratedForStatement extends Nodes\Statement
         $this->rightParenthesis = $rightParenthesis;
     }
 
-    public function getBlock(): Nodes\Block
+    public function getBlock(): \Phi\Nodes\Block
     {
         if ($this->block === null)
         {
-            throw new MissingNodeException($this, __FUNCTION__);
+            throw TreeException::missingNode($this, "block");
         }
         return $this->block;
     }
@@ -383,14 +381,14 @@ abstract class GeneratedForStatement extends Nodes\Statement
     }
 
     /**
-     * @param Nodes\Block|Node|string|null $block
+     * @param \Phi\Nodes\Block|\Phi\Node|string|null $block
      */
     public function setBlock($block): void
     {
         if ($block !== null)
         {
-            /** @var Nodes\Block $block */
-            $block = NodeConverter::convert($block, Nodes\Block::class, $this->phpVersion);
+            /** @var \Phi\Nodes\Block $block */
+            $block = NodeCoercer::coerce($block, \Phi\Nodes\Block::class, $this->getPhpVersion());
             $block->detach();
             $block->parent = $this;
         }
@@ -401,26 +399,63 @@ abstract class GeneratedForStatement extends Nodes\Statement
         $this->block = $block;
     }
 
-    protected function _validate(int $flags): void
+    public function _validate(int $flags): void
     {
-        if ($this->keyword === null) throw ValidationException::childRequired($this, "keyword");
-        if ($this->leftParenthesis === null) throw ValidationException::childRequired($this, "leftParenthesis");
-        if ($this->separator1 === null) throw ValidationException::childRequired($this, "separator1");
-        if ($this->separator2 === null) throw ValidationException::childRequired($this, "separator2");
-        if ($this->rightParenthesis === null) throw ValidationException::childRequired($this, "rightParenthesis");
-        if ($this->block === null) throw ValidationException::childRequired($this, "block");
-        if ($flags & self::VALIDATE_TYPES)
-        {
-        }
-        if ($flags & self::VALIDATE_EXPRESSION_CONTEXT)
-        {
-        }
-        if ($flags & self::VALIDATE_TOKENS)
-        {
-        }
-        $this->inits->_validate($flags);
-        $this->tests->_validate($flags);
-        $this->steps->_validate($flags);
-        $this->block->_validate($flags);
+        if ($this->keyword === null)
+            throw ValidationException::missingChild($this, "keyword");
+        if ($this->leftParenthesis === null)
+            throw ValidationException::missingChild($this, "leftParenthesis");
+        if ($this->separator1 === null)
+            throw ValidationException::missingChild($this, "separator1");
+        if ($this->separator2 === null)
+            throw ValidationException::missingChild($this, "separator2");
+        if ($this->rightParenthesis === null)
+            throw ValidationException::missingChild($this, "rightParenthesis");
+        if ($this->block === null)
+            throw ValidationException::missingChild($this, "block");
+        if ($this->keyword->getType() !== 182)
+            throw ValidationException::invalidSyntax($this->keyword, [182]);
+        if ($this->leftParenthesis->getType() !== 105)
+            throw ValidationException::invalidSyntax($this->leftParenthesis, [105]);
+        foreach ($this->initExpressions->getSeparators() as $t)
+            if ($t && $t->getType() !== 109)
+                throw ValidationException::invalidSyntax($t, [109]);
+        if ($this->separator1->getType() !== 114)
+            throw ValidationException::invalidSyntax($this->separator1, [114]);
+        foreach ($this->conditionExpressions->getSeparators() as $t)
+            if ($t && $t->getType() !== 109)
+                throw ValidationException::invalidSyntax($t, [109]);
+        if ($this->separator2->getType() !== 114)
+            throw ValidationException::invalidSyntax($this->separator2, [114]);
+        foreach ($this->stepExpressions->getSeparators() as $t)
+            if ($t && $t->getType() !== 109)
+                throw ValidationException::invalidSyntax($t, [109]);
+        if ($this->rightParenthesis->getType() !== 106)
+            throw ValidationException::invalidSyntax($this->rightParenthesis, [106]);
+
+
+        $this->extraValidation($flags);
+
+        foreach ($this->initExpressions as $t)
+            $t->_validate(1);
+        foreach ($this->conditionExpressions as $t)
+            $t->_validate(1);
+        foreach ($this->stepExpressions as $t)
+            $t->_validate(1);
+        $this->block->_validate(0);
+    }
+
+    public function _autocorrect(): void
+    {
+        foreach ($this->initExpressions as $t)
+            $t->_autocorrect();
+        foreach ($this->conditionExpressions as $t)
+            $t->_autocorrect();
+        foreach ($this->stepExpressions as $t)
+            $t->_autocorrect();
+        if ($this->block)
+            $this->block->_autocorrect();
+
+        $this->extraAutocorrect();
     }
 }

@@ -1,29 +1,31 @@
 <?php
 
+declare(strict_types=1);
+
+/**
+ * This code is generated.
+ * @see meta/
+ */
+
 namespace Phi\Nodes\Generated;
 
 use Phi\Node;
 use Phi\Token;
-use Phi\Nodes\Base\CompoundNode;
-use Phi\Nodes\Base\NodesList;
-use Phi\Nodes\Base\SeparatedNodesList;
-use Phi\Exception\MissingNodeException;
-use Phi\NodeConverter;
+use Phi\Exception\TreeException;
+use Phi\NodeCoercer;
 use Phi\Exception\ValidationException;
-use Phi\Nodes as Nodes;
 
-abstract class GeneratedStaticVariable extends CompoundNode
+trait GeneratedStaticVariable
 {
     /**
-     * @var Token|null
+     * @var \Phi\Token|null
      */
     private $variable;
 
     /**
-     * @var Nodes\Default_|null
+     * @var \Phi\Nodes\Helpers\Default_|null
      */
     private $default;
-
 
     /**
      */
@@ -32,15 +34,13 @@ abstract class GeneratedStaticVariable extends CompoundNode
     }
 
     /**
-     * @param int $phpVersion
-     * @param Token $variable
-     * @param Nodes\Default_|null $default
-     * @return static
+     * @param \Phi\Token $variable
+     * @param \Phi\Nodes\Helpers\Default_|null $default
+     * @return self
      */
-    public static function __instantiateUnchecked($phpVersion, $variable, $default)
+    public static function __instantiateUnchecked($variable, $default)
     {
-        $instance = new static;
-        $instance->phpVersion = $phpVersion;
+        $instance = new self;
         $instance->variable = $variable;
         $variable->parent = $instance;
         $instance->default = $default;
@@ -48,20 +48,32 @@ abstract class GeneratedStaticVariable extends CompoundNode
         return $instance;
     }
 
-    protected function &_getNodeRefs(): array
+    public function getChildNodes(): array
     {
-        $refs = [
-            "variable" => &$this->variable,
-            "default" => &$this->default,
-        ];
-        return $refs;
+        return \array_values(\array_filter([
+            $this->variable,
+            $this->default,
+        ]));
     }
 
-    public function getVariable(): Token
+    protected function &getChildRef(Node $childToDetach): Node
+    {
+        if ($this->variable === $childToDetach)
+        {
+            return $this->variable;
+        }
+        if ($this->default === $childToDetach)
+        {
+            return $this->default;
+        }
+        throw new \LogicException();
+    }
+
+    public function getVariable(): \Phi\Token
     {
         if ($this->variable === null)
         {
-            throw new MissingNodeException($this, __FUNCTION__);
+            throw TreeException::missingNode($this, "variable");
         }
         return $this->variable;
     }
@@ -72,14 +84,14 @@ abstract class GeneratedStaticVariable extends CompoundNode
     }
 
     /**
-     * @param Token|Node|string|null $variable
+     * @param \Phi\Token|\Phi\Node|string|null $variable
      */
     public function setVariable($variable): void
     {
         if ($variable !== null)
         {
-            /** @var Token $variable */
-            $variable = NodeConverter::convert($variable, Token::class, $this->phpVersion);
+            /** @var \Phi\Token $variable */
+            $variable = NodeCoercer::coerce($variable, \Phi\Token::class, $this->getPhpVersion());
             $variable->detach();
             $variable->parent = $this;
         }
@@ -90,7 +102,7 @@ abstract class GeneratedStaticVariable extends CompoundNode
         $this->variable = $variable;
     }
 
-    public function getDefault(): ?Nodes\Default_
+    public function getDefault(): ?\Phi\Nodes\Helpers\Default_
     {
         return $this->default;
     }
@@ -101,14 +113,14 @@ abstract class GeneratedStaticVariable extends CompoundNode
     }
 
     /**
-     * @param Nodes\Default_|Node|string|null $default
+     * @param \Phi\Nodes\Helpers\Default_|\Phi\Node|string|null $default
      */
     public function setDefault($default): void
     {
         if ($default !== null)
         {
-            /** @var Nodes\Default_ $default */
-            $default = NodeConverter::convert($default, Nodes\Default_::class, $this->phpVersion);
+            /** @var \Phi\Nodes\Helpers\Default_ $default */
+            $default = NodeCoercer::coerce($default, \Phi\Nodes\Helpers\Default_::class, $this->getPhpVersion());
             $default->detach();
             $default->parent = $this;
         }
@@ -119,21 +131,25 @@ abstract class GeneratedStaticVariable extends CompoundNode
         $this->default = $default;
     }
 
-    protected function _validate(int $flags): void
+    public function _validate(int $flags): void
     {
-        if ($this->variable === null) throw ValidationException::childRequired($this, "variable");
-        if ($flags & self::VALIDATE_TYPES)
-        {
-        }
-        if ($flags & self::VALIDATE_EXPRESSION_CONTEXT)
-        {
-        }
-        if ($flags & self::VALIDATE_TOKENS)
-        {
-        }
+        if ($this->variable === null)
+            throw ValidationException::missingChild($this, "variable");
+        if ($this->variable->getType() !== 255)
+            throw ValidationException::invalidSyntax($this->variable, [255]);
+
+
+        $this->extraValidation($flags);
+
         if ($this->default)
-        {
-            $this->default->_validate($flags);
-        }
+            $this->default->_validate(0);
+    }
+
+    public function _autocorrect(): void
+    {
+        if ($this->default)
+            $this->default->_autocorrect();
+
+        $this->extraAutocorrect();
     }
 }

@@ -1,0 +1,9 @@
+{"algo": "cycle"}
+
+Expr\NormalVariableExpression::__instantiateUnchecked(new Token(TokenType::T_VARIABLE, "\$a"))
+Expr\NormalVariableExpression::__instantiateUnchecked(new Token(TokenType::T_VARIABLE, "\$b"))
+Expr\NormalVariableExpression::__instantiateUnchecked(new Token(TokenType::T_VARIABLE, "\$c"))
+Expr\NormalVariableExpression::__instantiateUnchecked(new Token(TokenType::T_VARIABLE, "\$d"))
+Expr\NormalVariableExpression::__instantiateUnchecked(new Token(TokenType::T_VARIABLE, "\$e"))
+Expr\NormalVariableExpression::__instantiateUnchecked(new Token(TokenType::T_VARIABLE, "\$f"))
+Expr\NormalVariableExpression::__instantiateUnchecked(new Token(TokenType::T_VARIABLE, "\$g"))

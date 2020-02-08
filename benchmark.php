@@ -17,7 +17,7 @@ foreach (array_slice($argv, 1) ?: ['nodes'] as $suite)
         case 'nodes':
             $fileNames = (new Finder())->in(__DIR__ . '/src/Nodes/')->filter(function (\SplFileInfo $p)
             {
-                return $p->getExtension() === 'php';
+                return $p->getExtension() === 'php' && strpos($p, "Block") === false; // TODO
             });
             $fileNames = array_map('strval', iterator_to_array($fileNames));
             $reps = 10;
@@ -42,7 +42,7 @@ foreach (array_slice($argv, 1) ?: ['nodes'] as $suite)
     gc_collect_cycles();
 
     //*
-    echo "phi (minimal validation)... ";
+    echo "phi (without validation)... ";
     $lexer = new \Phi\Lexer(PhpVersion::PHP_7_2);
     $parser = new \Phi\Parser(PhpVersion::PHP_7_2);
     $maxMemory = 0;
@@ -64,7 +64,7 @@ foreach (array_slice($argv, 1) ?: ['nodes'] as $suite)
     gc_collect_cycles();
 
     //*
-    echo "phi (full revalidation)... ";
+    echo "phi (with validation)... ";
     $lexer = new \Phi\Lexer(PhpVersion::PHP_7_2);
     $parser = new \Phi\Parser(PhpVersion::PHP_7_2);
     $maxMemory = 0;

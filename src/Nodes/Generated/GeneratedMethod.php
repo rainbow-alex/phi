@@ -1,103 +1,103 @@
 <?php
 
+declare(strict_types=1);
+
+/**
+ * This code is generated.
+ * @see meta/
+ */
+
 namespace Phi\Nodes\Generated;
 
 use Phi\Node;
 use Phi\Token;
-use Phi\Nodes\Base\CompoundNode;
-use Phi\Nodes\Base\NodesList;
-use Phi\Nodes\Base\SeparatedNodesList;
-use Phi\Exception\MissingNodeException;
-use Phi\NodeConverter;
+use Phi\Exception\TreeException;
+use Phi\NodeCoercer;
 use Phi\Exception\ValidationException;
-use Phi\Nodes as Nodes;
 
-abstract class GeneratedMethod extends Nodes\ClassLikeMember
+trait GeneratedMethod
 {
     /**
-     * @var NodesList|Token[]
-     * @phpstan-var NodesList<\Phi\Token>
+     * @var \Phi\Nodes\Base\NodesList|\Phi\Token[]
+     * @phpstan-var \Phi\Nodes\Base\NodesList<\Phi\Token>
      */
     private $modifiers;
 
     /**
-     * @var Token|null
+     * @var \Phi\Token|null
      */
     private $keyword;
 
     /**
-     * @var Token|null
+     * @var \Phi\Token|null
      */
     private $byReference;
 
     /**
-     * @var Token|null
+     * @var \Phi\Token|null
      */
     private $name;
 
     /**
-     * @var Token|null
+     * @var \Phi\Token|null
      */
     private $leftParenthesis;
 
     /**
-     * @var SeparatedNodesList|Nodes\Parameter[]
-     * @phpstan-var SeparatedNodesList<\Phi\Nodes\Parameter>
+     * @var \Phi\Nodes\Base\SeparatedNodesList|\Phi\Nodes\Helpers\Parameter[]
+     * @phpstan-var \Phi\Nodes\Base\SeparatedNodesList<\Phi\Nodes\Helpers\Parameter>
      */
     private $parameters;
 
     /**
-     * @var Token|null
+     * @var \Phi\Token|null
      */
     private $rightParenthesis;
 
     /**
-     * @var Nodes\ReturnType|null
+     * @var \Phi\Nodes\Helpers\ReturnType|null
      */
     private $returnType;
 
     /**
-     * @var Nodes\RegularBlock|null
+     * @var \Phi\Nodes\Blocks\RegularBlock|null
      */
     private $body;
 
     /**
-     * @var Token|null
+     * @var \Phi\Token|null
      */
     private $semiColon;
 
-
     /**
-     * @param Token|Node|string|null $name
+     * @param \Phi\Token|\Phi\Node|string|null $name
      */
     public function __construct($name = null)
     {
-        $this->modifiers = new NodesList();
+        $this->modifiers = new \Phi\Nodes\Base\NodesList(\Phi\Token::class);
         if ($name !== null)
         {
             $this->setName($name);
         }
-        $this->parameters = new SeparatedNodesList();
+        $this->parameters = new \Phi\Nodes\Base\SeparatedNodesList(\Phi\Nodes\Helpers\Parameter::class);
     }
 
     /**
-     * @param int $phpVersion
      * @param mixed[] $modifiers
-     * @param Token $keyword
-     * @param Token|null $byReference
-     * @param Token $name
-     * @param Token $leftParenthesis
+     * @param \Phi\Token $keyword
+     * @param \Phi\Token|null $byReference
+     * @param \Phi\Token $name
+     * @param \Phi\Token $leftParenthesis
      * @param mixed[] $parameters
-     * @param Token $rightParenthesis
-     * @param Nodes\ReturnType|null $returnType
-     * @param Nodes\RegularBlock|null $body
-     * @param Token|null $semiColon
-     * @return static
+     * @param \Phi\Token $rightParenthesis
+     * @param \Phi\Nodes\Helpers\ReturnType|null $returnType
+     * @param \Phi\Nodes\Blocks\RegularBlock|null $body
+     * @param \Phi\Token|null $semiColon
+     * @return self
      */
-    public static function __instantiateUnchecked($phpVersion, $modifiers, $keyword, $byReference, $name, $leftParenthesis, $parameters, $rightParenthesis, $returnType, $body, $semiColon)
+    public static function __instantiateUnchecked($modifiers, $keyword, $byReference, $name, $leftParenthesis, $parameters, $rightParenthesis, $returnType, $body, $semiColon)
     {
-        $instance = new static;
-        $instance->phpVersion = $phpVersion;
+        $instance = new self;
         $instance->modifiers->__initUnchecked($modifiers);
         $instance->modifiers->parent = $instance;
         $instance->keyword = $keyword;
@@ -121,47 +121,73 @@ abstract class GeneratedMethod extends Nodes\ClassLikeMember
         return $instance;
     }
 
-    protected function &_getNodeRefs(): array
+    public function getChildNodes(): array
     {
-        $refs = [
-            "modifiers" => &$this->modifiers,
-            "keyword" => &$this->keyword,
-            "byReference" => &$this->byReference,
-            "name" => &$this->name,
-            "leftParenthesis" => &$this->leftParenthesis,
-            "parameters" => &$this->parameters,
-            "rightParenthesis" => &$this->rightParenthesis,
-            "returnType" => &$this->returnType,
-            "body" => &$this->body,
-            "semiColon" => &$this->semiColon,
-        ];
-        return $refs;
+        return \array_values(\array_filter([
+            $this->modifiers,
+            $this->keyword,
+            $this->byReference,
+            $this->name,
+            $this->leftParenthesis,
+            $this->parameters,
+            $this->rightParenthesis,
+            $this->returnType,
+            $this->body,
+            $this->semiColon,
+        ]));
+    }
+
+    protected function &getChildRef(Node $childToDetach): Node
+    {
+        if ($this->keyword === $childToDetach)
+        {
+            return $this->keyword;
+        }
+        if ($this->byReference === $childToDetach)
+        {
+            return $this->byReference;
+        }
+        if ($this->name === $childToDetach)
+        {
+            return $this->name;
+        }
+        if ($this->leftParenthesis === $childToDetach)
+        {
+            return $this->leftParenthesis;
+        }
+        if ($this->rightParenthesis === $childToDetach)
+        {
+            return $this->rightParenthesis;
+        }
+        if ($this->returnType === $childToDetach)
+        {
+            return $this->returnType;
+        }
+        if ($this->body === $childToDetach)
+        {
+            return $this->body;
+        }
+        if ($this->semiColon === $childToDetach)
+        {
+            return $this->semiColon;
+        }
+        throw new \LogicException();
     }
 
     /**
-     * @return NodesList|Token[]
-     * @phpstan-return NodesList<\Phi\Token>
+     * @return \Phi\Nodes\Base\NodesList|\Phi\Token[]
+     * @phpstan-return \Phi\Nodes\Base\NodesList<\Phi\Token>
      */
-    public function getModifiers(): NodesList
+    public function getModifiers(): \Phi\Nodes\Base\NodesList
     {
         return $this->modifiers;
     }
 
-    /**
-     * @param Token $modifier
-     */
-    public function addModifier($modifier): void
-    {
-        /** @var Token $modifier */
-        $modifier = NodeConverter::convert($modifier, Token::class, $this->phpVersion);
-        $this->modifiers->add($modifier);
-    }
-
-    public function getKeyword(): Token
+    public function getKeyword(): \Phi\Token
     {
         if ($this->keyword === null)
         {
-            throw new MissingNodeException($this, __FUNCTION__);
+            throw TreeException::missingNode($this, "keyword");
         }
         return $this->keyword;
     }
@@ -172,14 +198,14 @@ abstract class GeneratedMethod extends Nodes\ClassLikeMember
     }
 
     /**
-     * @param Token|Node|string|null $keyword
+     * @param \Phi\Token|\Phi\Node|string|null $keyword
      */
     public function setKeyword($keyword): void
     {
         if ($keyword !== null)
         {
-            /** @var Token $keyword */
-            $keyword = NodeConverter::convert($keyword, Token::class, $this->phpVersion);
+            /** @var \Phi\Token $keyword */
+            $keyword = NodeCoercer::coerce($keyword, \Phi\Token::class, $this->getPhpVersion());
             $keyword->detach();
             $keyword->parent = $this;
         }
@@ -190,7 +216,7 @@ abstract class GeneratedMethod extends Nodes\ClassLikeMember
         $this->keyword = $keyword;
     }
 
-    public function getByReference(): ?Token
+    public function getByReference(): ?\Phi\Token
     {
         return $this->byReference;
     }
@@ -201,14 +227,14 @@ abstract class GeneratedMethod extends Nodes\ClassLikeMember
     }
 
     /**
-     * @param Token|Node|string|null $byReference
+     * @param \Phi\Token|\Phi\Node|string|null $byReference
      */
     public function setByReference($byReference): void
     {
         if ($byReference !== null)
         {
-            /** @var Token $byReference */
-            $byReference = NodeConverter::convert($byReference, Token::class, $this->phpVersion);
+            /** @var \Phi\Token $byReference */
+            $byReference = NodeCoercer::coerce($byReference, \Phi\Token::class, $this->getPhpVersion());
             $byReference->detach();
             $byReference->parent = $this;
         }
@@ -219,11 +245,11 @@ abstract class GeneratedMethod extends Nodes\ClassLikeMember
         $this->byReference = $byReference;
     }
 
-    public function getName(): Token
+    public function getName(): \Phi\Token
     {
         if ($this->name === null)
         {
-            throw new MissingNodeException($this, __FUNCTION__);
+            throw TreeException::missingNode($this, "name");
         }
         return $this->name;
     }
@@ -234,14 +260,14 @@ abstract class GeneratedMethod extends Nodes\ClassLikeMember
     }
 
     /**
-     * @param Token|Node|string|null $name
+     * @param \Phi\Token|\Phi\Node|string|null $name
      */
     public function setName($name): void
     {
         if ($name !== null)
         {
-            /** @var Token $name */
-            $name = NodeConverter::convert($name, Token::class, $this->phpVersion);
+            /** @var \Phi\Token $name */
+            $name = NodeCoercer::coerce($name, \Phi\Token::class, $this->getPhpVersion());
             $name->detach();
             $name->parent = $this;
         }
@@ -252,11 +278,11 @@ abstract class GeneratedMethod extends Nodes\ClassLikeMember
         $this->name = $name;
     }
 
-    public function getLeftParenthesis(): Token
+    public function getLeftParenthesis(): \Phi\Token
     {
         if ($this->leftParenthesis === null)
         {
-            throw new MissingNodeException($this, __FUNCTION__);
+            throw TreeException::missingNode($this, "leftParenthesis");
         }
         return $this->leftParenthesis;
     }
@@ -267,14 +293,14 @@ abstract class GeneratedMethod extends Nodes\ClassLikeMember
     }
 
     /**
-     * @param Token|Node|string|null $leftParenthesis
+     * @param \Phi\Token|\Phi\Node|string|null $leftParenthesis
      */
     public function setLeftParenthesis($leftParenthesis): void
     {
         if ($leftParenthesis !== null)
         {
-            /** @var Token $leftParenthesis */
-            $leftParenthesis = NodeConverter::convert($leftParenthesis, Token::class, $this->phpVersion);
+            /** @var \Phi\Token $leftParenthesis */
+            $leftParenthesis = NodeCoercer::coerce($leftParenthesis, \Phi\Token::class, $this->getPhpVersion());
             $leftParenthesis->detach();
             $leftParenthesis->parent = $this;
         }
@@ -286,29 +312,19 @@ abstract class GeneratedMethod extends Nodes\ClassLikeMember
     }
 
     /**
-     * @return SeparatedNodesList|Nodes\Parameter[]
-     * @phpstan-return SeparatedNodesList<\Phi\Nodes\Parameter>
+     * @return \Phi\Nodes\Base\SeparatedNodesList|\Phi\Nodes\Helpers\Parameter[]
+     * @phpstan-return \Phi\Nodes\Base\SeparatedNodesList<\Phi\Nodes\Helpers\Parameter>
      */
-    public function getParameters(): SeparatedNodesList
+    public function getParameters(): \Phi\Nodes\Base\SeparatedNodesList
     {
         return $this->parameters;
     }
 
-    /**
-     * @param Nodes\Parameter $parameter
-     */
-    public function addParameter($parameter): void
-    {
-        /** @var Nodes\Parameter $parameter */
-        $parameter = NodeConverter::convert($parameter, Nodes\Parameter::class, $this->phpVersion);
-        $this->parameters->add($parameter);
-    }
-
-    public function getRightParenthesis(): Token
+    public function getRightParenthesis(): \Phi\Token
     {
         if ($this->rightParenthesis === null)
         {
-            throw new MissingNodeException($this, __FUNCTION__);
+            throw TreeException::missingNode($this, "rightParenthesis");
         }
         return $this->rightParenthesis;
     }
@@ -319,14 +335,14 @@ abstract class GeneratedMethod extends Nodes\ClassLikeMember
     }
 
     /**
-     * @param Token|Node|string|null $rightParenthesis
+     * @param \Phi\Token|\Phi\Node|string|null $rightParenthesis
      */
     public function setRightParenthesis($rightParenthesis): void
     {
         if ($rightParenthesis !== null)
         {
-            /** @var Token $rightParenthesis */
-            $rightParenthesis = NodeConverter::convert($rightParenthesis, Token::class, $this->phpVersion);
+            /** @var \Phi\Token $rightParenthesis */
+            $rightParenthesis = NodeCoercer::coerce($rightParenthesis, \Phi\Token::class, $this->getPhpVersion());
             $rightParenthesis->detach();
             $rightParenthesis->parent = $this;
         }
@@ -337,7 +353,7 @@ abstract class GeneratedMethod extends Nodes\ClassLikeMember
         $this->rightParenthesis = $rightParenthesis;
     }
 
-    public function getReturnType(): ?Nodes\ReturnType
+    public function getReturnType(): ?\Phi\Nodes\Helpers\ReturnType
     {
         return $this->returnType;
     }
@@ -348,14 +364,14 @@ abstract class GeneratedMethod extends Nodes\ClassLikeMember
     }
 
     /**
-     * @param Nodes\ReturnType|Node|string|null $returnType
+     * @param \Phi\Nodes\Helpers\ReturnType|\Phi\Node|string|null $returnType
      */
     public function setReturnType($returnType): void
     {
         if ($returnType !== null)
         {
-            /** @var Nodes\ReturnType $returnType */
-            $returnType = NodeConverter::convert($returnType, Nodes\ReturnType::class, $this->phpVersion);
+            /** @var \Phi\Nodes\Helpers\ReturnType $returnType */
+            $returnType = NodeCoercer::coerce($returnType, \Phi\Nodes\Helpers\ReturnType::class, $this->getPhpVersion());
             $returnType->detach();
             $returnType->parent = $this;
         }
@@ -366,7 +382,7 @@ abstract class GeneratedMethod extends Nodes\ClassLikeMember
         $this->returnType = $returnType;
     }
 
-    public function getBody(): ?Nodes\RegularBlock
+    public function getBody(): ?\Phi\Nodes\Blocks\RegularBlock
     {
         return $this->body;
     }
@@ -377,14 +393,14 @@ abstract class GeneratedMethod extends Nodes\ClassLikeMember
     }
 
     /**
-     * @param Nodes\RegularBlock|Node|string|null $body
+     * @param \Phi\Nodes\Blocks\RegularBlock|\Phi\Node|string|null $body
      */
     public function setBody($body): void
     {
         if ($body !== null)
         {
-            /** @var Nodes\RegularBlock $body */
-            $body = NodeConverter::convert($body, Nodes\RegularBlock::class, $this->phpVersion);
+            /** @var \Phi\Nodes\Blocks\RegularBlock $body */
+            $body = NodeCoercer::coerce($body, \Phi\Nodes\Blocks\RegularBlock::class, $this->getPhpVersion());
             $body->detach();
             $body->parent = $this;
         }
@@ -395,7 +411,7 @@ abstract class GeneratedMethod extends Nodes\ClassLikeMember
         $this->body = $body;
     }
 
-    public function getSemiColon(): ?Token
+    public function getSemiColon(): ?\Phi\Token
     {
         return $this->semiColon;
     }
@@ -406,14 +422,14 @@ abstract class GeneratedMethod extends Nodes\ClassLikeMember
     }
 
     /**
-     * @param Token|Node|string|null $semiColon
+     * @param \Phi\Token|\Phi\Node|string|null $semiColon
      */
     public function setSemiColon($semiColon): void
     {
         if ($semiColon !== null)
         {
-            /** @var Token $semiColon */
-            $semiColon = NodeConverter::convert($semiColon, Token::class, $this->phpVersion);
+            /** @var \Phi\Token $semiColon */
+            $semiColon = NodeCoercer::coerce($semiColon, \Phi\Token::class, $this->getPhpVersion());
             $semiColon->detach();
             $semiColon->parent = $this;
         }
@@ -424,29 +440,57 @@ abstract class GeneratedMethod extends Nodes\ClassLikeMember
         $this->semiColon = $semiColon;
     }
 
-    protected function _validate(int $flags): void
+    public function _validate(int $flags): void
     {
-        if ($this->keyword === null) throw ValidationException::childRequired($this, "keyword");
-        if ($this->name === null) throw ValidationException::childRequired($this, "name");
-        if ($this->leftParenthesis === null) throw ValidationException::childRequired($this, "leftParenthesis");
-        if ($this->rightParenthesis === null) throw ValidationException::childRequired($this, "rightParenthesis");
-        if ($flags & self::VALIDATE_TYPES)
-        {
-        }
-        if ($flags & self::VALIDATE_EXPRESSION_CONTEXT)
-        {
-        }
-        if ($flags & self::VALIDATE_TOKENS)
-        {
-        }
-        $this->parameters->_validate($flags);
+        if ($this->keyword === null)
+            throw ValidationException::missingChild($this, "keyword");
+        if ($this->name === null)
+            throw ValidationException::missingChild($this, "name");
+        if ($this->leftParenthesis === null)
+            throw ValidationException::missingChild($this, "leftParenthesis");
+        if ($this->rightParenthesis === null)
+            throw ValidationException::missingChild($this, "rightParenthesis");
+        foreach ($this->modifiers as $t)
+            if (!\in_array($t->getType(), [128, 180, 232, 231, 230, 242], true))
+                throw ValidationException::invalidSyntax($t, [128, 180, 232, 231, 230, 242]);
+        if ($this->keyword->getType() !== 184)
+            throw ValidationException::invalidSyntax($this->keyword, [184]);
+        if ($this->byReference)
+        if ($this->byReference->getType() !== 104)
+            throw ValidationException::invalidSyntax($this->byReference, [104]);
+        if ($this->name->getType() !== 243)
+            throw ValidationException::invalidSyntax($this->name, [243]);
+        if ($this->leftParenthesis->getType() !== 105)
+            throw ValidationException::invalidSyntax($this->leftParenthesis, [105]);
+        foreach ($this->parameters->getSeparators() as $t)
+            if ($t && $t->getType() !== 109)
+                throw ValidationException::invalidSyntax($t, [109]);
+        if ($this->rightParenthesis->getType() !== 106)
+            throw ValidationException::invalidSyntax($this->rightParenthesis, [106]);
+        if ($this->semiColon)
+        if ($this->semiColon->getType() !== 114)
+            throw ValidationException::invalidSyntax($this->semiColon, [114]);
+
+
+        $this->extraValidation($flags);
+
+        foreach ($this->parameters as $t)
+            $t->_validate(0);
         if ($this->returnType)
-        {
-            $this->returnType->_validate($flags);
-        }
+            $this->returnType->_validate(0);
         if ($this->body)
-        {
-            $this->body->_validate($flags);
-        }
+            $this->body->_validate(0);
+    }
+
+    public function _autocorrect(): void
+    {
+        foreach ($this->parameters as $t)
+            $t->_autocorrect();
+        if ($this->returnType)
+            $this->returnType->_autocorrect();
+        if ($this->body)
+            $this->body->_autocorrect();
+
+        $this->extraAutocorrect();
     }
 }

@@ -1,32 +1,34 @@
 <?php
 
+declare(strict_types=1);
+
+/**
+ * This code is generated.
+ * @see meta/
+ */
+
 namespace Phi\Nodes\Generated;
 
 use Phi\Node;
 use Phi\Token;
-use Phi\Nodes\Base\CompoundNode;
-use Phi\Nodes\Base\NodesList;
-use Phi\Nodes\Base\SeparatedNodesList;
-use Phi\Exception\MissingNodeException;
-use Phi\NodeConverter;
+use Phi\Exception\TreeException;
+use Phi\NodeCoercer;
 use Phi\Exception\ValidationException;
-use Phi\Nodes as Nodes;
 
-abstract class GeneratedExpressionStatement extends Nodes\Statement
+trait GeneratedExpressionStatement
 {
     /**
-     * @var Nodes\Expression|null
+     * @var \Phi\Nodes\Expression|null
      */
     private $expression;
 
     /**
-     * @var Token|null
+     * @var \Phi\Token|null
      */
     private $semiColon;
 
-
     /**
-     * @param Nodes\Expression|Node|string|null $expression
+     * @param \Phi\Nodes\Expression|\Phi\Node|string|null $expression
      */
     public function __construct($expression = null)
     {
@@ -37,15 +39,13 @@ abstract class GeneratedExpressionStatement extends Nodes\Statement
     }
 
     /**
-     * @param int $phpVersion
-     * @param Nodes\Expression $expression
-     * @param Token|null $semiColon
-     * @return static
+     * @param \Phi\Nodes\Expression $expression
+     * @param \Phi\Token|null $semiColon
+     * @return self
      */
-    public static function __instantiateUnchecked($phpVersion, $expression, $semiColon)
+    public static function __instantiateUnchecked($expression, $semiColon)
     {
-        $instance = new static;
-        $instance->phpVersion = $phpVersion;
+        $instance = new self;
         $instance->expression = $expression;
         $expression->parent = $instance;
         $instance->semiColon = $semiColon;
@@ -53,20 +53,32 @@ abstract class GeneratedExpressionStatement extends Nodes\Statement
         return $instance;
     }
 
-    protected function &_getNodeRefs(): array
+    public function getChildNodes(): array
     {
-        $refs = [
-            "expression" => &$this->expression,
-            "semiColon" => &$this->semiColon,
-        ];
-        return $refs;
+        return \array_values(\array_filter([
+            $this->expression,
+            $this->semiColon,
+        ]));
     }
 
-    public function getExpression(): Nodes\Expression
+    protected function &getChildRef(Node $childToDetach): Node
+    {
+        if ($this->expression === $childToDetach)
+        {
+            return $this->expression;
+        }
+        if ($this->semiColon === $childToDetach)
+        {
+            return $this->semiColon;
+        }
+        throw new \LogicException();
+    }
+
+    public function getExpression(): \Phi\Nodes\Expression
     {
         if ($this->expression === null)
         {
-            throw new MissingNodeException($this, __FUNCTION__);
+            throw TreeException::missingNode($this, "expression");
         }
         return $this->expression;
     }
@@ -77,14 +89,14 @@ abstract class GeneratedExpressionStatement extends Nodes\Statement
     }
 
     /**
-     * @param Nodes\Expression|Node|string|null $expression
+     * @param \Phi\Nodes\Expression|\Phi\Node|string|null $expression
      */
     public function setExpression($expression): void
     {
         if ($expression !== null)
         {
-            /** @var Nodes\Expression $expression */
-            $expression = NodeConverter::convert($expression, Nodes\Expression::class, $this->phpVersion);
+            /** @var \Phi\Nodes\Expression $expression */
+            $expression = NodeCoercer::coerce($expression, \Phi\Nodes\Expression::class, $this->getPhpVersion());
             $expression->detach();
             $expression->parent = $this;
         }
@@ -95,7 +107,7 @@ abstract class GeneratedExpressionStatement extends Nodes\Statement
         $this->expression = $expression;
     }
 
-    public function getSemiColon(): ?Token
+    public function getSemiColon(): ?\Phi\Token
     {
         return $this->semiColon;
     }
@@ -106,14 +118,14 @@ abstract class GeneratedExpressionStatement extends Nodes\Statement
     }
 
     /**
-     * @param Token|Node|string|null $semiColon
+     * @param \Phi\Token|\Phi\Node|string|null $semiColon
      */
     public function setSemiColon($semiColon): void
     {
         if ($semiColon !== null)
         {
-            /** @var Token $semiColon */
-            $semiColon = NodeConverter::convert($semiColon, Token::class, $this->phpVersion);
+            /** @var \Phi\Token $semiColon */
+            $semiColon = NodeCoercer::coerce($semiColon, \Phi\Token::class, $this->getPhpVersion());
             $semiColon->detach();
             $semiColon->parent = $this;
         }
@@ -124,18 +136,25 @@ abstract class GeneratedExpressionStatement extends Nodes\Statement
         $this->semiColon = $semiColon;
     }
 
-    protected function _validate(int $flags): void
+    public function _validate(int $flags): void
     {
-        if ($this->expression === null) throw ValidationException::childRequired($this, "expression");
-        if ($flags & self::VALIDATE_TYPES)
-        {
-        }
-        if ($flags & self::VALIDATE_EXPRESSION_CONTEXT)
-        {
-        }
-        if ($flags & self::VALIDATE_TOKENS)
-        {
-        }
-        $this->expression->_validate($flags);
+        if ($this->expression === null)
+            throw ValidationException::missingChild($this, "expression");
+        if ($this->semiColon)
+        if (!\in_array($this->semiColon->getType(), [114, 143], true))
+            throw ValidationException::invalidSyntax($this->semiColon, [114, 143]);
+
+
+        $this->extraValidation($flags);
+
+        $this->expression->_validate(1);
+    }
+
+    public function _autocorrect(): void
+    {
+        if ($this->expression)
+            $this->expression->_autocorrect();
+
+        $this->extraAutocorrect();
     }
 }

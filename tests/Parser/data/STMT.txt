@@ -1,0 +1,9 @@
+{"algo": "permute"}
+
+// basic reusable set of statements
+// unlike expressions there really aren't that many weird interactions so this is a pretty short list
+
+{}
+echo $v;
+echo $v; echo $v;
+?>ident<?php

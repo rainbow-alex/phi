@@ -1,54 +1,56 @@
 <?php
 
+declare(strict_types=1);
+
+/**
+ * This code is generated.
+ * @see meta/
+ */
+
 namespace Phi\Nodes\Generated;
 
 use Phi\Node;
 use Phi\Token;
-use Phi\Nodes\Base\CompoundNode;
-use Phi\Nodes\Base\NodesList;
-use Phi\Nodes\Base\SeparatedNodesList;
-use Phi\Exception\MissingNodeException;
-use Phi\NodeConverter;
+use Phi\Exception\TreeException;
+use Phi\NodeCoercer;
 use Phi\Exception\ValidationException;
-use Phi\Nodes as Nodes;
 
-abstract class GeneratedStaticMethodCallExpression extends Nodes\Expression
+trait GeneratedStaticMethodCallExpression
 {
     /**
-     * @var Nodes\Expression|null
+     * @var \Phi\Nodes\Expression|null
      */
     private $class;
 
     /**
-     * @var Token|null
+     * @var \Phi\Token|null
      */
     private $operator;
 
     /**
-     * @var Nodes\MemberName|null
+     * @var \Phi\Nodes\Helpers\MemberName|null
      */
     private $name;
 
     /**
-     * @var Token|null
+     * @var \Phi\Token|null
      */
     private $leftParenthesis;
 
     /**
-     * @var SeparatedNodesList|Nodes\Argument[]
-     * @phpstan-var SeparatedNodesList<\Phi\Nodes\Argument>
+     * @var \Phi\Nodes\Base\SeparatedNodesList|\Phi\Nodes\Helpers\Argument[]
+     * @phpstan-var \Phi\Nodes\Base\SeparatedNodesList<\Phi\Nodes\Helpers\Argument>
      */
     private $arguments;
 
     /**
-     * @var Token|null
+     * @var \Phi\Token|null
      */
     private $rightParenthesis;
 
-
     /**
-     * @param Nodes\Expression|Node|string|null $class
-     * @param Nodes\MemberName|Node|string|null $name
+     * @param \Phi\Nodes\Expression|\Phi\Node|string|null $class
+     * @param \Phi\Nodes\Helpers\MemberName|\Phi\Node|string|null $name
      */
     public function __construct($class = null, $name = null)
     {
@@ -60,23 +62,21 @@ abstract class GeneratedStaticMethodCallExpression extends Nodes\Expression
         {
             $this->setName($name);
         }
-        $this->arguments = new SeparatedNodesList();
+        $this->arguments = new \Phi\Nodes\Base\SeparatedNodesList(\Phi\Nodes\Helpers\Argument::class);
     }
 
     /**
-     * @param int $phpVersion
-     * @param Nodes\Expression $class
-     * @param Token $operator
-     * @param Nodes\MemberName $name
-     * @param Token $leftParenthesis
+     * @param \Phi\Nodes\Expression $class
+     * @param \Phi\Token $operator
+     * @param \Phi\Nodes\Helpers\MemberName $name
+     * @param \Phi\Token $leftParenthesis
      * @param mixed[] $arguments
-     * @param Token $rightParenthesis
-     * @return static
+     * @param \Phi\Token $rightParenthesis
+     * @return self
      */
-    public static function __instantiateUnchecked($phpVersion, $class, $operator, $name, $leftParenthesis, $arguments, $rightParenthesis)
+    public static function __instantiateUnchecked($class, $operator, $name, $leftParenthesis, $arguments, $rightParenthesis)
     {
-        $instance = new static;
-        $instance->phpVersion = $phpVersion;
+        $instance = new self;
         $instance->class = $class;
         $class->parent = $instance;
         $instance->operator = $operator;
@@ -92,24 +92,48 @@ abstract class GeneratedStaticMethodCallExpression extends Nodes\Expression
         return $instance;
     }
 
-    protected function &_getNodeRefs(): array
+    public function getChildNodes(): array
     {
-        $refs = [
-            "class" => &$this->class,
-            "operator" => &$this->operator,
-            "name" => &$this->name,
-            "leftParenthesis" => &$this->leftParenthesis,
-            "arguments" => &$this->arguments,
-            "rightParenthesis" => &$this->rightParenthesis,
-        ];
-        return $refs;
+        return \array_values(\array_filter([
+            $this->class,
+            $this->operator,
+            $this->name,
+            $this->leftParenthesis,
+            $this->arguments,
+            $this->rightParenthesis,
+        ]));
     }
 
-    public function getClass(): Nodes\Expression
+    protected function &getChildRef(Node $childToDetach): Node
+    {
+        if ($this->class === $childToDetach)
+        {
+            return $this->class;
+        }
+        if ($this->operator === $childToDetach)
+        {
+            return $this->operator;
+        }
+        if ($this->name === $childToDetach)
+        {
+            return $this->name;
+        }
+        if ($this->leftParenthesis === $childToDetach)
+        {
+            return $this->leftParenthesis;
+        }
+        if ($this->rightParenthesis === $childToDetach)
+        {
+            return $this->rightParenthesis;
+        }
+        throw new \LogicException();
+    }
+
+    public function getClass(): \Phi\Nodes\Expression
     {
         if ($this->class === null)
         {
-            throw new MissingNodeException($this, __FUNCTION__);
+            throw TreeException::missingNode($this, "class");
         }
         return $this->class;
     }
@@ -120,14 +144,14 @@ abstract class GeneratedStaticMethodCallExpression extends Nodes\Expression
     }
 
     /**
-     * @param Nodes\Expression|Node|string|null $class
+     * @param \Phi\Nodes\Expression|\Phi\Node|string|null $class
      */
     public function setClass($class): void
     {
         if ($class !== null)
         {
-            /** @var Nodes\Expression $class */
-            $class = NodeConverter::convert($class, Nodes\Expression::class, $this->phpVersion);
+            /** @var \Phi\Nodes\Expression $class */
+            $class = NodeCoercer::coerce($class, \Phi\Nodes\Expression::class, $this->getPhpVersion());
             $class->detach();
             $class->parent = $this;
         }
@@ -138,11 +162,11 @@ abstract class GeneratedStaticMethodCallExpression extends Nodes\Expression
         $this->class = $class;
     }
 
-    public function getOperator(): Token
+    public function getOperator(): \Phi\Token
     {
         if ($this->operator === null)
         {
-            throw new MissingNodeException($this, __FUNCTION__);
+            throw TreeException::missingNode($this, "operator");
         }
         return $this->operator;
     }
@@ -153,14 +177,14 @@ abstract class GeneratedStaticMethodCallExpression extends Nodes\Expression
     }
 
     /**
-     * @param Token|Node|string|null $operator
+     * @param \Phi\Token|\Phi\Node|string|null $operator
      */
     public function setOperator($operator): void
     {
         if ($operator !== null)
         {
-            /** @var Token $operator */
-            $operator = NodeConverter::convert($operator, Token::class, $this->phpVersion);
+            /** @var \Phi\Token $operator */
+            $operator = NodeCoercer::coerce($operator, \Phi\Token::class, $this->getPhpVersion());
             $operator->detach();
             $operator->parent = $this;
         }
@@ -171,11 +195,11 @@ abstract class GeneratedStaticMethodCallExpression extends Nodes\Expression
         $this->operator = $operator;
     }
 
-    public function getName(): Nodes\MemberName
+    public function getName(): \Phi\Nodes\Helpers\MemberName
     {
         if ($this->name === null)
         {
-            throw new MissingNodeException($this, __FUNCTION__);
+            throw TreeException::missingNode($this, "name");
         }
         return $this->name;
     }
@@ -186,14 +210,14 @@ abstract class GeneratedStaticMethodCallExpression extends Nodes\Expression
     }
 
     /**
-     * @param Nodes\MemberName|Node|string|null $name
+     * @param \Phi\Nodes\Helpers\MemberName|\Phi\Node|string|null $name
      */
     public function setName($name): void
     {
         if ($name !== null)
         {
-            /** @var Nodes\MemberName $name */
-            $name = NodeConverter::convert($name, Nodes\MemberName::class, $this->phpVersion);
+            /** @var \Phi\Nodes\Helpers\MemberName $name */
+            $name = NodeCoercer::coerce($name, \Phi\Nodes\Helpers\MemberName::class, $this->getPhpVersion());
             $name->detach();
             $name->parent = $this;
         }
@@ -204,11 +228,11 @@ abstract class GeneratedStaticMethodCallExpression extends Nodes\Expression
         $this->name = $name;
     }
 
-    public function getLeftParenthesis(): Token
+    public function getLeftParenthesis(): \Phi\Token
     {
         if ($this->leftParenthesis === null)
         {
-            throw new MissingNodeException($this, __FUNCTION__);
+            throw TreeException::missingNode($this, "leftParenthesis");
         }
         return $this->leftParenthesis;
     }
@@ -219,14 +243,14 @@ abstract class GeneratedStaticMethodCallExpression extends Nodes\Expression
     }
 
     /**
-     * @param Token|Node|string|null $leftParenthesis
+     * @param \Phi\Token|\Phi\Node|string|null $leftParenthesis
      */
     public function setLeftParenthesis($leftParenthesis): void
     {
         if ($leftParenthesis !== null)
         {
-            /** @var Token $leftParenthesis */
-            $leftParenthesis = NodeConverter::convert($leftParenthesis, Token::class, $this->phpVersion);
+            /** @var \Phi\Token $leftParenthesis */
+            $leftParenthesis = NodeCoercer::coerce($leftParenthesis, \Phi\Token::class, $this->getPhpVersion());
             $leftParenthesis->detach();
             $leftParenthesis->parent = $this;
         }
@@ -238,29 +262,19 @@ abstract class GeneratedStaticMethodCallExpression extends Nodes\Expression
     }
 
     /**
-     * @return SeparatedNodesList|Nodes\Argument[]
-     * @phpstan-return SeparatedNodesList<\Phi\Nodes\Argument>
+     * @return \Phi\Nodes\Base\SeparatedNodesList|\Phi\Nodes\Helpers\Argument[]
+     * @phpstan-return \Phi\Nodes\Base\SeparatedNodesList<\Phi\Nodes\Helpers\Argument>
      */
-    public function getArguments(): SeparatedNodesList
+    public function getArguments(): \Phi\Nodes\Base\SeparatedNodesList
     {
         return $this->arguments;
     }
 
-    /**
-     * @param Nodes\Argument $argument
-     */
-    public function addArgument($argument): void
-    {
-        /** @var Nodes\Argument $argument */
-        $argument = NodeConverter::convert($argument, Nodes\Argument::class, $this->phpVersion);
-        $this->arguments->add($argument);
-    }
-
-    public function getRightParenthesis(): Token
+    public function getRightParenthesis(): \Phi\Token
     {
         if ($this->rightParenthesis === null)
         {
-            throw new MissingNodeException($this, __FUNCTION__);
+            throw TreeException::missingNode($this, "rightParenthesis");
         }
         return $this->rightParenthesis;
     }
@@ -271,14 +285,14 @@ abstract class GeneratedStaticMethodCallExpression extends Nodes\Expression
     }
 
     /**
-     * @param Token|Node|string|null $rightParenthesis
+     * @param \Phi\Token|\Phi\Node|string|null $rightParenthesis
      */
     public function setRightParenthesis($rightParenthesis): void
     {
         if ($rightParenthesis !== null)
         {
-            /** @var Token $rightParenthesis */
-            $rightParenthesis = NodeConverter::convert($rightParenthesis, Token::class, $this->phpVersion);
+            /** @var \Phi\Token $rightParenthesis */
+            $rightParenthesis = NodeCoercer::coerce($rightParenthesis, \Phi\Token::class, $this->getPhpVersion());
             $rightParenthesis->detach();
             $rightParenthesis->parent = $this;
         }
@@ -289,24 +303,48 @@ abstract class GeneratedStaticMethodCallExpression extends Nodes\Expression
         $this->rightParenthesis = $rightParenthesis;
     }
 
-    protected function _validate(int $flags): void
+    public function _validate(int $flags): void
     {
-        if ($this->class === null) throw ValidationException::childRequired($this, "class");
-        if ($this->operator === null) throw ValidationException::childRequired($this, "operator");
-        if ($this->name === null) throw ValidationException::childRequired($this, "name");
-        if ($this->leftParenthesis === null) throw ValidationException::childRequired($this, "leftParenthesis");
-        if ($this->rightParenthesis === null) throw ValidationException::childRequired($this, "rightParenthesis");
-        if ($flags & self::VALIDATE_TYPES)
-        {
-        }
-        if ($flags & self::VALIDATE_EXPRESSION_CONTEXT)
-        {
-        }
-        if ($flags & self::VALIDATE_TOKENS)
-        {
-        }
-        $this->class->_validate($flags);
-        $this->name->_validate($flags);
-        $this->arguments->_validate($flags);
+        if ($this->class === null)
+            throw ValidationException::missingChild($this, "class");
+        if ($this->operator === null)
+            throw ValidationException::missingChild($this, "operator");
+        if ($this->name === null)
+            throw ValidationException::missingChild($this, "name");
+        if ($this->leftParenthesis === null)
+            throw ValidationException::missingChild($this, "leftParenthesis");
+        if ($this->rightParenthesis === null)
+            throw ValidationException::missingChild($this, "rightParenthesis");
+        if ($this->operator->getType() !== 162)
+            throw ValidationException::invalidSyntax($this->operator, [162]);
+        if ($this->leftParenthesis->getType() !== 105)
+            throw ValidationException::invalidSyntax($this->leftParenthesis, [105]);
+        foreach ($this->arguments->getSeparators() as $t)
+            if ($t && $t->getType() !== 109)
+                throw ValidationException::invalidSyntax($t, [109]);
+        if ($this->rightParenthesis->getType() !== 106)
+            throw ValidationException::invalidSyntax($this->rightParenthesis, [106]);
+
+        if ($flags & 6)
+            throw ValidationException::invalidExpressionInContext($this);
+
+        $this->extraValidation($flags);
+
+        $this->class->_validate(1);
+        $this->name->_validate(0);
+        foreach ($this->arguments as $t)
+            $t->_validate(0);
+    }
+
+    public function _autocorrect(): void
+    {
+        if ($this->class)
+            $this->class->_autocorrect();
+        if ($this->name)
+            $this->name->_autocorrect();
+        foreach ($this->arguments as $t)
+            $t->_autocorrect();
+
+        $this->extraAutocorrect();
     }
 }

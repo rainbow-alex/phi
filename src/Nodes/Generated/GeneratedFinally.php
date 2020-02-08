@@ -1,29 +1,31 @@
 <?php
 
+declare(strict_types=1);
+
+/**
+ * This code is generated.
+ * @see meta/
+ */
+
 namespace Phi\Nodes\Generated;
 
 use Phi\Node;
 use Phi\Token;
-use Phi\Nodes\Base\CompoundNode;
-use Phi\Nodes\Base\NodesList;
-use Phi\Nodes\Base\SeparatedNodesList;
-use Phi\Exception\MissingNodeException;
-use Phi\NodeConverter;
+use Phi\Exception\TreeException;
+use Phi\NodeCoercer;
 use Phi\Exception\ValidationException;
-use Phi\Nodes as Nodes;
 
-abstract class GeneratedFinally extends CompoundNode
+trait GeneratedFinally
 {
     /**
-     * @var Token|null
+     * @var \Phi\Token|null
      */
     private $keyword;
 
     /**
-     * @var Nodes\RegularBlock|null
+     * @var \Phi\Nodes\Blocks\RegularBlock|null
      */
     private $block;
-
 
     /**
      */
@@ -32,15 +34,13 @@ abstract class GeneratedFinally extends CompoundNode
     }
 
     /**
-     * @param int $phpVersion
-     * @param Token $keyword
-     * @param Nodes\RegularBlock $block
-     * @return static
+     * @param \Phi\Token $keyword
+     * @param \Phi\Nodes\Blocks\RegularBlock $block
+     * @return self
      */
-    public static function __instantiateUnchecked($phpVersion, $keyword, $block)
+    public static function __instantiateUnchecked($keyword, $block)
     {
-        $instance = new static;
-        $instance->phpVersion = $phpVersion;
+        $instance = new self;
         $instance->keyword = $keyword;
         $keyword->parent = $instance;
         $instance->block = $block;
@@ -48,20 +48,32 @@ abstract class GeneratedFinally extends CompoundNode
         return $instance;
     }
 
-    protected function &_getNodeRefs(): array
+    public function getChildNodes(): array
     {
-        $refs = [
-            "keyword" => &$this->keyword,
-            "block" => &$this->block,
-        ];
-        return $refs;
+        return \array_values(\array_filter([
+            $this->keyword,
+            $this->block,
+        ]));
     }
 
-    public function getKeyword(): Token
+    protected function &getChildRef(Node $childToDetach): Node
+    {
+        if ($this->keyword === $childToDetach)
+        {
+            return $this->keyword;
+        }
+        if ($this->block === $childToDetach)
+        {
+            return $this->block;
+        }
+        throw new \LogicException();
+    }
+
+    public function getKeyword(): \Phi\Token
     {
         if ($this->keyword === null)
         {
-            throw new MissingNodeException($this, __FUNCTION__);
+            throw TreeException::missingNode($this, "keyword");
         }
         return $this->keyword;
     }
@@ -72,14 +84,14 @@ abstract class GeneratedFinally extends CompoundNode
     }
 
     /**
-     * @param Token|Node|string|null $keyword
+     * @param \Phi\Token|\Phi\Node|string|null $keyword
      */
     public function setKeyword($keyword): void
     {
         if ($keyword !== null)
         {
-            /** @var Token $keyword */
-            $keyword = NodeConverter::convert($keyword, Token::class, $this->phpVersion);
+            /** @var \Phi\Token $keyword */
+            $keyword = NodeCoercer::coerce($keyword, \Phi\Token::class, $this->getPhpVersion());
             $keyword->detach();
             $keyword->parent = $this;
         }
@@ -90,11 +102,11 @@ abstract class GeneratedFinally extends CompoundNode
         $this->keyword = $keyword;
     }
 
-    public function getBlock(): Nodes\RegularBlock
+    public function getBlock(): \Phi\Nodes\Blocks\RegularBlock
     {
         if ($this->block === null)
         {
-            throw new MissingNodeException($this, __FUNCTION__);
+            throw TreeException::missingNode($this, "block");
         }
         return $this->block;
     }
@@ -105,14 +117,14 @@ abstract class GeneratedFinally extends CompoundNode
     }
 
     /**
-     * @param Nodes\RegularBlock|Node|string|null $block
+     * @param \Phi\Nodes\Blocks\RegularBlock|\Phi\Node|string|null $block
      */
     public function setBlock($block): void
     {
         if ($block !== null)
         {
-            /** @var Nodes\RegularBlock $block */
-            $block = NodeConverter::convert($block, Nodes\RegularBlock::class, $this->phpVersion);
+            /** @var \Phi\Nodes\Blocks\RegularBlock $block */
+            $block = NodeCoercer::coerce($block, \Phi\Nodes\Blocks\RegularBlock::class, $this->getPhpVersion());
             $block->detach();
             $block->parent = $this;
         }
@@ -123,19 +135,26 @@ abstract class GeneratedFinally extends CompoundNode
         $this->block = $block;
     }
 
-    protected function _validate(int $flags): void
+    public function _validate(int $flags): void
     {
-        if ($this->keyword === null) throw ValidationException::childRequired($this, "keyword");
-        if ($this->block === null) throw ValidationException::childRequired($this, "block");
-        if ($flags & self::VALIDATE_TYPES)
-        {
-        }
-        if ($flags & self::VALIDATE_EXPRESSION_CONTEXT)
-        {
-        }
-        if ($flags & self::VALIDATE_TOKENS)
-        {
-        }
-        $this->block->_validate($flags);
+        if ($this->keyword === null)
+            throw ValidationException::missingChild($this, "keyword");
+        if ($this->block === null)
+            throw ValidationException::missingChild($this, "block");
+        if ($this->keyword->getType() !== 181)
+            throw ValidationException::invalidSyntax($this->keyword, [181]);
+
+
+        $this->extraValidation($flags);
+
+        $this->block->_validate(0);
+    }
+
+    public function _autocorrect(): void
+    {
+        if ($this->block)
+            $this->block->_autocorrect();
+
+        $this->extraAutocorrect();
     }
 }

@@ -1,42 +1,44 @@
 <?php
 
+declare(strict_types=1);
+
+/**
+ * This code is generated.
+ * @see meta/
+ */
+
 namespace Phi\Nodes\Generated;
 
 use Phi\Node;
 use Phi\Token;
-use Phi\Nodes\Base\CompoundNode;
-use Phi\Nodes\Base\NodesList;
-use Phi\Nodes\Base\SeparatedNodesList;
-use Phi\Exception\MissingNodeException;
-use Phi\NodeConverter;
+use Phi\Exception\TreeException;
+use Phi\NodeCoercer;
 use Phi\Exception\ValidationException;
-use Phi\Nodes as Nodes;
 
-abstract class GeneratedVariableVariableExpression extends Nodes\Variable
+trait GeneratedVariableVariableExpression
 {
     /**
-     * @var Token|null
+     * @var \Phi\Token|null
      */
     private $dollar;
 
     /**
-     * @var Token|null
+     * @var \Phi\Token|null
      */
     private $leftBrace;
 
     /**
-     * @var Nodes\Expression|null
+     * @var \Phi\Nodes\Expression|null
      */
     private $name;
 
     /**
-     * @var Token|null
+     * @var \Phi\Token|null
      */
     private $rightBrace;
 
-
     /**
-     * @param Nodes\Expression|Node|string|null $name
+     * @param \Phi\Nodes\Expression|\Phi\Node|string|null $name
      */
     public function __construct($name = null)
     {
@@ -47,17 +49,15 @@ abstract class GeneratedVariableVariableExpression extends Nodes\Variable
     }
 
     /**
-     * @param int $phpVersion
-     * @param Token $dollar
-     * @param Token|null $leftBrace
-     * @param Nodes\Expression $name
-     * @param Token|null $rightBrace
-     * @return static
+     * @param \Phi\Token $dollar
+     * @param \Phi\Token|null $leftBrace
+     * @param \Phi\Nodes\Expression $name
+     * @param \Phi\Token|null $rightBrace
+     * @return self
      */
-    public static function __instantiateUnchecked($phpVersion, $dollar, $leftBrace, $name, $rightBrace)
+    public static function __instantiateUnchecked($dollar, $leftBrace, $name, $rightBrace)
     {
-        $instance = new static;
-        $instance->phpVersion = $phpVersion;
+        $instance = new self;
         $instance->dollar = $dollar;
         $dollar->parent = $instance;
         $instance->leftBrace = $leftBrace;
@@ -69,22 +69,42 @@ abstract class GeneratedVariableVariableExpression extends Nodes\Variable
         return $instance;
     }
 
-    protected function &_getNodeRefs(): array
+    public function getChildNodes(): array
     {
-        $refs = [
-            "dollar" => &$this->dollar,
-            "leftBrace" => &$this->leftBrace,
-            "name" => &$this->name,
-            "rightBrace" => &$this->rightBrace,
-        ];
-        return $refs;
+        return \array_values(\array_filter([
+            $this->dollar,
+            $this->leftBrace,
+            $this->name,
+            $this->rightBrace,
+        ]));
     }
 
-    public function getDollar(): Token
+    protected function &getChildRef(Node $childToDetach): Node
+    {
+        if ($this->dollar === $childToDetach)
+        {
+            return $this->dollar;
+        }
+        if ($this->leftBrace === $childToDetach)
+        {
+            return $this->leftBrace;
+        }
+        if ($this->name === $childToDetach)
+        {
+            return $this->name;
+        }
+        if ($this->rightBrace === $childToDetach)
+        {
+            return $this->rightBrace;
+        }
+        throw new \LogicException();
+    }
+
+    public function getDollar(): \Phi\Token
     {
         if ($this->dollar === null)
         {
-            throw new MissingNodeException($this, __FUNCTION__);
+            throw TreeException::missingNode($this, "dollar");
         }
         return $this->dollar;
     }
@@ -95,14 +115,14 @@ abstract class GeneratedVariableVariableExpression extends Nodes\Variable
     }
 
     /**
-     * @param Token|Node|string|null $dollar
+     * @param \Phi\Token|\Phi\Node|string|null $dollar
      */
     public function setDollar($dollar): void
     {
         if ($dollar !== null)
         {
-            /** @var Token $dollar */
-            $dollar = NodeConverter::convert($dollar, Token::class, $this->phpVersion);
+            /** @var \Phi\Token $dollar */
+            $dollar = NodeCoercer::coerce($dollar, \Phi\Token::class, $this->getPhpVersion());
             $dollar->detach();
             $dollar->parent = $this;
         }
@@ -113,7 +133,7 @@ abstract class GeneratedVariableVariableExpression extends Nodes\Variable
         $this->dollar = $dollar;
     }
 
-    public function getLeftBrace(): ?Token
+    public function getLeftBrace(): ?\Phi\Token
     {
         return $this->leftBrace;
     }
@@ -124,14 +144,14 @@ abstract class GeneratedVariableVariableExpression extends Nodes\Variable
     }
 
     /**
-     * @param Token|Node|string|null $leftBrace
+     * @param \Phi\Token|\Phi\Node|string|null $leftBrace
      */
     public function setLeftBrace($leftBrace): void
     {
         if ($leftBrace !== null)
         {
-            /** @var Token $leftBrace */
-            $leftBrace = NodeConverter::convert($leftBrace, Token::class, $this->phpVersion);
+            /** @var \Phi\Token $leftBrace */
+            $leftBrace = NodeCoercer::coerce($leftBrace, \Phi\Token::class, $this->getPhpVersion());
             $leftBrace->detach();
             $leftBrace->parent = $this;
         }
@@ -142,11 +162,11 @@ abstract class GeneratedVariableVariableExpression extends Nodes\Variable
         $this->leftBrace = $leftBrace;
     }
 
-    public function getName(): Nodes\Expression
+    public function getName(): \Phi\Nodes\Expression
     {
         if ($this->name === null)
         {
-            throw new MissingNodeException($this, __FUNCTION__);
+            throw TreeException::missingNode($this, "name");
         }
         return $this->name;
     }
@@ -157,14 +177,14 @@ abstract class GeneratedVariableVariableExpression extends Nodes\Variable
     }
 
     /**
-     * @param Nodes\Expression|Node|string|null $name
+     * @param \Phi\Nodes\Expression|\Phi\Node|string|null $name
      */
     public function setName($name): void
     {
         if ($name !== null)
         {
-            /** @var Nodes\Expression $name */
-            $name = NodeConverter::convert($name, Nodes\Expression::class, $this->phpVersion);
+            /** @var \Phi\Nodes\Expression $name */
+            $name = NodeCoercer::coerce($name, \Phi\Nodes\Expression::class, $this->getPhpVersion());
             $name->detach();
             $name->parent = $this;
         }
@@ -175,7 +195,7 @@ abstract class GeneratedVariableVariableExpression extends Nodes\Variable
         $this->name = $name;
     }
 
-    public function getRightBrace(): ?Token
+    public function getRightBrace(): ?\Phi\Token
     {
         return $this->rightBrace;
     }
@@ -186,14 +206,14 @@ abstract class GeneratedVariableVariableExpression extends Nodes\Variable
     }
 
     /**
-     * @param Token|Node|string|null $rightBrace
+     * @param \Phi\Token|\Phi\Node|string|null $rightBrace
      */
     public function setRightBrace($rightBrace): void
     {
         if ($rightBrace !== null)
         {
-            /** @var Token $rightBrace */
-            $rightBrace = NodeConverter::convert($rightBrace, Token::class, $this->phpVersion);
+            /** @var \Phi\Token $rightBrace */
+            $rightBrace = NodeCoercer::coerce($rightBrace, \Phi\Token::class, $this->getPhpVersion());
             $rightBrace->detach();
             $rightBrace->parent = $this;
         }
@@ -204,19 +224,32 @@ abstract class GeneratedVariableVariableExpression extends Nodes\Variable
         $this->rightBrace = $rightBrace;
     }
 
-    protected function _validate(int $flags): void
+    public function _validate(int $flags): void
     {
-        if ($this->dollar === null) throw ValidationException::childRequired($this, "dollar");
-        if ($this->name === null) throw ValidationException::childRequired($this, "name");
-        if ($flags & self::VALIDATE_TYPES)
-        {
-        }
-        if ($flags & self::VALIDATE_EXPRESSION_CONTEXT)
-        {
-        }
-        if ($flags & self::VALIDATE_TOKENS)
-        {
-        }
-        $this->name->_validate($flags);
+        if ($this->dollar === null)
+            throw ValidationException::missingChild($this, "dollar");
+        if ($this->name === null)
+            throw ValidationException::missingChild($this, "name");
+        if ($this->dollar->getType() !== 102)
+            throw ValidationException::invalidSyntax($this->dollar, [102]);
+        if ($this->leftBrace)
+        if ($this->leftBrace->getType() !== 124)
+            throw ValidationException::invalidSyntax($this->leftBrace, [124]);
+        if ($this->rightBrace)
+        if ($this->rightBrace->getType() !== 126)
+            throw ValidationException::invalidSyntax($this->rightBrace, [126]);
+
+
+        $this->extraValidation($flags);
+
+        $this->name->_validate(1);
+    }
+
+    public function _autocorrect(): void
+    {
+        if ($this->name)
+            $this->name->_autocorrect();
+
+        $this->extraAutocorrect();
     }
 }

@@ -1,29 +1,47 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Phi\Nodes;
 
 use Phi\Nodes\Base\CompoundNode;
 
 abstract class Expression extends CompoundNode
 {
-    // usually validateContext is given just one of these flags (exclusively)
-    // but occasionally a combination is required, e.g.:
-    // expr++ -> READ|WRITE
-    // [&expr] -> READ|ALIAS_WRITE
-    public const CTX_READ = 0x01;
-    public const CTX_WRITE = 0x02;
-    /** used e.g. for left-hand side of =& */
-    public const CTX_ALIAS_WRITE = 0x04;
-    /** used e.g. for right-hand side of =& */
-    public const CTX_ALIAS_READ = 0x08;
+    public const PRECEDENCE_CLONE = 70;
+    public const PRECEDENCE_POW = 62;
+    public const PRECEDENCE_CAST = 61;
+    public const PRECEDENCE_INSTANCEOF = 60;
+    public const PRECEDENCE_BOOLEAN_NOT = 50;
+    public const PRECEDENCE_MUL = 49;
+    public const PRECEDENCE_ADD = 48;
+    public const PRECEDENCE_SHIFT = 47;
+    public const PRECEDENCE_COMPARISON2 = 37;
+    public const PRECEDENCE_COMPARISON1 = 36;
+    public const PRECEDENCE_BITWISE_AND = 35;
+    public const PRECEDENCE_BITWISE_XOR = 34;
+    public const PRECEDENCE_BITWISE_OR = 33;
+    public const PRECEDENCE_SYMBOL_AND = 32;
+    public const PRECEDENCE_SYMBOL_OR = 31;
+    public const PRECEDENCE_COALESCE = 26;
+    public const PRECEDENCE_TERNARY = 25;
+    public const PRECEDENCE_YIELD = 24;
+    public const PRECEDENCE_KEYWORD_AND = 13;
+    public const PRECEDENCE_KEYWORD_XOR = 12;
+    public const PRECEDENCE_KEYWORD_OR = 11;
 
-    // this is *added* to CTX_READ by call arguments to support implicit pass by ref, e.g. foo($a[])
-    /** @see ParenthesizedExpression passes this flag to its nested expression */
-    /** @var ArrayAccessExpression ignores CTX_READ when it encounters this flag */
-    public const CTX_READ_IMPLICIT_BY_REF = 0x10;
+    public function isConstant(): bool
+    {
+        return false;
+    }
 
-    /** convenient shorthand since most expressions reject all alias contexts the same */
-    public const CTX_ALIAS = self::CTX_ALIAS_READ|self::CTX_ALIAS_WRITE;
+    public function isTemporary(): bool
+    {
+        return true;
+    }
 
-    abstract public function validateContext(int $flags): void;
+    public function getPrecedence(): int
+    {
+        return 99; // TODO needs to be implemented for all expressions
+    }
 }

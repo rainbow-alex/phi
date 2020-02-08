@@ -1,33 +1,35 @@
 <?php
 
+declare(strict_types=1);
+
+/**
+ * This code is generated.
+ * @see meta/
+ */
+
 namespace Phi\Nodes\Generated;
 
 use Phi\Node;
 use Phi\Token;
-use Phi\Nodes\Base\CompoundNode;
-use Phi\Nodes\Base\NodesList;
-use Phi\Nodes\Base\SeparatedNodesList;
-use Phi\Exception\MissingNodeException;
-use Phi\NodeConverter;
+use Phi\Exception\TreeException;
+use Phi\NodeCoercer;
 use Phi\Exception\ValidationException;
-use Phi\Nodes as Nodes;
 
-abstract class GeneratedInlineHtmlStatement extends Nodes\Statement
+trait GeneratedInlineHtmlStatement
 {
     /**
-     * @var Token|null
+     * @var \Phi\Token|null
      */
     private $content;
 
     /**
-     * @var Token|null
+     * @var \Phi\Token|null
      */
     private $openingTag;
 
-
     /**
-     * @param Token|Node|string|null $content
-     * @param Token|Node|string|null $openingTag
+     * @param \Phi\Token|\Phi\Node|string|null $content
+     * @param \Phi\Token|\Phi\Node|string|null $openingTag
      */
     public function __construct($content = null, $openingTag = null)
     {
@@ -42,15 +44,13 @@ abstract class GeneratedInlineHtmlStatement extends Nodes\Statement
     }
 
     /**
-     * @param int $phpVersion
-     * @param Token|null $content
-     * @param Token|null $openingTag
-     * @return static
+     * @param \Phi\Token|null $content
+     * @param \Phi\Token|null $openingTag
+     * @return self
      */
-    public static function __instantiateUnchecked($phpVersion, $content, $openingTag)
+    public static function __instantiateUnchecked($content, $openingTag)
     {
-        $instance = new static;
-        $instance->phpVersion = $phpVersion;
+        $instance = new self;
         $instance->content = $content;
         if ($content) $content->parent = $instance;
         $instance->openingTag = $openingTag;
@@ -58,16 +58,28 @@ abstract class GeneratedInlineHtmlStatement extends Nodes\Statement
         return $instance;
     }
 
-    protected function &_getNodeRefs(): array
+    public function getChildNodes(): array
     {
-        $refs = [
-            "content" => &$this->content,
-            "openingTag" => &$this->openingTag,
-        ];
-        return $refs;
+        return \array_values(\array_filter([
+            $this->content,
+            $this->openingTag,
+        ]));
     }
 
-    public function getContent(): ?Token
+    protected function &getChildRef(Node $childToDetach): Node
+    {
+        if ($this->content === $childToDetach)
+        {
+            return $this->content;
+        }
+        if ($this->openingTag === $childToDetach)
+        {
+            return $this->openingTag;
+        }
+        throw new \LogicException();
+    }
+
+    public function getContent(): ?\Phi\Token
     {
         return $this->content;
     }
@@ -78,14 +90,14 @@ abstract class GeneratedInlineHtmlStatement extends Nodes\Statement
     }
 
     /**
-     * @param Token|Node|string|null $content
+     * @param \Phi\Token|\Phi\Node|string|null $content
      */
     public function setContent($content): void
     {
         if ($content !== null)
         {
-            /** @var Token $content */
-            $content = NodeConverter::convert($content, Token::class, $this->phpVersion);
+            /** @var \Phi\Token $content */
+            $content = NodeCoercer::coerce($content, \Phi\Token::class, $this->getPhpVersion());
             $content->detach();
             $content->parent = $this;
         }
@@ -96,7 +108,7 @@ abstract class GeneratedInlineHtmlStatement extends Nodes\Statement
         $this->content = $content;
     }
 
-    public function getOpeningTag(): ?Token
+    public function getOpeningTag(): ?\Phi\Token
     {
         return $this->openingTag;
     }
@@ -107,14 +119,14 @@ abstract class GeneratedInlineHtmlStatement extends Nodes\Statement
     }
 
     /**
-     * @param Token|Node|string|null $openingTag
+     * @param \Phi\Token|\Phi\Node|string|null $openingTag
      */
     public function setOpeningTag($openingTag): void
     {
         if ($openingTag !== null)
         {
-            /** @var Token $openingTag */
-            $openingTag = NodeConverter::convert($openingTag, Token::class, $this->phpVersion);
+            /** @var \Phi\Token $openingTag */
+            $openingTag = NodeCoercer::coerce($openingTag, \Phi\Token::class, $this->getPhpVersion());
             $openingTag->detach();
             $openingTag->parent = $this;
         }
@@ -125,16 +137,23 @@ abstract class GeneratedInlineHtmlStatement extends Nodes\Statement
         $this->openingTag = $openingTag;
     }
 
-    protected function _validate(int $flags): void
+    public function _validate(int $flags): void
     {
-        if ($flags & self::VALIDATE_TYPES)
-        {
-        }
-        if ($flags & self::VALIDATE_EXPRESSION_CONTEXT)
-        {
-        }
-        if ($flags & self::VALIDATE_TOKENS)
-        {
-        }
+        if ($this->content)
+        if ($this->content->getType() !== 194)
+            throw ValidationException::invalidSyntax($this->content, [194]);
+        if ($this->openingTag)
+        if ($this->openingTag->getType() !== 223)
+            throw ValidationException::invalidSyntax($this->openingTag, [223]);
+
+
+        $this->extraValidation($flags);
+
+    }
+
+    public function _autocorrect(): void
+    {
+
+        $this->extraAutocorrect();
     }
 }

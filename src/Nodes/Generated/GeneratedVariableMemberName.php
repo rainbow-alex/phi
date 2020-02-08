@@ -1,37 +1,39 @@
 <?php
 
+declare(strict_types=1);
+
+/**
+ * This code is generated.
+ * @see meta/
+ */
+
 namespace Phi\Nodes\Generated;
 
 use Phi\Node;
 use Phi\Token;
-use Phi\Nodes\Base\CompoundNode;
-use Phi\Nodes\Base\NodesList;
-use Phi\Nodes\Base\SeparatedNodesList;
-use Phi\Exception\MissingNodeException;
-use Phi\NodeConverter;
+use Phi\Exception\TreeException;
+use Phi\NodeCoercer;
 use Phi\Exception\ValidationException;
-use Phi\Nodes as Nodes;
 
-abstract class GeneratedVariableMemberName extends Nodes\MemberName
+trait GeneratedVariableMemberName
 {
     /**
-     * @var Token|null
+     * @var \Phi\Token|null
      */
     private $leftBrace;
 
     /**
-     * @var Nodes\Expression|null
+     * @var \Phi\Nodes\Expression|null
      */
     private $expression;
 
     /**
-     * @var Token|null
+     * @var \Phi\Token|null
      */
     private $rightBrace;
 
-
     /**
-     * @param Nodes\Expression|Node|string|null $expression
+     * @param \Phi\Nodes\Expression|\Phi\Node|string|null $expression
      */
     public function __construct($expression = null)
     {
@@ -42,16 +44,14 @@ abstract class GeneratedVariableMemberName extends Nodes\MemberName
     }
 
     /**
-     * @param int $phpVersion
-     * @param Token|null $leftBrace
-     * @param Nodes\Expression $expression
-     * @param Token|null $rightBrace
-     * @return static
+     * @param \Phi\Token|null $leftBrace
+     * @param \Phi\Nodes\Expression $expression
+     * @param \Phi\Token|null $rightBrace
+     * @return self
      */
-    public static function __instantiateUnchecked($phpVersion, $leftBrace, $expression, $rightBrace)
+    public static function __instantiateUnchecked($leftBrace, $expression, $rightBrace)
     {
-        $instance = new static;
-        $instance->phpVersion = $phpVersion;
+        $instance = new self;
         $instance->leftBrace = $leftBrace;
         if ($leftBrace) $leftBrace->parent = $instance;
         $instance->expression = $expression;
@@ -61,17 +61,33 @@ abstract class GeneratedVariableMemberName extends Nodes\MemberName
         return $instance;
     }
 
-    protected function &_getNodeRefs(): array
+    public function getChildNodes(): array
     {
-        $refs = [
-            "leftBrace" => &$this->leftBrace,
-            "expression" => &$this->expression,
-            "rightBrace" => &$this->rightBrace,
-        ];
-        return $refs;
+        return \array_values(\array_filter([
+            $this->leftBrace,
+            $this->expression,
+            $this->rightBrace,
+        ]));
     }
 
-    public function getLeftBrace(): ?Token
+    protected function &getChildRef(Node $childToDetach): Node
+    {
+        if ($this->leftBrace === $childToDetach)
+        {
+            return $this->leftBrace;
+        }
+        if ($this->expression === $childToDetach)
+        {
+            return $this->expression;
+        }
+        if ($this->rightBrace === $childToDetach)
+        {
+            return $this->rightBrace;
+        }
+        throw new \LogicException();
+    }
+
+    public function getLeftBrace(): ?\Phi\Token
     {
         return $this->leftBrace;
     }
@@ -82,14 +98,14 @@ abstract class GeneratedVariableMemberName extends Nodes\MemberName
     }
 
     /**
-     * @param Token|Node|string|null $leftBrace
+     * @param \Phi\Token|\Phi\Node|string|null $leftBrace
      */
     public function setLeftBrace($leftBrace): void
     {
         if ($leftBrace !== null)
         {
-            /** @var Token $leftBrace */
-            $leftBrace = NodeConverter::convert($leftBrace, Token::class, $this->phpVersion);
+            /** @var \Phi\Token $leftBrace */
+            $leftBrace = NodeCoercer::coerce($leftBrace, \Phi\Token::class, $this->getPhpVersion());
             $leftBrace->detach();
             $leftBrace->parent = $this;
         }
@@ -100,11 +116,11 @@ abstract class GeneratedVariableMemberName extends Nodes\MemberName
         $this->leftBrace = $leftBrace;
     }
 
-    public function getExpression(): Nodes\Expression
+    public function getExpression(): \Phi\Nodes\Expression
     {
         if ($this->expression === null)
         {
-            throw new MissingNodeException($this, __FUNCTION__);
+            throw TreeException::missingNode($this, "expression");
         }
         return $this->expression;
     }
@@ -115,14 +131,14 @@ abstract class GeneratedVariableMemberName extends Nodes\MemberName
     }
 
     /**
-     * @param Nodes\Expression|Node|string|null $expression
+     * @param \Phi\Nodes\Expression|\Phi\Node|string|null $expression
      */
     public function setExpression($expression): void
     {
         if ($expression !== null)
         {
-            /** @var Nodes\Expression $expression */
-            $expression = NodeConverter::convert($expression, Nodes\Expression::class, $this->phpVersion);
+            /** @var \Phi\Nodes\Expression $expression */
+            $expression = NodeCoercer::coerce($expression, \Phi\Nodes\Expression::class, $this->getPhpVersion());
             $expression->detach();
             $expression->parent = $this;
         }
@@ -133,7 +149,7 @@ abstract class GeneratedVariableMemberName extends Nodes\MemberName
         $this->expression = $expression;
     }
 
-    public function getRightBrace(): ?Token
+    public function getRightBrace(): ?\Phi\Token
     {
         return $this->rightBrace;
     }
@@ -144,14 +160,14 @@ abstract class GeneratedVariableMemberName extends Nodes\MemberName
     }
 
     /**
-     * @param Token|Node|string|null $rightBrace
+     * @param \Phi\Token|\Phi\Node|string|null $rightBrace
      */
     public function setRightBrace($rightBrace): void
     {
         if ($rightBrace !== null)
         {
-            /** @var Token $rightBrace */
-            $rightBrace = NodeConverter::convert($rightBrace, Token::class, $this->phpVersion);
+            /** @var \Phi\Token $rightBrace */
+            $rightBrace = NodeCoercer::coerce($rightBrace, \Phi\Token::class, $this->getPhpVersion());
             $rightBrace->detach();
             $rightBrace->parent = $this;
         }
@@ -162,18 +178,28 @@ abstract class GeneratedVariableMemberName extends Nodes\MemberName
         $this->rightBrace = $rightBrace;
     }
 
-    protected function _validate(int $flags): void
+    public function _validate(int $flags): void
     {
-        if ($this->expression === null) throw ValidationException::childRequired($this, "expression");
-        if ($flags & self::VALIDATE_TYPES)
-        {
-        }
-        if ($flags & self::VALIDATE_EXPRESSION_CONTEXT)
-        {
-        }
-        if ($flags & self::VALIDATE_TOKENS)
-        {
-        }
-        $this->expression->_validate($flags);
+        if ($this->expression === null)
+            throw ValidationException::missingChild($this, "expression");
+        if ($this->leftBrace)
+        if ($this->leftBrace->getType() !== 124)
+            throw ValidationException::invalidSyntax($this->leftBrace, [124]);
+        if ($this->rightBrace)
+        if ($this->rightBrace->getType() !== 126)
+            throw ValidationException::invalidSyntax($this->rightBrace, [126]);
+
+
+        $this->extraValidation($flags);
+
+        $this->expression->_validate(1);
+    }
+
+    public function _autocorrect(): void
+    {
+        if ($this->expression)
+            $this->expression->_autocorrect();
+
+        $this->extraAutocorrect();
     }
 }

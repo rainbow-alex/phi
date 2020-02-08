@@ -1,59 +1,59 @@
 <?php
 
+declare(strict_types=1);
+
+/**
+ * This code is generated.
+ * @see meta/
+ */
+
 namespace Phi\Nodes\Generated;
 
 use Phi\Node;
 use Phi\Token;
-use Phi\Nodes\Base\CompoundNode;
-use Phi\Nodes\Base\NodesList;
-use Phi\Nodes\Base\SeparatedNodesList;
-use Phi\Exception\MissingNodeException;
-use Phi\NodeConverter;
+use Phi\Exception\TreeException;
+use Phi\NodeCoercer;
 use Phi\Exception\ValidationException;
-use Phi\Nodes as Nodes;
 
-abstract class GeneratedShortArrayExpression extends Nodes\Expression
+trait GeneratedShortArrayExpression
 {
     /**
-     * @var Token|null
+     * @var \Phi\Token|null
      */
     private $leftBracket;
 
     /**
-     * @var SeparatedNodesList|Nodes\ArrayItem[]
-     * @phpstan-var SeparatedNodesList<\Phi\Nodes\ArrayItem>
+     * @var \Phi\Nodes\Base\SeparatedNodesList|\Phi\Nodes\Expressions\ArrayItem[]
+     * @phpstan-var \Phi\Nodes\Base\SeparatedNodesList<\Phi\Nodes\Expressions\ArrayItem>
      */
     private $items;
 
     /**
-     * @var Token|null
+     * @var \Phi\Token|null
      */
     private $rightBracket;
 
-
     /**
-     * @param Nodes\ArrayItem $item
+     * @param \Phi\Nodes\Expressions\ArrayItem $item
      */
     public function __construct($item = null)
     {
-        $this->items = new SeparatedNodesList();
+        $this->items = new \Phi\Nodes\Base\SeparatedNodesList(\Phi\Nodes\Expressions\ArrayItem::class);
         if ($item !== null)
         {
-            $this->addItem($item);
+            $this->items->add($item);
         }
     }
 
     /**
-     * @param int $phpVersion
-     * @param Token $leftBracket
+     * @param \Phi\Token $leftBracket
      * @param mixed[] $items
-     * @param Token $rightBracket
-     * @return static
+     * @param \Phi\Token $rightBracket
+     * @return self
      */
-    public static function __instantiateUnchecked($phpVersion, $leftBracket, $items, $rightBracket)
+    public static function __instantiateUnchecked($leftBracket, $items, $rightBracket)
     {
-        $instance = new static;
-        $instance->phpVersion = $phpVersion;
+        $instance = new self;
         $instance->leftBracket = $leftBracket;
         $leftBracket->parent = $instance;
         $instance->items->__initUnchecked($items);
@@ -63,21 +63,33 @@ abstract class GeneratedShortArrayExpression extends Nodes\Expression
         return $instance;
     }
 
-    protected function &_getNodeRefs(): array
+    public function getChildNodes(): array
     {
-        $refs = [
-            "leftBracket" => &$this->leftBracket,
-            "items" => &$this->items,
-            "rightBracket" => &$this->rightBracket,
-        ];
-        return $refs;
+        return \array_values(\array_filter([
+            $this->leftBracket,
+            $this->items,
+            $this->rightBracket,
+        ]));
     }
 
-    public function getLeftBracket(): Token
+    protected function &getChildRef(Node $childToDetach): Node
+    {
+        if ($this->leftBracket === $childToDetach)
+        {
+            return $this->leftBracket;
+        }
+        if ($this->rightBracket === $childToDetach)
+        {
+            return $this->rightBracket;
+        }
+        throw new \LogicException();
+    }
+
+    public function getLeftBracket(): \Phi\Token
     {
         if ($this->leftBracket === null)
         {
-            throw new MissingNodeException($this, __FUNCTION__);
+            throw TreeException::missingNode($this, "leftBracket");
         }
         return $this->leftBracket;
     }
@@ -88,14 +100,14 @@ abstract class GeneratedShortArrayExpression extends Nodes\Expression
     }
 
     /**
-     * @param Token|Node|string|null $leftBracket
+     * @param \Phi\Token|\Phi\Node|string|null $leftBracket
      */
     public function setLeftBracket($leftBracket): void
     {
         if ($leftBracket !== null)
         {
-            /** @var Token $leftBracket */
-            $leftBracket = NodeConverter::convert($leftBracket, Token::class, $this->phpVersion);
+            /** @var \Phi\Token $leftBracket */
+            $leftBracket = NodeCoercer::coerce($leftBracket, \Phi\Token::class, $this->getPhpVersion());
             $leftBracket->detach();
             $leftBracket->parent = $this;
         }
@@ -107,29 +119,19 @@ abstract class GeneratedShortArrayExpression extends Nodes\Expression
     }
 
     /**
-     * @return SeparatedNodesList|Nodes\ArrayItem[]
-     * @phpstan-return SeparatedNodesList<\Phi\Nodes\ArrayItem>
+     * @return \Phi\Nodes\Base\SeparatedNodesList|\Phi\Nodes\Expressions\ArrayItem[]
+     * @phpstan-return \Phi\Nodes\Base\SeparatedNodesList<\Phi\Nodes\Expressions\ArrayItem>
      */
-    public function getItems(): SeparatedNodesList
+    public function getItems(): \Phi\Nodes\Base\SeparatedNodesList
     {
         return $this->items;
     }
 
-    /**
-     * @param Nodes\ArrayItem $item
-     */
-    public function addItem($item): void
-    {
-        /** @var Nodes\ArrayItem $item */
-        $item = NodeConverter::convert($item, Nodes\ArrayItem::class, $this->phpVersion);
-        $this->items->add($item);
-    }
-
-    public function getRightBracket(): Token
+    public function getRightBracket(): \Phi\Token
     {
         if ($this->rightBracket === null)
         {
-            throw new MissingNodeException($this, __FUNCTION__);
+            throw TreeException::missingNode($this, "rightBracket");
         }
         return $this->rightBracket;
     }
@@ -140,14 +142,14 @@ abstract class GeneratedShortArrayExpression extends Nodes\Expression
     }
 
     /**
-     * @param Token|Node|string|null $rightBracket
+     * @param \Phi\Token|\Phi\Node|string|null $rightBracket
      */
     public function setRightBracket($rightBracket): void
     {
         if ($rightBracket !== null)
         {
-            /** @var Token $rightBracket */
-            $rightBracket = NodeConverter::convert($rightBracket, Token::class, $this->phpVersion);
+            /** @var \Phi\Token $rightBracket */
+            $rightBracket = NodeCoercer::coerce($rightBracket, \Phi\Token::class, $this->getPhpVersion());
             $rightBracket->detach();
             $rightBracket->parent = $this;
         }
@@ -158,19 +160,32 @@ abstract class GeneratedShortArrayExpression extends Nodes\Expression
         $this->rightBracket = $rightBracket;
     }
 
-    protected function _validate(int $flags): void
+    public function _validate(int $flags): void
     {
-        if ($this->leftBracket === null) throw ValidationException::childRequired($this, "leftBracket");
-        if ($this->rightBracket === null) throw ValidationException::childRequired($this, "rightBracket");
-        if ($flags & self::VALIDATE_TYPES)
-        {
-        }
-        if ($flags & self::VALIDATE_EXPRESSION_CONTEXT)
-        {
-        }
-        if ($flags & self::VALIDATE_TOKENS)
-        {
-        }
-        $this->items->_validate($flags);
+        if ($this->leftBracket === null)
+            throw ValidationException::missingChild($this, "leftBracket");
+        if ($this->rightBracket === null)
+            throw ValidationException::missingChild($this, "rightBracket");
+        if ($this->leftBracket->getType() !== 120)
+            throw ValidationException::invalidSyntax($this->leftBracket, [120]);
+        foreach ($this->items->getSeparators() as $t)
+            if ($t && $t->getType() !== 109)
+                throw ValidationException::invalidSyntax($t, [109]);
+        if ($this->rightBracket->getType() !== 121)
+            throw ValidationException::invalidSyntax($this->rightBracket, [121]);
+
+        if ($flags & 12)
+            throw ValidationException::invalidExpressionInContext($this);
+
+        $this->extraValidation($flags);
+
+    }
+
+    public function _autocorrect(): void
+    {
+        foreach ($this->items as $t)
+            $t->_autocorrect();
+
+        $this->extraAutocorrect();
     }
 }

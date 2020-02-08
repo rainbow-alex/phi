@@ -11,6 +11,7 @@ if (count($argv) > 1)
 {
     foreach (array_slice($argv, 1) as $arg)
     {
+        $arg = str_replace('\n', "\n", $arg);
         echo "\e[45mphp -l\e[0m\n";
         system('echo ' . escapeshellarg('<?php ' . $arg . ';') . ' | php -l', $r);
         if ($r === 0)

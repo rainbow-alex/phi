@@ -1,24 +1,26 @@
 <?php
 
+declare(strict_types=1);
+
+/**
+ * This code is generated.
+ * @see meta/
+ */
+
 namespace Phi\Nodes\Generated;
 
 use Phi\Node;
 use Phi\Token;
-use Phi\Nodes\Base\CompoundNode;
-use Phi\Nodes\Base\NodesList;
-use Phi\Nodes\Base\SeparatedNodesList;
-use Phi\Exception\MissingNodeException;
-use Phi\NodeConverter;
+use Phi\Exception\TreeException;
+use Phi\NodeCoercer;
 use Phi\Exception\ValidationException;
-use Phi\Nodes as Nodes;
 
-abstract class GeneratedNopStatement extends Nodes\Statement
+trait GeneratedNopStatement
 {
     /**
-     * @var Token|null
+     * @var \Phi\Token|null
      */
     private $delimiter;
-
 
     /**
      */
@@ -27,32 +29,38 @@ abstract class GeneratedNopStatement extends Nodes\Statement
     }
 
     /**
-     * @param int $phpVersion
-     * @param Token $delimiter
-     * @return static
+     * @param \Phi\Token $delimiter
+     * @return self
      */
-    public static function __instantiateUnchecked($phpVersion, $delimiter)
+    public static function __instantiateUnchecked($delimiter)
     {
-        $instance = new static;
-        $instance->phpVersion = $phpVersion;
+        $instance = new self;
         $instance->delimiter = $delimiter;
         $delimiter->parent = $instance;
         return $instance;
     }
 
-    protected function &_getNodeRefs(): array
+    public function getChildNodes(): array
     {
-        $refs = [
-            "delimiter" => &$this->delimiter,
-        ];
-        return $refs;
+        return \array_values(\array_filter([
+            $this->delimiter,
+        ]));
     }
 
-    public function getDelimiter(): Token
+    protected function &getChildRef(Node $childToDetach): Node
+    {
+        if ($this->delimiter === $childToDetach)
+        {
+            return $this->delimiter;
+        }
+        throw new \LogicException();
+    }
+
+    public function getDelimiter(): \Phi\Token
     {
         if ($this->delimiter === null)
         {
-            throw new MissingNodeException($this, __FUNCTION__);
+            throw TreeException::missingNode($this, "delimiter");
         }
         return $this->delimiter;
     }
@@ -63,14 +71,14 @@ abstract class GeneratedNopStatement extends Nodes\Statement
     }
 
     /**
-     * @param Token|Node|string|null $delimiter
+     * @param \Phi\Token|\Phi\Node|string|null $delimiter
      */
     public function setDelimiter($delimiter): void
     {
         if ($delimiter !== null)
         {
-            /** @var Token $delimiter */
-            $delimiter = NodeConverter::convert($delimiter, Token::class, $this->phpVersion);
+            /** @var \Phi\Token $delimiter */
+            $delimiter = NodeCoercer::coerce($delimiter, \Phi\Token::class, $this->getPhpVersion());
             $delimiter->detach();
             $delimiter->parent = $this;
         }
@@ -81,17 +89,21 @@ abstract class GeneratedNopStatement extends Nodes\Statement
         $this->delimiter = $delimiter;
     }
 
-    protected function _validate(int $flags): void
+    public function _validate(int $flags): void
     {
-        if ($this->delimiter === null) throw ValidationException::childRequired($this, "delimiter");
-        if ($flags & self::VALIDATE_TYPES)
-        {
-        }
-        if ($flags & self::VALIDATE_EXPRESSION_CONTEXT)
-        {
-        }
-        if ($flags & self::VALIDATE_TOKENS)
-        {
-        }
+        if ($this->delimiter === null)
+            throw ValidationException::missingChild($this, "delimiter");
+        if (!\in_array($this->delimiter->getType(), [114, 143], true))
+            throw ValidationException::invalidSyntax($this->delimiter, [114, 143]);
+
+
+        $this->extraValidation($flags);
+
+    }
+
+    public function _autocorrect(): void
+    {
+
+        $this->extraAutocorrect();
     }
 }

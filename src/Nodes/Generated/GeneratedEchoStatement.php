@@ -1,54 +1,54 @@
 <?php
 
+declare(strict_types=1);
+
+/**
+ * This code is generated.
+ * @see meta/
+ */
+
 namespace Phi\Nodes\Generated;
 
 use Phi\Node;
 use Phi\Token;
-use Phi\Nodes\Base\CompoundNode;
-use Phi\Nodes\Base\NodesList;
-use Phi\Nodes\Base\SeparatedNodesList;
-use Phi\Exception\MissingNodeException;
-use Phi\NodeConverter;
+use Phi\Exception\TreeException;
+use Phi\NodeCoercer;
 use Phi\Exception\ValidationException;
-use Phi\Nodes as Nodes;
 
-abstract class GeneratedEchoStatement extends Nodes\Statement
+trait GeneratedEchoStatement
 {
     /**
-     * @var Token|null
+     * @var \Phi\Token|null
      */
     private $keyword;
 
     /**
-     * @var SeparatedNodesList|Nodes\Expression[]
-     * @phpstan-var SeparatedNodesList<\Phi\Nodes\Expression>
+     * @var \Phi\Nodes\Base\SeparatedNodesList|\Phi\Nodes\Expression[]
+     * @phpstan-var \Phi\Nodes\Base\SeparatedNodesList<\Phi\Nodes\Expression>
      */
     private $expressions;
 
     /**
-     * @var Token|null
+     * @var \Phi\Token|null
      */
     private $delimiter;
-
 
     /**
      */
     public function __construct()
     {
-        $this->expressions = new SeparatedNodesList();
+        $this->expressions = new \Phi\Nodes\Base\SeparatedNodesList(\Phi\Nodes\Expression::class);
     }
 
     /**
-     * @param int $phpVersion
-     * @param Token $keyword
+     * @param \Phi\Token $keyword
      * @param mixed[] $expressions
-     * @param Token $delimiter
-     * @return static
+     * @param \Phi\Token $delimiter
+     * @return self
      */
-    public static function __instantiateUnchecked($phpVersion, $keyword, $expressions, $delimiter)
+    public static function __instantiateUnchecked($keyword, $expressions, $delimiter)
     {
-        $instance = new static;
-        $instance->phpVersion = $phpVersion;
+        $instance = new self;
         $instance->keyword = $keyword;
         $keyword->parent = $instance;
         $instance->expressions->__initUnchecked($expressions);
@@ -58,21 +58,33 @@ abstract class GeneratedEchoStatement extends Nodes\Statement
         return $instance;
     }
 
-    protected function &_getNodeRefs(): array
+    public function getChildNodes(): array
     {
-        $refs = [
-            "keyword" => &$this->keyword,
-            "expressions" => &$this->expressions,
-            "delimiter" => &$this->delimiter,
-        ];
-        return $refs;
+        return \array_values(\array_filter([
+            $this->keyword,
+            $this->expressions,
+            $this->delimiter,
+        ]));
     }
 
-    public function getKeyword(): Token
+    protected function &getChildRef(Node $childToDetach): Node
+    {
+        if ($this->keyword === $childToDetach)
+        {
+            return $this->keyword;
+        }
+        if ($this->delimiter === $childToDetach)
+        {
+            return $this->delimiter;
+        }
+        throw new \LogicException();
+    }
+
+    public function getKeyword(): \Phi\Token
     {
         if ($this->keyword === null)
         {
-            throw new MissingNodeException($this, __FUNCTION__);
+            throw TreeException::missingNode($this, "keyword");
         }
         return $this->keyword;
     }
@@ -83,14 +95,14 @@ abstract class GeneratedEchoStatement extends Nodes\Statement
     }
 
     /**
-     * @param Token|Node|string|null $keyword
+     * @param \Phi\Token|\Phi\Node|string|null $keyword
      */
     public function setKeyword($keyword): void
     {
         if ($keyword !== null)
         {
-            /** @var Token $keyword */
-            $keyword = NodeConverter::convert($keyword, Token::class, $this->phpVersion);
+            /** @var \Phi\Token $keyword */
+            $keyword = NodeCoercer::coerce($keyword, \Phi\Token::class, $this->getPhpVersion());
             $keyword->detach();
             $keyword->parent = $this;
         }
@@ -102,29 +114,19 @@ abstract class GeneratedEchoStatement extends Nodes\Statement
     }
 
     /**
-     * @return SeparatedNodesList|Nodes\Expression[]
-     * @phpstan-return SeparatedNodesList<\Phi\Nodes\Expression>
+     * @return \Phi\Nodes\Base\SeparatedNodesList|\Phi\Nodes\Expression[]
+     * @phpstan-return \Phi\Nodes\Base\SeparatedNodesList<\Phi\Nodes\Expression>
      */
-    public function getExpressions(): SeparatedNodesList
+    public function getExpressions(): \Phi\Nodes\Base\SeparatedNodesList
     {
         return $this->expressions;
     }
 
-    /**
-     * @param Nodes\Expression $expression
-     */
-    public function addExpression($expression): void
-    {
-        /** @var Nodes\Expression $expression */
-        $expression = NodeConverter::convert($expression, Nodes\Expression::class, $this->phpVersion);
-        $this->expressions->add($expression);
-    }
-
-    public function getDelimiter(): Token
+    public function getDelimiter(): \Phi\Token
     {
         if ($this->delimiter === null)
         {
-            throw new MissingNodeException($this, __FUNCTION__);
+            throw TreeException::missingNode($this, "delimiter");
         }
         return $this->delimiter;
     }
@@ -135,14 +137,14 @@ abstract class GeneratedEchoStatement extends Nodes\Statement
     }
 
     /**
-     * @param Token|Node|string|null $delimiter
+     * @param \Phi\Token|\Phi\Node|string|null $delimiter
      */
     public function setDelimiter($delimiter): void
     {
         if ($delimiter !== null)
         {
-            /** @var Token $delimiter */
-            $delimiter = NodeConverter::convert($delimiter, Token::class, $this->phpVersion);
+            /** @var \Phi\Token $delimiter */
+            $delimiter = NodeCoercer::coerce($delimiter, \Phi\Token::class, $this->getPhpVersion());
             $delimiter->detach();
             $delimiter->parent = $this;
         }
@@ -153,19 +155,32 @@ abstract class GeneratedEchoStatement extends Nodes\Statement
         $this->delimiter = $delimiter;
     }
 
-    protected function _validate(int $flags): void
+    public function _validate(int $flags): void
     {
-        if ($this->keyword === null) throw ValidationException::childRequired($this, "keyword");
-        if ($this->delimiter === null) throw ValidationException::childRequired($this, "delimiter");
-        if ($flags & self::VALIDATE_TYPES)
-        {
-        }
-        if ($flags & self::VALIDATE_EXPRESSION_CONTEXT)
-        {
-        }
-        if ($flags & self::VALIDATE_TOKENS)
-        {
-        }
-        $this->expressions->_validate($flags);
+        if ($this->keyword === null)
+            throw ValidationException::missingChild($this, "keyword");
+        if ($this->delimiter === null)
+            throw ValidationException::missingChild($this, "delimiter");
+        if (!\in_array($this->keyword->getType(), [163, 224], true))
+            throw ValidationException::invalidSyntax($this->keyword, [163, 224]);
+        foreach ($this->expressions->getSeparators() as $t)
+            if ($t && $t->getType() !== 109)
+                throw ValidationException::invalidSyntax($t, [109]);
+        if (!\in_array($this->delimiter->getType(), [114, 143], true))
+            throw ValidationException::invalidSyntax($this->delimiter, [114, 143]);
+
+
+        $this->extraValidation($flags);
+
+        foreach ($this->expressions as $t)
+            $t->_validate(1);
+    }
+
+    public function _autocorrect(): void
+    {
+        foreach ($this->expressions as $t)
+            $t->_autocorrect();
+
+        $this->extraAutocorrect();
     }
 }

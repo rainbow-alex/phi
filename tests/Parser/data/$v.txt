@@ -1,0 +1,13 @@
+{"algo": "cycle"}
+
+// every time you use $v a different variable is substituted (from left to right)
+// e.g. $v + $v - $v --> $a + $b - $c
+// this reduces the chances of false positives in assertions
+
+$a
+$b
+$c
+$d
+$e
+$f
+$g

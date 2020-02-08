@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Phi;
 
 if (getenv('PHI_DISABLE_PARSER_OPT') || defined('__PHPSTAN_RUNNING__'))

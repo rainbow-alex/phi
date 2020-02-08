@@ -1,72 +1,72 @@
 <?php
 
+declare(strict_types=1);
+
+/**
+ * This code is generated.
+ * @see meta/
+ */
+
 namespace Phi\Nodes\Generated;
 
 use Phi\Node;
 use Phi\Token;
-use Phi\Nodes\Base\CompoundNode;
-use Phi\Nodes\Base\NodesList;
-use Phi\Nodes\Base\SeparatedNodesList;
-use Phi\Exception\MissingNodeException;
-use Phi\NodeConverter;
+use Phi\Exception\TreeException;
+use Phi\NodeCoercer;
 use Phi\Exception\ValidationException;
-use Phi\Nodes as Nodes;
 
-abstract class GeneratedCatch extends CompoundNode
+trait GeneratedCatch
 {
     /**
-     * @var Token|null
+     * @var \Phi\Token|null
      */
     private $keyword;
 
     /**
-     * @var Token|null
+     * @var \Phi\Token|null
      */
     private $leftParenthesis;
 
     /**
-     * @var SeparatedNodesList|Nodes\Type[]
-     * @phpstan-var SeparatedNodesList<\Phi\Nodes\Type>
+     * @var \Phi\Nodes\Base\SeparatedNodesList|\Phi\Nodes\Type[]
+     * @phpstan-var \Phi\Nodes\Base\SeparatedNodesList<\Phi\Nodes\Type>
      */
     private $types;
 
     /**
-     * @var Token|null
+     * @var \Phi\Token|null
      */
     private $variable;
 
     /**
-     * @var Token|null
+     * @var \Phi\Token|null
      */
     private $rightParenthesis;
 
     /**
-     * @var Nodes\RegularBlock|null
+     * @var \Phi\Nodes\Blocks\RegularBlock|null
      */
     private $block;
-
 
     /**
      */
     public function __construct()
     {
-        $this->types = new SeparatedNodesList();
+        $this->types = new \Phi\Nodes\Base\SeparatedNodesList(\Phi\Nodes\Type::class);
     }
 
     /**
-     * @param int $phpVersion
-     * @param Token $keyword
-     * @param Token $leftParenthesis
+     * @param \Phi\Token $keyword
+     * @param \Phi\Token $leftParenthesis
      * @param mixed[] $types
-     * @param Token $variable
-     * @param Token $rightParenthesis
-     * @param Nodes\RegularBlock $block
-     * @return static
+     * @param \Phi\Token $variable
+     * @param \Phi\Token $rightParenthesis
+     * @param \Phi\Nodes\Blocks\RegularBlock $block
+     * @return self
      */
-    public static function __instantiateUnchecked($phpVersion, $keyword, $leftParenthesis, $types, $variable, $rightParenthesis, $block)
+    public static function __instantiateUnchecked($keyword, $leftParenthesis, $types, $variable, $rightParenthesis, $block)
     {
-        $instance = new static;
-        $instance->phpVersion = $phpVersion;
+        $instance = new self;
         $instance->keyword = $keyword;
         $keyword->parent = $instance;
         $instance->leftParenthesis = $leftParenthesis;
@@ -82,24 +82,48 @@ abstract class GeneratedCatch extends CompoundNode
         return $instance;
     }
 
-    protected function &_getNodeRefs(): array
+    public function getChildNodes(): array
     {
-        $refs = [
-            "keyword" => &$this->keyword,
-            "leftParenthesis" => &$this->leftParenthesis,
-            "types" => &$this->types,
-            "variable" => &$this->variable,
-            "rightParenthesis" => &$this->rightParenthesis,
-            "block" => &$this->block,
-        ];
-        return $refs;
+        return \array_values(\array_filter([
+            $this->keyword,
+            $this->leftParenthesis,
+            $this->types,
+            $this->variable,
+            $this->rightParenthesis,
+            $this->block,
+        ]));
     }
 
-    public function getKeyword(): Token
+    protected function &getChildRef(Node $childToDetach): Node
+    {
+        if ($this->keyword === $childToDetach)
+        {
+            return $this->keyword;
+        }
+        if ($this->leftParenthesis === $childToDetach)
+        {
+            return $this->leftParenthesis;
+        }
+        if ($this->variable === $childToDetach)
+        {
+            return $this->variable;
+        }
+        if ($this->rightParenthesis === $childToDetach)
+        {
+            return $this->rightParenthesis;
+        }
+        if ($this->block === $childToDetach)
+        {
+            return $this->block;
+        }
+        throw new \LogicException();
+    }
+
+    public function getKeyword(): \Phi\Token
     {
         if ($this->keyword === null)
         {
-            throw new MissingNodeException($this, __FUNCTION__);
+            throw TreeException::missingNode($this, "keyword");
         }
         return $this->keyword;
     }
@@ -110,14 +134,14 @@ abstract class GeneratedCatch extends CompoundNode
     }
 
     /**
-     * @param Token|Node|string|null $keyword
+     * @param \Phi\Token|\Phi\Node|string|null $keyword
      */
     public function setKeyword($keyword): void
     {
         if ($keyword !== null)
         {
-            /** @var Token $keyword */
-            $keyword = NodeConverter::convert($keyword, Token::class, $this->phpVersion);
+            /** @var \Phi\Token $keyword */
+            $keyword = NodeCoercer::coerce($keyword, \Phi\Token::class, $this->getPhpVersion());
             $keyword->detach();
             $keyword->parent = $this;
         }
@@ -128,11 +152,11 @@ abstract class GeneratedCatch extends CompoundNode
         $this->keyword = $keyword;
     }
 
-    public function getLeftParenthesis(): Token
+    public function getLeftParenthesis(): \Phi\Token
     {
         if ($this->leftParenthesis === null)
         {
-            throw new MissingNodeException($this, __FUNCTION__);
+            throw TreeException::missingNode($this, "leftParenthesis");
         }
         return $this->leftParenthesis;
     }
@@ -143,14 +167,14 @@ abstract class GeneratedCatch extends CompoundNode
     }
 
     /**
-     * @param Token|Node|string|null $leftParenthesis
+     * @param \Phi\Token|\Phi\Node|string|null $leftParenthesis
      */
     public function setLeftParenthesis($leftParenthesis): void
     {
         if ($leftParenthesis !== null)
         {
-            /** @var Token $leftParenthesis */
-            $leftParenthesis = NodeConverter::convert($leftParenthesis, Token::class, $this->phpVersion);
+            /** @var \Phi\Token $leftParenthesis */
+            $leftParenthesis = NodeCoercer::coerce($leftParenthesis, \Phi\Token::class, $this->getPhpVersion());
             $leftParenthesis->detach();
             $leftParenthesis->parent = $this;
         }
@@ -162,29 +186,19 @@ abstract class GeneratedCatch extends CompoundNode
     }
 
     /**
-     * @return SeparatedNodesList|Nodes\Type[]
-     * @phpstan-return SeparatedNodesList<\Phi\Nodes\Type>
+     * @return \Phi\Nodes\Base\SeparatedNodesList|\Phi\Nodes\Type[]
+     * @phpstan-return \Phi\Nodes\Base\SeparatedNodesList<\Phi\Nodes\Type>
      */
-    public function getTypes(): SeparatedNodesList
+    public function getTypes(): \Phi\Nodes\Base\SeparatedNodesList
     {
         return $this->types;
     }
 
-    /**
-     * @param Nodes\Type $typ
-     */
-    public function addTyp($typ): void
-    {
-        /** @var Nodes\Type $typ */
-        $typ = NodeConverter::convert($typ, Nodes\Type::class, $this->phpVersion);
-        $this->types->add($typ);
-    }
-
-    public function getVariable(): Token
+    public function getVariable(): \Phi\Token
     {
         if ($this->variable === null)
         {
-            throw new MissingNodeException($this, __FUNCTION__);
+            throw TreeException::missingNode($this, "variable");
         }
         return $this->variable;
     }
@@ -195,14 +209,14 @@ abstract class GeneratedCatch extends CompoundNode
     }
 
     /**
-     * @param Token|Node|string|null $variable
+     * @param \Phi\Token|\Phi\Node|string|null $variable
      */
     public function setVariable($variable): void
     {
         if ($variable !== null)
         {
-            /** @var Token $variable */
-            $variable = NodeConverter::convert($variable, Token::class, $this->phpVersion);
+            /** @var \Phi\Token $variable */
+            $variable = NodeCoercer::coerce($variable, \Phi\Token::class, $this->getPhpVersion());
             $variable->detach();
             $variable->parent = $this;
         }
@@ -213,11 +227,11 @@ abstract class GeneratedCatch extends CompoundNode
         $this->variable = $variable;
     }
 
-    public function getRightParenthesis(): Token
+    public function getRightParenthesis(): \Phi\Token
     {
         if ($this->rightParenthesis === null)
         {
-            throw new MissingNodeException($this, __FUNCTION__);
+            throw TreeException::missingNode($this, "rightParenthesis");
         }
         return $this->rightParenthesis;
     }
@@ -228,14 +242,14 @@ abstract class GeneratedCatch extends CompoundNode
     }
 
     /**
-     * @param Token|Node|string|null $rightParenthesis
+     * @param \Phi\Token|\Phi\Node|string|null $rightParenthesis
      */
     public function setRightParenthesis($rightParenthesis): void
     {
         if ($rightParenthesis !== null)
         {
-            /** @var Token $rightParenthesis */
-            $rightParenthesis = NodeConverter::convert($rightParenthesis, Token::class, $this->phpVersion);
+            /** @var \Phi\Token $rightParenthesis */
+            $rightParenthesis = NodeCoercer::coerce($rightParenthesis, \Phi\Token::class, $this->getPhpVersion());
             $rightParenthesis->detach();
             $rightParenthesis->parent = $this;
         }
@@ -246,11 +260,11 @@ abstract class GeneratedCatch extends CompoundNode
         $this->rightParenthesis = $rightParenthesis;
     }
 
-    public function getBlock(): Nodes\RegularBlock
+    public function getBlock(): \Phi\Nodes\Blocks\RegularBlock
     {
         if ($this->block === null)
         {
-            throw new MissingNodeException($this, __FUNCTION__);
+            throw TreeException::missingNode($this, "block");
         }
         return $this->block;
     }
@@ -261,14 +275,14 @@ abstract class GeneratedCatch extends CompoundNode
     }
 
     /**
-     * @param Nodes\RegularBlock|Node|string|null $block
+     * @param \Phi\Nodes\Blocks\RegularBlock|\Phi\Node|string|null $block
      */
     public function setBlock($block): void
     {
         if ($block !== null)
         {
-            /** @var Nodes\RegularBlock $block */
-            $block = NodeConverter::convert($block, Nodes\RegularBlock::class, $this->phpVersion);
+            /** @var \Phi\Nodes\Blocks\RegularBlock $block */
+            $block = NodeCoercer::coerce($block, \Phi\Nodes\Blocks\RegularBlock::class, $this->getPhpVersion());
             $block->detach();
             $block->parent = $this;
         }
@@ -279,23 +293,45 @@ abstract class GeneratedCatch extends CompoundNode
         $this->block = $block;
     }
 
-    protected function _validate(int $flags): void
+    public function _validate(int $flags): void
     {
-        if ($this->keyword === null) throw ValidationException::childRequired($this, "keyword");
-        if ($this->leftParenthesis === null) throw ValidationException::childRequired($this, "leftParenthesis");
-        if ($this->variable === null) throw ValidationException::childRequired($this, "variable");
-        if ($this->rightParenthesis === null) throw ValidationException::childRequired($this, "rightParenthesis");
-        if ($this->block === null) throw ValidationException::childRequired($this, "block");
-        if ($flags & self::VALIDATE_TYPES)
-        {
-        }
-        if ($flags & self::VALIDATE_EXPRESSION_CONTEXT)
-        {
-        }
-        if ($flags & self::VALIDATE_TOKENS)
-        {
-        }
-        $this->types->_validate($flags);
-        $this->block->_validate($flags);
+        if ($this->keyword === null)
+            throw ValidationException::missingChild($this, "keyword");
+        if ($this->leftParenthesis === null)
+            throw ValidationException::missingChild($this, "leftParenthesis");
+        if ($this->variable === null)
+            throw ValidationException::missingChild($this, "variable");
+        if ($this->rightParenthesis === null)
+            throw ValidationException::missingChild($this, "rightParenthesis");
+        if ($this->block === null)
+            throw ValidationException::missingChild($this, "block");
+        if ($this->keyword->getType() !== 139)
+            throw ValidationException::invalidSyntax($this->keyword, [139]);
+        if ($this->leftParenthesis->getType() !== 105)
+            throw ValidationException::invalidSyntax($this->leftParenthesis, [105]);
+        foreach ($this->types->getSeparators() as $t)
+            if ($t && $t->getType() !== 125)
+                throw ValidationException::invalidSyntax($t, [125]);
+        if ($this->variable->getType() !== 255)
+            throw ValidationException::invalidSyntax($this->variable, [255]);
+        if ($this->rightParenthesis->getType() !== 106)
+            throw ValidationException::invalidSyntax($this->rightParenthesis, [106]);
+
+
+        $this->extraValidation($flags);
+
+        foreach ($this->types as $t)
+            $t->_validate(0);
+        $this->block->_validate(0);
+    }
+
+    public function _autocorrect(): void
+    {
+        foreach ($this->types as $t)
+            $t->_autocorrect();
+        if ($this->block)
+            $this->block->_autocorrect();
+
+        $this->extraAutocorrect();
     }
 }

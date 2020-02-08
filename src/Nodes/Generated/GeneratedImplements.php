@@ -1,53 +1,53 @@
 <?php
 
+declare(strict_types=1);
+
+/**
+ * This code is generated.
+ * @see meta/
+ */
+
 namespace Phi\Nodes\Generated;
 
 use Phi\Node;
 use Phi\Token;
-use Phi\Nodes\Base\CompoundNode;
-use Phi\Nodes\Base\NodesList;
-use Phi\Nodes\Base\SeparatedNodesList;
-use Phi\Exception\MissingNodeException;
-use Phi\NodeConverter;
+use Phi\Exception\TreeException;
+use Phi\NodeCoercer;
 use Phi\Exception\ValidationException;
-use Phi\Nodes as Nodes;
 
-abstract class GeneratedImplements extends CompoundNode
+trait GeneratedImplements
 {
     /**
-     * @var Token|null
+     * @var \Phi\Token|null
      */
     private $keyword;
 
     /**
-     * @var SeparatedNodesList|Nodes\Name[]
-     * @phpstan-var SeparatedNodesList<\Phi\Nodes\Name>
+     * @var \Phi\Nodes\Base\SeparatedNodesList|\Phi\Nodes\Helpers\Name[]
+     * @phpstan-var \Phi\Nodes\Base\SeparatedNodesList<\Phi\Nodes\Helpers\Name>
      */
     private $names;
 
-
     /**
-     * @param Nodes\Name $name
+     * @param \Phi\Nodes\Helpers\Name $name
      */
     public function __construct($name = null)
     {
-        $this->names = new SeparatedNodesList();
+        $this->names = new \Phi\Nodes\Base\SeparatedNodesList(\Phi\Nodes\Helpers\Name::class);
         if ($name !== null)
         {
-            $this->addName($name);
+            $this->names->add($name);
         }
     }
 
     /**
-     * @param int $phpVersion
-     * @param Token $keyword
+     * @param \Phi\Token $keyword
      * @param mixed[] $names
-     * @return static
+     * @return self
      */
-    public static function __instantiateUnchecked($phpVersion, $keyword, $names)
+    public static function __instantiateUnchecked($keyword, $names)
     {
-        $instance = new static;
-        $instance->phpVersion = $phpVersion;
+        $instance = new self;
         $instance->keyword = $keyword;
         $keyword->parent = $instance;
         $instance->names->__initUnchecked($names);
@@ -55,20 +55,28 @@ abstract class GeneratedImplements extends CompoundNode
         return $instance;
     }
 
-    protected function &_getNodeRefs(): array
+    public function getChildNodes(): array
     {
-        $refs = [
-            "keyword" => &$this->keyword,
-            "names" => &$this->names,
-        ];
-        return $refs;
+        return \array_values(\array_filter([
+            $this->keyword,
+            $this->names,
+        ]));
     }
 
-    public function getKeyword(): Token
+    protected function &getChildRef(Node $childToDetach): Node
+    {
+        if ($this->keyword === $childToDetach)
+        {
+            return $this->keyword;
+        }
+        throw new \LogicException();
+    }
+
+    public function getKeyword(): \Phi\Token
     {
         if ($this->keyword === null)
         {
-            throw new MissingNodeException($this, __FUNCTION__);
+            throw TreeException::missingNode($this, "keyword");
         }
         return $this->keyword;
     }
@@ -79,14 +87,14 @@ abstract class GeneratedImplements extends CompoundNode
     }
 
     /**
-     * @param Token|Node|string|null $keyword
+     * @param \Phi\Token|\Phi\Node|string|null $keyword
      */
     public function setKeyword($keyword): void
     {
         if ($keyword !== null)
         {
-            /** @var Token $keyword */
-            $keyword = NodeConverter::convert($keyword, Token::class, $this->phpVersion);
+            /** @var \Phi\Token $keyword */
+            $keyword = NodeCoercer::coerce($keyword, \Phi\Token::class, $this->getPhpVersion());
             $keyword->detach();
             $keyword->parent = $this;
         }
@@ -98,36 +106,36 @@ abstract class GeneratedImplements extends CompoundNode
     }
 
     /**
-     * @return SeparatedNodesList|Nodes\Name[]
-     * @phpstan-return SeparatedNodesList<\Phi\Nodes\Name>
+     * @return \Phi\Nodes\Base\SeparatedNodesList|\Phi\Nodes\Helpers\Name[]
+     * @phpstan-return \Phi\Nodes\Base\SeparatedNodesList<\Phi\Nodes\Helpers\Name>
      */
-    public function getNames(): SeparatedNodesList
+    public function getNames(): \Phi\Nodes\Base\SeparatedNodesList
     {
         return $this->names;
     }
 
-    /**
-     * @param Nodes\Name $name
-     */
-    public function addName($name): void
+    public function _validate(int $flags): void
     {
-        /** @var Nodes\Name $name */
-        $name = NodeConverter::convert($name, Nodes\Name::class, $this->phpVersion);
-        $this->names->add($name);
+        if ($this->keyword === null)
+            throw ValidationException::missingChild($this, "keyword");
+        if ($this->keyword->getType() !== 190)
+            throw ValidationException::invalidSyntax($this->keyword, [190]);
+        foreach ($this->names->getSeparators() as $t)
+            if ($t && $t->getType() !== 109)
+                throw ValidationException::invalidSyntax($t, [109]);
+
+
+        $this->extraValidation($flags);
+
+        foreach ($this->names as $t)
+            $t->_validate(0);
     }
 
-    protected function _validate(int $flags): void
+    public function _autocorrect(): void
     {
-        if ($this->keyword === null) throw ValidationException::childRequired($this, "keyword");
-        if ($flags & self::VALIDATE_TYPES)
-        {
-        }
-        if ($flags & self::VALIDATE_EXPRESSION_CONTEXT)
-        {
-        }
-        if ($flags & self::VALIDATE_TOKENS)
-        {
-        }
-        $this->names->_validate($flags);
+        foreach ($this->names as $t)
+            $t->_autocorrect();
+
+        $this->extraAutocorrect();
     }
 }

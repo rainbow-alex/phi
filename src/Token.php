@@ -1,52 +1,26 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Phi;
 
 use Phi\Util\Console;
 
 class Token extends Node
 {
-    // these tokens can be used as a name in some places TODO describe & test where
-    public const SPECIAL_CLASSES = ["self", "parent", "static"];
-
-    const IDENTIFIER_KEYWORDS = [ // TODO complete, test
-        \T_AS,
-        \T_CLASS,
-        \T_DEFAULT,
-        \T_DO,
-        \T_ELSE,
-        \T_ELSEIF,
-        \T_EMPTY,
-        \T_EXIT,
-        \T_EVAL,
-        \T_FOR,
-        \T_FUNCTION,
-        \T_IF,
-        \T_INSTANCEOF,
-        \T_INSTEADOF,
-        \T_ISSET,
-        \T_INTERFACE,
-        \T_TRAIT,
-        \T_EXTENDS,
-        \T_IMPLEMENTS,
-        \T_LOGICAL_AND,
-        \T_LOGICAL_OR,
-        \T_NAMESPACE,
-        \T_UNSET,
-        \T_WHILE,
-        \T_YIELD,
-    ];
-
-    /** @var int */
+    /**
+     * @var int
+     * @see TokenType
+     */
     private $type;
     /** @var string */
     private $source;
+    /** @var string|null */
+    private $filename;
     /** @var int|null */
     private $line;
     /** @var int|null */
     private $column;
-    /** @var string|null */
-    private $filename;
 
     /** @var string */
     private $leftWhitespace = "";
@@ -56,16 +30,14 @@ class Token extends Node
     public function __construct(
         int $type,
         string $source,
-        int $line = null,
-        int $column = null,
         string $filename = null,
+        int $line = null,
         string $leftWhitespace = ""
     )
     {
         $this->type = $type;
         $this->source = $source;
         $this->line = $line;
-        $this->column = $column;
         $this->filename = $filename;
         $this->leftWhitespace = $leftWhitespace;
     }
@@ -98,44 +70,43 @@ class Token extends Node
     public function getPreviousToken(): ?Token
     {
         $node = $this;
-        do
+        while ($parent = $node->parent)
         {
-            $siblings = $node->getParent()->getChildNodes();
-            $i = \array_search($node, $siblings);
-            assert($i !== false);
+            $siblings = $parent->getChildNodes();
+            $i = \array_search($node, $siblings, true);
+            assert(\is_int($i));
             while (--$i >= 0)
             {
                 return $siblings[$i]->getLastToken();
             }
+            $node = $parent;
         }
-        while ($node = $node->getParent());
         return null;
     }
 
     public function getNextToken(): ?Token
     {
         $node = $this;
-        do
+        while ($parent = $node->parent)
         {
-            $siblings = $node->getParent()->getChildNodes();
-            $i = \array_search($node, $siblings);
-            assert($i !== false);
+            $siblings = $parent->getChildNodes();
+            $i = \array_search($node, $siblings, true);
+            assert(\is_int($i));
             while (++$i < \count($siblings))
             {
                 return $siblings[$i]->getFirstToken();
             }
         }
-        while ($node = $node->getParent());
         return null;
     }
 
-    protected function _validate(int $flags): void
+    public function validate(): void
     {
     }
 
     public function repr(): string
     {
-        return "Token<" . TokenType::typeToString($this->type) . ">";
+        return TokenType::typeToString($this->type);
     }
 
     public function toPhp(): string
@@ -159,6 +130,12 @@ class Token extends Node
         return $this->type;
     }
 
+    /** @internal */
+    public function _fudgeType(int $type): void
+    {
+        $this->type = $type;
+    }
+
     public function getSource(): string
     {
         return $this->source;
@@ -172,11 +149,6 @@ class Token extends Node
     public function getLine(): ?int
     {
         return $this->line;
-    }
-
-    public function getColumn(): ?int
-    {
-        return $this->column;
     }
 
     public function getFilename(): ?string

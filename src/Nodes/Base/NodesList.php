@@ -1,26 +1,38 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Phi\Nodes\Base;
 
-use ArrayIterator;
 use Countable;
-use Iterator;
 use IteratorAggregate;
 use Phi\Node;
 
 /**
  * @template T of Node
- * @extends BaseListNode<T>
  * @implements IteratorAggregate<T>
  */
-class NodesList extends BaseListNode implements Countable, IteratorAggregate
+class NodesList extends Node implements Countable, IteratorAggregate
 {
+    /**
+     * @var string
+     * @phpstan-var class-string<T>
+     */
+    private $type;
+
     /**
      * @var Node[]
      * @phpstan-var T[]
-     * @internal
      */
-    public $_nodes = [];
+    private $nodes = [];
+
+    /**
+     * @phpstan-param class-string<T> $type
+     */
+    public function __construct(string $type)
+    {
+        $this->type = $type;
+    }
 
     /**
      * @param Node[] $nodes
@@ -28,7 +40,7 @@ class NodesList extends BaseListNode implements Countable, IteratorAggregate
      */
     public function __initUnchecked(array $nodes): void
     {
-        $this->_nodes = $nodes;
+        $this->nodes = $nodes;
         foreach ($nodes as $n)
         {
             $n->parent = $this;
@@ -37,41 +49,46 @@ class NodesList extends BaseListNode implements Countable, IteratorAggregate
 
     protected function detachChild(Node $childToDetach): void
     {
-        $i = \array_search($childToDetach, $this->_nodes, true);
+        $i = \array_search($childToDetach, $this->nodes, true);
 
         if ($i === false)
         {
             throw new \RuntimeException($childToDetach . " is not attached to " . $this);
         }
 
-        \array_splice($this->_nodes, $i, 1);
+        \array_splice($this->nodes, $i, 1);
     }
 
+    /**
+     * @phpstan-return T[]
+     */
     public function getChildNodes(): array
     {
-        return $this->_nodes;
+        return $this->nodes;
     }
 
     public function iterTokens(): iterable
     {
-        foreach ($this->_nodes as $node)
+        foreach ($this->nodes as $node)
         {
             yield from $node->iterTokens();
         }
     }
 
-    protected function _validate(int $flags): void
+    public function validate(): void
     {
-        foreach ($this->_nodes as $node)
+        foreach ($this->nodes as $node)
         {
-            $node->_validate($flags);
+            $node->validate();
         }
+
+        parent::validate();
     }
 
     public function toPhp(): string
     {
         $php = "";
-        foreach ($this->_nodes as $node)
+        foreach ($this->nodes as $node)
         {
             $php .= $node;
         }
@@ -82,7 +99,7 @@ class NodesList extends BaseListNode implements Countable, IteratorAggregate
     {
         echo $indent . $this->repr() . " [\n";
 
-        foreach ($this->_nodes as $k => $v)
+        foreach ($this->nodes as $k => $v)
         {
             $v->debugDump($indent . "    ");
         }
@@ -90,18 +107,23 @@ class NodesList extends BaseListNode implements Countable, IteratorAggregate
         echo $indent . "]\n";
     }
 
+    public function convertToPhpParserNode()
+    {
+        return \array_map(function (Node $n) { return $n->convertToPhpParserNode(); }, $this->nodes);
+    }
+
     public function count(): int
     {
-        return count($this->_nodes);
+        return count($this->nodes);
     }
 
     /**
-     * @return Iterator|Node[]
-     * @phpstan-return Iterator<T>
+     * @return \Iterator<Node>
+     * @phpstan-return \Iterator<T>
      */
-    public function getIterator(): Iterator
+    public function getIterator()
     {
-        return new ArrayIterator($this->_nodes);
+        return new \ArrayIterator($this->nodes);
     }
 
     /**
@@ -110,7 +132,7 @@ class NodesList extends BaseListNode implements Countable, IteratorAggregate
      */
     public function getItems(): array
     {
-        return $this->_nodes;
+        return $this->nodes;
     }
 
     /**
@@ -118,6 +140,11 @@ class NodesList extends BaseListNode implements Countable, IteratorAggregate
      */
     public function add(Node $node): void
     {
-        $this->_nodes[] = $node;
+        if (!$node instanceof $this->type)
+        {
+            throw new \InvalidArgumentException("Added item should be of type " . $this->type);
+        }
+
+        $this->nodes[] = $node;
     }
 }

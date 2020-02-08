@@ -1,29 +1,31 @@
 <?php
 
+declare(strict_types=1);
+
+/**
+ * This code is generated.
+ * @see meta/
+ */
+
 namespace Phi\Nodes\Generated;
 
 use Phi\Node;
 use Phi\Token;
-use Phi\Nodes\Base\CompoundNode;
-use Phi\Nodes\Base\NodesList;
-use Phi\Nodes\Base\SeparatedNodesList;
-use Phi\Exception\MissingNodeException;
-use Phi\NodeConverter;
+use Phi\Exception\TreeException;
+use Phi\NodeCoercer;
 use Phi\Exception\ValidationException;
-use Phi\Nodes as Nodes;
 
-abstract class GeneratedAnonymousFunctionUseBinding extends CompoundNode
+trait GeneratedAnonymousFunctionUseBinding
 {
     /**
-     * @var Token|null
+     * @var \Phi\Token|null
      */
     private $byReference;
 
     /**
-     * @var Token|null
+     * @var \Phi\Token|null
      */
     private $variable;
-
 
     /**
      */
@@ -32,15 +34,13 @@ abstract class GeneratedAnonymousFunctionUseBinding extends CompoundNode
     }
 
     /**
-     * @param int $phpVersion
-     * @param Token|null $byReference
-     * @param Token $variable
-     * @return static
+     * @param \Phi\Token|null $byReference
+     * @param \Phi\Token $variable
+     * @return self
      */
-    public static function __instantiateUnchecked($phpVersion, $byReference, $variable)
+    public static function __instantiateUnchecked($byReference, $variable)
     {
-        $instance = new static;
-        $instance->phpVersion = $phpVersion;
+        $instance = new self;
         $instance->byReference = $byReference;
         if ($byReference) $byReference->parent = $instance;
         $instance->variable = $variable;
@@ -48,16 +48,28 @@ abstract class GeneratedAnonymousFunctionUseBinding extends CompoundNode
         return $instance;
     }
 
-    protected function &_getNodeRefs(): array
+    public function getChildNodes(): array
     {
-        $refs = [
-            "byReference" => &$this->byReference,
-            "variable" => &$this->variable,
-        ];
-        return $refs;
+        return \array_values(\array_filter([
+            $this->byReference,
+            $this->variable,
+        ]));
     }
 
-    public function getByReference(): ?Token
+    protected function &getChildRef(Node $childToDetach): Node
+    {
+        if ($this->byReference === $childToDetach)
+        {
+            return $this->byReference;
+        }
+        if ($this->variable === $childToDetach)
+        {
+            return $this->variable;
+        }
+        throw new \LogicException();
+    }
+
+    public function getByReference(): ?\Phi\Token
     {
         return $this->byReference;
     }
@@ -68,14 +80,14 @@ abstract class GeneratedAnonymousFunctionUseBinding extends CompoundNode
     }
 
     /**
-     * @param Token|Node|string|null $byReference
+     * @param \Phi\Token|\Phi\Node|string|null $byReference
      */
     public function setByReference($byReference): void
     {
         if ($byReference !== null)
         {
-            /** @var Token $byReference */
-            $byReference = NodeConverter::convert($byReference, Token::class, $this->phpVersion);
+            /** @var \Phi\Token $byReference */
+            $byReference = NodeCoercer::coerce($byReference, \Phi\Token::class, $this->getPhpVersion());
             $byReference->detach();
             $byReference->parent = $this;
         }
@@ -86,11 +98,11 @@ abstract class GeneratedAnonymousFunctionUseBinding extends CompoundNode
         $this->byReference = $byReference;
     }
 
-    public function getVariable(): Token
+    public function getVariable(): \Phi\Token
     {
         if ($this->variable === null)
         {
-            throw new MissingNodeException($this, __FUNCTION__);
+            throw TreeException::missingNode($this, "variable");
         }
         return $this->variable;
     }
@@ -101,14 +113,14 @@ abstract class GeneratedAnonymousFunctionUseBinding extends CompoundNode
     }
 
     /**
-     * @param Token|Node|string|null $variable
+     * @param \Phi\Token|\Phi\Node|string|null $variable
      */
     public function setVariable($variable): void
     {
         if ($variable !== null)
         {
-            /** @var Token $variable */
-            $variable = NodeConverter::convert($variable, Token::class, $this->phpVersion);
+            /** @var \Phi\Token $variable */
+            $variable = NodeCoercer::coerce($variable, \Phi\Token::class, $this->getPhpVersion());
             $variable->detach();
             $variable->parent = $this;
         }
@@ -119,17 +131,24 @@ abstract class GeneratedAnonymousFunctionUseBinding extends CompoundNode
         $this->variable = $variable;
     }
 
-    protected function _validate(int $flags): void
+    public function _validate(int $flags): void
     {
-        if ($this->variable === null) throw ValidationException::childRequired($this, "variable");
-        if ($flags & self::VALIDATE_TYPES)
-        {
-        }
-        if ($flags & self::VALIDATE_EXPRESSION_CONTEXT)
-        {
-        }
-        if ($flags & self::VALIDATE_TOKENS)
-        {
-        }
+        if ($this->variable === null)
+            throw ValidationException::missingChild($this, "variable");
+        if ($this->byReference)
+        if ($this->byReference->getType() !== 104)
+            throw ValidationException::invalidSyntax($this->byReference, [104]);
+        if ($this->variable->getType() !== 255)
+            throw ValidationException::invalidSyntax($this->variable, [255]);
+
+
+        $this->extraValidation($flags);
+
+    }
+
+    public function _autocorrect(): void
+    {
+
+        $this->extraAutocorrect();
     }
 }

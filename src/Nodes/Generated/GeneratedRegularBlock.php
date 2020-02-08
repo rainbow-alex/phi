@@ -1,59 +1,59 @@
 <?php
 
+declare(strict_types=1);
+
+/**
+ * This code is generated.
+ * @see meta/
+ */
+
 namespace Phi\Nodes\Generated;
 
 use Phi\Node;
 use Phi\Token;
-use Phi\Nodes\Base\CompoundNode;
-use Phi\Nodes\Base\NodesList;
-use Phi\Nodes\Base\SeparatedNodesList;
-use Phi\Exception\MissingNodeException;
-use Phi\NodeConverter;
+use Phi\Exception\TreeException;
+use Phi\NodeCoercer;
 use Phi\Exception\ValidationException;
-use Phi\Nodes as Nodes;
 
-abstract class GeneratedRegularBlock extends Nodes\Block
+trait GeneratedRegularBlock
 {
     /**
-     * @var Token|null
+     * @var \Phi\Token|null
      */
     private $leftBrace;
 
     /**
-     * @var NodesList|Nodes\Statement[]
-     * @phpstan-var NodesList<\Phi\Nodes\Statement>
+     * @var \Phi\Nodes\Base\NodesList|\Phi\Nodes\Statement[]
+     * @phpstan-var \Phi\Nodes\Base\NodesList<\Phi\Nodes\Statement>
      */
     private $statements;
 
     /**
-     * @var Token|null
+     * @var \Phi\Token|null
      */
     private $rightBrace;
 
-
     /**
-     * @param Nodes\Statement $statement
+     * @param \Phi\Nodes\Statement $statement
      */
     public function __construct($statement = null)
     {
-        $this->statements = new NodesList();
+        $this->statements = new \Phi\Nodes\Base\NodesList(\Phi\Nodes\Statement::class);
         if ($statement !== null)
         {
-            $this->addStatement($statement);
+            $this->statements->add($statement);
         }
     }
 
     /**
-     * @param int $phpVersion
-     * @param Token $leftBrace
+     * @param \Phi\Token $leftBrace
      * @param mixed[] $statements
-     * @param Token $rightBrace
-     * @return static
+     * @param \Phi\Token $rightBrace
+     * @return self
      */
-    public static function __instantiateUnchecked($phpVersion, $leftBrace, $statements, $rightBrace)
+    public static function __instantiateUnchecked($leftBrace, $statements, $rightBrace)
     {
-        $instance = new static;
-        $instance->phpVersion = $phpVersion;
+        $instance = new self;
         $instance->leftBrace = $leftBrace;
         $leftBrace->parent = $instance;
         $instance->statements->__initUnchecked($statements);
@@ -63,21 +63,33 @@ abstract class GeneratedRegularBlock extends Nodes\Block
         return $instance;
     }
 
-    protected function &_getNodeRefs(): array
+    public function getChildNodes(): array
     {
-        $refs = [
-            "leftBrace" => &$this->leftBrace,
-            "statements" => &$this->statements,
-            "rightBrace" => &$this->rightBrace,
-        ];
-        return $refs;
+        return \array_values(\array_filter([
+            $this->leftBrace,
+            $this->statements,
+            $this->rightBrace,
+        ]));
     }
 
-    public function getLeftBrace(): Token
+    protected function &getChildRef(Node $childToDetach): Node
+    {
+        if ($this->leftBrace === $childToDetach)
+        {
+            return $this->leftBrace;
+        }
+        if ($this->rightBrace === $childToDetach)
+        {
+            return $this->rightBrace;
+        }
+        throw new \LogicException();
+    }
+
+    public function getLeftBrace(): \Phi\Token
     {
         if ($this->leftBrace === null)
         {
-            throw new MissingNodeException($this, __FUNCTION__);
+            throw TreeException::missingNode($this, "leftBrace");
         }
         return $this->leftBrace;
     }
@@ -88,14 +100,14 @@ abstract class GeneratedRegularBlock extends Nodes\Block
     }
 
     /**
-     * @param Token|Node|string|null $leftBrace
+     * @param \Phi\Token|\Phi\Node|string|null $leftBrace
      */
     public function setLeftBrace($leftBrace): void
     {
         if ($leftBrace !== null)
         {
-            /** @var Token $leftBrace */
-            $leftBrace = NodeConverter::convert($leftBrace, Token::class, $this->phpVersion);
+            /** @var \Phi\Token $leftBrace */
+            $leftBrace = NodeCoercer::coerce($leftBrace, \Phi\Token::class, $this->getPhpVersion());
             $leftBrace->detach();
             $leftBrace->parent = $this;
         }
@@ -107,29 +119,19 @@ abstract class GeneratedRegularBlock extends Nodes\Block
     }
 
     /**
-     * @return NodesList|Nodes\Statement[]
-     * @phpstan-return NodesList<\Phi\Nodes\Statement>
+     * @return \Phi\Nodes\Base\NodesList|\Phi\Nodes\Statement[]
+     * @phpstan-return \Phi\Nodes\Base\NodesList<\Phi\Nodes\Statement>
      */
-    public function getStatements(): NodesList
+    public function getStatements(): \Phi\Nodes\Base\NodesList
     {
         return $this->statements;
     }
 
-    /**
-     * @param Nodes\Statement $statement
-     */
-    public function addStatement($statement): void
-    {
-        /** @var Nodes\Statement $statement */
-        $statement = NodeConverter::convert($statement, Nodes\Statement::class, $this->phpVersion);
-        $this->statements->add($statement);
-    }
-
-    public function getRightBrace(): Token
+    public function getRightBrace(): \Phi\Token
     {
         if ($this->rightBrace === null)
         {
-            throw new MissingNodeException($this, __FUNCTION__);
+            throw TreeException::missingNode($this, "rightBrace");
         }
         return $this->rightBrace;
     }
@@ -140,14 +142,14 @@ abstract class GeneratedRegularBlock extends Nodes\Block
     }
 
     /**
-     * @param Token|Node|string|null $rightBrace
+     * @param \Phi\Token|\Phi\Node|string|null $rightBrace
      */
     public function setRightBrace($rightBrace): void
     {
         if ($rightBrace !== null)
         {
-            /** @var Token $rightBrace */
-            $rightBrace = NodeConverter::convert($rightBrace, Token::class, $this->phpVersion);
+            /** @var \Phi\Token $rightBrace */
+            $rightBrace = NodeCoercer::coerce($rightBrace, \Phi\Token::class, $this->getPhpVersion());
             $rightBrace->detach();
             $rightBrace->parent = $this;
         }
@@ -158,19 +160,29 @@ abstract class GeneratedRegularBlock extends Nodes\Block
         $this->rightBrace = $rightBrace;
     }
 
-    protected function _validate(int $flags): void
+    public function _validate(int $flags): void
     {
-        if ($this->leftBrace === null) throw ValidationException::childRequired($this, "leftBrace");
-        if ($this->rightBrace === null) throw ValidationException::childRequired($this, "rightBrace");
-        if ($flags & self::VALIDATE_TYPES)
-        {
-        }
-        if ($flags & self::VALIDATE_EXPRESSION_CONTEXT)
-        {
-        }
-        if ($flags & self::VALIDATE_TOKENS)
-        {
-        }
-        $this->statements->_validate($flags);
+        if ($this->leftBrace === null)
+            throw ValidationException::missingChild($this, "leftBrace");
+        if ($this->rightBrace === null)
+            throw ValidationException::missingChild($this, "rightBrace");
+        if ($this->leftBrace->getType() !== 124)
+            throw ValidationException::invalidSyntax($this->leftBrace, [124]);
+        if ($this->rightBrace->getType() !== 126)
+            throw ValidationException::invalidSyntax($this->rightBrace, [126]);
+
+
+        $this->extraValidation($flags);
+
+        foreach ($this->statements as $t)
+            $t->_validate(0);
+    }
+
+    public function _autocorrect(): void
+    {
+        foreach ($this->statements as $t)
+            $t->_autocorrect();
+
+        $this->extraAutocorrect();
     }
 }

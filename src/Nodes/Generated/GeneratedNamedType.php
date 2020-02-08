@@ -1,27 +1,29 @@
 <?php
 
+declare(strict_types=1);
+
+/**
+ * This code is generated.
+ * @see meta/
+ */
+
 namespace Phi\Nodes\Generated;
 
 use Phi\Node;
 use Phi\Token;
-use Phi\Nodes\Base\CompoundNode;
-use Phi\Nodes\Base\NodesList;
-use Phi\Nodes\Base\SeparatedNodesList;
-use Phi\Exception\MissingNodeException;
-use Phi\NodeConverter;
+use Phi\Exception\TreeException;
+use Phi\NodeCoercer;
 use Phi\Exception\ValidationException;
-use Phi\Nodes as Nodes;
 
-abstract class GeneratedNamedType extends Nodes\Type
+trait GeneratedNamedType
 {
     /**
-     * @var Nodes\Name|null
+     * @var \Phi\Nodes\Helpers\Name|null
      */
     private $name;
 
-
     /**
-     * @param Nodes\Name|Node|string|null $name
+     * @param \Phi\Nodes\Helpers\Name|\Phi\Node|string|null $name
      */
     public function __construct($name = null)
     {
@@ -32,32 +34,38 @@ abstract class GeneratedNamedType extends Nodes\Type
     }
 
     /**
-     * @param int $phpVersion
-     * @param Nodes\Name $name
-     * @return static
+     * @param \Phi\Nodes\Helpers\Name $name
+     * @return self
      */
-    public static function __instantiateUnchecked($phpVersion, $name)
+    public static function __instantiateUnchecked($name)
     {
-        $instance = new static;
-        $instance->phpVersion = $phpVersion;
+        $instance = new self;
         $instance->name = $name;
         $name->parent = $instance;
         return $instance;
     }
 
-    protected function &_getNodeRefs(): array
+    public function getChildNodes(): array
     {
-        $refs = [
-            "name" => &$this->name,
-        ];
-        return $refs;
+        return \array_values(\array_filter([
+            $this->name,
+        ]));
     }
 
-    public function getName(): Nodes\Name
+    protected function &getChildRef(Node $childToDetach): Node
+    {
+        if ($this->name === $childToDetach)
+        {
+            return $this->name;
+        }
+        throw new \LogicException();
+    }
+
+    public function getName(): \Phi\Nodes\Helpers\Name
     {
         if ($this->name === null)
         {
-            throw new MissingNodeException($this, __FUNCTION__);
+            throw TreeException::missingNode($this, "name");
         }
         return $this->name;
     }
@@ -68,14 +76,14 @@ abstract class GeneratedNamedType extends Nodes\Type
     }
 
     /**
-     * @param Nodes\Name|Node|string|null $name
+     * @param \Phi\Nodes\Helpers\Name|\Phi\Node|string|null $name
      */
     public function setName($name): void
     {
         if ($name !== null)
         {
-            /** @var Nodes\Name $name */
-            $name = NodeConverter::convert($name, Nodes\Name::class, $this->phpVersion);
+            /** @var \Phi\Nodes\Helpers\Name $name */
+            $name = NodeCoercer::coerce($name, \Phi\Nodes\Helpers\Name::class, $this->getPhpVersion());
             $name->detach();
             $name->parent = $this;
         }
@@ -86,18 +94,22 @@ abstract class GeneratedNamedType extends Nodes\Type
         $this->name = $name;
     }
 
-    protected function _validate(int $flags): void
+    public function _validate(int $flags): void
     {
-        if ($this->name === null) throw ValidationException::childRequired($this, "name");
-        if ($flags & self::VALIDATE_TYPES)
-        {
-        }
-        if ($flags & self::VALIDATE_EXPRESSION_CONTEXT)
-        {
-        }
-        if ($flags & self::VALIDATE_TOKENS)
-        {
-        }
-        $this->name->_validate($flags);
+        if ($this->name === null)
+            throw ValidationException::missingChild($this, "name");
+
+
+        $this->extraValidation($flags);
+
+        $this->name->_validate(0);
+    }
+
+    public function _autocorrect(): void
+    {
+        if ($this->name)
+            $this->name->_autocorrect();
+
+        $this->extraAutocorrect();
     }
 }

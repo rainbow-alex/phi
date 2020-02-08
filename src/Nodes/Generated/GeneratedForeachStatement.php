@@ -1,70 +1,72 @@
 <?php
 
+declare(strict_types=1);
+
+/**
+ * This code is generated.
+ * @see meta/
+ */
+
 namespace Phi\Nodes\Generated;
 
 use Phi\Node;
 use Phi\Token;
-use Phi\Nodes\Base\CompoundNode;
-use Phi\Nodes\Base\NodesList;
-use Phi\Nodes\Base\SeparatedNodesList;
-use Phi\Exception\MissingNodeException;
-use Phi\NodeConverter;
+use Phi\Exception\TreeException;
+use Phi\NodeCoercer;
 use Phi\Exception\ValidationException;
-use Phi\Nodes as Nodes;
 
-abstract class GeneratedForeachStatement extends Nodes\Statement
+trait GeneratedForeachStatement
 {
     /**
-     * @var Token|null
+     * @var \Phi\Token|null
      */
     private $keyword;
 
     /**
-     * @var Token|null
+     * @var \Phi\Token|null
      */
     private $leftParenthesis;
 
     /**
-     * @var Nodes\Expression|null
+     * @var \Phi\Nodes\Expression|null
      */
     private $iterable;
 
     /**
-     * @var Token|null
+     * @var \Phi\Token|null
      */
-    private $as;
+    private $asKeyword;
 
     /**
-     * @var Nodes\Key|null
+     * @var \Phi\Nodes\Helpers\Key|null
      */
     private $key;
 
     /**
-     * @var Token|null
+     * @var \Phi\Token|null
      */
     private $byReference;
 
     /**
-     * @var Nodes\Expression|null
+     * @var \Phi\Nodes\Expression|null
      */
     private $value;
 
     /**
-     * @var Token|null
+     * @var \Phi\Token|null
      */
     private $rightParenthesis;
 
     /**
-     * @var Nodes\Block|null
+     * @var \Phi\Nodes\Block|null
      */
     private $block;
 
-
     /**
-     * @param Nodes\Expression|Node|string|null $iterable
-     * @param Nodes\Key|Node|string|null $key
-     * @param Nodes\Expression|Node|string|null $value
-     * @param Nodes\Block|Node|string|null $block
+     * @param \Phi\Nodes\Expression|\Phi\Node|string|null $iterable
+     * @param \Phi\Nodes\Helpers\Key|\Phi\Node|string|null $key
+     * @param \Phi\Nodes\Expression|\Phi\Node|string|null $value
+     * @param \Phi\Nodes\Block|\Phi\Node|string|null $block
      */
     public function __construct($iterable = null, $key = null, $value = null, $block = null)
     {
@@ -87,30 +89,28 @@ abstract class GeneratedForeachStatement extends Nodes\Statement
     }
 
     /**
-     * @param int $phpVersion
-     * @param Token $keyword
-     * @param Token $leftParenthesis
-     * @param Nodes\Expression $iterable
-     * @param Token $as
-     * @param Nodes\Key|null $key
-     * @param Token|null $byReference
-     * @param Nodes\Expression $value
-     * @param Token $rightParenthesis
-     * @param Nodes\Block $block
-     * @return static
+     * @param \Phi\Token $keyword
+     * @param \Phi\Token $leftParenthesis
+     * @param \Phi\Nodes\Expression $iterable
+     * @param \Phi\Token $asKeyword
+     * @param \Phi\Nodes\Helpers\Key|null $key
+     * @param \Phi\Token|null $byReference
+     * @param \Phi\Nodes\Expression $value
+     * @param \Phi\Token $rightParenthesis
+     * @param \Phi\Nodes\Block $block
+     * @return self
      */
-    public static function __instantiateUnchecked($phpVersion, $keyword, $leftParenthesis, $iterable, $as, $key, $byReference, $value, $rightParenthesis, $block)
+    public static function __instantiateUnchecked($keyword, $leftParenthesis, $iterable, $asKeyword, $key, $byReference, $value, $rightParenthesis, $block)
     {
-        $instance = new static;
-        $instance->phpVersion = $phpVersion;
+        $instance = new self;
         $instance->keyword = $keyword;
         $keyword->parent = $instance;
         $instance->leftParenthesis = $leftParenthesis;
         $leftParenthesis->parent = $instance;
         $instance->iterable = $iterable;
         $iterable->parent = $instance;
-        $instance->as = $as;
-        $as->parent = $instance;
+        $instance->asKeyword = $asKeyword;
+        $asKeyword->parent = $instance;
         $instance->key = $key;
         if ($key) $key->parent = $instance;
         $instance->byReference = $byReference;
@@ -124,27 +124,67 @@ abstract class GeneratedForeachStatement extends Nodes\Statement
         return $instance;
     }
 
-    protected function &_getNodeRefs(): array
+    public function getChildNodes(): array
     {
-        $refs = [
-            "keyword" => &$this->keyword,
-            "leftParenthesis" => &$this->leftParenthesis,
-            "iterable" => &$this->iterable,
-            "as" => &$this->as,
-            "key" => &$this->key,
-            "byReference" => &$this->byReference,
-            "value" => &$this->value,
-            "rightParenthesis" => &$this->rightParenthesis,
-            "block" => &$this->block,
-        ];
-        return $refs;
+        return \array_values(\array_filter([
+            $this->keyword,
+            $this->leftParenthesis,
+            $this->iterable,
+            $this->asKeyword,
+            $this->key,
+            $this->byReference,
+            $this->value,
+            $this->rightParenthesis,
+            $this->block,
+        ]));
     }
 
-    public function getKeyword(): Token
+    protected function &getChildRef(Node $childToDetach): Node
+    {
+        if ($this->keyword === $childToDetach)
+        {
+            return $this->keyword;
+        }
+        if ($this->leftParenthesis === $childToDetach)
+        {
+            return $this->leftParenthesis;
+        }
+        if ($this->iterable === $childToDetach)
+        {
+            return $this->iterable;
+        }
+        if ($this->asKeyword === $childToDetach)
+        {
+            return $this->asKeyword;
+        }
+        if ($this->key === $childToDetach)
+        {
+            return $this->key;
+        }
+        if ($this->byReference === $childToDetach)
+        {
+            return $this->byReference;
+        }
+        if ($this->value === $childToDetach)
+        {
+            return $this->value;
+        }
+        if ($this->rightParenthesis === $childToDetach)
+        {
+            return $this->rightParenthesis;
+        }
+        if ($this->block === $childToDetach)
+        {
+            return $this->block;
+        }
+        throw new \LogicException();
+    }
+
+    public function getKeyword(): \Phi\Token
     {
         if ($this->keyword === null)
         {
-            throw new MissingNodeException($this, __FUNCTION__);
+            throw TreeException::missingNode($this, "keyword");
         }
         return $this->keyword;
     }
@@ -155,14 +195,14 @@ abstract class GeneratedForeachStatement extends Nodes\Statement
     }
 
     /**
-     * @param Token|Node|string|null $keyword
+     * @param \Phi\Token|\Phi\Node|string|null $keyword
      */
     public function setKeyword($keyword): void
     {
         if ($keyword !== null)
         {
-            /** @var Token $keyword */
-            $keyword = NodeConverter::convert($keyword, Token::class, $this->phpVersion);
+            /** @var \Phi\Token $keyword */
+            $keyword = NodeCoercer::coerce($keyword, \Phi\Token::class, $this->getPhpVersion());
             $keyword->detach();
             $keyword->parent = $this;
         }
@@ -173,11 +213,11 @@ abstract class GeneratedForeachStatement extends Nodes\Statement
         $this->keyword = $keyword;
     }
 
-    public function getLeftParenthesis(): Token
+    public function getLeftParenthesis(): \Phi\Token
     {
         if ($this->leftParenthesis === null)
         {
-            throw new MissingNodeException($this, __FUNCTION__);
+            throw TreeException::missingNode($this, "leftParenthesis");
         }
         return $this->leftParenthesis;
     }
@@ -188,14 +228,14 @@ abstract class GeneratedForeachStatement extends Nodes\Statement
     }
 
     /**
-     * @param Token|Node|string|null $leftParenthesis
+     * @param \Phi\Token|\Phi\Node|string|null $leftParenthesis
      */
     public function setLeftParenthesis($leftParenthesis): void
     {
         if ($leftParenthesis !== null)
         {
-            /** @var Token $leftParenthesis */
-            $leftParenthesis = NodeConverter::convert($leftParenthesis, Token::class, $this->phpVersion);
+            /** @var \Phi\Token $leftParenthesis */
+            $leftParenthesis = NodeCoercer::coerce($leftParenthesis, \Phi\Token::class, $this->getPhpVersion());
             $leftParenthesis->detach();
             $leftParenthesis->parent = $this;
         }
@@ -206,11 +246,11 @@ abstract class GeneratedForeachStatement extends Nodes\Statement
         $this->leftParenthesis = $leftParenthesis;
     }
 
-    public function getIterable(): Nodes\Expression
+    public function getIterable(): \Phi\Nodes\Expression
     {
         if ($this->iterable === null)
         {
-            throw new MissingNodeException($this, __FUNCTION__);
+            throw TreeException::missingNode($this, "iterable");
         }
         return $this->iterable;
     }
@@ -221,14 +261,14 @@ abstract class GeneratedForeachStatement extends Nodes\Statement
     }
 
     /**
-     * @param Nodes\Expression|Node|string|null $iterable
+     * @param \Phi\Nodes\Expression|\Phi\Node|string|null $iterable
      */
     public function setIterable($iterable): void
     {
         if ($iterable !== null)
         {
-            /** @var Nodes\Expression $iterable */
-            $iterable = NodeConverter::convert($iterable, Nodes\Expression::class, $this->phpVersion);
+            /** @var \Phi\Nodes\Expression $iterable */
+            $iterable = NodeCoercer::coerce($iterable, \Phi\Nodes\Expression::class, $this->getPhpVersion());
             $iterable->detach();
             $iterable->parent = $this;
         }
@@ -239,40 +279,40 @@ abstract class GeneratedForeachStatement extends Nodes\Statement
         $this->iterable = $iterable;
     }
 
-    public function getAs(): Token
+    public function getAsKeyword(): \Phi\Token
     {
-        if ($this->as === null)
+        if ($this->asKeyword === null)
         {
-            throw new MissingNodeException($this, __FUNCTION__);
+            throw TreeException::missingNode($this, "asKeyword");
         }
-        return $this->as;
+        return $this->asKeyword;
     }
 
-    public function hasAs(): bool
+    public function hasAsKeyword(): bool
     {
-        return $this->as !== null;
+        return $this->asKeyword !== null;
     }
 
     /**
-     * @param Token|Node|string|null $as
+     * @param \Phi\Token|\Phi\Node|string|null $asKeyword
      */
-    public function setAs($as): void
+    public function setAsKeyword($asKeyword): void
     {
-        if ($as !== null)
+        if ($asKeyword !== null)
         {
-            /** @var Token $as */
-            $as = NodeConverter::convert($as, Token::class, $this->phpVersion);
-            $as->detach();
-            $as->parent = $this;
+            /** @var \Phi\Token $asKeyword */
+            $asKeyword = NodeCoercer::coerce($asKeyword, \Phi\Token::class, $this->getPhpVersion());
+            $asKeyword->detach();
+            $asKeyword->parent = $this;
         }
-        if ($this->as !== null)
+        if ($this->asKeyword !== null)
         {
-            $this->as->detach();
+            $this->asKeyword->detach();
         }
-        $this->as = $as;
+        $this->asKeyword = $asKeyword;
     }
 
-    public function getKey(): ?Nodes\Key
+    public function getKey(): ?\Phi\Nodes\Helpers\Key
     {
         return $this->key;
     }
@@ -283,14 +323,14 @@ abstract class GeneratedForeachStatement extends Nodes\Statement
     }
 
     /**
-     * @param Nodes\Key|Node|string|null $key
+     * @param \Phi\Nodes\Helpers\Key|\Phi\Node|string|null $key
      */
     public function setKey($key): void
     {
         if ($key !== null)
         {
-            /** @var Nodes\Key $key */
-            $key = NodeConverter::convert($key, Nodes\Key::class, $this->phpVersion);
+            /** @var \Phi\Nodes\Helpers\Key $key */
+            $key = NodeCoercer::coerce($key, \Phi\Nodes\Helpers\Key::class, $this->getPhpVersion());
             $key->detach();
             $key->parent = $this;
         }
@@ -301,7 +341,7 @@ abstract class GeneratedForeachStatement extends Nodes\Statement
         $this->key = $key;
     }
 
-    public function getByReference(): ?Token
+    public function getByReference(): ?\Phi\Token
     {
         return $this->byReference;
     }
@@ -312,14 +352,14 @@ abstract class GeneratedForeachStatement extends Nodes\Statement
     }
 
     /**
-     * @param Token|Node|string|null $byReference
+     * @param \Phi\Token|\Phi\Node|string|null $byReference
      */
     public function setByReference($byReference): void
     {
         if ($byReference !== null)
         {
-            /** @var Token $byReference */
-            $byReference = NodeConverter::convert($byReference, Token::class, $this->phpVersion);
+            /** @var \Phi\Token $byReference */
+            $byReference = NodeCoercer::coerce($byReference, \Phi\Token::class, $this->getPhpVersion());
             $byReference->detach();
             $byReference->parent = $this;
         }
@@ -330,11 +370,11 @@ abstract class GeneratedForeachStatement extends Nodes\Statement
         $this->byReference = $byReference;
     }
 
-    public function getValue(): Nodes\Expression
+    public function getValue(): \Phi\Nodes\Expression
     {
         if ($this->value === null)
         {
-            throw new MissingNodeException($this, __FUNCTION__);
+            throw TreeException::missingNode($this, "value");
         }
         return $this->value;
     }
@@ -345,14 +385,14 @@ abstract class GeneratedForeachStatement extends Nodes\Statement
     }
 
     /**
-     * @param Nodes\Expression|Node|string|null $value
+     * @param \Phi\Nodes\Expression|\Phi\Node|string|null $value
      */
     public function setValue($value): void
     {
         if ($value !== null)
         {
-            /** @var Nodes\Expression $value */
-            $value = NodeConverter::convert($value, Nodes\Expression::class, $this->phpVersion);
+            /** @var \Phi\Nodes\Expression $value */
+            $value = NodeCoercer::coerce($value, \Phi\Nodes\Expression::class, $this->getPhpVersion());
             $value->detach();
             $value->parent = $this;
         }
@@ -363,11 +403,11 @@ abstract class GeneratedForeachStatement extends Nodes\Statement
         $this->value = $value;
     }
 
-    public function getRightParenthesis(): Token
+    public function getRightParenthesis(): \Phi\Token
     {
         if ($this->rightParenthesis === null)
         {
-            throw new MissingNodeException($this, __FUNCTION__);
+            throw TreeException::missingNode($this, "rightParenthesis");
         }
         return $this->rightParenthesis;
     }
@@ -378,14 +418,14 @@ abstract class GeneratedForeachStatement extends Nodes\Statement
     }
 
     /**
-     * @param Token|Node|string|null $rightParenthesis
+     * @param \Phi\Token|\Phi\Node|string|null $rightParenthesis
      */
     public function setRightParenthesis($rightParenthesis): void
     {
         if ($rightParenthesis !== null)
         {
-            /** @var Token $rightParenthesis */
-            $rightParenthesis = NodeConverter::convert($rightParenthesis, Token::class, $this->phpVersion);
+            /** @var \Phi\Token $rightParenthesis */
+            $rightParenthesis = NodeCoercer::coerce($rightParenthesis, \Phi\Token::class, $this->getPhpVersion());
             $rightParenthesis->detach();
             $rightParenthesis->parent = $this;
         }
@@ -396,11 +436,11 @@ abstract class GeneratedForeachStatement extends Nodes\Statement
         $this->rightParenthesis = $rightParenthesis;
     }
 
-    public function getBlock(): Nodes\Block
+    public function getBlock(): \Phi\Nodes\Block
     {
         if ($this->block === null)
         {
-            throw new MissingNodeException($this, __FUNCTION__);
+            throw TreeException::missingNode($this, "block");
         }
         return $this->block;
     }
@@ -411,14 +451,14 @@ abstract class GeneratedForeachStatement extends Nodes\Statement
     }
 
     /**
-     * @param Nodes\Block|Node|string|null $block
+     * @param \Phi\Nodes\Block|\Phi\Node|string|null $block
      */
     public function setBlock($block): void
     {
         if ($block !== null)
         {
-            /** @var Nodes\Block $block */
-            $block = NodeConverter::convert($block, Nodes\Block::class, $this->phpVersion);
+            /** @var \Phi\Nodes\Block $block */
+            $block = NodeCoercer::coerce($block, \Phi\Nodes\Block::class, $this->getPhpVersion());
             $block->detach();
             $block->parent = $this;
         }
@@ -429,30 +469,55 @@ abstract class GeneratedForeachStatement extends Nodes\Statement
         $this->block = $block;
     }
 
-    protected function _validate(int $flags): void
+    public function _validate(int $flags): void
     {
-        if ($this->keyword === null) throw ValidationException::childRequired($this, "keyword");
-        if ($this->leftParenthesis === null) throw ValidationException::childRequired($this, "leftParenthesis");
-        if ($this->iterable === null) throw ValidationException::childRequired($this, "iterable");
-        if ($this->as === null) throw ValidationException::childRequired($this, "as");
-        if ($this->value === null) throw ValidationException::childRequired($this, "value");
-        if ($this->rightParenthesis === null) throw ValidationException::childRequired($this, "rightParenthesis");
-        if ($this->block === null) throw ValidationException::childRequired($this, "block");
-        if ($flags & self::VALIDATE_TYPES)
-        {
-        }
-        if ($flags & self::VALIDATE_EXPRESSION_CONTEXT)
-        {
-        }
-        if ($flags & self::VALIDATE_TOKENS)
-        {
-        }
-        $this->iterable->_validate($flags);
+        if ($this->keyword === null)
+            throw ValidationException::missingChild($this, "keyword");
+        if ($this->leftParenthesis === null)
+            throw ValidationException::missingChild($this, "leftParenthesis");
+        if ($this->iterable === null)
+            throw ValidationException::missingChild($this, "iterable");
+        if ($this->asKeyword === null)
+            throw ValidationException::missingChild($this, "asKeyword");
+        if ($this->value === null)
+            throw ValidationException::missingChild($this, "value");
+        if ($this->rightParenthesis === null)
+            throw ValidationException::missingChild($this, "rightParenthesis");
+        if ($this->block === null)
+            throw ValidationException::missingChild($this, "block");
+        if ($this->keyword->getType() !== 183)
+            throw ValidationException::invalidSyntax($this->keyword, [183]);
+        if ($this->leftParenthesis->getType() !== 105)
+            throw ValidationException::invalidSyntax($this->leftParenthesis, [105]);
+        if ($this->asKeyword->getType() !== 132)
+            throw ValidationException::invalidSyntax($this->asKeyword, [132]);
+        if ($this->byReference)
+        if ($this->byReference->getType() !== 104)
+            throw ValidationException::invalidSyntax($this->byReference, [104]);
+        if ($this->rightParenthesis->getType() !== 106)
+            throw ValidationException::invalidSyntax($this->rightParenthesis, [106]);
+
+
+        $this->extraValidation($flags);
+
+        $this->iterable->_validate(1);
         if ($this->key)
-        {
-            $this->key->_validate($flags);
-        }
-        $this->value->_validate($flags);
-        $this->block->_validate($flags);
+            $this->key->_validate(2);
+        $this->value->_validate($this->byReference ? self::CTX_ALIAS_WRITE : self::CTX_WRITE);
+        $this->block->_validate(0);
+    }
+
+    public function _autocorrect(): void
+    {
+        if ($this->iterable)
+            $this->iterable->_autocorrect();
+        if ($this->key)
+            $this->key->_autocorrect();
+        if ($this->value)
+            $this->value->_autocorrect();
+        if ($this->block)
+            $this->block->_autocorrect();
+
+        $this->extraAutocorrect();
     }
 }

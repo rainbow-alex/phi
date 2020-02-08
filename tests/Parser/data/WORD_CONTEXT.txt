@@ -1,0 +1,22 @@
+{"algo": "permute"}
+
+// test use of keyword tokens in identifier positions, special classes, etc.
+
+$v->WORD_TOKEN;
+$v->WORD_TOKEN();
+ident::WORD_TOKEN;
+ident::WORD_TOKEN();
+WORD_TOKEN::ident;
+\WORD_TOKEN;
+WORD_TOKEN;
+
+use WORD_TOKEN;
+use ident as WORD_TOKEN;
+
+class WORD_TOKEN {}
+class ident { const WORD_TOKEN = 0; }
+
+// if (0) is a workaround for "Fatal error: cannot redeclare X" which is returned by php -l
+if (0) { function WORD_TOKEN() {} }
+
+WORD_TOKEN:

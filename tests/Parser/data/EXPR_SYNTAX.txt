@@ -1,0 +1,83 @@
+{"algo": "permute"}
+
+// specifically to test expression syntax edge cases
+
+$v <> $v
+
+CAST EXPR
+
+die($v,)
+die($v, $v)
+exit()
+exit(EXPR)
+exit($v,)
+exit($v, $v)
+
+empty()
+empty(EXPR)
+empty($v,)
+empty($v, $v)
+
+eval()
+eval(EXPR)
+eval($v,)
+eval($v, $v)
+
+isset()
+isset(EXPR)
+isset($v,)
+isset($v, $v)
+
+[]
+[$v]
+[EXPR => $v]
+[&$v]
+[$v => &$v]
+[$v,]
+[$v, ...$v]
+[...$v, $v]
+array()
+array($v)
+array(EXPR => $v)
+array(&$v)
+array($v => &$v)
+array($v,)
+array($v, ...$v)
+array(...$v, $v)
+
+function () {}
+static function () {}
+function (EXPR_SYNTAX_PARAM) {}
+function (EXPR_SYNTAX_PARAM, EXPR_SYNTAX_PARAM) {}
+function () use () {}
+function () use ($v) {}
+function () use (&$v) {}
+function () use ($v, $v) {}
+function () use ($v,) {}
+
+0
+1234
+-1234
+01234
+0999
+// TODO hex
+12_34
+1_2_3_4
+12__34
+
+12.34
+-12.34
+.1234
+1234.
+001.234
+09.1234
+1e234
+1.2e34
+1.2e-34
+1E234
+1.2E34
+1.2E-34
+1_2.34
+12.3_4
+1_2.3_4
+1__2.34

@@ -1,44 +1,46 @@
 <?php
 
+declare(strict_types=1);
+
+/**
+ * This code is generated.
+ * @see meta/
+ */
+
 namespace Phi\Nodes\Generated;
 
 use Phi\Node;
 use Phi\Token;
-use Phi\Nodes\Base\CompoundNode;
-use Phi\Nodes\Base\NodesList;
-use Phi\Nodes\Base\SeparatedNodesList;
-use Phi\Exception\MissingNodeException;
-use Phi\NodeConverter;
+use Phi\Exception\TreeException;
+use Phi\NodeCoercer;
 use Phi\Exception\ValidationException;
-use Phi\Nodes as Nodes;
 
-abstract class GeneratedPropertyAccessExpression extends Nodes\Expression
+trait GeneratedPropertyAccessExpression
 {
     /**
-     * @var Nodes\Expression|null
+     * @var \Phi\Nodes\Expression|null
      */
-    private $accessee;
+    private $object;
 
     /**
-     * @var Token|null
+     * @var \Phi\Token|null
      */
     private $operator;
 
     /**
-     * @var Nodes\MemberName|null
+     * @var \Phi\Nodes\Helpers\MemberName|null
      */
     private $name;
 
-
     /**
-     * @param Nodes\Expression|Node|string|null $accessee
-     * @param Nodes\MemberName|Node|string|null $name
+     * @param \Phi\Nodes\Expression|\Phi\Node|string|null $object
+     * @param \Phi\Nodes\Helpers\MemberName|\Phi\Node|string|null $name
      */
-    public function __construct($accessee = null, $name = null)
+    public function __construct($object = null, $name = null)
     {
-        if ($accessee !== null)
+        if ($object !== null)
         {
-            $this->setAccessee($accessee);
+            $this->setObject($object);
         }
         if ($name !== null)
         {
@@ -47,18 +49,16 @@ abstract class GeneratedPropertyAccessExpression extends Nodes\Expression
     }
 
     /**
-     * @param int $phpVersion
-     * @param Nodes\Expression $accessee
-     * @param Token $operator
-     * @param Nodes\MemberName $name
-     * @return static
+     * @param \Phi\Nodes\Expression $object
+     * @param \Phi\Token $operator
+     * @param \Phi\Nodes\Helpers\MemberName $name
+     * @return self
      */
-    public static function __instantiateUnchecked($phpVersion, $accessee, $operator, $name)
+    public static function __instantiateUnchecked($object, $operator, $name)
     {
-        $instance = new static;
-        $instance->phpVersion = $phpVersion;
-        $instance->accessee = $accessee;
-        $accessee->parent = $instance;
+        $instance = new self;
+        $instance->object = $object;
+        $object->parent = $instance;
         $instance->operator = $operator;
         $operator->parent = $instance;
         $instance->name = $name;
@@ -66,54 +66,70 @@ abstract class GeneratedPropertyAccessExpression extends Nodes\Expression
         return $instance;
     }
 
-    protected function &_getNodeRefs(): array
+    public function getChildNodes(): array
     {
-        $refs = [
-            "accessee" => &$this->accessee,
-            "operator" => &$this->operator,
-            "name" => &$this->name,
-        ];
-        return $refs;
+        return \array_values(\array_filter([
+            $this->object,
+            $this->operator,
+            $this->name,
+        ]));
     }
 
-    public function getAccessee(): Nodes\Expression
+    protected function &getChildRef(Node $childToDetach): Node
     {
-        if ($this->accessee === null)
+        if ($this->object === $childToDetach)
         {
-            throw new MissingNodeException($this, __FUNCTION__);
+            return $this->object;
         }
-        return $this->accessee;
+        if ($this->operator === $childToDetach)
+        {
+            return $this->operator;
+        }
+        if ($this->name === $childToDetach)
+        {
+            return $this->name;
+        }
+        throw new \LogicException();
     }
 
-    public function hasAccessee(): bool
+    public function getObject(): \Phi\Nodes\Expression
     {
-        return $this->accessee !== null;
+        if ($this->object === null)
+        {
+            throw TreeException::missingNode($this, "object");
+        }
+        return $this->object;
+    }
+
+    public function hasObject(): bool
+    {
+        return $this->object !== null;
     }
 
     /**
-     * @param Nodes\Expression|Node|string|null $accessee
+     * @param \Phi\Nodes\Expression|\Phi\Node|string|null $object
      */
-    public function setAccessee($accessee): void
+    public function setObject($object): void
     {
-        if ($accessee !== null)
+        if ($object !== null)
         {
-            /** @var Nodes\Expression $accessee */
-            $accessee = NodeConverter::convert($accessee, Nodes\Expression::class, $this->phpVersion);
-            $accessee->detach();
-            $accessee->parent = $this;
+            /** @var \Phi\Nodes\Expression $object */
+            $object = NodeCoercer::coerce($object, \Phi\Nodes\Expression::class, $this->getPhpVersion());
+            $object->detach();
+            $object->parent = $this;
         }
-        if ($this->accessee !== null)
+        if ($this->object !== null)
         {
-            $this->accessee->detach();
+            $this->object->detach();
         }
-        $this->accessee = $accessee;
+        $this->object = $object;
     }
 
-    public function getOperator(): Token
+    public function getOperator(): \Phi\Token
     {
         if ($this->operator === null)
         {
-            throw new MissingNodeException($this, __FUNCTION__);
+            throw TreeException::missingNode($this, "operator");
         }
         return $this->operator;
     }
@@ -124,14 +140,14 @@ abstract class GeneratedPropertyAccessExpression extends Nodes\Expression
     }
 
     /**
-     * @param Token|Node|string|null $operator
+     * @param \Phi\Token|\Phi\Node|string|null $operator
      */
     public function setOperator($operator): void
     {
         if ($operator !== null)
         {
-            /** @var Token $operator */
-            $operator = NodeConverter::convert($operator, Token::class, $this->phpVersion);
+            /** @var \Phi\Token $operator */
+            $operator = NodeCoercer::coerce($operator, \Phi\Token::class, $this->getPhpVersion());
             $operator->detach();
             $operator->parent = $this;
         }
@@ -142,11 +158,11 @@ abstract class GeneratedPropertyAccessExpression extends Nodes\Expression
         $this->operator = $operator;
     }
 
-    public function getName(): Nodes\MemberName
+    public function getName(): \Phi\Nodes\Helpers\MemberName
     {
         if ($this->name === null)
         {
-            throw new MissingNodeException($this, __FUNCTION__);
+            throw TreeException::missingNode($this, "name");
         }
         return $this->name;
     }
@@ -157,14 +173,14 @@ abstract class GeneratedPropertyAccessExpression extends Nodes\Expression
     }
 
     /**
-     * @param Nodes\MemberName|Node|string|null $name
+     * @param \Phi\Nodes\Helpers\MemberName|\Phi\Node|string|null $name
      */
     public function setName($name): void
     {
         if ($name !== null)
         {
-            /** @var Nodes\MemberName $name */
-            $name = NodeConverter::convert($name, Nodes\MemberName::class, $this->phpVersion);
+            /** @var \Phi\Nodes\Helpers\MemberName $name */
+            $name = NodeCoercer::coerce($name, \Phi\Nodes\Helpers\MemberName::class, $this->getPhpVersion());
             $name->detach();
             $name->parent = $this;
         }
@@ -175,21 +191,31 @@ abstract class GeneratedPropertyAccessExpression extends Nodes\Expression
         $this->name = $name;
     }
 
-    protected function _validate(int $flags): void
+    public function _validate(int $flags): void
     {
-        if ($this->accessee === null) throw ValidationException::childRequired($this, "accessee");
-        if ($this->operator === null) throw ValidationException::childRequired($this, "operator");
-        if ($this->name === null) throw ValidationException::childRequired($this, "name");
-        if ($flags & self::VALIDATE_TYPES)
-        {
-        }
-        if ($flags & self::VALIDATE_EXPRESSION_CONTEXT)
-        {
-        }
-        if ($flags & self::VALIDATE_TOKENS)
-        {
-        }
-        $this->accessee->_validate($flags);
-        $this->name->_validate($flags);
+        if ($this->object === null)
+            throw ValidationException::missingChild($this, "object");
+        if ($this->operator === null)
+            throw ValidationException::missingChild($this, "operator");
+        if ($this->name === null)
+            throw ValidationException::missingChild($this, "name");
+        if ($this->operator->getType() !== 222)
+            throw ValidationException::invalidSyntax($this->operator, [222]);
+
+
+        $this->extraValidation($flags);
+
+        $this->object->_validate(1);
+        $this->name->_validate(0);
+    }
+
+    public function _autocorrect(): void
+    {
+        if ($this->object)
+            $this->object->_autocorrect();
+        if ($this->name)
+            $this->name->_autocorrect();
+
+        $this->extraAutocorrect();
     }
 }

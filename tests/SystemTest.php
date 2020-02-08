@@ -1,8 +1,9 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Phi\Tests;
 
-use Phi\Exception\PhiException;
 use Phi\Parser;
 use Phi\PhpVersion;
 use PHPUnit\Framework\TestCase;
@@ -15,15 +16,10 @@ class SystemTest extends TestCase
     public function test_parse_self(string $path): void
     {
         $source = \file_get_contents($path);
-        try
-        {
-            $ast = (new Parser(PhpVersion::PHP_7_2))->parse($path, $source);
-            $ast->validate();
-        }
-        catch (PhiException $e)
-        {
-            throw new \RuntimeException($e->getMessageWithContext());
-        }
+
+        $ast = (new Parser(PhpVersion::PHP_7_2))->parse($path, $source);
+        $ast->validate();
+
         self::assertSame($source, (string) $ast);
     }
 

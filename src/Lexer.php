@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Phi;
 
 class Lexer
@@ -21,81 +23,55 @@ class Lexer
      */
     public function lex(?string $filename, string $source, bool $forcePhp = false): array
     {
-        $tokens = [];
-        $whitespace = "";
-        $line = 1;
-        $column = 1;
-        $forceIdentifier = false;
-        $typeMap = TokenType::getPhpTypeMap();
-
         if ($forcePhp)
         {
-            $phpTokens = \token_get_all("<?php " . $source);
+            $phpTokens = @\token_get_all("<?php " . $source);
             \array_shift($phpTokens);
         }
         else
         {
-            $phpTokens = \token_get_all($source);
+            $phpTokens = @\token_get_all($source);
         }
 
+        $tokens = [];
+        $whitespace = "";
+        $line = 1;
+        $typeMap = TokenType::getPhpTypeMap();
         foreach ($phpTokens as $phpToken)
         {
             if (\is_array($phpToken))
             {
-                $phpType = $phpToken[0];
-                $source = $phpToken[1];
+                [$phpType, $source, $line] = $phpToken;
 
                 if ($phpType === \T_WHITESPACE || $phpType === \T_COMMENT || $phpType === \T_DOC_COMMENT)
                 {
                     $whitespace .= $source;
-                    goto updateColumnAndLine;
+                    continue;
                 }
-
-                if (
-                    $forceIdentifier
-                    && $phpType !== \T_STRING
-                    && \in_array($phpType, Token::IDENTIFIER_KEYWORDS, true)
-                )
+                else if ($phpType === \T_CONSTANT_ENCAPSED_STRING  && $source[0] === '"')
                 {
-                    $phpType = \T_STRING;
-                    $forceIdentifier = false;
+                    $tokens[] = new Token(TokenType::S_DOUBLE_QUOTE, '"', $filename, $line, $whitespace);
+                    $whitespace = "";
+                    $tokens[] = new Token(TokenType::T_ENCAPSED_AND_WHITESPACE, \substr($source, 1, \strlen($source) - 2), $filename, $line);
+                    $line += \substr_count($source, "\n");
+                    $tokens[] = new Token(TokenType::S_DOUBLE_QUOTE, '"', $filename, $line);
+                    continue;
                 }
-                else
+                else if ($phpType === \T_CURLY_OPEN)
                 {
-                    $forceIdentifier = \in_array($phpType, [\T_OBJECT_OPERATOR, \T_DOUBLE_COLON, \T_CONST, \T_FUNCTION], true);
+                    $phpType = '{';
                 }
             }
             else
             {
                 $phpType = $source = $phpToken;
-                $forceIdentifier = ($forceIdentifier && $phpType === "&");
             }
 
-            $tokens[] = new Token($typeMap[$phpType], $source, $line, $column, $filename, $whitespace);
+            $tokens[] = new Token($typeMap[$phpType], $source, $filename, $line, $whitespace);
             $whitespace = "";
-
-            updateColumnAndLine:
-            // TODO optimize using $phpToken[2]?
-            if (\is_array($phpToken))
-            {
-                $c = \strrpos($source, "\n");
-                if ($c !== false)
-                {
-                    $column = \strlen($source) - $c;
-                    $line += \substr_count($source, "\n");
-                }
-                else
-                {
-                    $column += \strlen($source);
-                }
-            }
-            else
-            {
-                $column += 1;
-            }
         }
 
-        $tokens[] = new Token(TokenType::T_EOF, "", $line, $column, $filename, $whitespace);
+        $tokens[] = new Token(TokenType::T_EOF, "", $filename, $line, $whitespace);
 
         return $tokens;
     }

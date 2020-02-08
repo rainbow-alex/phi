@@ -1,37 +1,39 @@
 <?php
 
+declare(strict_types=1);
+
+/**
+ * This code is generated.
+ * @see meta/
+ */
+
 namespace Phi\Nodes\Generated;
 
 use Phi\Node;
 use Phi\Token;
-use Phi\Nodes\Base\CompoundNode;
-use Phi\Nodes\Base\NodesList;
-use Phi\Nodes\Base\SeparatedNodesList;
-use Phi\Exception\MissingNodeException;
-use Phi\NodeConverter;
+use Phi\Exception\TreeException;
+use Phi\NodeCoercer;
 use Phi\Exception\ValidationException;
-use Phi\Nodes as Nodes;
 
-abstract class GeneratedGotoStatement extends Nodes\Statement
+trait GeneratedGotoStatement
 {
     /**
-     * @var Token|null
+     * @var \Phi\Token|null
      */
     private $keyword;
 
     /**
-     * @var Token|null
+     * @var \Phi\Token|null
      */
     private $label;
 
     /**
-     * @var Token|null
+     * @var \Phi\Token|null
      */
     private $semiColon;
 
-
     /**
-     * @param Token|Node|string|null $label
+     * @param \Phi\Token|\Phi\Node|string|null $label
      */
     public function __construct($label = null)
     {
@@ -42,16 +44,14 @@ abstract class GeneratedGotoStatement extends Nodes\Statement
     }
 
     /**
-     * @param int $phpVersion
-     * @param Token $keyword
-     * @param Token $label
-     * @param Token|null $semiColon
-     * @return static
+     * @param \Phi\Token $keyword
+     * @param \Phi\Token $label
+     * @param \Phi\Token|null $semiColon
+     * @return self
      */
-    public static function __instantiateUnchecked($phpVersion, $keyword, $label, $semiColon)
+    public static function __instantiateUnchecked($keyword, $label, $semiColon)
     {
-        $instance = new static;
-        $instance->phpVersion = $phpVersion;
+        $instance = new self;
         $instance->keyword = $keyword;
         $keyword->parent = $instance;
         $instance->label = $label;
@@ -61,21 +61,37 @@ abstract class GeneratedGotoStatement extends Nodes\Statement
         return $instance;
     }
 
-    protected function &_getNodeRefs(): array
+    public function getChildNodes(): array
     {
-        $refs = [
-            "keyword" => &$this->keyword,
-            "label" => &$this->label,
-            "semiColon" => &$this->semiColon,
-        ];
-        return $refs;
+        return \array_values(\array_filter([
+            $this->keyword,
+            $this->label,
+            $this->semiColon,
+        ]));
     }
 
-    public function getKeyword(): Token
+    protected function &getChildRef(Node $childToDetach): Node
+    {
+        if ($this->keyword === $childToDetach)
+        {
+            return $this->keyword;
+        }
+        if ($this->label === $childToDetach)
+        {
+            return $this->label;
+        }
+        if ($this->semiColon === $childToDetach)
+        {
+            return $this->semiColon;
+        }
+        throw new \LogicException();
+    }
+
+    public function getKeyword(): \Phi\Token
     {
         if ($this->keyword === null)
         {
-            throw new MissingNodeException($this, __FUNCTION__);
+            throw TreeException::missingNode($this, "keyword");
         }
         return $this->keyword;
     }
@@ -86,14 +102,14 @@ abstract class GeneratedGotoStatement extends Nodes\Statement
     }
 
     /**
-     * @param Token|Node|string|null $keyword
+     * @param \Phi\Token|\Phi\Node|string|null $keyword
      */
     public function setKeyword($keyword): void
     {
         if ($keyword !== null)
         {
-            /** @var Token $keyword */
-            $keyword = NodeConverter::convert($keyword, Token::class, $this->phpVersion);
+            /** @var \Phi\Token $keyword */
+            $keyword = NodeCoercer::coerce($keyword, \Phi\Token::class, $this->getPhpVersion());
             $keyword->detach();
             $keyword->parent = $this;
         }
@@ -104,11 +120,11 @@ abstract class GeneratedGotoStatement extends Nodes\Statement
         $this->keyword = $keyword;
     }
 
-    public function getLabel(): Token
+    public function getLabel(): \Phi\Token
     {
         if ($this->label === null)
         {
-            throw new MissingNodeException($this, __FUNCTION__);
+            throw TreeException::missingNode($this, "label");
         }
         return $this->label;
     }
@@ -119,14 +135,14 @@ abstract class GeneratedGotoStatement extends Nodes\Statement
     }
 
     /**
-     * @param Token|Node|string|null $label
+     * @param \Phi\Token|\Phi\Node|string|null $label
      */
     public function setLabel($label): void
     {
         if ($label !== null)
         {
-            /** @var Token $label */
-            $label = NodeConverter::convert($label, Token::class, $this->phpVersion);
+            /** @var \Phi\Token $label */
+            $label = NodeCoercer::coerce($label, \Phi\Token::class, $this->getPhpVersion());
             $label->detach();
             $label->parent = $this;
         }
@@ -137,7 +153,7 @@ abstract class GeneratedGotoStatement extends Nodes\Statement
         $this->label = $label;
     }
 
-    public function getSemiColon(): ?Token
+    public function getSemiColon(): ?\Phi\Token
     {
         return $this->semiColon;
     }
@@ -148,14 +164,14 @@ abstract class GeneratedGotoStatement extends Nodes\Statement
     }
 
     /**
-     * @param Token|Node|string|null $semiColon
+     * @param \Phi\Token|\Phi\Node|string|null $semiColon
      */
     public function setSemiColon($semiColon): void
     {
         if ($semiColon !== null)
         {
-            /** @var Token $semiColon */
-            $semiColon = NodeConverter::convert($semiColon, Token::class, $this->phpVersion);
+            /** @var \Phi\Token $semiColon */
+            $semiColon = NodeCoercer::coerce($semiColon, \Phi\Token::class, $this->getPhpVersion());
             $semiColon->detach();
             $semiColon->parent = $this;
         }
@@ -166,18 +182,28 @@ abstract class GeneratedGotoStatement extends Nodes\Statement
         $this->semiColon = $semiColon;
     }
 
-    protected function _validate(int $flags): void
+    public function _validate(int $flags): void
     {
-        if ($this->keyword === null) throw ValidationException::childRequired($this, "keyword");
-        if ($this->label === null) throw ValidationException::childRequired($this, "label");
-        if ($flags & self::VALIDATE_TYPES)
-        {
-        }
-        if ($flags & self::VALIDATE_EXPRESSION_CONTEXT)
-        {
-        }
-        if ($flags & self::VALIDATE_TOKENS)
-        {
-        }
+        if ($this->keyword === null)
+            throw ValidationException::missingChild($this, "keyword");
+        if ($this->label === null)
+            throw ValidationException::missingChild($this, "label");
+        if ($this->keyword->getType() !== 187)
+            throw ValidationException::invalidSyntax($this->keyword, [187]);
+        if ($this->label->getType() !== 243)
+            throw ValidationException::invalidSyntax($this->label, [243]);
+        if ($this->semiColon)
+        if ($this->semiColon->getType() !== 114)
+            throw ValidationException::invalidSyntax($this->semiColon, [114]);
+
+
+        $this->extraValidation($flags);
+
+    }
+
+    public function _autocorrect(): void
+    {
+
+        $this->extraAutocorrect();
     }
 }

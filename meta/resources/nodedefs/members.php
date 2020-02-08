@@ -1,78 +1,73 @@
 <?php
 
 use Phi\Meta\NodeDef;
-use Phi\Nodes\TraitUseModification;
+use Phi\Nodes\Blocks\RegularBlock;
 use Phi\Nodes\Expression;
-use Phi\Nodes\ClassConstant;
-use Phi\Nodes\ClassLikeMember;
-use Phi\Nodes\Default_;
-use Phi\Nodes\Method;
-use Phi\Nodes\Name;
-use Phi\Nodes\Parameter;
-use Phi\Nodes\Property;
-use Phi\Nodes\RegularBlock;
-use Phi\Nodes\ReturnType;
-use Phi\Nodes\TraitUse;
-use Phi\Nodes\TraitUseAs;
-use Phi\Nodes\TraitUseInsteadof;
-use Phi\Token;
-use Phi\TokenType;
+use Phi\Nodes\Helpers\Default_;
+use Phi\Nodes\Helpers\Name;
+use Phi\Nodes\Helpers\Parameter;
+use Phi\Nodes\Helpers\ReturnType;
+use Phi\Nodes\Oop\ClassConstant;
+use Phi\Nodes\Oop\Method;
+use Phi\Nodes\Oop\Property;
+use Phi\Nodes\Oop\TraitMethodRef;
+use Phi\Nodes\Oop\TraitUse;
+use Phi\Nodes\Oop\TraitUseAs;
+use Phi\Nodes\Oop\TraitUseInsteadof;
+use Phi\Nodes\Oop\TraitUseModification;
+use Phi\TokenType as T;
 
 return [
     (new NodeDef(ClassConstant::class))
-        ->withExtends(ClassLikeMember::class)
-        ->withTokenList("modifiers", [TokenType::T_PUBLIC, TokenType::T_PROTECTED, TokenType::T_PRIVATE])
-        ->withToken("keyword", TokenType::T_CONST)
-        ->withToken("name", TokenType::T_STRING)
-        ->withToken("equals", TokenType::S_EQUALS)
-        ->withChild("value", Expression::class)
-        ->withToken("semiColon", TokenType::S_SEMICOLON)
-        ->withConstructor("name", "value"),
+        ->withTokenList("modifiers", [T::T_PUBLIC, T::T_PROTECTED, T::T_PRIVATE])
+        ->token("keyword", T::T_CONST)
+        ->token("name", T::T_STRING)
+        ->token("equals", T::S_EQUALS)
+        ->node("value", Expression::class)
+        ->token("semiColon", T::S_SEMICOLON)
+        ->constructor("name", "value"),
 
     (new NodeDef(Method::class))
-        ->withExtends(ClassLikeMember::class)
-        ->withTokenList("modifiers", [TokenType::T_ABSTRACT, TokenType::T_FINAL, TokenType::T_PUBLIC, TokenType::T_PROTECTED, TokenType::T_PRIVATE, TokenType::T_STATIC])
-        ->withToken("keyword", TokenType::T_FUNCTION)
-        ->withOptToken("byReference", TokenType::S_AMPERSAND)
-        ->withToken("name", TokenType::T_STRING)
-        ->withToken("leftParenthesis", TokenType::S_LEFT_PAREN)
-        ->withSepList("parameters", Parameter::class, TokenType::S_COMMA)
-        ->withToken("rightParenthesis", TokenType::S_RIGHT_PAREN)
-        ->withOptChild("returnType", ReturnType::class)
-        ->withOptChild("body", RegularBlock::class)
-        ->withOptToken("semiColon", TokenType::S_SEMICOLON)
-        ->withConstructor("name"),
+        ->withTokenList("modifiers", [T::T_ABSTRACT, T::T_FINAL, T::T_PUBLIC, T::T_PROTECTED, T::T_PRIVATE, T::T_STATIC])
+        ->token("keyword", T::T_FUNCTION)
+        ->optToken("byReference", T::S_AMPERSAND)
+        ->token("name", T::T_STRING)
+        ->token("leftParenthesis", T::S_LEFT_PAREN)
+        ->sepNodeList("parameters", Parameter::class, T::S_COMMA)
+        ->token("rightParenthesis", T::S_RIGHT_PAREN)
+        ->optNode("returnType", ReturnType::class)
+        ->optNode("body", RegularBlock::class)
+        ->optToken("semiColon", T::S_SEMICOLON)
+        ->constructor("name"),
 
     (new NodeDef(Property::class))
-        ->withExtends(ClassLikeMember::class)
-        ->withTokenList("modifiers", [TokenType::T_PUBLIC, TokenType::T_PROTECTED, TokenType::T_PRIVATE, TokenType::T_STATIC])
-        ->withToken("variable", TokenType::T_VARIABLE)
-        ->withOptChild("default", Default_::class)
-        ->withToken("semiColon", TokenType::S_SEMICOLON)
-        ->withConstructor("variable"),
+        ->withTokenList("modifiers", [T::T_PUBLIC, T::T_PROTECTED, T::T_PRIVATE, T::T_STATIC])
+        ->token("name", T::T_VARIABLE)
+        ->optNode("default", Default_::class)
+        ->token("semiColon", T::S_SEMICOLON)
+        ->constructor("name"),
 
     (new NodeDef(TraitUse::class))
-        ->withExtends(ClassLikeMember::class)
-        ->withToken("keyword", TokenType::T_USE)
-        ->withSepList("traits", Name::class, TokenType::S_COMMA)
-        ->withOptToken("leftBrace", TokenType::S_LEFT_CURLY_BRACE)
-        ->withList("modifications", TraitUseModification::class)
-        ->withOptToken("rightBrace", TokenType::S_LEFT_CURLY_BRACE)
-        ->withOptToken("semiColon", TokenType::S_SEMICOLON),
+        ->token("keyword", T::T_USE)
+        ->sepNodeList("traits", Name::class, T::S_COMMA)
+        ->optToken("leftBrace", T::S_LEFT_CURLY_BRACE)
+        ->nodeList("modifications", TraitUseModification::class)
+        ->optToken("rightBrace", T::S_RIGHT_CURLY_BRACE)
+        ->optToken("semiColon", T::S_SEMICOLON),
 
     (new NodeDef(TraitUseInsteadof::class))
-        ->withExtends(TraitUseModification::class)
-        ->withChild("trait", Name::class)
-        ->withToken("doubleColon", TokenType::T_DOUBLE_COLON)
-        ->withToken("member", TokenType::T_STRING)
-        ->withToken("insteadof", TokenType::T_INSTEADOF)
-        ->withChild("excluded", Name::class),
-
+        ->node("method", TraitMethodRef::class)
+        ->token("keyword", T::T_INSTEADOF)
+        ->sepNodeList("excluded", Name::class, T::S_COMMA)
+        ->token("semiColon", T::S_SEMICOLON),
     (new NodeDef(TraitUseAs::class))
-        ->withExtends(TraitUseModification::class)
-        ->withChild("trait", Name::class)
-        ->withToken("doubleColon", TokenType::T_DOUBLE_COLON)
-        ->withToken("member", TokenType::T_STRING)
-        ->withToken("as", TokenType::T_AS)
-        ->withToken("alias", TokenType::T_STRING),
+        ->node("method", TraitMethodRef::class)
+        ->token("keyword", T::T_AS)
+        ->optToken("modifier", [T::T_PUBLIC, T::T_PROTECTED, T::T_PRIVATE])
+        ->optToken("alias", T::T_STRING)
+        ->token("semiColon", T::S_SEMICOLON),
+    (new NodeDef(TraitMethodRef::class))
+        ->optNode("name", Name::class)
+        ->optToken("doubleColon", T::T_DOUBLE_COLON)
+        ->token("method", T::T_STRING),
 ];

@@ -1,47 +1,49 @@
 <?php
 
+declare(strict_types=1);
+
+/**
+ * This code is generated.
+ * @see meta/
+ */
+
 namespace Phi\Nodes\Generated;
 
 use Phi\Node;
 use Phi\Token;
-use Phi\Nodes\Base\CompoundNode;
-use Phi\Nodes\Base\NodesList;
-use Phi\Nodes\Base\SeparatedNodesList;
-use Phi\Exception\MissingNodeException;
-use Phi\NodeConverter;
+use Phi\Exception\TreeException;
+use Phi\NodeCoercer;
 use Phi\Exception\ValidationException;
-use Phi\Nodes as Nodes;
 
-abstract class GeneratedParameter extends CompoundNode
+trait GeneratedParameter
 {
     /**
-     * @var Nodes\Type|null
+     * @var \Phi\Nodes\Type|null
      */
     private $type;
 
     /**
-     * @var Token|null
+     * @var \Phi\Token|null
      */
     private $byReference;
 
     /**
-     * @var Token|null
+     * @var \Phi\Token|null
      */
-    private $ellipsis;
+    private $unpack;
 
     /**
-     * @var Token|null
+     * @var \Phi\Token|null
      */
     private $variable;
 
     /**
-     * @var Nodes\Default_|null
+     * @var \Phi\Nodes\Helpers\Default_|null
      */
     private $default;
 
-
     /**
-     * @param Token|Node|string|null $variable
+     * @param \Phi\Token|\Phi\Node|string|null $variable
      */
     public function __construct($variable = null)
     {
@@ -52,24 +54,22 @@ abstract class GeneratedParameter extends CompoundNode
     }
 
     /**
-     * @param int $phpVersion
-     * @param Nodes\Type|null $type
-     * @param Token|null $byReference
-     * @param Token|null $ellipsis
-     * @param Token $variable
-     * @param Nodes\Default_|null $default
-     * @return static
+     * @param \Phi\Nodes\Type|null $type
+     * @param \Phi\Token|null $byReference
+     * @param \Phi\Token|null $unpack
+     * @param \Phi\Token $variable
+     * @param \Phi\Nodes\Helpers\Default_|null $default
+     * @return self
      */
-    public static function __instantiateUnchecked($phpVersion, $type, $byReference, $ellipsis, $variable, $default)
+    public static function __instantiateUnchecked($type, $byReference, $unpack, $variable, $default)
     {
-        $instance = new static;
-        $instance->phpVersion = $phpVersion;
+        $instance = new self;
         $instance->type = $type;
         if ($type) $type->parent = $instance;
         $instance->byReference = $byReference;
         if ($byReference) $byReference->parent = $instance;
-        $instance->ellipsis = $ellipsis;
-        if ($ellipsis) $ellipsis->parent = $instance;
+        $instance->unpack = $unpack;
+        if ($unpack) $unpack->parent = $instance;
         $instance->variable = $variable;
         $variable->parent = $instance;
         $instance->default = $default;
@@ -77,19 +77,43 @@ abstract class GeneratedParameter extends CompoundNode
         return $instance;
     }
 
-    protected function &_getNodeRefs(): array
+    public function getChildNodes(): array
     {
-        $refs = [
-            "type" => &$this->type,
-            "byReference" => &$this->byReference,
-            "ellipsis" => &$this->ellipsis,
-            "variable" => &$this->variable,
-            "default" => &$this->default,
-        ];
-        return $refs;
+        return \array_values(\array_filter([
+            $this->type,
+            $this->byReference,
+            $this->unpack,
+            $this->variable,
+            $this->default,
+        ]));
     }
 
-    public function getType(): ?Nodes\Type
+    protected function &getChildRef(Node $childToDetach): Node
+    {
+        if ($this->type === $childToDetach)
+        {
+            return $this->type;
+        }
+        if ($this->byReference === $childToDetach)
+        {
+            return $this->byReference;
+        }
+        if ($this->unpack === $childToDetach)
+        {
+            return $this->unpack;
+        }
+        if ($this->variable === $childToDetach)
+        {
+            return $this->variable;
+        }
+        if ($this->default === $childToDetach)
+        {
+            return $this->default;
+        }
+        throw new \LogicException();
+    }
+
+    public function getType(): ?\Phi\Nodes\Type
     {
         return $this->type;
     }
@@ -100,14 +124,14 @@ abstract class GeneratedParameter extends CompoundNode
     }
 
     /**
-     * @param Nodes\Type|Node|string|null $type
+     * @param \Phi\Nodes\Type|\Phi\Node|string|null $type
      */
     public function setType($type): void
     {
         if ($type !== null)
         {
-            /** @var Nodes\Type $type */
-            $type = NodeConverter::convert($type, Nodes\Type::class, $this->phpVersion);
+            /** @var \Phi\Nodes\Type $type */
+            $type = NodeCoercer::coerce($type, \Phi\Nodes\Type::class, $this->getPhpVersion());
             $type->detach();
             $type->parent = $this;
         }
@@ -118,7 +142,7 @@ abstract class GeneratedParameter extends CompoundNode
         $this->type = $type;
     }
 
-    public function getByReference(): ?Token
+    public function getByReference(): ?\Phi\Token
     {
         return $this->byReference;
     }
@@ -129,14 +153,14 @@ abstract class GeneratedParameter extends CompoundNode
     }
 
     /**
-     * @param Token|Node|string|null $byReference
+     * @param \Phi\Token|\Phi\Node|string|null $byReference
      */
     public function setByReference($byReference): void
     {
         if ($byReference !== null)
         {
-            /** @var Token $byReference */
-            $byReference = NodeConverter::convert($byReference, Token::class, $this->phpVersion);
+            /** @var \Phi\Token $byReference */
+            $byReference = NodeCoercer::coerce($byReference, \Phi\Token::class, $this->getPhpVersion());
             $byReference->detach();
             $byReference->parent = $this;
         }
@@ -147,40 +171,40 @@ abstract class GeneratedParameter extends CompoundNode
         $this->byReference = $byReference;
     }
 
-    public function getEllipsis(): ?Token
+    public function getUnpack(): ?\Phi\Token
     {
-        return $this->ellipsis;
+        return $this->unpack;
     }
 
-    public function hasEllipsis(): bool
+    public function hasUnpack(): bool
     {
-        return $this->ellipsis !== null;
+        return $this->unpack !== null;
     }
 
     /**
-     * @param Token|Node|string|null $ellipsis
+     * @param \Phi\Token|\Phi\Node|string|null $unpack
      */
-    public function setEllipsis($ellipsis): void
+    public function setUnpack($unpack): void
     {
-        if ($ellipsis !== null)
+        if ($unpack !== null)
         {
-            /** @var Token $ellipsis */
-            $ellipsis = NodeConverter::convert($ellipsis, Token::class, $this->phpVersion);
-            $ellipsis->detach();
-            $ellipsis->parent = $this;
+            /** @var \Phi\Token $unpack */
+            $unpack = NodeCoercer::coerce($unpack, \Phi\Token::class, $this->getPhpVersion());
+            $unpack->detach();
+            $unpack->parent = $this;
         }
-        if ($this->ellipsis !== null)
+        if ($this->unpack !== null)
         {
-            $this->ellipsis->detach();
+            $this->unpack->detach();
         }
-        $this->ellipsis = $ellipsis;
+        $this->unpack = $unpack;
     }
 
-    public function getVariable(): Token
+    public function getVariable(): \Phi\Token
     {
         if ($this->variable === null)
         {
-            throw new MissingNodeException($this, __FUNCTION__);
+            throw TreeException::missingNode($this, "variable");
         }
         return $this->variable;
     }
@@ -191,14 +215,14 @@ abstract class GeneratedParameter extends CompoundNode
     }
 
     /**
-     * @param Token|Node|string|null $variable
+     * @param \Phi\Token|\Phi\Node|string|null $variable
      */
     public function setVariable($variable): void
     {
         if ($variable !== null)
         {
-            /** @var Token $variable */
-            $variable = NodeConverter::convert($variable, Token::class, $this->phpVersion);
+            /** @var \Phi\Token $variable */
+            $variable = NodeCoercer::coerce($variable, \Phi\Token::class, $this->getPhpVersion());
             $variable->detach();
             $variable->parent = $this;
         }
@@ -209,7 +233,7 @@ abstract class GeneratedParameter extends CompoundNode
         $this->variable = $variable;
     }
 
-    public function getDefault(): ?Nodes\Default_
+    public function getDefault(): ?\Phi\Nodes\Helpers\Default_
     {
         return $this->default;
     }
@@ -220,14 +244,14 @@ abstract class GeneratedParameter extends CompoundNode
     }
 
     /**
-     * @param Nodes\Default_|Node|string|null $default
+     * @param \Phi\Nodes\Helpers\Default_|\Phi\Node|string|null $default
      */
     public function setDefault($default): void
     {
         if ($default !== null)
         {
-            /** @var Nodes\Default_ $default */
-            $default = NodeConverter::convert($default, Nodes\Default_::class, $this->phpVersion);
+            /** @var \Phi\Nodes\Helpers\Default_ $default */
+            $default = NodeCoercer::coerce($default, \Phi\Nodes\Helpers\Default_::class, $this->getPhpVersion());
             $default->detach();
             $default->parent = $this;
         }
@@ -238,25 +262,35 @@ abstract class GeneratedParameter extends CompoundNode
         $this->default = $default;
     }
 
-    protected function _validate(int $flags): void
+    public function _validate(int $flags): void
     {
-        if ($this->variable === null) throw ValidationException::childRequired($this, "variable");
-        if ($flags & self::VALIDATE_TYPES)
-        {
-        }
-        if ($flags & self::VALIDATE_EXPRESSION_CONTEXT)
-        {
-        }
-        if ($flags & self::VALIDATE_TOKENS)
-        {
-        }
+        if ($this->variable === null)
+            throw ValidationException::missingChild($this, "variable");
+        if ($this->byReference)
+        if ($this->byReference->getType() !== 104)
+            throw ValidationException::invalidSyntax($this->byReference, [104]);
+        if ($this->unpack)
+        if ($this->unpack->getType() !== 164)
+            throw ValidationException::invalidSyntax($this->unpack, [164]);
+        if ($this->variable->getType() !== 255)
+            throw ValidationException::invalidSyntax($this->variable, [255]);
+
+
+        $this->extraValidation($flags);
+
         if ($this->type)
-        {
-            $this->type->_validate($flags);
-        }
+            $this->type->_validate(0);
         if ($this->default)
-        {
-            $this->default->_validate($flags);
-        }
+            $this->default->_validate(0);
+    }
+
+    public function _autocorrect(): void
+    {
+        if ($this->type)
+            $this->type->_autocorrect();
+        if ($this->default)
+            $this->default->_autocorrect();
+
+        $this->extraAutocorrect();
     }
 }

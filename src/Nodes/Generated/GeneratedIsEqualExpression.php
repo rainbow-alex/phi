@@ -1,38 +1,40 @@
 <?php
 
+declare(strict_types=1);
+
+/**
+ * This code is generated.
+ * @see meta/
+ */
+
 namespace Phi\Nodes\Generated;
 
 use Phi\Node;
 use Phi\Token;
-use Phi\Nodes\Base\CompoundNode;
-use Phi\Nodes\Base\NodesList;
-use Phi\Nodes\Base\SeparatedNodesList;
-use Phi\Exception\MissingNodeException;
-use Phi\NodeConverter;
+use Phi\Exception\TreeException;
+use Phi\NodeCoercer;
 use Phi\Exception\ValidationException;
-use Phi\Nodes as Nodes;
 
-abstract class GeneratedIsEqualExpression extends Nodes\BinopExpression
+trait GeneratedIsEqualExpression
 {
     /**
-     * @var Nodes\Expression|null
+     * @var \Phi\Nodes\Expression|null
      */
     private $left;
 
     /**
-     * @var Token|null
+     * @var \Phi\Token|null
      */
     private $operator;
 
     /**
-     * @var Nodes\Expression|null
+     * @var \Phi\Nodes\Expression|null
      */
     private $right;
 
-
     /**
-     * @param Nodes\Expression|Node|string|null $left
-     * @param Nodes\Expression|Node|string|null $right
+     * @param \Phi\Nodes\Expression|\Phi\Node|string|null $left
+     * @param \Phi\Nodes\Expression|\Phi\Node|string|null $right
      */
     public function __construct($left = null, $right = null)
     {
@@ -47,16 +49,14 @@ abstract class GeneratedIsEqualExpression extends Nodes\BinopExpression
     }
 
     /**
-     * @param int $phpVersion
-     * @param Nodes\Expression $left
-     * @param Token $operator
-     * @param Nodes\Expression $right
-     * @return static
+     * @param \Phi\Nodes\Expression $left
+     * @param \Phi\Token $operator
+     * @param \Phi\Nodes\Expression $right
+     * @return self
      */
-    public static function __instantiateUnchecked($phpVersion, $left, $operator, $right)
+    public static function __instantiateUnchecked($left, $operator, $right)
     {
-        $instance = new static;
-        $instance->phpVersion = $phpVersion;
+        $instance = new self;
         $instance->left = $left;
         $left->parent = $instance;
         $instance->operator = $operator;
@@ -66,21 +66,37 @@ abstract class GeneratedIsEqualExpression extends Nodes\BinopExpression
         return $instance;
     }
 
-    protected function &_getNodeRefs(): array
+    public function getChildNodes(): array
     {
-        $refs = [
-            "left" => &$this->left,
-            "operator" => &$this->operator,
-            "right" => &$this->right,
-        ];
-        return $refs;
+        return \array_values(\array_filter([
+            $this->left,
+            $this->operator,
+            $this->right,
+        ]));
     }
 
-    public function getLeft(): Nodes\Expression
+    protected function &getChildRef(Node $childToDetach): Node
+    {
+        if ($this->left === $childToDetach)
+        {
+            return $this->left;
+        }
+        if ($this->operator === $childToDetach)
+        {
+            return $this->operator;
+        }
+        if ($this->right === $childToDetach)
+        {
+            return $this->right;
+        }
+        throw new \LogicException();
+    }
+
+    public function getLeft(): \Phi\Nodes\Expression
     {
         if ($this->left === null)
         {
-            throw new MissingNodeException($this, __FUNCTION__);
+            throw TreeException::missingNode($this, "left");
         }
         return $this->left;
     }
@@ -91,14 +107,14 @@ abstract class GeneratedIsEqualExpression extends Nodes\BinopExpression
     }
 
     /**
-     * @param Nodes\Expression|Node|string|null $left
+     * @param \Phi\Nodes\Expression|\Phi\Node|string|null $left
      */
     public function setLeft($left): void
     {
         if ($left !== null)
         {
-            /** @var Nodes\Expression $left */
-            $left = NodeConverter::convert($left, Nodes\Expression::class, $this->phpVersion);
+            /** @var \Phi\Nodes\Expression $left */
+            $left = NodeCoercer::coerce($left, \Phi\Nodes\Expression::class, $this->getPhpVersion());
             $left->detach();
             $left->parent = $this;
         }
@@ -109,11 +125,11 @@ abstract class GeneratedIsEqualExpression extends Nodes\BinopExpression
         $this->left = $left;
     }
 
-    public function getOperator(): Token
+    public function getOperator(): \Phi\Token
     {
         if ($this->operator === null)
         {
-            throw new MissingNodeException($this, __FUNCTION__);
+            throw TreeException::missingNode($this, "operator");
         }
         return $this->operator;
     }
@@ -124,14 +140,14 @@ abstract class GeneratedIsEqualExpression extends Nodes\BinopExpression
     }
 
     /**
-     * @param Token|Node|string|null $operator
+     * @param \Phi\Token|\Phi\Node|string|null $operator
      */
     public function setOperator($operator): void
     {
         if ($operator !== null)
         {
-            /** @var Token $operator */
-            $operator = NodeConverter::convert($operator, Token::class, $this->phpVersion);
+            /** @var \Phi\Token $operator */
+            $operator = NodeCoercer::coerce($operator, \Phi\Token::class, $this->getPhpVersion());
             $operator->detach();
             $operator->parent = $this;
         }
@@ -142,11 +158,11 @@ abstract class GeneratedIsEqualExpression extends Nodes\BinopExpression
         $this->operator = $operator;
     }
 
-    public function getRight(): Nodes\Expression
+    public function getRight(): \Phi\Nodes\Expression
     {
         if ($this->right === null)
         {
-            throw new MissingNodeException($this, __FUNCTION__);
+            throw TreeException::missingNode($this, "right");
         }
         return $this->right;
     }
@@ -157,14 +173,14 @@ abstract class GeneratedIsEqualExpression extends Nodes\BinopExpression
     }
 
     /**
-     * @param Nodes\Expression|Node|string|null $right
+     * @param \Phi\Nodes\Expression|\Phi\Node|string|null $right
      */
     public function setRight($right): void
     {
         if ($right !== null)
         {
-            /** @var Nodes\Expression $right */
-            $right = NodeConverter::convert($right, Nodes\Expression::class, $this->phpVersion);
+            /** @var \Phi\Nodes\Expression $right */
+            $right = NodeCoercer::coerce($right, \Phi\Nodes\Expression::class, $this->getPhpVersion());
             $right->detach();
             $right->parent = $this;
         }
@@ -175,21 +191,33 @@ abstract class GeneratedIsEqualExpression extends Nodes\BinopExpression
         $this->right = $right;
     }
 
-    protected function _validate(int $flags): void
+    public function _validate(int $flags): void
     {
-        if ($this->left === null) throw ValidationException::childRequired($this, "left");
-        if ($this->operator === null) throw ValidationException::childRequired($this, "operator");
-        if ($this->right === null) throw ValidationException::childRequired($this, "right");
-        if ($flags & self::VALIDATE_TYPES)
-        {
-        }
-        if ($flags & self::VALIDATE_EXPRESSION_CONTEXT)
-        {
-        }
-        if ($flags & self::VALIDATE_TOKENS)
-        {
-        }
-        $this->left->_validate($flags);
-        $this->right->_validate($flags);
+        if ($this->left === null)
+            throw ValidationException::missingChild($this, "left");
+        if ($this->operator === null)
+            throw ValidationException::missingChild($this, "operator");
+        if ($this->right === null)
+            throw ValidationException::missingChild($this, "right");
+        if ($this->operator->getType() !== 200)
+            throw ValidationException::invalidSyntax($this->operator, [200]);
+
+        if ($flags & 14)
+            throw ValidationException::invalidExpressionInContext($this);
+
+        $this->extraValidation($flags);
+
+        $this->left->_validate(1);
+        $this->right->_validate(1);
+    }
+
+    public function _autocorrect(): void
+    {
+        if ($this->left)
+            $this->left->_autocorrect();
+        if ($this->right)
+            $this->right->_autocorrect();
+
+        $this->extraAutocorrect();
     }
 }

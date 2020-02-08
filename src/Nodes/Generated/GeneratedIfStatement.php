@@ -1,114 +1,152 @@
 <?php
 
+declare(strict_types=1);
+
+/**
+ * This code is generated.
+ * @see meta/
+ */
+
 namespace Phi\Nodes\Generated;
 
 use Phi\Node;
 use Phi\Token;
-use Phi\Nodes\Base\CompoundNode;
-use Phi\Nodes\Base\NodesList;
-use Phi\Nodes\Base\SeparatedNodesList;
-use Phi\Exception\MissingNodeException;
-use Phi\NodeConverter;
+use Phi\Exception\TreeException;
+use Phi\NodeCoercer;
 use Phi\Exception\ValidationException;
-use Phi\Nodes as Nodes;
 
-abstract class GeneratedIfStatement extends Nodes\Statement
+trait GeneratedIfStatement
 {
     /**
-     * @var Token|null
+     * @var \Phi\Token|null
      */
     private $keyword;
 
     /**
-     * @var Token|null
+     * @var \Phi\Token|null
      */
     private $leftParenthesis;
 
     /**
-     * @var Nodes\Expression|null
+     * @var \Phi\Nodes\Expression|null
      */
-    private $test;
+    private $condition;
 
     /**
-     * @var Token|null
+     * @var \Phi\Token|null
      */
     private $rightParenthesis;
 
     /**
-     * @var Nodes\Block|null
+     * @var \Phi\Nodes\Block|null
      */
     private $block;
 
     /**
-     * @var NodesList|Nodes\Elseif_[]
-     * @phpstan-var NodesList<\Phi\Nodes\Elseif_>
+     * @var \Phi\Nodes\Base\NodesList|\Phi\Nodes\Statements\Elseif_[]
+     * @phpstan-var \Phi\Nodes\Base\NodesList<\Phi\Nodes\Statements\Elseif_>
      */
-    private $elseifs;
+    private $elseifClauses;
 
     /**
-     * @var Nodes\Else_|null
+     * @var \Phi\Nodes\Statements\Else_|null
      */
-    private $else;
-
+    private $elseClause;
 
     /**
+     * @param \Phi\Nodes\Expression|\Phi\Node|string|null $condition
+     * @param \Phi\Nodes\Block|\Phi\Node|string|null $block
      */
-    public function __construct()
+    public function __construct($condition = null, $block = null)
     {
-        $this->elseifs = new NodesList();
+        if ($condition !== null)
+        {
+            $this->setCondition($condition);
+        }
+        if ($block !== null)
+        {
+            $this->setBlock($block);
+        }
+        $this->elseifClauses = new \Phi\Nodes\Base\NodesList(\Phi\Nodes\Statements\Elseif_::class);
     }
 
     /**
-     * @param int $phpVersion
-     * @param Token $keyword
-     * @param Token $leftParenthesis
-     * @param Nodes\Expression $test
-     * @param Token $rightParenthesis
-     * @param Nodes\Block $block
-     * @param mixed[] $elseifs
-     * @param Nodes\Else_|null $else
-     * @return static
+     * @param \Phi\Token $keyword
+     * @param \Phi\Token $leftParenthesis
+     * @param \Phi\Nodes\Expression $condition
+     * @param \Phi\Token $rightParenthesis
+     * @param \Phi\Nodes\Block $block
+     * @param mixed[] $elseifClauses
+     * @param \Phi\Nodes\Statements\Else_|null $elseClause
+     * @return self
      */
-    public static function __instantiateUnchecked($phpVersion, $keyword, $leftParenthesis, $test, $rightParenthesis, $block, $elseifs, $else)
+    public static function __instantiateUnchecked($keyword, $leftParenthesis, $condition, $rightParenthesis, $block, $elseifClauses, $elseClause)
     {
-        $instance = new static;
-        $instance->phpVersion = $phpVersion;
+        $instance = new self;
         $instance->keyword = $keyword;
         $keyword->parent = $instance;
         $instance->leftParenthesis = $leftParenthesis;
         $leftParenthesis->parent = $instance;
-        $instance->test = $test;
-        $test->parent = $instance;
+        $instance->condition = $condition;
+        $condition->parent = $instance;
         $instance->rightParenthesis = $rightParenthesis;
         $rightParenthesis->parent = $instance;
         $instance->block = $block;
         $block->parent = $instance;
-        $instance->elseifs->__initUnchecked($elseifs);
-        $instance->elseifs->parent = $instance;
-        $instance->else = $else;
-        if ($else) $else->parent = $instance;
+        $instance->elseifClauses->__initUnchecked($elseifClauses);
+        $instance->elseifClauses->parent = $instance;
+        $instance->elseClause = $elseClause;
+        if ($elseClause) $elseClause->parent = $instance;
         return $instance;
     }
 
-    protected function &_getNodeRefs(): array
+    public function getChildNodes(): array
     {
-        $refs = [
-            "keyword" => &$this->keyword,
-            "leftParenthesis" => &$this->leftParenthesis,
-            "test" => &$this->test,
-            "rightParenthesis" => &$this->rightParenthesis,
-            "block" => &$this->block,
-            "elseifs" => &$this->elseifs,
-            "else" => &$this->else,
-        ];
-        return $refs;
+        return \array_values(\array_filter([
+            $this->keyword,
+            $this->leftParenthesis,
+            $this->condition,
+            $this->rightParenthesis,
+            $this->block,
+            $this->elseifClauses,
+            $this->elseClause,
+        ]));
     }
 
-    public function getKeyword(): Token
+    protected function &getChildRef(Node $childToDetach): Node
+    {
+        if ($this->keyword === $childToDetach)
+        {
+            return $this->keyword;
+        }
+        if ($this->leftParenthesis === $childToDetach)
+        {
+            return $this->leftParenthesis;
+        }
+        if ($this->condition === $childToDetach)
+        {
+            return $this->condition;
+        }
+        if ($this->rightParenthesis === $childToDetach)
+        {
+            return $this->rightParenthesis;
+        }
+        if ($this->block === $childToDetach)
+        {
+            return $this->block;
+        }
+        if ($this->elseClause === $childToDetach)
+        {
+            return $this->elseClause;
+        }
+        throw new \LogicException();
+    }
+
+    public function getKeyword(): \Phi\Token
     {
         if ($this->keyword === null)
         {
-            throw new MissingNodeException($this, __FUNCTION__);
+            throw TreeException::missingNode($this, "keyword");
         }
         return $this->keyword;
     }
@@ -119,14 +157,14 @@ abstract class GeneratedIfStatement extends Nodes\Statement
     }
 
     /**
-     * @param Token|Node|string|null $keyword
+     * @param \Phi\Token|\Phi\Node|string|null $keyword
      */
     public function setKeyword($keyword): void
     {
         if ($keyword !== null)
         {
-            /** @var Token $keyword */
-            $keyword = NodeConverter::convert($keyword, Token::class, $this->phpVersion);
+            /** @var \Phi\Token $keyword */
+            $keyword = NodeCoercer::coerce($keyword, \Phi\Token::class, $this->getPhpVersion());
             $keyword->detach();
             $keyword->parent = $this;
         }
@@ -137,11 +175,11 @@ abstract class GeneratedIfStatement extends Nodes\Statement
         $this->keyword = $keyword;
     }
 
-    public function getLeftParenthesis(): Token
+    public function getLeftParenthesis(): \Phi\Token
     {
         if ($this->leftParenthesis === null)
         {
-            throw new MissingNodeException($this, __FUNCTION__);
+            throw TreeException::missingNode($this, "leftParenthesis");
         }
         return $this->leftParenthesis;
     }
@@ -152,14 +190,14 @@ abstract class GeneratedIfStatement extends Nodes\Statement
     }
 
     /**
-     * @param Token|Node|string|null $leftParenthesis
+     * @param \Phi\Token|\Phi\Node|string|null $leftParenthesis
      */
     public function setLeftParenthesis($leftParenthesis): void
     {
         if ($leftParenthesis !== null)
         {
-            /** @var Token $leftParenthesis */
-            $leftParenthesis = NodeConverter::convert($leftParenthesis, Token::class, $this->phpVersion);
+            /** @var \Phi\Token $leftParenthesis */
+            $leftParenthesis = NodeCoercer::coerce($leftParenthesis, \Phi\Token::class, $this->getPhpVersion());
             $leftParenthesis->detach();
             $leftParenthesis->parent = $this;
         }
@@ -170,44 +208,44 @@ abstract class GeneratedIfStatement extends Nodes\Statement
         $this->leftParenthesis = $leftParenthesis;
     }
 
-    public function getTest(): Nodes\Expression
+    public function getCondition(): \Phi\Nodes\Expression
     {
-        if ($this->test === null)
+        if ($this->condition === null)
         {
-            throw new MissingNodeException($this, __FUNCTION__);
+            throw TreeException::missingNode($this, "condition");
         }
-        return $this->test;
+        return $this->condition;
     }
 
-    public function hasTest(): bool
+    public function hasCondition(): bool
     {
-        return $this->test !== null;
+        return $this->condition !== null;
     }
 
     /**
-     * @param Nodes\Expression|Node|string|null $test
+     * @param \Phi\Nodes\Expression|\Phi\Node|string|null $condition
      */
-    public function setTest($test): void
+    public function setCondition($condition): void
     {
-        if ($test !== null)
+        if ($condition !== null)
         {
-            /** @var Nodes\Expression $test */
-            $test = NodeConverter::convert($test, Nodes\Expression::class, $this->phpVersion);
-            $test->detach();
-            $test->parent = $this;
+            /** @var \Phi\Nodes\Expression $condition */
+            $condition = NodeCoercer::coerce($condition, \Phi\Nodes\Expression::class, $this->getPhpVersion());
+            $condition->detach();
+            $condition->parent = $this;
         }
-        if ($this->test !== null)
+        if ($this->condition !== null)
         {
-            $this->test->detach();
+            $this->condition->detach();
         }
-        $this->test = $test;
+        $this->condition = $condition;
     }
 
-    public function getRightParenthesis(): Token
+    public function getRightParenthesis(): \Phi\Token
     {
         if ($this->rightParenthesis === null)
         {
-            throw new MissingNodeException($this, __FUNCTION__);
+            throw TreeException::missingNode($this, "rightParenthesis");
         }
         return $this->rightParenthesis;
     }
@@ -218,14 +256,14 @@ abstract class GeneratedIfStatement extends Nodes\Statement
     }
 
     /**
-     * @param Token|Node|string|null $rightParenthesis
+     * @param \Phi\Token|\Phi\Node|string|null $rightParenthesis
      */
     public function setRightParenthesis($rightParenthesis): void
     {
         if ($rightParenthesis !== null)
         {
-            /** @var Token $rightParenthesis */
-            $rightParenthesis = NodeConverter::convert($rightParenthesis, Token::class, $this->phpVersion);
+            /** @var \Phi\Token $rightParenthesis */
+            $rightParenthesis = NodeCoercer::coerce($rightParenthesis, \Phi\Token::class, $this->getPhpVersion());
             $rightParenthesis->detach();
             $rightParenthesis->parent = $this;
         }
@@ -236,11 +274,11 @@ abstract class GeneratedIfStatement extends Nodes\Statement
         $this->rightParenthesis = $rightParenthesis;
     }
 
-    public function getBlock(): Nodes\Block
+    public function getBlock(): \Phi\Nodes\Block
     {
         if ($this->block === null)
         {
-            throw new MissingNodeException($this, __FUNCTION__);
+            throw TreeException::missingNode($this, "block");
         }
         return $this->block;
     }
@@ -251,14 +289,14 @@ abstract class GeneratedIfStatement extends Nodes\Statement
     }
 
     /**
-     * @param Nodes\Block|Node|string|null $block
+     * @param \Phi\Nodes\Block|\Phi\Node|string|null $block
      */
     public function setBlock($block): void
     {
         if ($block !== null)
         {
-            /** @var Nodes\Block $block */
-            $block = NodeConverter::convert($block, Nodes\Block::class, $this->phpVersion);
+            /** @var \Phi\Nodes\Block $block */
+            $block = NodeCoercer::coerce($block, \Phi\Nodes\Block::class, $this->getPhpVersion());
             $block->detach();
             $block->parent = $this;
         }
@@ -270,75 +308,84 @@ abstract class GeneratedIfStatement extends Nodes\Statement
     }
 
     /**
-     * @return NodesList|Nodes\Elseif_[]
-     * @phpstan-return NodesList<\Phi\Nodes\Elseif_>
+     * @return \Phi\Nodes\Base\NodesList|\Phi\Nodes\Statements\Elseif_[]
+     * @phpstan-return \Phi\Nodes\Base\NodesList<\Phi\Nodes\Statements\Elseif_>
      */
-    public function getElseifs(): NodesList
+    public function getElseifClauses(): \Phi\Nodes\Base\NodesList
     {
-        return $this->elseifs;
+        return $this->elseifClauses;
+    }
+
+    public function getElseClause(): ?\Phi\Nodes\Statements\Else_
+    {
+        return $this->elseClause;
+    }
+
+    public function hasElseClause(): bool
+    {
+        return $this->elseClause !== null;
     }
 
     /**
-     * @param Nodes\Elseif_ $elseif
+     * @param \Phi\Nodes\Statements\Else_|\Phi\Node|string|null $elseClause
      */
-    public function addElseif($elseif): void
+    public function setElseClause($elseClause): void
     {
-        /** @var Nodes\Elseif_ $elseif */
-        $elseif = NodeConverter::convert($elseif, Nodes\Elseif_::class, $this->phpVersion);
-        $this->elseifs->add($elseif);
+        if ($elseClause !== null)
+        {
+            /** @var \Phi\Nodes\Statements\Else_ $elseClause */
+            $elseClause = NodeCoercer::coerce($elseClause, \Phi\Nodes\Statements\Else_::class, $this->getPhpVersion());
+            $elseClause->detach();
+            $elseClause->parent = $this;
+        }
+        if ($this->elseClause !== null)
+        {
+            $this->elseClause->detach();
+        }
+        $this->elseClause = $elseClause;
     }
 
-    public function getElse(): ?Nodes\Else_
+    public function _validate(int $flags): void
     {
-        return $this->else;
+        if ($this->keyword === null)
+            throw ValidationException::missingChild($this, "keyword");
+        if ($this->leftParenthesis === null)
+            throw ValidationException::missingChild($this, "leftParenthesis");
+        if ($this->condition === null)
+            throw ValidationException::missingChild($this, "condition");
+        if ($this->rightParenthesis === null)
+            throw ValidationException::missingChild($this, "rightParenthesis");
+        if ($this->block === null)
+            throw ValidationException::missingChild($this, "block");
+        if ($this->keyword->getType() !== 189)
+            throw ValidationException::invalidSyntax($this->keyword, [189]);
+        if ($this->leftParenthesis->getType() !== 105)
+            throw ValidationException::invalidSyntax($this->leftParenthesis, [105]);
+        if ($this->rightParenthesis->getType() !== 106)
+            throw ValidationException::invalidSyntax($this->rightParenthesis, [106]);
+
+
+        $this->extraValidation($flags);
+
+        $this->condition->_validate(1);
+        $this->block->_validate(0);
+        foreach ($this->elseifClauses as $t)
+            $t->_validate(0);
+        if ($this->elseClause)
+            $this->elseClause->_validate(0);
     }
 
-    public function hasElse(): bool
+    public function _autocorrect(): void
     {
-        return $this->else !== null;
-    }
+        if ($this->condition)
+            $this->condition->_autocorrect();
+        if ($this->block)
+            $this->block->_autocorrect();
+        foreach ($this->elseifClauses as $t)
+            $t->_autocorrect();
+        if ($this->elseClause)
+            $this->elseClause->_autocorrect();
 
-    /**
-     * @param Nodes\Else_|Node|string|null $else
-     */
-    public function setElse($else): void
-    {
-        if ($else !== null)
-        {
-            /** @var Nodes\Else_ $else */
-            $else = NodeConverter::convert($else, Nodes\Else_::class, $this->phpVersion);
-            $else->detach();
-            $else->parent = $this;
-        }
-        if ($this->else !== null)
-        {
-            $this->else->detach();
-        }
-        $this->else = $else;
-    }
-
-    protected function _validate(int $flags): void
-    {
-        if ($this->keyword === null) throw ValidationException::childRequired($this, "keyword");
-        if ($this->leftParenthesis === null) throw ValidationException::childRequired($this, "leftParenthesis");
-        if ($this->test === null) throw ValidationException::childRequired($this, "test");
-        if ($this->rightParenthesis === null) throw ValidationException::childRequired($this, "rightParenthesis");
-        if ($this->block === null) throw ValidationException::childRequired($this, "block");
-        if ($flags & self::VALIDATE_TYPES)
-        {
-        }
-        if ($flags & self::VALIDATE_EXPRESSION_CONTEXT)
-        {
-        }
-        if ($flags & self::VALIDATE_TOKENS)
-        {
-        }
-        $this->test->_validate($flags);
-        $this->block->_validate($flags);
-        $this->elseifs->_validate($flags);
-        if ($this->else)
-        {
-            $this->else->_validate($flags);
-        }
+        $this->extraAutocorrect();
     }
 }

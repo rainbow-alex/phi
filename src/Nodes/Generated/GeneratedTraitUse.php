@@ -1,74 +1,74 @@
 <?php
 
+declare(strict_types=1);
+
+/**
+ * This code is generated.
+ * @see meta/
+ */
+
 namespace Phi\Nodes\Generated;
 
 use Phi\Node;
 use Phi\Token;
-use Phi\Nodes\Base\CompoundNode;
-use Phi\Nodes\Base\NodesList;
-use Phi\Nodes\Base\SeparatedNodesList;
-use Phi\Exception\MissingNodeException;
-use Phi\NodeConverter;
+use Phi\Exception\TreeException;
+use Phi\NodeCoercer;
 use Phi\Exception\ValidationException;
-use Phi\Nodes as Nodes;
 
-abstract class GeneratedTraitUse extends Nodes\ClassLikeMember
+trait GeneratedTraitUse
 {
     /**
-     * @var Token|null
+     * @var \Phi\Token|null
      */
     private $keyword;
 
     /**
-     * @var SeparatedNodesList|Nodes\Name[]
-     * @phpstan-var SeparatedNodesList<\Phi\Nodes\Name>
+     * @var \Phi\Nodes\Base\SeparatedNodesList|\Phi\Nodes\Helpers\Name[]
+     * @phpstan-var \Phi\Nodes\Base\SeparatedNodesList<\Phi\Nodes\Helpers\Name>
      */
     private $traits;
 
     /**
-     * @var Token|null
+     * @var \Phi\Token|null
      */
     private $leftBrace;
 
     /**
-     * @var NodesList|Nodes\TraitUseModification[]
-     * @phpstan-var NodesList<\Phi\Nodes\TraitUseModification>
+     * @var \Phi\Nodes\Base\NodesList|\Phi\Nodes\Oop\TraitUseModification[]
+     * @phpstan-var \Phi\Nodes\Base\NodesList<\Phi\Nodes\Oop\TraitUseModification>
      */
     private $modifications;
 
     /**
-     * @var Token|null
+     * @var \Phi\Token|null
      */
     private $rightBrace;
 
     /**
-     * @var Token|null
+     * @var \Phi\Token|null
      */
     private $semiColon;
-
 
     /**
      */
     public function __construct()
     {
-        $this->traits = new SeparatedNodesList();
-        $this->modifications = new NodesList();
+        $this->traits = new \Phi\Nodes\Base\SeparatedNodesList(\Phi\Nodes\Helpers\Name::class);
+        $this->modifications = new \Phi\Nodes\Base\NodesList(\Phi\Nodes\Oop\TraitUseModification::class);
     }
 
     /**
-     * @param int $phpVersion
-     * @param Token $keyword
+     * @param \Phi\Token $keyword
      * @param mixed[] $traits
-     * @param Token|null $leftBrace
+     * @param \Phi\Token|null $leftBrace
      * @param mixed[] $modifications
-     * @param Token|null $rightBrace
-     * @param Token|null $semiColon
-     * @return static
+     * @param \Phi\Token|null $rightBrace
+     * @param \Phi\Token|null $semiColon
+     * @return self
      */
-    public static function __instantiateUnchecked($phpVersion, $keyword, $traits, $leftBrace, $modifications, $rightBrace, $semiColon)
+    public static function __instantiateUnchecked($keyword, $traits, $leftBrace, $modifications, $rightBrace, $semiColon)
     {
-        $instance = new static;
-        $instance->phpVersion = $phpVersion;
+        $instance = new self;
         $instance->keyword = $keyword;
         $keyword->parent = $instance;
         $instance->traits->__initUnchecked($traits);
@@ -84,24 +84,44 @@ abstract class GeneratedTraitUse extends Nodes\ClassLikeMember
         return $instance;
     }
 
-    protected function &_getNodeRefs(): array
+    public function getChildNodes(): array
     {
-        $refs = [
-            "keyword" => &$this->keyword,
-            "traits" => &$this->traits,
-            "leftBrace" => &$this->leftBrace,
-            "modifications" => &$this->modifications,
-            "rightBrace" => &$this->rightBrace,
-            "semiColon" => &$this->semiColon,
-        ];
-        return $refs;
+        return \array_values(\array_filter([
+            $this->keyword,
+            $this->traits,
+            $this->leftBrace,
+            $this->modifications,
+            $this->rightBrace,
+            $this->semiColon,
+        ]));
     }
 
-    public function getKeyword(): Token
+    protected function &getChildRef(Node $childToDetach): Node
+    {
+        if ($this->keyword === $childToDetach)
+        {
+            return $this->keyword;
+        }
+        if ($this->leftBrace === $childToDetach)
+        {
+            return $this->leftBrace;
+        }
+        if ($this->rightBrace === $childToDetach)
+        {
+            return $this->rightBrace;
+        }
+        if ($this->semiColon === $childToDetach)
+        {
+            return $this->semiColon;
+        }
+        throw new \LogicException();
+    }
+
+    public function getKeyword(): \Phi\Token
     {
         if ($this->keyword === null)
         {
-            throw new MissingNodeException($this, __FUNCTION__);
+            throw TreeException::missingNode($this, "keyword");
         }
         return $this->keyword;
     }
@@ -112,14 +132,14 @@ abstract class GeneratedTraitUse extends Nodes\ClassLikeMember
     }
 
     /**
-     * @param Token|Node|string|null $keyword
+     * @param \Phi\Token|\Phi\Node|string|null $keyword
      */
     public function setKeyword($keyword): void
     {
         if ($keyword !== null)
         {
-            /** @var Token $keyword */
-            $keyword = NodeConverter::convert($keyword, Token::class, $this->phpVersion);
+            /** @var \Phi\Token $keyword */
+            $keyword = NodeCoercer::coerce($keyword, \Phi\Token::class, $this->getPhpVersion());
             $keyword->detach();
             $keyword->parent = $this;
         }
@@ -131,25 +151,15 @@ abstract class GeneratedTraitUse extends Nodes\ClassLikeMember
     }
 
     /**
-     * @return SeparatedNodesList|Nodes\Name[]
-     * @phpstan-return SeparatedNodesList<\Phi\Nodes\Name>
+     * @return \Phi\Nodes\Base\SeparatedNodesList|\Phi\Nodes\Helpers\Name[]
+     * @phpstan-return \Phi\Nodes\Base\SeparatedNodesList<\Phi\Nodes\Helpers\Name>
      */
-    public function getTraits(): SeparatedNodesList
+    public function getTraits(): \Phi\Nodes\Base\SeparatedNodesList
     {
         return $this->traits;
     }
 
-    /**
-     * @param Nodes\Name $trait
-     */
-    public function addTrait($trait): void
-    {
-        /** @var Nodes\Name $trait */
-        $trait = NodeConverter::convert($trait, Nodes\Name::class, $this->phpVersion);
-        $this->traits->add($trait);
-    }
-
-    public function getLeftBrace(): ?Token
+    public function getLeftBrace(): ?\Phi\Token
     {
         return $this->leftBrace;
     }
@@ -160,14 +170,14 @@ abstract class GeneratedTraitUse extends Nodes\ClassLikeMember
     }
 
     /**
-     * @param Token|Node|string|null $leftBrace
+     * @param \Phi\Token|\Phi\Node|string|null $leftBrace
      */
     public function setLeftBrace($leftBrace): void
     {
         if ($leftBrace !== null)
         {
-            /** @var Token $leftBrace */
-            $leftBrace = NodeConverter::convert($leftBrace, Token::class, $this->phpVersion);
+            /** @var \Phi\Token $leftBrace */
+            $leftBrace = NodeCoercer::coerce($leftBrace, \Phi\Token::class, $this->getPhpVersion());
             $leftBrace->detach();
             $leftBrace->parent = $this;
         }
@@ -179,25 +189,15 @@ abstract class GeneratedTraitUse extends Nodes\ClassLikeMember
     }
 
     /**
-     * @return NodesList|Nodes\TraitUseModification[]
-     * @phpstan-return NodesList<\Phi\Nodes\TraitUseModification>
+     * @return \Phi\Nodes\Base\NodesList|\Phi\Nodes\Oop\TraitUseModification[]
+     * @phpstan-return \Phi\Nodes\Base\NodesList<\Phi\Nodes\Oop\TraitUseModification>
      */
-    public function getModifications(): NodesList
+    public function getModifications(): \Phi\Nodes\Base\NodesList
     {
         return $this->modifications;
     }
 
-    /**
-     * @param Nodes\TraitUseModification $modification
-     */
-    public function addModification($modification): void
-    {
-        /** @var Nodes\TraitUseModification $modification */
-        $modification = NodeConverter::convert($modification, Nodes\TraitUseModification::class, $this->phpVersion);
-        $this->modifications->add($modification);
-    }
-
-    public function getRightBrace(): ?Token
+    public function getRightBrace(): ?\Phi\Token
     {
         return $this->rightBrace;
     }
@@ -208,14 +208,14 @@ abstract class GeneratedTraitUse extends Nodes\ClassLikeMember
     }
 
     /**
-     * @param Token|Node|string|null $rightBrace
+     * @param \Phi\Token|\Phi\Node|string|null $rightBrace
      */
     public function setRightBrace($rightBrace): void
     {
         if ($rightBrace !== null)
         {
-            /** @var Token $rightBrace */
-            $rightBrace = NodeConverter::convert($rightBrace, Token::class, $this->phpVersion);
+            /** @var \Phi\Token $rightBrace */
+            $rightBrace = NodeCoercer::coerce($rightBrace, \Phi\Token::class, $this->getPhpVersion());
             $rightBrace->detach();
             $rightBrace->parent = $this;
         }
@@ -226,7 +226,7 @@ abstract class GeneratedTraitUse extends Nodes\ClassLikeMember
         $this->rightBrace = $rightBrace;
     }
 
-    public function getSemiColon(): ?Token
+    public function getSemiColon(): ?\Phi\Token
     {
         return $this->semiColon;
     }
@@ -237,14 +237,14 @@ abstract class GeneratedTraitUse extends Nodes\ClassLikeMember
     }
 
     /**
-     * @param Token|Node|string|null $semiColon
+     * @param \Phi\Token|\Phi\Node|string|null $semiColon
      */
     public function setSemiColon($semiColon): void
     {
         if ($semiColon !== null)
         {
-            /** @var Token $semiColon */
-            $semiColon = NodeConverter::convert($semiColon, Token::class, $this->phpVersion);
+            /** @var \Phi\Token $semiColon */
+            $semiColon = NodeCoercer::coerce($semiColon, \Phi\Token::class, $this->getPhpVersion());
             $semiColon->detach();
             $semiColon->parent = $this;
         }
@@ -255,19 +255,41 @@ abstract class GeneratedTraitUse extends Nodes\ClassLikeMember
         $this->semiColon = $semiColon;
     }
 
-    protected function _validate(int $flags): void
+    public function _validate(int $flags): void
     {
-        if ($this->keyword === null) throw ValidationException::childRequired($this, "keyword");
-        if ($flags & self::VALIDATE_TYPES)
-        {
-        }
-        if ($flags & self::VALIDATE_EXPRESSION_CONTEXT)
-        {
-        }
-        if ($flags & self::VALIDATE_TOKENS)
-        {
-        }
-        $this->traits->_validate($flags);
-        $this->modifications->_validate($flags);
+        if ($this->keyword === null)
+            throw ValidationException::missingChild($this, "keyword");
+        if ($this->keyword->getType() !== 253)
+            throw ValidationException::invalidSyntax($this->keyword, [253]);
+        foreach ($this->traits->getSeparators() as $t)
+            if ($t && $t->getType() !== 109)
+                throw ValidationException::invalidSyntax($t, [109]);
+        if ($this->leftBrace)
+        if ($this->leftBrace->getType() !== 124)
+            throw ValidationException::invalidSyntax($this->leftBrace, [124]);
+        if ($this->rightBrace)
+        if ($this->rightBrace->getType() !== 126)
+            throw ValidationException::invalidSyntax($this->rightBrace, [126]);
+        if ($this->semiColon)
+        if ($this->semiColon->getType() !== 114)
+            throw ValidationException::invalidSyntax($this->semiColon, [114]);
+
+
+        $this->extraValidation($flags);
+
+        foreach ($this->traits as $t)
+            $t->_validate(0);
+        foreach ($this->modifications as $t)
+            $t->_validate(0);
+    }
+
+    public function _autocorrect(): void
+    {
+        foreach ($this->traits as $t)
+            $t->_autocorrect();
+        foreach ($this->modifications as $t)
+            $t->_autocorrect();
+
+        $this->extraAutocorrect();
     }
 }

@@ -1,0 +1,21 @@
+{"algo": "weightedPermute", "max": 9}
+
+[THIS] [[4]]
+[&THIS] [[4]]
+[THIS => THIS] [[4]]
+[THIS => &THIS] [[4]]
+[THIS, THIS] [[4]]
+list(THIS) [[4]]
+list(&THIS) [[4]]
+list(THIS => THIS) [[4]]
+list(THIS => &THIS) [[4]]
+list(THIS, THIS) [[4]]
+$v->ident [[4]]
+$v::$v [[4]]
+ident()
+(THIS) [[4]]
+$v[]
+$v[$v]
+$v
+0
+#BLANK# [[4]]

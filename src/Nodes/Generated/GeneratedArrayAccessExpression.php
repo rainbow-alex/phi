@@ -1,43 +1,45 @@
 <?php
 
+declare(strict_types=1);
+
+/**
+ * This code is generated.
+ * @see meta/
+ */
+
 namespace Phi\Nodes\Generated;
 
 use Phi\Node;
 use Phi\Token;
-use Phi\Nodes\Base\CompoundNode;
-use Phi\Nodes\Base\NodesList;
-use Phi\Nodes\Base\SeparatedNodesList;
-use Phi\Exception\MissingNodeException;
-use Phi\NodeConverter;
+use Phi\Exception\TreeException;
+use Phi\NodeCoercer;
 use Phi\Exception\ValidationException;
-use Phi\Nodes as Nodes;
 
-abstract class GeneratedArrayAccessExpression extends Nodes\Expression
+trait GeneratedArrayAccessExpression
 {
     /**
-     * @var Nodes\Expression|null
+     * @var \Phi\Nodes\Expression|null
      */
     private $accessee;
 
     /**
-     * @var Token|null
+     * @var \Phi\Token|null
      */
     private $leftBracket;
 
     /**
-     * @var Nodes\Expression|null
+     * @var \Phi\Nodes\Expression|null
      */
     private $index;
 
     /**
-     * @var Token|null
+     * @var \Phi\Token|null
      */
     private $rightBracket;
 
-
     /**
-     * @param Nodes\Expression|Node|string|null $accessee
-     * @param Nodes\Expression|Node|string|null $index
+     * @param \Phi\Nodes\Expression|\Phi\Node|string|null $accessee
+     * @param \Phi\Nodes\Expression|\Phi\Node|string|null $index
      */
     public function __construct($accessee = null, $index = null)
     {
@@ -52,17 +54,15 @@ abstract class GeneratedArrayAccessExpression extends Nodes\Expression
     }
 
     /**
-     * @param int $phpVersion
-     * @param Nodes\Expression $accessee
-     * @param Token $leftBracket
-     * @param Nodes\Expression|null $index
-     * @param Token $rightBracket
-     * @return static
+     * @param \Phi\Nodes\Expression $accessee
+     * @param \Phi\Token $leftBracket
+     * @param \Phi\Nodes\Expression|null $index
+     * @param \Phi\Token $rightBracket
+     * @return self
      */
-    public static function __instantiateUnchecked($phpVersion, $accessee, $leftBracket, $index, $rightBracket)
+    public static function __instantiateUnchecked($accessee, $leftBracket, $index, $rightBracket)
     {
-        $instance = new static;
-        $instance->phpVersion = $phpVersion;
+        $instance = new self;
         $instance->accessee = $accessee;
         $accessee->parent = $instance;
         $instance->leftBracket = $leftBracket;
@@ -74,22 +74,42 @@ abstract class GeneratedArrayAccessExpression extends Nodes\Expression
         return $instance;
     }
 
-    protected function &_getNodeRefs(): array
+    public function getChildNodes(): array
     {
-        $refs = [
-            "accessee" => &$this->accessee,
-            "leftBracket" => &$this->leftBracket,
-            "index" => &$this->index,
-            "rightBracket" => &$this->rightBracket,
-        ];
-        return $refs;
+        return \array_values(\array_filter([
+            $this->accessee,
+            $this->leftBracket,
+            $this->index,
+            $this->rightBracket,
+        ]));
     }
 
-    public function getAccessee(): Nodes\Expression
+    protected function &getChildRef(Node $childToDetach): Node
+    {
+        if ($this->accessee === $childToDetach)
+        {
+            return $this->accessee;
+        }
+        if ($this->leftBracket === $childToDetach)
+        {
+            return $this->leftBracket;
+        }
+        if ($this->index === $childToDetach)
+        {
+            return $this->index;
+        }
+        if ($this->rightBracket === $childToDetach)
+        {
+            return $this->rightBracket;
+        }
+        throw new \LogicException();
+    }
+
+    public function getAccessee(): \Phi\Nodes\Expression
     {
         if ($this->accessee === null)
         {
-            throw new MissingNodeException($this, __FUNCTION__);
+            throw TreeException::missingNode($this, "accessee");
         }
         return $this->accessee;
     }
@@ -100,14 +120,14 @@ abstract class GeneratedArrayAccessExpression extends Nodes\Expression
     }
 
     /**
-     * @param Nodes\Expression|Node|string|null $accessee
+     * @param \Phi\Nodes\Expression|\Phi\Node|string|null $accessee
      */
     public function setAccessee($accessee): void
     {
         if ($accessee !== null)
         {
-            /** @var Nodes\Expression $accessee */
-            $accessee = NodeConverter::convert($accessee, Nodes\Expression::class, $this->phpVersion);
+            /** @var \Phi\Nodes\Expression $accessee */
+            $accessee = NodeCoercer::coerce($accessee, \Phi\Nodes\Expression::class, $this->getPhpVersion());
             $accessee->detach();
             $accessee->parent = $this;
         }
@@ -118,11 +138,11 @@ abstract class GeneratedArrayAccessExpression extends Nodes\Expression
         $this->accessee = $accessee;
     }
 
-    public function getLeftBracket(): Token
+    public function getLeftBracket(): \Phi\Token
     {
         if ($this->leftBracket === null)
         {
-            throw new MissingNodeException($this, __FUNCTION__);
+            throw TreeException::missingNode($this, "leftBracket");
         }
         return $this->leftBracket;
     }
@@ -133,14 +153,14 @@ abstract class GeneratedArrayAccessExpression extends Nodes\Expression
     }
 
     /**
-     * @param Token|Node|string|null $leftBracket
+     * @param \Phi\Token|\Phi\Node|string|null $leftBracket
      */
     public function setLeftBracket($leftBracket): void
     {
         if ($leftBracket !== null)
         {
-            /** @var Token $leftBracket */
-            $leftBracket = NodeConverter::convert($leftBracket, Token::class, $this->phpVersion);
+            /** @var \Phi\Token $leftBracket */
+            $leftBracket = NodeCoercer::coerce($leftBracket, \Phi\Token::class, $this->getPhpVersion());
             $leftBracket->detach();
             $leftBracket->parent = $this;
         }
@@ -151,7 +171,7 @@ abstract class GeneratedArrayAccessExpression extends Nodes\Expression
         $this->leftBracket = $leftBracket;
     }
 
-    public function getIndex(): ?Nodes\Expression
+    public function getIndex(): ?\Phi\Nodes\Expression
     {
         return $this->index;
     }
@@ -162,14 +182,14 @@ abstract class GeneratedArrayAccessExpression extends Nodes\Expression
     }
 
     /**
-     * @param Nodes\Expression|Node|string|null $index
+     * @param \Phi\Nodes\Expression|\Phi\Node|string|null $index
      */
     public function setIndex($index): void
     {
         if ($index !== null)
         {
-            /** @var Nodes\Expression $index */
-            $index = NodeConverter::convert($index, Nodes\Expression::class, $this->phpVersion);
+            /** @var \Phi\Nodes\Expression $index */
+            $index = NodeCoercer::coerce($index, \Phi\Nodes\Expression::class, $this->getPhpVersion());
             $index->detach();
             $index->parent = $this;
         }
@@ -180,11 +200,11 @@ abstract class GeneratedArrayAccessExpression extends Nodes\Expression
         $this->index = $index;
     }
 
-    public function getRightBracket(): Token
+    public function getRightBracket(): \Phi\Token
     {
         if ($this->rightBracket === null)
         {
-            throw new MissingNodeException($this, __FUNCTION__);
+            throw TreeException::missingNode($this, "rightBracket");
         }
         return $this->rightBracket;
     }
@@ -195,14 +215,14 @@ abstract class GeneratedArrayAccessExpression extends Nodes\Expression
     }
 
     /**
-     * @param Token|Node|string|null $rightBracket
+     * @param \Phi\Token|\Phi\Node|string|null $rightBracket
      */
     public function setRightBracket($rightBracket): void
     {
         if ($rightBracket !== null)
         {
-            /** @var Token $rightBracket */
-            $rightBracket = NodeConverter::convert($rightBracket, Token::class, $this->phpVersion);
+            /** @var \Phi\Token $rightBracket */
+            $rightBracket = NodeCoercer::coerce($rightBracket, \Phi\Token::class, $this->getPhpVersion());
             $rightBracket->detach();
             $rightBracket->parent = $this;
         }
@@ -213,24 +233,34 @@ abstract class GeneratedArrayAccessExpression extends Nodes\Expression
         $this->rightBracket = $rightBracket;
     }
 
-    protected function _validate(int $flags): void
+    public function _validate(int $flags): void
     {
-        if ($this->accessee === null) throw ValidationException::childRequired($this, "accessee");
-        if ($this->leftBracket === null) throw ValidationException::childRequired($this, "leftBracket");
-        if ($this->rightBracket === null) throw ValidationException::childRequired($this, "rightBracket");
-        if ($flags & self::VALIDATE_TYPES)
-        {
-        }
-        if ($flags & self::VALIDATE_EXPRESSION_CONTEXT)
-        {
-        }
-        if ($flags & self::VALIDATE_TOKENS)
-        {
-        }
+        if ($this->accessee === null)
+            throw ValidationException::missingChild($this, "accessee");
+        if ($this->leftBracket === null)
+            throw ValidationException::missingChild($this, "leftBracket");
+        if ($this->rightBracket === null)
+            throw ValidationException::missingChild($this, "rightBracket");
+        if ($this->leftBracket->getType() !== 120)
+            throw ValidationException::invalidSyntax($this->leftBracket, [120]);
+        if ($this->rightBracket->getType() !== 121)
+            throw ValidationException::invalidSyntax($this->rightBracket, [121]);
+
+
+        $this->extraValidation($flags);
+
         $this->accessee->_validate($flags);
         if ($this->index)
-        {
-            $this->index->_validate($flags);
-        }
+            $this->index->_validate(1);
+    }
+
+    public function _autocorrect(): void
+    {
+        if ($this->accessee)
+            $this->accessee->_autocorrect();
+        if ($this->index)
+            $this->index->_autocorrect();
+
+        $this->extraAutocorrect();
     }
 }

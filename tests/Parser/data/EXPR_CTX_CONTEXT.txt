@@ -1,0 +1,20 @@
+{"algo": "permute"}
+
+// test read/write/alias expression context checking
+
+EXPR_CTX = $v;
+$v = EXPR_CTX;
+
+EXPR_CTX =& $v;
+$v =& EXPR_CTX;
+
+foreach ($v as EXPR_CTX) {}
+foreach ($v as &EXPR_CTX) {}
+foreach ($v as EXPR_CTX => $v) {}
+foreach ($v as $v => &EXPR_CTX) {}
+
+ident(EXPR_CTX);
+ident(...EXPR_CTX);
+
+const ident = EXPR;
+const ident = EXPR_CONST;

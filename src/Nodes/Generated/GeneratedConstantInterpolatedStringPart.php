@@ -1,27 +1,29 @@
 <?php
 
+declare(strict_types=1);
+
+/**
+ * This code is generated.
+ * @see meta/
+ */
+
 namespace Phi\Nodes\Generated;
 
 use Phi\Node;
 use Phi\Token;
-use Phi\Nodes\Base\CompoundNode;
-use Phi\Nodes\Base\NodesList;
-use Phi\Nodes\Base\SeparatedNodesList;
-use Phi\Exception\MissingNodeException;
-use Phi\NodeConverter;
+use Phi\Exception\TreeException;
+use Phi\NodeCoercer;
 use Phi\Exception\ValidationException;
-use Phi\Nodes as Nodes;
 
-abstract class GeneratedConstantInterpolatedStringPart extends Nodes\InterpolatedStringPart
+trait GeneratedConstantInterpolatedStringPart
 {
     /**
-     * @var Token|null
+     * @var \Phi\Token|null
      */
     private $content;
 
-
     /**
-     * @param Token|Node|string|null $content
+     * @param \Phi\Token|\Phi\Node|string|null $content
      */
     public function __construct($content = null)
     {
@@ -32,32 +34,38 @@ abstract class GeneratedConstantInterpolatedStringPart extends Nodes\Interpolate
     }
 
     /**
-     * @param int $phpVersion
-     * @param Token $content
-     * @return static
+     * @param \Phi\Token $content
+     * @return self
      */
-    public static function __instantiateUnchecked($phpVersion, $content)
+    public static function __instantiateUnchecked($content)
     {
-        $instance = new static;
-        $instance->phpVersion = $phpVersion;
+        $instance = new self;
         $instance->content = $content;
         $content->parent = $instance;
         return $instance;
     }
 
-    protected function &_getNodeRefs(): array
+    public function getChildNodes(): array
     {
-        $refs = [
-            "content" => &$this->content,
-        ];
-        return $refs;
+        return \array_values(\array_filter([
+            $this->content,
+        ]));
     }
 
-    public function getContent(): Token
+    protected function &getChildRef(Node $childToDetach): Node
+    {
+        if ($this->content === $childToDetach)
+        {
+            return $this->content;
+        }
+        throw new \LogicException();
+    }
+
+    public function getContent(): \Phi\Token
     {
         if ($this->content === null)
         {
-            throw new MissingNodeException($this, __FUNCTION__);
+            throw TreeException::missingNode($this, "content");
         }
         return $this->content;
     }
@@ -68,14 +76,14 @@ abstract class GeneratedConstantInterpolatedStringPart extends Nodes\Interpolate
     }
 
     /**
-     * @param Token|Node|string|null $content
+     * @param \Phi\Token|\Phi\Node|string|null $content
      */
     public function setContent($content): void
     {
         if ($content !== null)
         {
-            /** @var Token $content */
-            $content = NodeConverter::convert($content, Token::class, $this->phpVersion);
+            /** @var \Phi\Token $content */
+            $content = NodeCoercer::coerce($content, \Phi\Token::class, $this->getPhpVersion());
             $content->detach();
             $content->parent = $this;
         }
@@ -86,17 +94,21 @@ abstract class GeneratedConstantInterpolatedStringPart extends Nodes\Interpolate
         $this->content = $content;
     }
 
-    protected function _validate(int $flags): void
+    public function _validate(int $flags): void
     {
-        if ($this->content === null) throw ValidationException::childRequired($this, "content");
-        if ($flags & self::VALIDATE_TYPES)
-        {
-        }
-        if ($flags & self::VALIDATE_EXPRESSION_CONTEXT)
-        {
-        }
-        if ($flags & self::VALIDATE_TOKENS)
-        {
-        }
+        if ($this->content === null)
+            throw ValidationException::missingChild($this, "content");
+        if ($this->content->getType() !== 168)
+            throw ValidationException::invalidSyntax($this->content, [168]);
+
+
+        $this->extraValidation($flags);
+
+    }
+
+    public function _autocorrect(): void
+    {
+
+        $this->extraAutocorrect();
     }
 }

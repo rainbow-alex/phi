@@ -1,39 +1,41 @@
 <?php
 
+declare(strict_types=1);
+
+/**
+ * This code is generated.
+ * @see meta/
+ */
+
 namespace Phi\Nodes\Generated;
 
 use Phi\Node;
 use Phi\Token;
-use Phi\Nodes\Base\CompoundNode;
-use Phi\Nodes\Base\NodesList;
-use Phi\Nodes\Base\SeparatedNodesList;
-use Phi\Exception\MissingNodeException;
-use Phi\NodeConverter;
+use Phi\Exception\TreeException;
+use Phi\NodeCoercer;
 use Phi\Exception\ValidationException;
-use Phi\Nodes as Nodes;
 
-abstract class GeneratedNamespaceStatement extends Nodes\Statement
+trait GeneratedNamespaceStatement
 {
     /**
-     * @var Token|null
+     * @var \Phi\Token|null
      */
     private $keyword;
 
     /**
-     * @var Nodes\Name|null
+     * @var \Phi\Nodes\Helpers\Name|null
      */
     private $name;
 
     /**
-     * @var Nodes\RegularBlock|null
+     * @var \Phi\Nodes\Blocks\RegularBlock|null
      */
     private $block;
 
     /**
-     * @var Token|null
+     * @var \Phi\Token|null
      */
     private $delimiter;
-
 
     /**
      */
@@ -42,17 +44,15 @@ abstract class GeneratedNamespaceStatement extends Nodes\Statement
     }
 
     /**
-     * @param int $phpVersion
-     * @param Token $keyword
-     * @param Nodes\Name|null $name
-     * @param Nodes\RegularBlock|null $block
-     * @param Token|null $delimiter
-     * @return static
+     * @param \Phi\Token $keyword
+     * @param \Phi\Nodes\Helpers\Name|null $name
+     * @param \Phi\Nodes\Blocks\RegularBlock|null $block
+     * @param \Phi\Token|null $delimiter
+     * @return self
      */
-    public static function __instantiateUnchecked($phpVersion, $keyword, $name, $block, $delimiter)
+    public static function __instantiateUnchecked($keyword, $name, $block, $delimiter)
     {
-        $instance = new static;
-        $instance->phpVersion = $phpVersion;
+        $instance = new self;
         $instance->keyword = $keyword;
         $keyword->parent = $instance;
         $instance->name = $name;
@@ -64,22 +64,42 @@ abstract class GeneratedNamespaceStatement extends Nodes\Statement
         return $instance;
     }
 
-    protected function &_getNodeRefs(): array
+    public function getChildNodes(): array
     {
-        $refs = [
-            "keyword" => &$this->keyword,
-            "name" => &$this->name,
-            "block" => &$this->block,
-            "delimiter" => &$this->delimiter,
-        ];
-        return $refs;
+        return \array_values(\array_filter([
+            $this->keyword,
+            $this->name,
+            $this->block,
+            $this->delimiter,
+        ]));
     }
 
-    public function getKeyword(): Token
+    protected function &getChildRef(Node $childToDetach): Node
+    {
+        if ($this->keyword === $childToDetach)
+        {
+            return $this->keyword;
+        }
+        if ($this->name === $childToDetach)
+        {
+            return $this->name;
+        }
+        if ($this->block === $childToDetach)
+        {
+            return $this->block;
+        }
+        if ($this->delimiter === $childToDetach)
+        {
+            return $this->delimiter;
+        }
+        throw new \LogicException();
+    }
+
+    public function getKeyword(): \Phi\Token
     {
         if ($this->keyword === null)
         {
-            throw new MissingNodeException($this, __FUNCTION__);
+            throw TreeException::missingNode($this, "keyword");
         }
         return $this->keyword;
     }
@@ -90,14 +110,14 @@ abstract class GeneratedNamespaceStatement extends Nodes\Statement
     }
 
     /**
-     * @param Token|Node|string|null $keyword
+     * @param \Phi\Token|\Phi\Node|string|null $keyword
      */
     public function setKeyword($keyword): void
     {
         if ($keyword !== null)
         {
-            /** @var Token $keyword */
-            $keyword = NodeConverter::convert($keyword, Token::class, $this->phpVersion);
+            /** @var \Phi\Token $keyword */
+            $keyword = NodeCoercer::coerce($keyword, \Phi\Token::class, $this->getPhpVersion());
             $keyword->detach();
             $keyword->parent = $this;
         }
@@ -108,7 +128,7 @@ abstract class GeneratedNamespaceStatement extends Nodes\Statement
         $this->keyword = $keyword;
     }
 
-    public function getName(): ?Nodes\Name
+    public function getName(): ?\Phi\Nodes\Helpers\Name
     {
         return $this->name;
     }
@@ -119,14 +139,14 @@ abstract class GeneratedNamespaceStatement extends Nodes\Statement
     }
 
     /**
-     * @param Nodes\Name|Node|string|null $name
+     * @param \Phi\Nodes\Helpers\Name|\Phi\Node|string|null $name
      */
     public function setName($name): void
     {
         if ($name !== null)
         {
-            /** @var Nodes\Name $name */
-            $name = NodeConverter::convert($name, Nodes\Name::class, $this->phpVersion);
+            /** @var \Phi\Nodes\Helpers\Name $name */
+            $name = NodeCoercer::coerce($name, \Phi\Nodes\Helpers\Name::class, $this->getPhpVersion());
             $name->detach();
             $name->parent = $this;
         }
@@ -137,7 +157,7 @@ abstract class GeneratedNamespaceStatement extends Nodes\Statement
         $this->name = $name;
     }
 
-    public function getBlock(): ?Nodes\RegularBlock
+    public function getBlock(): ?\Phi\Nodes\Blocks\RegularBlock
     {
         return $this->block;
     }
@@ -148,14 +168,14 @@ abstract class GeneratedNamespaceStatement extends Nodes\Statement
     }
 
     /**
-     * @param Nodes\RegularBlock|Node|string|null $block
+     * @param \Phi\Nodes\Blocks\RegularBlock|\Phi\Node|string|null $block
      */
     public function setBlock($block): void
     {
         if ($block !== null)
         {
-            /** @var Nodes\RegularBlock $block */
-            $block = NodeConverter::convert($block, Nodes\RegularBlock::class, $this->phpVersion);
+            /** @var \Phi\Nodes\Blocks\RegularBlock $block */
+            $block = NodeCoercer::coerce($block, \Phi\Nodes\Blocks\RegularBlock::class, $this->getPhpVersion());
             $block->detach();
             $block->parent = $this;
         }
@@ -166,7 +186,7 @@ abstract class GeneratedNamespaceStatement extends Nodes\Statement
         $this->block = $block;
     }
 
-    public function getDelimiter(): ?Token
+    public function getDelimiter(): ?\Phi\Token
     {
         return $this->delimiter;
     }
@@ -177,14 +197,14 @@ abstract class GeneratedNamespaceStatement extends Nodes\Statement
     }
 
     /**
-     * @param Token|Node|string|null $delimiter
+     * @param \Phi\Token|\Phi\Node|string|null $delimiter
      */
     public function setDelimiter($delimiter): void
     {
         if ($delimiter !== null)
         {
-            /** @var Token $delimiter */
-            $delimiter = NodeConverter::convert($delimiter, Token::class, $this->phpVersion);
+            /** @var \Phi\Token $delimiter */
+            $delimiter = NodeCoercer::coerce($delimiter, \Phi\Token::class, $this->getPhpVersion());
             $delimiter->detach();
             $delimiter->parent = $this;
         }
@@ -195,25 +215,32 @@ abstract class GeneratedNamespaceStatement extends Nodes\Statement
         $this->delimiter = $delimiter;
     }
 
-    protected function _validate(int $flags): void
+    public function _validate(int $flags): void
     {
-        if ($this->keyword === null) throw ValidationException::childRequired($this, "keyword");
-        if ($flags & self::VALIDATE_TYPES)
-        {
-        }
-        if ($flags & self::VALIDATE_EXPRESSION_CONTEXT)
-        {
-        }
-        if ($flags & self::VALIDATE_TOKENS)
-        {
-        }
+        if ($this->keyword === null)
+            throw ValidationException::missingChild($this, "keyword");
+        if ($this->keyword->getType() !== 216)
+            throw ValidationException::invalidSyntax($this->keyword, [216]);
+        if ($this->delimiter)
+        if (!\in_array($this->delimiter->getType(), [114, 143], true))
+            throw ValidationException::invalidSyntax($this->delimiter, [114, 143]);
+
+
+        $this->extraValidation($flags);
+
         if ($this->name)
-        {
-            $this->name->_validate($flags);
-        }
+            $this->name->_validate(0);
         if ($this->block)
-        {
-            $this->block->_validate($flags);
-        }
+            $this->block->_validate(0);
+    }
+
+    public function _autocorrect(): void
+    {
+        if ($this->name)
+            $this->name->_autocorrect();
+        if ($this->block)
+            $this->block->_autocorrect();
+
+        $this->extraAutocorrect();
     }
 }

@@ -1,32 +1,34 @@
 <?php
 
+declare(strict_types=1);
+
+/**
+ * This code is generated.
+ * @see meta/
+ */
+
 namespace Phi\Nodes\Generated;
 
 use Phi\Node;
 use Phi\Token;
-use Phi\Nodes\Base\CompoundNode;
-use Phi\Nodes\Base\NodesList;
-use Phi\Nodes\Base\SeparatedNodesList;
-use Phi\Exception\MissingNodeException;
-use Phi\NodeConverter;
+use Phi\Exception\TreeException;
+use Phi\NodeCoercer;
 use Phi\Exception\ValidationException;
-use Phi\Nodes as Nodes;
 
-abstract class GeneratedReturnType extends CompoundNode
+trait GeneratedReturnType
 {
     /**
-     * @var Token|null
+     * @var \Phi\Token|null
      */
-    private $symbol;
+    private $colon;
 
     /**
-     * @var Nodes\Type|null
+     * @var \Phi\Nodes\Type|null
      */
     private $type;
 
-
     /**
-     * @param Nodes\Type|Node|string|null $type
+     * @param \Phi\Nodes\Type|\Phi\Node|string|null $type
      */
     public function __construct($type = null)
     {
@@ -37,69 +39,79 @@ abstract class GeneratedReturnType extends CompoundNode
     }
 
     /**
-     * @param int $phpVersion
-     * @param Token $symbol
-     * @param Nodes\Type $type
-     * @return static
+     * @param \Phi\Token $colon
+     * @param \Phi\Nodes\Type $type
+     * @return self
      */
-    public static function __instantiateUnchecked($phpVersion, $symbol, $type)
+    public static function __instantiateUnchecked($colon, $type)
     {
-        $instance = new static;
-        $instance->phpVersion = $phpVersion;
-        $instance->symbol = $symbol;
-        $symbol->parent = $instance;
+        $instance = new self;
+        $instance->colon = $colon;
+        $colon->parent = $instance;
         $instance->type = $type;
         $type->parent = $instance;
         return $instance;
     }
 
-    protected function &_getNodeRefs(): array
+    public function getChildNodes(): array
     {
-        $refs = [
-            "symbol" => &$this->symbol,
-            "type" => &$this->type,
-        ];
-        return $refs;
+        return \array_values(\array_filter([
+            $this->colon,
+            $this->type,
+        ]));
     }
 
-    public function getSymbol(): Token
+    protected function &getChildRef(Node $childToDetach): Node
     {
-        if ($this->symbol === null)
+        if ($this->colon === $childToDetach)
         {
-            throw new MissingNodeException($this, __FUNCTION__);
+            return $this->colon;
         }
-        return $this->symbol;
+        if ($this->type === $childToDetach)
+        {
+            return $this->type;
+        }
+        throw new \LogicException();
     }
 
-    public function hasSymbol(): bool
+    public function getColon(): \Phi\Token
     {
-        return $this->symbol !== null;
+        if ($this->colon === null)
+        {
+            throw TreeException::missingNode($this, "colon");
+        }
+        return $this->colon;
+    }
+
+    public function hasColon(): bool
+    {
+        return $this->colon !== null;
     }
 
     /**
-     * @param Token|Node|string|null $symbol
+     * @param \Phi\Token|\Phi\Node|string|null $colon
      */
-    public function setSymbol($symbol): void
+    public function setColon($colon): void
     {
-        if ($symbol !== null)
+        if ($colon !== null)
         {
-            /** @var Token $symbol */
-            $symbol = NodeConverter::convert($symbol, Token::class, $this->phpVersion);
-            $symbol->detach();
-            $symbol->parent = $this;
+            /** @var \Phi\Token $colon */
+            $colon = NodeCoercer::coerce($colon, \Phi\Token::class, $this->getPhpVersion());
+            $colon->detach();
+            $colon->parent = $this;
         }
-        if ($this->symbol !== null)
+        if ($this->colon !== null)
         {
-            $this->symbol->detach();
+            $this->colon->detach();
         }
-        $this->symbol = $symbol;
+        $this->colon = $colon;
     }
 
-    public function getType(): Nodes\Type
+    public function getType(): \Phi\Nodes\Type
     {
         if ($this->type === null)
         {
-            throw new MissingNodeException($this, __FUNCTION__);
+            throw TreeException::missingNode($this, "type");
         }
         return $this->type;
     }
@@ -110,14 +122,14 @@ abstract class GeneratedReturnType extends CompoundNode
     }
 
     /**
-     * @param Nodes\Type|Node|string|null $type
+     * @param \Phi\Nodes\Type|\Phi\Node|string|null $type
      */
     public function setType($type): void
     {
         if ($type !== null)
         {
-            /** @var Nodes\Type $type */
-            $type = NodeConverter::convert($type, Nodes\Type::class, $this->phpVersion);
+            /** @var \Phi\Nodes\Type $type */
+            $type = NodeCoercer::coerce($type, \Phi\Nodes\Type::class, $this->getPhpVersion());
             $type->detach();
             $type->parent = $this;
         }
@@ -128,19 +140,26 @@ abstract class GeneratedReturnType extends CompoundNode
         $this->type = $type;
     }
 
-    protected function _validate(int $flags): void
+    public function _validate(int $flags): void
     {
-        if ($this->symbol === null) throw ValidationException::childRequired($this, "symbol");
-        if ($this->type === null) throw ValidationException::childRequired($this, "type");
-        if ($flags & self::VALIDATE_TYPES)
-        {
-        }
-        if ($flags & self::VALIDATE_EXPRESSION_CONTEXT)
-        {
-        }
-        if ($flags & self::VALIDATE_TOKENS)
-        {
-        }
-        $this->type->_validate($flags);
+        if ($this->colon === null)
+            throw ValidationException::missingChild($this, "colon");
+        if ($this->type === null)
+            throw ValidationException::missingChild($this, "type");
+        if ($this->colon->getType() !== 113)
+            throw ValidationException::invalidSyntax($this->colon, [113]);
+
+
+        $this->extraValidation($flags);
+
+        $this->type->_validate(0);
+    }
+
+    public function _autocorrect(): void
+    {
+        if ($this->type)
+            $this->type->_autocorrect();
+
+        $this->extraAutocorrect();
     }
 }

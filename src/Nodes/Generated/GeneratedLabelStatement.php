@@ -1,32 +1,34 @@
 <?php
 
+declare(strict_types=1);
+
+/**
+ * This code is generated.
+ * @see meta/
+ */
+
 namespace Phi\Nodes\Generated;
 
 use Phi\Node;
 use Phi\Token;
-use Phi\Nodes\Base\CompoundNode;
-use Phi\Nodes\Base\NodesList;
-use Phi\Nodes\Base\SeparatedNodesList;
-use Phi\Exception\MissingNodeException;
-use Phi\NodeConverter;
+use Phi\Exception\TreeException;
+use Phi\NodeCoercer;
 use Phi\Exception\ValidationException;
-use Phi\Nodes as Nodes;
 
-abstract class GeneratedLabelStatement extends Nodes\Statement
+trait GeneratedLabelStatement
 {
     /**
-     * @var Token|null
+     * @var \Phi\Token|null
      */
     private $label;
 
     /**
-     * @var Token|null
+     * @var \Phi\Token|null
      */
     private $colon;
 
-
     /**
-     * @param Token|Node|string|null $label
+     * @param \Phi\Token|\Phi\Node|string|null $label
      */
     public function __construct($label = null)
     {
@@ -37,15 +39,13 @@ abstract class GeneratedLabelStatement extends Nodes\Statement
     }
 
     /**
-     * @param int $phpVersion
-     * @param Token $label
-     * @param Token $colon
-     * @return static
+     * @param \Phi\Token $label
+     * @param \Phi\Token $colon
+     * @return self
      */
-    public static function __instantiateUnchecked($phpVersion, $label, $colon)
+    public static function __instantiateUnchecked($label, $colon)
     {
-        $instance = new static;
-        $instance->phpVersion = $phpVersion;
+        $instance = new self;
         $instance->label = $label;
         $label->parent = $instance;
         $instance->colon = $colon;
@@ -53,20 +53,32 @@ abstract class GeneratedLabelStatement extends Nodes\Statement
         return $instance;
     }
 
-    protected function &_getNodeRefs(): array
+    public function getChildNodes(): array
     {
-        $refs = [
-            "label" => &$this->label,
-            "colon" => &$this->colon,
-        ];
-        return $refs;
+        return \array_values(\array_filter([
+            $this->label,
+            $this->colon,
+        ]));
     }
 
-    public function getLabel(): Token
+    protected function &getChildRef(Node $childToDetach): Node
+    {
+        if ($this->label === $childToDetach)
+        {
+            return $this->label;
+        }
+        if ($this->colon === $childToDetach)
+        {
+            return $this->colon;
+        }
+        throw new \LogicException();
+    }
+
+    public function getLabel(): \Phi\Token
     {
         if ($this->label === null)
         {
-            throw new MissingNodeException($this, __FUNCTION__);
+            throw TreeException::missingNode($this, "label");
         }
         return $this->label;
     }
@@ -77,14 +89,14 @@ abstract class GeneratedLabelStatement extends Nodes\Statement
     }
 
     /**
-     * @param Token|Node|string|null $label
+     * @param \Phi\Token|\Phi\Node|string|null $label
      */
     public function setLabel($label): void
     {
         if ($label !== null)
         {
-            /** @var Token $label */
-            $label = NodeConverter::convert($label, Token::class, $this->phpVersion);
+            /** @var \Phi\Token $label */
+            $label = NodeCoercer::coerce($label, \Phi\Token::class, $this->getPhpVersion());
             $label->detach();
             $label->parent = $this;
         }
@@ -95,11 +107,11 @@ abstract class GeneratedLabelStatement extends Nodes\Statement
         $this->label = $label;
     }
 
-    public function getColon(): Token
+    public function getColon(): \Phi\Token
     {
         if ($this->colon === null)
         {
-            throw new MissingNodeException($this, __FUNCTION__);
+            throw TreeException::missingNode($this, "colon");
         }
         return $this->colon;
     }
@@ -110,14 +122,14 @@ abstract class GeneratedLabelStatement extends Nodes\Statement
     }
 
     /**
-     * @param Token|Node|string|null $colon
+     * @param \Phi\Token|\Phi\Node|string|null $colon
      */
     public function setColon($colon): void
     {
         if ($colon !== null)
         {
-            /** @var Token $colon */
-            $colon = NodeConverter::convert($colon, Token::class, $this->phpVersion);
+            /** @var \Phi\Token $colon */
+            $colon = NodeCoercer::coerce($colon, \Phi\Token::class, $this->getPhpVersion());
             $colon->detach();
             $colon->parent = $this;
         }
@@ -128,18 +140,25 @@ abstract class GeneratedLabelStatement extends Nodes\Statement
         $this->colon = $colon;
     }
 
-    protected function _validate(int $flags): void
+    public function _validate(int $flags): void
     {
-        if ($this->label === null) throw ValidationException::childRequired($this, "label");
-        if ($this->colon === null) throw ValidationException::childRequired($this, "colon");
-        if ($flags & self::VALIDATE_TYPES)
-        {
-        }
-        if ($flags & self::VALIDATE_EXPRESSION_CONTEXT)
-        {
-        }
-        if ($flags & self::VALIDATE_TOKENS)
-        {
-        }
+        if ($this->label === null)
+            throw ValidationException::missingChild($this, "label");
+        if ($this->colon === null)
+            throw ValidationException::missingChild($this, "colon");
+        if ($this->label->getType() !== 243)
+            throw ValidationException::invalidSyntax($this->label, [243]);
+        if ($this->colon->getType() !== 113)
+            throw ValidationException::invalidSyntax($this->colon, [113]);
+
+
+        $this->extraValidation($flags);
+
+    }
+
+    public function _autocorrect(): void
+    {
+
+        $this->extraAutocorrect();
     }
 }

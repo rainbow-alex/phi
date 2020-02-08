@@ -1,10 +1,12 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Phi\Tests\Testing;
 
 trait AssertThrows
 {
-    protected function assertThrows(string $class, callable $closure): \Throwable
+    private static function assertThrows(string $class, callable $closure): \Throwable
     {
         try
         {
@@ -12,10 +14,10 @@ trait AssertThrows
         }
         catch (\Throwable $t)
         {
-            $this->assertInstanceOf($class, $t);
+            self::assertInstanceOf($class, $t);
             return $t;
         }
 
-        $this->fail("Expected throw of class " . $class . ", but nothing was thrown");
+        self::fail("Expected throw of class " . $class . ", but nothing was thrown");
     }
 }

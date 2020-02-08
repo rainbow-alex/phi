@@ -1,8 +1,11 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Phi;
 
 use Phi\Exception\PhiException;
+use Phi\Exception\TreeException;
 use Phi\Exception\ValidationException;
 
 abstract class Node
@@ -18,10 +21,21 @@ abstract class Node
      */
     protected $parent;
 
-    /** @see PhpVersion */
+    public function getPhpVersion(): ?int
+    {
+        return $this->getRoot()->phpVersion;
+    }
+
     public function setPhpVersion(int $version): void
     {
-        // TODO
+        PhpVersion::validate($version);
+
+        if ($this->parent)
+        {
+            throw new TreeException("phpVersion can only be set on the root node", $this);
+        }
+
+        $this->phpVersion = $version;
     }
 
     public function getParent(): ?Node
@@ -32,9 +46,9 @@ abstract class Node
     public function getRoot(): Node
     {
         $node = $this;
-        while ($node->getParent())
+        while ($node->parent)
         {
-            $node = $node->getParent();
+            $node = $node->parent;
         }
         return $node;
     }
@@ -49,6 +63,7 @@ abstract class Node
         if ($this->parent)
         {
             $this->parent->detachChild($this);
+            $this->phpVersion = $this->parent->getPhpVersion();
             $this->parent = null;
         }
     }
@@ -106,82 +121,43 @@ abstract class Node
         return $token ? $token->getRightWhitespace() : "";
     }
 
-    /** validate that nodes set are the right type and required nodes are present */
-    public const VALIDATE_TYPES = 0x01;
-    /** validate that expressions are used in the right context */
-    public const VALIDATE_EXPRESSION_CONTEXT = 0x02;
-    /** check that delimiter tokens match up, modifier keywords are unique, etc. */
-    public const VALIDATE_TOKENS = 0x04;
-    /** check that there is no essential whitespace missing */
-    public const VALIDATE_WHITESPACE = 0x08;
-    /** any other validations */
-    public const VALIDATE_OTHER = 0x10;
-
-    public const VALIDATE_ALL = -1;
-
-    final public function validate(int $flags = self::VALIDATE_ALL): void
+    public function validate(): void
     {
-        $this->_validate($flags ^ self::VALIDATE_WHITESPACE);
-
-        if ($flags & self::VALIDATE_WHITESPACE)
+        /** @var Token|null $previous */
+        $previous = null;
+        foreach ($this->iterTokens() as $token)
         {
-            // TODO check whitespace
+            if (
+                $previous
+                && $previous->getRightWhitespace() === ""
+                && $token->getLeftWhitespace() === ""
+                && TokenType::requireSeparatingWhitespace($previous->getType(), $token->getType())
+            )
+            {
+                throw ValidationException::missingWhitespace($token);
+            }
+
+            $previous = $token;
         }
     }
 
-    /**
-     * @throws ValidationException
-     */
-    abstract protected function _validate(int $flags): void;
-
-    /** @var bool */
-    private static $autocorrectRecursion = false;
-
-    public function autocorrect(): Node
+    public function autocorrect(): void
     {
-        $root = self::$autocorrectRecursion === false;
-        self::$autocorrectRecursion = true;
-
-        try
+        /** @var Token|null $previous */
+        $previous = null;
+        foreach ($this->iterTokens() as $token)
         {
-            $node = $this;
-//            foreach (static::getSpecifications() as $specification)
-//            {
-//                $node = $specification->autocorrect($node);
-//            }
-
-            // check for corrected tokens that need some whitespace to be lexed correctly, e.g. `+` followed by `+` or `function` followed by `name`
-            if ($root)
+            if (
+                $previous
+                && $previous->getRightWhitespace() === ""
+                && $token->getLeftWhitespace() === ""
+                && TokenType::requireSeparatingWhitespace($previous->getType(), $token->getType())
+            )
             {
-                $lexer = new Lexer($this->phpVersion ?? PhpVersion::DEFAULT());
-                /** @var Token|null $previous */
-                $previous = null;
-                foreach ($this->iterTokens() as $token)
-                {
-                    if ($previous)
-                    {
-                        if (!$previous->getRightWhitespace() && !$token->getLeftWhitespace())
-                        {
-                            $relexed = $lexer->lexFragment($previous . $token);
-                            \array_pop($relexed); // eof
-                            if (count($relexed) !== 2 || $relexed[0]->getSource() !== $previous->getSource() || $relexed[1]->getSource() !== $token->getSource())
-                            {
-                                $token->setLeftWhitespace(" ");
-                            }
-                        }
-                    }
-                    $previous = $token;
-                }
+                $previous->setRightWhitespace(" ");
             }
 
-            return $node;
-        }
-        finally
-        {
-            if ($root)
-            {
-                self::$autocorrectRecursion = false;
-            }
+            $previous = $token;
         }
     }
 

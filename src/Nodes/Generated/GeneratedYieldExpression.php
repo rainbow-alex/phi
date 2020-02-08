@@ -1,37 +1,39 @@
 <?php
 
+declare(strict_types=1);
+
+/**
+ * This code is generated.
+ * @see meta/
+ */
+
 namespace Phi\Nodes\Generated;
 
 use Phi\Node;
 use Phi\Token;
-use Phi\Nodes\Base\CompoundNode;
-use Phi\Nodes\Base\NodesList;
-use Phi\Nodes\Base\SeparatedNodesList;
-use Phi\Exception\MissingNodeException;
-use Phi\NodeConverter;
+use Phi\Exception\TreeException;
+use Phi\NodeCoercer;
 use Phi\Exception\ValidationException;
-use Phi\Nodes as Nodes;
 
-abstract class GeneratedYieldExpression extends Nodes\Expression
+trait GeneratedYieldExpression
 {
     /**
-     * @var Token|null
+     * @var \Phi\Token|null
      */
     private $keyword;
 
     /**
-     * @var Nodes\Key|null
+     * @var \Phi\Nodes\Helpers\Key|null
      */
     private $key;
 
     /**
-     * @var Nodes\Expression|null
+     * @var \Phi\Nodes\Expression|null
      */
     private $expression;
 
-
     /**
-     * @param Nodes\Expression|Node|string|null $expression
+     * @param \Phi\Nodes\Expression|\Phi\Node|string|null $expression
      */
     public function __construct($expression = null)
     {
@@ -42,40 +44,54 @@ abstract class GeneratedYieldExpression extends Nodes\Expression
     }
 
     /**
-     * @param int $phpVersion
-     * @param Token $keyword
-     * @param Nodes\Key|null $key
-     * @param Nodes\Expression $expression
-     * @return static
+     * @param \Phi\Token $keyword
+     * @param \Phi\Nodes\Helpers\Key|null $key
+     * @param \Phi\Nodes\Expression|null $expression
+     * @return self
      */
-    public static function __instantiateUnchecked($phpVersion, $keyword, $key, $expression)
+    public static function __instantiateUnchecked($keyword, $key, $expression)
     {
-        $instance = new static;
-        $instance->phpVersion = $phpVersion;
+        $instance = new self;
         $instance->keyword = $keyword;
         $keyword->parent = $instance;
         $instance->key = $key;
         if ($key) $key->parent = $instance;
         $instance->expression = $expression;
-        $expression->parent = $instance;
+        if ($expression) $expression->parent = $instance;
         return $instance;
     }
 
-    protected function &_getNodeRefs(): array
+    public function getChildNodes(): array
     {
-        $refs = [
-            "keyword" => &$this->keyword,
-            "key" => &$this->key,
-            "expression" => &$this->expression,
-        ];
-        return $refs;
+        return \array_values(\array_filter([
+            $this->keyword,
+            $this->key,
+            $this->expression,
+        ]));
     }
 
-    public function getKeyword(): Token
+    protected function &getChildRef(Node $childToDetach): Node
+    {
+        if ($this->keyword === $childToDetach)
+        {
+            return $this->keyword;
+        }
+        if ($this->key === $childToDetach)
+        {
+            return $this->key;
+        }
+        if ($this->expression === $childToDetach)
+        {
+            return $this->expression;
+        }
+        throw new \LogicException();
+    }
+
+    public function getKeyword(): \Phi\Token
     {
         if ($this->keyword === null)
         {
-            throw new MissingNodeException($this, __FUNCTION__);
+            throw TreeException::missingNode($this, "keyword");
         }
         return $this->keyword;
     }
@@ -86,14 +102,14 @@ abstract class GeneratedYieldExpression extends Nodes\Expression
     }
 
     /**
-     * @param Token|Node|string|null $keyword
+     * @param \Phi\Token|\Phi\Node|string|null $keyword
      */
     public function setKeyword($keyword): void
     {
         if ($keyword !== null)
         {
-            /** @var Token $keyword */
-            $keyword = NodeConverter::convert($keyword, Token::class, $this->phpVersion);
+            /** @var \Phi\Token $keyword */
+            $keyword = NodeCoercer::coerce($keyword, \Phi\Token::class, $this->getPhpVersion());
             $keyword->detach();
             $keyword->parent = $this;
         }
@@ -104,7 +120,7 @@ abstract class GeneratedYieldExpression extends Nodes\Expression
         $this->keyword = $keyword;
     }
 
-    public function getKey(): ?Nodes\Key
+    public function getKey(): ?\Phi\Nodes\Helpers\Key
     {
         return $this->key;
     }
@@ -115,14 +131,14 @@ abstract class GeneratedYieldExpression extends Nodes\Expression
     }
 
     /**
-     * @param Nodes\Key|Node|string|null $key
+     * @param \Phi\Nodes\Helpers\Key|\Phi\Node|string|null $key
      */
     public function setKey($key): void
     {
         if ($key !== null)
         {
-            /** @var Nodes\Key $key */
-            $key = NodeConverter::convert($key, Nodes\Key::class, $this->phpVersion);
+            /** @var \Phi\Nodes\Helpers\Key $key */
+            $key = NodeCoercer::coerce($key, \Phi\Nodes\Helpers\Key::class, $this->getPhpVersion());
             $key->detach();
             $key->parent = $this;
         }
@@ -133,12 +149,8 @@ abstract class GeneratedYieldExpression extends Nodes\Expression
         $this->key = $key;
     }
 
-    public function getExpression(): Nodes\Expression
+    public function getExpression(): ?\Phi\Nodes\Expression
     {
-        if ($this->expression === null)
-        {
-            throw new MissingNodeException($this, __FUNCTION__);
-        }
         return $this->expression;
     }
 
@@ -148,14 +160,14 @@ abstract class GeneratedYieldExpression extends Nodes\Expression
     }
 
     /**
-     * @param Nodes\Expression|Node|string|null $expression
+     * @param \Phi\Nodes\Expression|\Phi\Node|string|null $expression
      */
     public function setExpression($expression): void
     {
         if ($expression !== null)
         {
-            /** @var Nodes\Expression $expression */
-            $expression = NodeConverter::convert($expression, Nodes\Expression::class, $this->phpVersion);
+            /** @var \Phi\Nodes\Expression $expression */
+            $expression = NodeCoercer::coerce($expression, \Phi\Nodes\Expression::class, $this->getPhpVersion());
             $expression->detach();
             $expression->parent = $this;
         }
@@ -166,23 +178,31 @@ abstract class GeneratedYieldExpression extends Nodes\Expression
         $this->expression = $expression;
     }
 
-    protected function _validate(int $flags): void
+    public function _validate(int $flags): void
     {
-        if ($this->keyword === null) throw ValidationException::childRequired($this, "keyword");
-        if ($this->expression === null) throw ValidationException::childRequired($this, "expression");
-        if ($flags & self::VALIDATE_TYPES)
-        {
-        }
-        if ($flags & self::VALIDATE_EXPRESSION_CONTEXT)
-        {
-        }
-        if ($flags & self::VALIDATE_TOKENS)
-        {
-        }
+        if ($this->keyword === null)
+            throw ValidationException::missingChild($this, "keyword");
+        if ($this->keyword->getType() !== 259)
+            throw ValidationException::invalidSyntax($this->keyword, [259]);
+
+        if ($flags & 14)
+            throw ValidationException::invalidExpressionInContext($this);
+
+        $this->extraValidation($flags);
+
         if ($this->key)
-        {
-            $this->key->_validate($flags);
-        }
-        $this->expression->_validate($flags);
+            $this->key->_validate(1);
+        if ($this->expression)
+            $this->expression->_validate(1);
+    }
+
+    public function _autocorrect(): void
+    {
+        if ($this->key)
+            $this->key->_autocorrect();
+        if ($this->expression)
+            $this->expression->_autocorrect();
+
+        $this->extraAutocorrect();
     }
 }

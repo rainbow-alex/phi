@@ -1,32 +1,34 @@
 <?php
 
+declare(strict_types=1);
+
+/**
+ * This code is generated.
+ * @see meta/
+ */
+
 namespace Phi\Nodes\Generated;
 
 use Phi\Node;
 use Phi\Token;
-use Phi\Nodes\Base\CompoundNode;
-use Phi\Nodes\Base\NodesList;
-use Phi\Nodes\Base\SeparatedNodesList;
-use Phi\Exception\MissingNodeException;
-use Phi\NodeConverter;
+use Phi\Exception\TreeException;
+use Phi\NodeCoercer;
 use Phi\Exception\ValidationException;
-use Phi\Nodes as Nodes;
 
-abstract class GeneratedNullableType extends Nodes\Type
+trait GeneratedNullableType
 {
     /**
-     * @var Token|null
+     * @var \Phi\Token|null
      */
-    private $symbol;
+    private $questionMark;
 
     /**
-     * @var Nodes\Type|null
+     * @var \Phi\Nodes\Type|null
      */
     private $type;
 
-
     /**
-     * @param Nodes\Type|Node|string|null $type
+     * @param \Phi\Nodes\Type|\Phi\Node|string|null $type
      */
     public function __construct($type = null)
     {
@@ -37,69 +39,79 @@ abstract class GeneratedNullableType extends Nodes\Type
     }
 
     /**
-     * @param int $phpVersion
-     * @param Token $symbol
-     * @param Nodes\Type $type
-     * @return static
+     * @param \Phi\Token $questionMark
+     * @param \Phi\Nodes\Type $type
+     * @return self
      */
-    public static function __instantiateUnchecked($phpVersion, $symbol, $type)
+    public static function __instantiateUnchecked($questionMark, $type)
     {
-        $instance = new static;
-        $instance->phpVersion = $phpVersion;
-        $instance->symbol = $symbol;
-        $symbol->parent = $instance;
+        $instance = new self;
+        $instance->questionMark = $questionMark;
+        $questionMark->parent = $instance;
         $instance->type = $type;
         $type->parent = $instance;
         return $instance;
     }
 
-    protected function &_getNodeRefs(): array
+    public function getChildNodes(): array
     {
-        $refs = [
-            "symbol" => &$this->symbol,
-            "type" => &$this->type,
-        ];
-        return $refs;
+        return \array_values(\array_filter([
+            $this->questionMark,
+            $this->type,
+        ]));
     }
 
-    public function getSymbol(): Token
+    protected function &getChildRef(Node $childToDetach): Node
     {
-        if ($this->symbol === null)
+        if ($this->questionMark === $childToDetach)
         {
-            throw new MissingNodeException($this, __FUNCTION__);
+            return $this->questionMark;
         }
-        return $this->symbol;
+        if ($this->type === $childToDetach)
+        {
+            return $this->type;
+        }
+        throw new \LogicException();
     }
 
-    public function hasSymbol(): bool
+    public function getQuestionMark(): \Phi\Token
     {
-        return $this->symbol !== null;
+        if ($this->questionMark === null)
+        {
+            throw TreeException::missingNode($this, "questionMark");
+        }
+        return $this->questionMark;
+    }
+
+    public function hasQuestionMark(): bool
+    {
+        return $this->questionMark !== null;
     }
 
     /**
-     * @param Token|Node|string|null $symbol
+     * @param \Phi\Token|\Phi\Node|string|null $questionMark
      */
-    public function setSymbol($symbol): void
+    public function setQuestionMark($questionMark): void
     {
-        if ($symbol !== null)
+        if ($questionMark !== null)
         {
-            /** @var Token $symbol */
-            $symbol = NodeConverter::convert($symbol, Token::class, $this->phpVersion);
-            $symbol->detach();
-            $symbol->parent = $this;
+            /** @var \Phi\Token $questionMark */
+            $questionMark = NodeCoercer::coerce($questionMark, \Phi\Token::class, $this->getPhpVersion());
+            $questionMark->detach();
+            $questionMark->parent = $this;
         }
-        if ($this->symbol !== null)
+        if ($this->questionMark !== null)
         {
-            $this->symbol->detach();
+            $this->questionMark->detach();
         }
-        $this->symbol = $symbol;
+        $this->questionMark = $questionMark;
     }
 
-    public function getType(): Nodes\Type
+    public function getType(): \Phi\Nodes\Type
     {
         if ($this->type === null)
         {
-            throw new MissingNodeException($this, __FUNCTION__);
+            throw TreeException::missingNode($this, "type");
         }
         return $this->type;
     }
@@ -110,14 +122,14 @@ abstract class GeneratedNullableType extends Nodes\Type
     }
 
     /**
-     * @param Nodes\Type|Node|string|null $type
+     * @param \Phi\Nodes\Type|\Phi\Node|string|null $type
      */
     public function setType($type): void
     {
         if ($type !== null)
         {
-            /** @var Nodes\Type $type */
-            $type = NodeConverter::convert($type, Nodes\Type::class, $this->phpVersion);
+            /** @var \Phi\Nodes\Type $type */
+            $type = NodeCoercer::coerce($type, \Phi\Nodes\Type::class, $this->getPhpVersion());
             $type->detach();
             $type->parent = $this;
         }
@@ -128,19 +140,26 @@ abstract class GeneratedNullableType extends Nodes\Type
         $this->type = $type;
     }
 
-    protected function _validate(int $flags): void
+    public function _validate(int $flags): void
     {
-        if ($this->symbol === null) throw ValidationException::childRequired($this, "symbol");
-        if ($this->type === null) throw ValidationException::childRequired($this, "type");
-        if ($flags & self::VALIDATE_TYPES)
-        {
-        }
-        if ($flags & self::VALIDATE_EXPRESSION_CONTEXT)
-        {
-        }
-        if ($flags & self::VALIDATE_TOKENS)
-        {
-        }
-        $this->type->_validate($flags);
+        if ($this->questionMark === null)
+            throw ValidationException::missingChild($this, "questionMark");
+        if ($this->type === null)
+            throw ValidationException::missingChild($this, "type");
+        if ($this->questionMark->getType() !== 118)
+            throw ValidationException::invalidSyntax($this->questionMark, [118]);
+
+
+        $this->extraValidation($flags);
+
+        $this->type->_validate(0);
+    }
+
+    public function _autocorrect(): void
+    {
+        if ($this->type)
+            $this->type->_autocorrect();
+
+        $this->extraAutocorrect();
     }
 }

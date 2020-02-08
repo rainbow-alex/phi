@@ -1,607 +1,637 @@
 <?php
 
 use Phi\Meta\NodeDef;
-use Phi\Nodes\AddExpression;
-use Phi\Nodes\AliasingExpression;
-use Phi\Nodes\AnonymousFunctionExpression;
-use Phi\Nodes\AnonymousFunctionUse;
-use Phi\Nodes\AnonymousFunctionUseBinding;
-use Phi\Nodes\Argument;
-use Phi\Nodes\ArrayAccessExpression;
-use Phi\Nodes\ArrayItem;
-use Phi\Nodes\BinopExpression;
-use Phi\Nodes\BitwiseAndExpression;
-use Phi\Nodes\BitwiseNotExpression;
-use Phi\Nodes\BitwiseOrExpression;
-use Phi\Nodes\BitwiseXorExpression;
-use Phi\Nodes\BooleanNotExpression;
-use Phi\Nodes\CastExpression;
-use Phi\Nodes\InterpolatedStringPart;
-use Phi\Nodes\ClassNameResolutionExpression;
-use Phi\Nodes\CloneExpression;
-use Phi\Nodes\CoalesceExpression;
-use Phi\Nodes\CombinedAssignmentExpression;
-use Phi\Nodes\ConcatExpression;
-use Phi\Nodes\ConstantAccessExpression;
-use Phi\Nodes\ConstantStringLiteral;
-use Phi\Nodes\CrementExpression;
-use Phi\Nodes\DivideExpression;
-use Phi\Nodes\EmptyExpression;
-use Phi\Nodes\EvalExpression;
-use Phi\Nodes\ExitExpression;
+use Phi\Nodes\Base\CompoundNode;
+use Phi\Nodes\Blocks\RegularBlock;
 use Phi\Nodes\Expression;
-use Phi\Nodes\FloatLiteral;
-use Phi\Nodes\FunctionCallExpression;
-use Phi\Nodes\GreaterThanExpression;
-use Phi\Nodes\GreaterThanOrEqualsExpression;
-use Phi\Nodes\IncludeLikeExpression;
-use Phi\Nodes\InstanceofExpression;
-use Phi\Nodes\IntegerLiteral;
-use Phi\Nodes\InterpolatedString;
-use Phi\Nodes\IsEqualExpression;
-use Phi\Nodes\IsIdenticalExpression;
-use Phi\Nodes\IsNotEqualExpression;
-use Phi\Nodes\IsNotIdenticalExpression;
-use Phi\Nodes\IssetExpression;
-use Phi\Nodes\Key;
-use Phi\Nodes\KeywordBooleanAndExpression;
-use Phi\Nodes\KeywordBooleanOrExpression;
-use Phi\Nodes\KeywordBooleanXorExpression;
-use Phi\Nodes\LessThanExpression;
-use Phi\Nodes\LessThanOrEqualsExpression;
-use Phi\Nodes\ListExpression;
-use Phi\Nodes\LongArrayExpression;
-use Phi\Nodes\MagicConstant;
-use Phi\Nodes\MemberName;
-use Phi\Nodes\MethodCallExpression;
-use Phi\Nodes\ModuloExpression;
-use Phi\Nodes\MultiplyExpression;
-use Phi\Nodes\Name;
-use Phi\Nodes\NameExpression;
-use Phi\Nodes\NewExpression;
-use Phi\Nodes\NumberLiteral;
-use Phi\Nodes\Parameter;
-use Phi\Nodes\ParenthesizedExpression;
-use Phi\Nodes\PostDecrementExpression;
-use Phi\Nodes\PostIncrementExpression;
-use Phi\Nodes\PowerExpression;
-use Phi\Nodes\PreDecrementExpression;
-use Phi\Nodes\PreIncrementExpression;
-use Phi\Nodes\PrintExpression;
-use Phi\Nodes\PropertyAccessExpression;
-use Phi\Nodes\RegularAssignmentExpression;
-use Phi\Nodes\RegularBlock;
-use Phi\Nodes\RegularVariableExpression;
-use Phi\Nodes\ReturnType;
-use Phi\Nodes\ShiftLeftExpression;
-use Phi\Nodes\ShiftRightExpression;
-use Phi\Nodes\ShortArrayExpression;
-use Phi\Nodes\SpaceshipExpression;
-use Phi\Nodes\StaticMethodCallExpression;
-use Phi\Nodes\StaticPropertyAccessExpression;
-use Phi\Nodes\SubtractExpression;
-use Phi\Nodes\SuppressErrorsExpression;
-use Phi\Nodes\SymbolBooleanAndExpression;
-use Phi\Nodes\SymbolBooleanOrExpression;
-use Phi\Nodes\TernaryExpression;
-use Phi\Nodes\UnaryMinusExpression;
-use Phi\Nodes\UnaryPlusExpression;
-use Phi\Nodes\Variable;
-use Phi\Nodes\VariableVariableExpression;
-use Phi\Nodes\YieldExpression;
-use Phi\Nodes\YieldFromExpression;
-use Phi\TokenType;
+use Phi\Nodes\Expressions\AddExpression;
+use Phi\Nodes\Expressions\AliasingExpression;
+use Phi\Nodes\Expressions\AnonymousFunctionExpression;
+use Phi\Nodes\Expressions\AnonymousFunctionUse;
+use Phi\Nodes\Expressions\AnonymousFunctionUseBinding;
+use Phi\Nodes\Expressions\ArrayAccessExpression;
+use Phi\Nodes\Expressions\ArrayItem;
+use Phi\Nodes\Expressions\AssignmentExpression;
+use Phi\Nodes\Expressions\BitwiseAndExpression;
+use Phi\Nodes\Expressions\BitwiseNotExpression;
+use Phi\Nodes\Expressions\BitwiseOrExpression;
+use Phi\Nodes\Expressions\BitwiseXorExpression;
+use Phi\Nodes\Expressions\NotExpression;
+use Phi\Nodes\Expressions\CastExpression;
+use Phi\Nodes\Expressions\ClassNameResolutionExpression;
+use Phi\Nodes\Expressions\CloneExpression;
+use Phi\Nodes\Expressions\CoalesceExpression;
+use Phi\Nodes\Expressions\CombinedAssignmentExpression;
+use Phi\Nodes\Expressions\ConcatExpression;
+use Phi\Nodes\Expressions\ConstantAccessExpression;
+use Phi\Nodes\Expressions\DivideExpression;
+use Phi\Nodes\Expressions\DoubleQuotedStringLiteral;
+use Phi\Nodes\Expressions\EmptyExpression;
+use Phi\Nodes\Expressions\EvalExpression;
+use Phi\Nodes\Expressions\ExecExpression;
+use Phi\Nodes\Expressions\ExitExpression;
+use Phi\Nodes\Expressions\FloatLiteral;
+use Phi\Nodes\Expressions\FunctionCallExpression;
+use Phi\Nodes\Expressions\GreaterThanExpression;
+use Phi\Nodes\Expressions\GreaterThanOrEqualsExpression;
+use Phi\Nodes\Expressions\HeredocStringLiteral;
+use Phi\Nodes\Expressions\IncludeLikeExpression;
+use Phi\Nodes\Expressions\InstanceofExpression;
+use Phi\Nodes\Expressions\IntegerLiteral;
+use Phi\Nodes\Expressions\IsEqualExpression;
+use Phi\Nodes\Expressions\IsIdenticalExpression;
+use Phi\Nodes\Expressions\IsNotEqualExpression;
+use Phi\Nodes\Expressions\IsNotIdenticalExpression;
+use Phi\Nodes\Expressions\IssetExpression;
+use Phi\Nodes\Expressions\KeywordAndExpression;
+use Phi\Nodes\Expressions\KeywordOrExpression;
+use Phi\Nodes\Expressions\KeywordXorExpression;
+use Phi\Nodes\Expressions\LessThanExpression;
+use Phi\Nodes\Expressions\LessThanOrEqualsExpression;
+use Phi\Nodes\Expressions\ListExpression;
+use Phi\Nodes\Expressions\LongArrayExpression;
+use Phi\Nodes\Expressions\MagicConstant;
+use Phi\Nodes\Expressions\MethodCallExpression;
+use Phi\Nodes\Expressions\ModuloExpression;
+use Phi\Nodes\Expressions\MultiplyExpression;
+use Phi\Nodes\Expressions\NameExpression;
+use Phi\Nodes\Expressions\NewExpression;
+use Phi\Nodes\Expressions\NormalVariableExpression;
+use Phi\Nodes\Expressions\NowdocStringLiteral;
+use Phi\Nodes\Expressions\NumberLiteral;
+use Phi\Nodes\Expressions\ParenthesizedExpression;
+use Phi\Nodes\Expressions\PostDecrementExpression;
+use Phi\Nodes\Expressions\PostIncrementExpression;
+use Phi\Nodes\Expressions\PowerExpression;
+use Phi\Nodes\Expressions\PreDecrementExpression;
+use Phi\Nodes\Expressions\PreIncrementExpression;
+use Phi\Nodes\Expressions\PrintExpression;
+use Phi\Nodes\Expressions\PropertyAccessExpression;
+use Phi\Nodes\Expressions\ShiftLeftExpression;
+use Phi\Nodes\Expressions\ShiftRightExpression;
+use Phi\Nodes\Expressions\ShortArrayExpression;
+use Phi\Nodes\Expressions\SingleQuotedStringLiteral;
+use Phi\Nodes\Expressions\SpaceshipExpression;
+use Phi\Nodes\Expressions\StaticMethodCallExpression;
+use Phi\Nodes\Expressions\StaticPropertyAccessExpression;
+use Phi\Nodes\Expressions\StringInterpolation\InterpolatedStringPart;
+use Phi\Nodes\Expressions\StringLiteral;
+use Phi\Nodes\Expressions\SubtractExpression;
+use Phi\Nodes\Expressions\SuppressErrorsExpression;
+use Phi\Nodes\Expressions\SymbolAndExpression;
+use Phi\Nodes\Expressions\SymbolOrExpression;
+use Phi\Nodes\Expressions\TernaryExpression;
+use Phi\Nodes\Expressions\UnaryMinusExpression;
+use Phi\Nodes\Expressions\UnaryPlusExpression;
+use Phi\Nodes\Expressions\VariableExpression;
+use Phi\Nodes\Expressions\VariableVariableExpression;
+use Phi\Nodes\Expressions\YieldExpression;
+use Phi\Nodes\Expressions\YieldFromExpression;
+use Phi\Nodes\Helpers\Argument;
+use Phi\Nodes\Helpers\Key;
+use Phi\Nodes\Helpers\MemberName;
+use Phi\Nodes\Helpers\Name;
+use Phi\Nodes\Helpers\Parameter;
+use Phi\Nodes\Helpers\ReturnType;
+use Phi\TokenType as T;
 
 return [
 
     (new NodeDef(AddExpression::class))
-        ->withExtends(BinopExpression::class)
-        ->withChild("left", Expression::class)
-        ->withToken("operator", TokenType::S_PLUS)
-        ->withChild("right", Expression::class)
-        ->withConstructor("left", "right"),
+        ->node("left", Expression::class, CompoundNode::CTX_READ)
+        ->token("operator", T::S_PLUS)
+        ->node("right", Expression::class, CompoundNode::CTX_READ)
+        ->constructor("left", "right")
+        ->invalidContexts(CompoundNode::CTX_WRITE|CompoundNode::CTX_ALIAS_READ|CompoundNode::CTX_ALIAS_WRITE),
 
     (new NodeDef(AliasingExpression::class))
-        ->withExtends(Expression::class)
-        ->withChild("alias", Expression::class)
-        ->withToken("operator1", TokenType::S_EQUALS)
-        ->withToken("operator2", TokenType::S_AMPERSAND)
-        ->withChild("value", Expression::class)
-        ->withConstructor("alias", "value"),
+        ->node("left", Expression::class, CompoundNode::CTX_ALIAS_WRITE)
+        ->token("operator1", T::S_EQUALS)
+        ->token("operator2", T::S_AMPERSAND)
+        ->node("right", Expression::class, CompoundNode::CTX_ALIAS_READ)
+        ->constructor("left", "right")
+        ->invalidContexts(CompoundNode::CTX_WRITE|CompoundNode::CTX_ALIAS_READ|CompoundNode::CTX_ALIAS_WRITE),
 
     (new NodeDef(ArrayAccessExpression::class))
-        ->withExtends(Expression::class)
-        ->withChild("accessee", Expression::class)
-        ->withToken("leftBracket", TokenType::S_LEFT_SQUARE_BRACKET)
-        ->withOptChild("index", Expression::class)
-        ->withToken("rightBracket", TokenType::S_RIGHT_SQUARE_BRACKET)
-        ->withConstructor("accessee", "index"),
+        // note: this is one of the very few cases where flags are passed as they are
+        // instead of explicitely specifying a new context
+        // this allows the by ref flag to propagate
+        /** @see CompoundNode::CTX_READ_IMPLICIT_BY_REF */
+        ->node("accessee", Expression::class, '$flags')
+        ->token("leftBracket", T::S_LEFT_SQUARE_BRACKET)
+        ->optNode("index", Expression::class, CompoundNode::CTX_READ)
+        ->token("rightBracket", T::S_RIGHT_SQUARE_BRACKET)
+        ->constructor("accessee", "index"),
+
+    (new NodeDef(AssignmentExpression::class))
+        ->node("left", Expression::class, CompoundNode::CTX_WRITE)
+        ->token("operator", T::S_EQUALS)
+        ->node("right", Expression::class, CompoundNode::CTX_READ)
+        ->constructor("left", "right")
+        ->invalidContexts(CompoundNode::CTX_WRITE|CompoundNode::CTX_ALIAS_READ|CompoundNode::CTX_ALIAS_WRITE),
+
+    /** @see ArrayAccessExpression */
+    (new NodeDef(LongArrayExpression::class))
+        ->token("keyword", T::T_ARRAY)
+        ->token("leftParenthesis", T::S_LEFT_PAREN)
+        ->sepNodeList("items", ArrayItem::class, T::S_COMMA)
+        ->token("rightParenthesis", T::S_RIGHT_PAREN)
+        ->invalidContexts(CompoundNode::CTX_ALIAS_READ|CompoundNode::CTX_ALIAS_WRITE)
+        ->validateChildren(false),
+    (new NodeDef(ShortArrayExpression::class))
+        ->token("leftBracket", T::S_LEFT_SQUARE_BRACKET)
+        ->sepNodeList("items", ArrayItem::class, T::S_COMMA)
+        ->token("rightBracket", T::S_RIGHT_SQUARE_BRACKET)
+        ->constructor("item")
+        ->invalidContexts(CompoundNode::CTX_ALIAS_READ|CompoundNode::CTX_ALIAS_WRITE)
+        ->validateChildren(false),
+    (new NodeDef(ArrayItem::class))
+        ->optNode("key", Key::class, CompoundNode::CTX_READ)
+        ->optToken("byReference", T::S_AMPERSAND)
+        ->optNode("value", Expression::class, '$flags')
+        ->constructor("value"),
 
     (new NodeDef(BitwiseAndExpression::class))
-        ->withExtends(Expression::class)
-        ->withChild("left", Expression::class)
-        ->withToken("operator", TokenType::S_AMPERSAND)
-        ->withChild("right", Expression::class)
-        ->withConstructor("left", "right"),
+        ->node("left", Expression::class, CompoundNode::CTX_READ)
+        ->token("operator", T::S_AMPERSAND)
+        ->node("right", Expression::class, CompoundNode::CTX_READ)
+        ->constructor("left", "right")
+        ->invalidContexts(CompoundNode::CTX_WRITE|CompoundNode::CTX_ALIAS_READ|CompoundNode::CTX_ALIAS_WRITE),
     (new NodeDef(BitwiseOrExpression::class))
-        ->withExtends(Expression::class)
-        ->withChild("left", Expression::class)
-        ->withToken("operator", TokenType::S_VERTICAL_BAR)
-        ->withChild("right", Expression::class)
-        ->withConstructor("left", "right"),
+        ->node("left", Expression::class, CompoundNode::CTX_READ)
+        ->token("operator", T::S_VERTICAL_BAR)
+        ->node("right", Expression::class, CompoundNode::CTX_READ)
+        ->constructor("left", "right")
+        ->invalidContexts(CompoundNode::CTX_WRITE|CompoundNode::CTX_ALIAS_READ|CompoundNode::CTX_ALIAS_WRITE),
     (new NodeDef(BitwiseNotExpression::class))
-        ->withExtends(Expression::class)
-        ->withToken("operator", TokenType::S_TILDE)
-        ->withChild("expression", Expression::class)
-        ->withConstructor("expression"),
+        ->token("operator", T::S_TILDE)
+        ->node("expression", Expression::class, CompoundNode::CTX_READ)
+        ->constructor("expression")
+        ->invalidContexts(CompoundNode::CTX_WRITE| CompoundNode::CTX_ALIAS_READ|CompoundNode::CTX_ALIAS_WRITE),
     (new NodeDef(BitwiseXorExpression::class))
-        ->withExtends(Expression::class)
-        ->withChild("left", Expression::class)
-        ->withToken("operator", TokenType::S_CARAT)
-        ->withChild("right", Expression::class)
-        ->withConstructor("left", "right"),
+        ->node("left", Expression::class, CompoundNode::CTX_READ)
+        ->token("operator", T::S_CARET)
+        ->node("right", Expression::class, CompoundNode::CTX_READ)
+        ->constructor("left", "right")
+        ->invalidContexts(CompoundNode::CTX_WRITE|CompoundNode::CTX_ALIAS_READ|CompoundNode::CTX_ALIAS_WRITE),
 
-    (new NodeDef(BooleanNotExpression::class))
-        ->withExtends(Expression::class)
-        ->withToken("operator", TokenType::S_EXCLAMATION_MARK)
-        ->withChild("expression", Expression::class)
-        ->withConstructor("expression"),
+    (new NodeDef(NotExpression::class))
+        ->token("operator", T::S_EXCLAMATION_MARK)
+        ->node("expression", Expression::class, CompoundNode::CTX_READ)
+        ->constructor("expression")
+        ->invalidContexts(CompoundNode::CTX_WRITE|CompoundNode::CTX_ALIAS_READ|CompoundNode::CTX_ALIAS_WRITE),
 
     (new NodeDef(FunctionCallExpression::class))
-        ->withExtends(Expression::class)
-        ->withChild("callee", Expression::class)
-        ->withToken("leftParenthesis", TokenType::S_LEFT_PAREN)
-        ->withSepList("arguments", Argument::class, TokenType::S_COMMA)
-        ->withToken("rightParenthesis", TokenType::S_RIGHT_PAREN)
-        ->withConstructor("callee"),
+        ->node("callable", Expression::class, CompoundNode::CTX_READ)
+        ->token("leftParenthesis", T::S_LEFT_PAREN)
+        ->sepNodeList("arguments", Argument::class, T::S_COMMA)
+        ->token("rightParenthesis", T::S_RIGHT_PAREN)
+        ->constructor("callable")
+        ->invalidContexts(CompoundNode::CTX_WRITE|CompoundNode::CTX_ALIAS_WRITE),
 
     (new NodeDef(CastExpression::class))
-        ->withExtends(Expression::class)
-        ->withToken("cast", TokenType::CASTS)
-        ->withChild("expression", Expression::class)
-        ->withConstructor("cast", "expression"),
+        ->token("operator", T::CASTS)
+        ->node("expression", Expression::class, CompoundNode::CTX_READ)
+        ->constructor("operator", "expression")
+        ->invalidContexts(CompoundNode::CTX_WRITE|CompoundNode::CTX_ALIAS_READ|CompoundNode::CTX_ALIAS_WRITE),
 
     (new NodeDef(ClassNameResolutionExpression::class))
-        ->withExtends(Expression::class)
-        ->withChild("class", Expression::class)
-        ->withToken("operator", TokenType::T_DOUBLE_COLON)
-        ->withToken("keyword", TokenType::T_CLASS)
-        ->withConstructor("class"),
+        ->node("class", Expression::class, CompoundNode::CTX_READ)
+        ->token("operator", T::T_DOUBLE_COLON)
+        ->token("keyword", T::T_CLASS)
+        ->constructor("class")
+        ->invalidContexts(CompoundNode::CTX_WRITE|CompoundNode::CTX_ALIAS_READ|CompoundNode::CTX_ALIAS_WRITE),
 
     (new NodeDef(CloneExpression::class))
-        ->withExtends(Expression::class)
-        ->withToken("keyword", TokenType::T_CLONE)
-        ->withChild("expression", Expression::class)
-        ->withConstructor("expression"),
+        ->token("keyword", T::T_CLONE)
+        ->node("expression", Expression::class, CompoundNode::CTX_READ)
+        ->constructor("expression")
+        ->invalidContexts(CompoundNode::CTX_WRITE|CompoundNode::CTX_ALIAS_READ|CompoundNode::CTX_ALIAS_WRITE),
 
     (new NodeDef(CoalesceExpression::class))
-        ->withExtends(Expression::class)
-        ->withChild("left", Expression::class)
-        ->withToken("operator", TokenType::T_COALESCE)
-        ->withChild("right", Expression::class)
-        ->withConstructor("left", "right"),
+        ->node("left", Expression::class, CompoundNode::CTX_READ)
+        ->token("operator", T::T_COALESCE)
+        ->node("right", Expression::class, CompoundNode::CTX_READ)
+        ->constructor("left", "right")
+        ->invalidContexts(CompoundNode::CTX_WRITE|CompoundNode::CTX_ALIAS_READ|CompoundNode::CTX_ALIAS_WRITE),
 
     (new NodeDef(CombinedAssignmentExpression::class))
-        ->withExtends(Expression::class)
-        ->withChild("lvalue", Expression::class)
-        ->withToken("operator", TokenType::COMBINED_ASSIGNMENTS)
-        ->withChild("value", Expression::class)
-        ->withConstructor("lvalue", "value"),
+        ->node("left", Expression::class, CompoundNode::CTX_READ|CompoundNode::CTX_WRITE)
+        ->token("operator", T::COMBINED_ASSIGNMENTS)
+        ->node("right", Expression::class, CompoundNode::CTX_READ)
+        ->constructor("left", "right")
+        ->invalidContexts(CompoundNode::CTX_WRITE|CompoundNode::CTX_ALIAS_READ|CompoundNode::CTX_ALIAS_WRITE),
 
     (new NodeDef(ConcatExpression::class))
-        ->withExtends(Expression::class)
-        ->withChild("left", Expression::class)
-        ->withToken("operator", TokenType::S_DOT)
-        ->withChild("right", Expression::class)
-        ->withConstructor("left", "right"),
+        ->node("left", Expression::class, CompoundNode::CTX_READ)
+        ->token("operator", T::S_DOT)
+        ->node("right", Expression::class, CompoundNode::CTX_READ)
+        ->constructor("left", "right")
+        ->invalidContexts(CompoundNode::CTX_WRITE|CompoundNode::CTX_ALIAS_READ|CompoundNode::CTX_ALIAS_WRITE),
 
     (new NodeDef(ConstantAccessExpression::class))
-        ->withExtends(Expression::class)
-        ->withChild("accessee", Expression::class)
-        ->withToken("operator", TokenType::T_DOUBLE_COLON)
-        ->withToken("name", TokenType::T_STRING)
-        ->withConstructor("accessee", "name"),
-
-    (new NodeDef(ConstantStringLiteral::class))
-        ->withExtends(Expression::class)
-        ->withToken("source", TokenType::T_CONSTANT_ENCAPSED_STRING)
-        ->withConstructor("source"),
+        ->node("class", Expression::class, CompoundNode::CTX_READ)
+        ->token("operator", T::T_DOUBLE_COLON)
+        ->token("name", T::T_STRING)
+        ->constructor("class", "name")
+        ->invalidContexts(CompoundNode::CTX_WRITE|CompoundNode::CTX_ALIAS_READ|CompoundNode::CTX_ALIAS_WRITE),
 
     (new NodeDef(DivideExpression::class))
-        ->withExtends(Expression::class)
-        ->withChild("left", Expression::class)
-        ->withToken("operator", TokenType::S_FORWARD_SLASH)
-        ->withChild("right", Expression::class)
-        ->withConstructor("left", "right"),
+        ->node("left", Expression::class, CompoundNode::CTX_READ)
+        ->token("operator", T::S_FORWARD_SLASH)
+        ->node("right", Expression::class, CompoundNode::CTX_READ)
+        ->constructor("left", "right")
+        ->invalidContexts(CompoundNode::CTX_WRITE|CompoundNode::CTX_ALIAS_READ|CompoundNode::CTX_ALIAS_WRITE),
 
     (new NodeDef(EmptyExpression::class))
-        ->withExtends(Expression::class)
-        ->withToken("keyword", TokenType::T_EMPTY)
-        ->withToken("leftParenthesis", TokenType::S_LEFT_PAREN)
-        ->withChild("expression", Expression::class)
-        ->withToken("rightParenthesis", TokenType::S_RIGHT_PAREN)
-        ->withConstructor("expression"),
+        ->token("keyword", T::T_EMPTY)
+        ->token("leftParenthesis", T::S_LEFT_PAREN)
+        ->node("expression", Expression::class, CompoundNode::CTX_READ)
+        ->token("rightParenthesis", T::S_RIGHT_PAREN)
+        ->constructor("expression")
+        ->invalidContexts(CompoundNode::CTX_WRITE|CompoundNode::CTX_ALIAS_READ|CompoundNode::CTX_ALIAS_WRITE),
 
     (new NodeDef(EvalExpression::class))
-        ->withExtends(Expression::class)
-        ->withToken("keyword", TokenType::T_EVAL)
-        ->withToken("leftParenthesis", TokenType::S_LEFT_PAREN)
-        ->withChild("expression", Expression::class)
-        ->withToken("rightParenthesis", TokenType::S_RIGHT_PAREN)
-        ->withConstructor("expression"),
+        ->token("keyword", T::T_EVAL)
+        ->token("leftParenthesis", T::S_LEFT_PAREN)
+        ->node("expression", Expression::class, CompoundNode::CTX_READ)
+        ->token("rightParenthesis", T::S_RIGHT_PAREN)
+        ->constructor("expression")
+        ->invalidContexts(CompoundNode::CTX_WRITE|CompoundNode::CTX_ALIAS_READ|CompoundNode::CTX_ALIAS_WRITE),
+
+    (new NodeDef(ExecExpression::class))
+        ->token("leftDelimiter", T::S_BACKTICK)
+        ->token("command", T::T_ENCAPSED_AND_WHITESPACE)
+        ->token("rightDelimiter", T::S_BACKTICK)
+        ->constructor("command")
+        ->invalidContexts(CompoundNode::CTX_WRITE|CompoundNode::CTX_ALIAS_READ|CompoundNode::CTX_ALIAS_WRITE),
 
     (new NodeDef(ExitExpression::class))
-        ->withExtends(Expression::class)
-        ->withToken("keyword", TokenType::T_EXIT)
-        ->withToken("leftParenthesis", TokenType::S_LEFT_PAREN)
-        ->withOptChild("expression", Expression::class)
-        ->withToken("rightParenthesis", TokenType::S_RIGHT_PAREN)
-        ->withConstructor("expression"),
+        ->token("keyword", T::T_EXIT)
+        ->optToken("leftParenthesis", T::S_LEFT_PAREN)
+        ->optNode("expression", Expression::class, CompoundNode::CTX_READ)
+        ->optToken("rightParenthesis", T::S_RIGHT_PAREN)
+        ->constructor("expression")
+        ->invalidContexts(CompoundNode::CTX_WRITE|CompoundNode::CTX_ALIAS_READ|CompoundNode::CTX_ALIAS_WRITE),
 
     (new NodeDef(GreaterThanExpression::class))
-        ->withExtends(Expression::class)
-        ->withChild("left", Expression::class)
-        ->withToken("operator", TokenType::S_GT)
-        ->withChild("right", Expression::class)
-        ->withConstructor("left", "right"),
+        ->node("left", Expression::class, CompoundNode::CTX_READ)
+        ->token("operator", T::S_GT)
+        ->node("right", Expression::class, CompoundNode::CTX_READ)
+        ->constructor("left", "right")
+        ->invalidContexts(CompoundNode::CTX_WRITE|CompoundNode::CTX_ALIAS_READ|CompoundNode::CTX_ALIAS_WRITE),
 
     (new NodeDef(GreaterThanOrEqualsExpression::class))
-        ->withExtends(Expression::class)
-        ->withChild("left", Expression::class)
-        ->withToken("operator", TokenType::T_IS_GREATER_OR_EQUAL)
-        ->withChild("right", Expression::class)
-        ->withConstructor("left", "right"),
+        ->node("left", Expression::class, CompoundNode::CTX_READ)
+        ->token("operator", T::T_IS_GREATER_OR_EQUAL)
+        ->node("right", Expression::class, CompoundNode::CTX_READ)
+        ->constructor("left", "right")
+        ->invalidContexts(CompoundNode::CTX_WRITE|CompoundNode::CTX_ALIAS_READ|CompoundNode::CTX_ALIAS_WRITE),
 
     (new NodeDef(AnonymousFunctionExpression::class))
-        ->withExtends(Expression::class)
-        ->withOptToken("static", TokenType::T_STATIC)
-        ->withToken("keyword", TokenType::T_FUNCTION)
-        ->withOptToken("byReference", TokenType::S_AMPERSAND)
-        ->withToken("leftParenthesis", TokenType::S_LEFT_PAREN)
-        ->withSepList("parameters", Parameter::class, TokenType::S_COMMA)
-        ->withToken("rightParenthesis", TokenType::S_RIGHT_PAREN)
-        ->withOptChild("use", AnonymousFunctionUse::class)
-        ->withOptChild("returnType", ReturnType::class)
-        ->withChild("body", RegularBlock::class),
+        ->optToken("staticModifier", T::T_STATIC)
+        ->token("keyword", T::T_FUNCTION)
+        ->optToken("byReference", T::S_AMPERSAND)
+        ->token("leftParenthesis", T::S_LEFT_PAREN)
+        ->sepNodeList("parameters", Parameter::class, T::S_COMMA)
+        ->token("rightParenthesis", T::S_RIGHT_PAREN)
+        ->optNode("use", AnonymousFunctionUse::class)
+        ->optNode("returnType", ReturnType::class)
+        ->node("body", RegularBlock::class)
+        ->invalidContexts(CompoundNode::CTX_WRITE|CompoundNode::CTX_ALIAS_READ|CompoundNode::CTX_ALIAS_WRITE),
 
     (new NodeDef(AnonymousFunctionUse::class))
-        ->withToken("keyword", TokenType::T_USE)
-        ->withToken("leftParenthesis", TokenType::S_LEFT_PAREN)
-        ->withSepList("bindings", AnonymousFunctionUseBinding::class, TokenType::S_COMMA)
-        ->withToken("rightParenthesis", TokenType::S_RIGHT_PAREN),
+        ->token("keyword", T::T_USE)
+        ->token("leftParenthesis", T::S_LEFT_PAREN)
+        ->sepNodeList("bindings", AnonymousFunctionUseBinding::class, T::S_COMMA)
+        ->token("rightParenthesis", T::S_RIGHT_PAREN),
 
     (new NodeDef(AnonymousFunctionUseBinding::class))
-        ->withOptToken("byReference", TokenType::S_AMPERSAND)
-        ->withToken("variable", TokenType::T_VARIABLE),
+        ->optToken("byReference", T::S_AMPERSAND)
+        ->token("variable", T::T_VARIABLE),
 
     (new NodeDef(IncludeLikeExpression::class))
-        ->withExtends(Expression::class)
-        ->withToken("keyword", [TokenType::T_INCLUDE, TokenType::T_INCLUDE_ONCE, TokenType::T_REQUIRE, TokenType::T_REQUIRE_ONCE])
-        ->withChild("expression", Expression::class)
-        ->withConstructor("expression"),
+        ->token("keyword", [T::T_INCLUDE, T::T_INCLUDE_ONCE, T::T_REQUIRE, T::T_REQUIRE_ONCE])
+        ->node("expression", Expression::class, CompoundNode::CTX_READ)
+        ->constructor("expression")
+        ->invalidContexts(CompoundNode::CTX_WRITE|CompoundNode::CTX_ALIAS_READ|CompoundNode::CTX_ALIAS_WRITE),
 
     (new NodeDef(InstanceofExpression::class))
-        ->withExtends(Expression::class)
-        ->withChild("value", Expression::class)
-        ->withToken("operator", TokenType::T_INSTANCEOF)
-        ->withChild("type", Expression::class)
-        ->withConstructor("value", "type"),
-
-    (new NodeDef(InterpolatedString::class)) // TODO split
-        ->withExtends(Expression::class)
-        ->withToken("leftDelimiter", [TokenType::S_DOUBLE_QUOTE, TokenType::T_START_HEREDOC])
-        ->withList("parts", InterpolatedStringPart::class)
-        ->withToken("rightDelimiter", [TokenType::S_DOUBLE_QUOTE, TokenType::T_END_HEREDOC]),
+        ->node("expression", Expression::class, CompoundNode::CTX_READ)
+        ->token("operator", T::T_INSTANCEOF)
+        ->node("class", Expression::class, CompoundNode::CTX_READ)
+        ->constructor("expression", "class")
+        ->invalidContexts(CompoundNode::CTX_WRITE|CompoundNode::CTX_ALIAS_READ|CompoundNode::CTX_ALIAS_WRITE),
 
     (new NodeDef(IsEqualExpression::class))
-        ->withExtends(BinopExpression::class)
-        ->withChild("left", Expression::class)
-        ->withToken("operator", TokenType::T_IS_EQUAL)
-        ->withChild("right", Expression::class)
-        ->withConstructor("left", "right"),
+        ->node("left", Expression::class, CompoundNode::CTX_READ)
+        ->token("operator", T::T_IS_EQUAL)
+        ->node("right", Expression::class, CompoundNode::CTX_READ)
+        ->constructor("left", "right")
+        ->invalidContexts(CompoundNode::CTX_WRITE|CompoundNode::CTX_ALIAS_READ|CompoundNode::CTX_ALIAS_WRITE),
 
     (new NodeDef(IsIdenticalExpression::class))
-        ->withExtends(BinopExpression::class)
-        ->withChild("left", Expression::class)
-        ->withToken("operator", TokenType::T_IS_IDENTICAL)
-        ->withChild("right", Expression::class)
-        ->withConstructor("left", "right"),
+        ->node("left", Expression::class, CompoundNode::CTX_READ)
+        ->token("operator", T::T_IS_IDENTICAL)
+        ->node("right", Expression::class, CompoundNode::CTX_READ)
+        ->constructor("left", "right")
+        ->invalidContexts(CompoundNode::CTX_WRITE|CompoundNode::CTX_ALIAS_READ|CompoundNode::CTX_ALIAS_WRITE),
 
     (new NodeDef(IsNotEqualExpression::class))
-        ->withExtends(BinopExpression::class)
-        ->withChild("left", Expression::class)
-        ->withToken("operator", TokenType::T_IS_NOT_EQUAL)
-        ->withChild("right", Expression::class)
-        ->withConstructor("left", "right"),
+        ->node("left", Expression::class, CompoundNode::CTX_READ)
+        ->token("operator", T::T_IS_NOT_EQUAL)
+        ->node("right", Expression::class, CompoundNode::CTX_READ)
+        ->constructor("left", "right")
+        ->invalidContexts(CompoundNode::CTX_WRITE|CompoundNode::CTX_ALIAS_READ|CompoundNode::CTX_ALIAS_WRITE),
 
     (new NodeDef(IsNotIdenticalExpression::class))
-        ->withExtends(BinopExpression::class)
-        ->withChild("left", Expression::class)
-        ->withToken("operator", TokenType::T_IS_NOT_IDENTICAL)
-        ->withChild("right", Expression::class)
-        ->withConstructor("left", "right"),
+        ->node("left", Expression::class, CompoundNode::CTX_READ)
+        ->token("operator", T::T_IS_NOT_IDENTICAL)
+        ->node("right", Expression::class, CompoundNode::CTX_READ)
+        ->constructor("left", "right")
+        ->invalidContexts(CompoundNode::CTX_WRITE|CompoundNode::CTX_ALIAS_READ|CompoundNode::CTX_ALIAS_WRITE),
 
     (new NodeDef(IssetExpression::class))
-        ->withExtends(Expression::class)
-        ->withToken("keyword", TokenType::T_ISSET)
-        ->withToken("leftParenthesis", TokenType::S_LEFT_PAREN)
-        ->withSepList("expressions", Expression::class, TokenType::S_COMMA)
-        ->withToken("rightParenthesis", TokenType::S_RIGHT_PAREN)
-        ->withConstructor("expression"),
+        ->token("keyword", T::T_ISSET)
+        ->token("leftParenthesis", T::S_LEFT_PAREN)
+        ->sepNodeList("expressions", Expression::class, T::S_COMMA, CompoundNode::CTX_READ)
+        ->token("rightParenthesis", T::S_RIGHT_PAREN)
+        ->constructor("expression")
+        ->invalidContexts(CompoundNode::CTX_WRITE|CompoundNode::CTX_ALIAS_READ|CompoundNode::CTX_ALIAS_WRITE),
 
-    (new NodeDef(KeywordBooleanAndExpression::class))
-        ->withExtends(Expression::class)
-        ->withChild("left", Expression::class)
-        ->withToken("operator", TokenType::T_LOGICAL_AND)
-        ->withChild("right", Expression::class)
-        ->withConstructor("left", "right"),
+    (new NodeDef(KeywordAndExpression::class))
+        ->node("left", Expression::class, CompoundNode::CTX_READ)
+        ->token("operator", T::T_LOGICAL_AND)
+        ->node("right", Expression::class, CompoundNode::CTX_READ)
+        ->constructor("left", "right")
+        ->invalidContexts(CompoundNode::CTX_WRITE|CompoundNode::CTX_ALIAS_READ|CompoundNode::CTX_ALIAS_WRITE),
 
-    (new NodeDef(KeywordBooleanOrExpression::class))
-        ->withExtends(Expression::class)
-        ->withChild("left", Expression::class)
-        ->withToken("operator", TokenType::T_LOGICAL_OR)
-        ->withChild("right", Expression::class)
-        ->withConstructor("left", "right"),
+    (new NodeDef(KeywordOrExpression::class))
+        ->node("left", Expression::class, CompoundNode::CTX_READ)
+        ->token("operator", T::T_LOGICAL_OR)
+        ->node("right", Expression::class, CompoundNode::CTX_READ)
+        ->constructor("left", "right")
+        ->invalidContexts(CompoundNode::CTX_WRITE|CompoundNode::CTX_ALIAS_READ|CompoundNode::CTX_ALIAS_WRITE),
 
-    (new NodeDef(KeywordBooleanXorExpression::class))
-        ->withExtends(Expression::class)
-        ->withChild("left", Expression::class)
-        ->withToken("operator", TokenType::T_LOGICAL_XOR)
-        ->withChild("right", Expression::class)
-        ->withConstructor("left", "right"),
+    (new NodeDef(KeywordXorExpression::class))
+        ->node("left", Expression::class, CompoundNode::CTX_READ)
+        ->token("operator", T::T_LOGICAL_XOR)
+        ->node("right", Expression::class, CompoundNode::CTX_READ)
+        ->constructor("left", "right")
+        ->invalidContexts(CompoundNode::CTX_WRITE|CompoundNode::CTX_ALIAS_READ|CompoundNode::CTX_ALIAS_WRITE),
 
     (new NodeDef(LessThanExpression::class))
-        ->withExtends(Expression::class)
-        ->withChild("left", Expression::class)
-        ->withToken("operator", TokenType::S_LT)
-        ->withChild("right", Expression::class)
-        ->withConstructor("left", "right"),
+        ->node("left", Expression::class, CompoundNode::CTX_READ)
+        ->token("operator", T::S_LT)
+        ->node("right", Expression::class, CompoundNode::CTX_READ)
+        ->constructor("left", "right")
+        ->invalidContexts(CompoundNode::CTX_WRITE|CompoundNode::CTX_ALIAS_READ|CompoundNode::CTX_ALIAS_WRITE),
 
     (new NodeDef(LessThanOrEqualsExpression::class))
-        ->withExtends(Expression::class)
-        ->withChild("left", Expression::class)
-        ->withToken("operator", TokenType::T_IS_SMALLER_OR_EQUAL)
-        ->withChild("right", Expression::class)
-        ->withConstructor("left", "right"),
+        ->node("left", Expression::class, CompoundNode::CTX_READ)
+        ->token("operator", T::T_IS_SMALLER_OR_EQUAL)
+        ->node("right", Expression::class, CompoundNode::CTX_READ)
+        ->constructor("left", "right")
+        ->invalidContexts(CompoundNode::CTX_WRITE|CompoundNode::CTX_ALIAS_READ|CompoundNode::CTX_ALIAS_WRITE),
 
     (new NodeDef(ListExpression::class))
-        ->withExtends(Expression::class)
-        ->withToken("keyword", TokenType::T_LIST)
-        ->withToken("leftParenthesis", TokenType::S_LEFT_PAREN)
-        ->withSepList("expressions", Expression::class, TokenType::S_COMMA)
-        ->withToken("rightParenthesis", TokenType::S_RIGHT_PAREN),
-
-    (new NodeDef(LongArrayExpression::class))
-        ->withExtends(Expression::class)
-        ->withToken("keyword", TokenType::T_ARRAY)
-        ->withToken("leftParenthesis", TokenType::S_LEFT_PAREN)
-        ->withSepList("items", ArrayItem::class, TokenType::S_COMMA) // TODO vali
-        ->withToken("rightParenthesis", TokenType::S_RIGHT_PAREN),
+        ->token("keyword", T::T_LIST)
+        ->token("leftParenthesis", T::S_LEFT_PAREN)
+        ->sepNodeList("items", ArrayItem::class, T::S_COMMA, CompoundNode::CTX_WRITE)
+        ->token("rightParenthesis", T::S_RIGHT_PAREN)
+        ->invalidContexts(CompoundNode::CTX_READ|CompoundNode::CTX_ALIAS_READ|CompoundNode::CTX_ALIAS_WRITE),
 
     (new NodeDef(MagicConstant::class))
-        ->withExtends(Expression::class)
-        ->withToken("token", TokenType::MAGIC_CONSTANTS),
+        ->token("token", T::MAGIC_CONSTANTS)
+        ->constructor("token")
+        ->invalidContexts(CompoundNode::CTX_WRITE|CompoundNode::CTX_ALIAS_READ|CompoundNode::CTX_ALIAS_WRITE),
 
     (new NodeDef(MethodCallExpression::class))
-        ->withExtends(Expression::class)
-        ->withChild("object", Expression::class) // TODO name
-        ->withToken("operator", TokenType::T_OBJECT_OPERATOR)
-        ->withChild("name", MemberName::class)
-        ->withToken("leftParenthesis", TokenType::S_LEFT_PAREN)
-        ->withSepList("arguments", Argument::class, TokenType::S_COMMA)
-        ->withToken("rightParenthesis", TokenType::S_RIGHT_PAREN)
-        ->withConstructor("object", "operator"),
+        ->node("object", Expression::class, CompoundNode::CTX_READ)
+        ->token("operator", T::T_OBJECT_OPERATOR)
+        ->node("name", MemberName::class)
+        ->token("leftParenthesis", T::S_LEFT_PAREN)
+        ->sepNodeList("arguments", Argument::class, T::S_COMMA)
+        ->token("rightParenthesis", T::S_RIGHT_PAREN)
+        ->constructor("object", "name")
+        ->invalidContexts(CompoundNode::CTX_WRITE|CompoundNode::CTX_ALIAS_WRITE),
 
     /** @see NumberLiteral */
     (new NodeDef(IntegerLiteral::class))
-        ->withExtends(NumberLiteral::class)
-        ->withToken("token", TokenType::T_LNUMBER)
-        ->withConstructor("token"),
+        ->token("token", T::T_LNUMBER)
+        ->constructor("token")
+        ->invalidContexts(CompoundNode::CTX_WRITE|CompoundNode::CTX_ALIAS_READ|CompoundNode::CTX_ALIAS_WRITE),
     (new NodeDef(FloatLiteral::class))
-        ->withExtends(NumberLiteral::class)
-        ->withToken("token", TokenType::T_DNUMBER)
-        ->withConstructor("token"),
+        ->token("token", T::T_DNUMBER)
+        ->constructor("token")
+        ->invalidContexts(CompoundNode::CTX_WRITE|CompoundNode::CTX_ALIAS_READ|CompoundNode::CTX_ALIAS_WRITE),
 
     (new NodeDef(PropertyAccessExpression::class))
-        ->withExtends(Expression::class)
-        ->withChild("accessee", Expression::class)
-        ->withToken("operator", TokenType::T_OBJECT_OPERATOR)
-        ->withChild("name", MemberName::class)
-        ->withConstructor("accessee", "name"),
+        ->node("object", Expression::class, CompoundNode::CTX_READ)
+        ->token("operator", T::T_OBJECT_OPERATOR)
+        ->node("name", MemberName::class)
+        ->constructor("object", "name"),
 
     (new NodeDef(ModuloExpression::class))
-        ->withExtends(Expression::class)
-        ->withChild("left", Expression::class)
-        ->withToken("operator", TokenType::S_MODULO)
-        ->withChild("right", Expression::class)
-        ->withConstructor("left", "right"),
+        ->node("left", Expression::class, CompoundNode::CTX_READ)
+        ->token("operator", T::S_MODULO)
+        ->node("right", Expression::class, CompoundNode::CTX_READ)
+        ->constructor("left", "right")
+        ->invalidContexts(CompoundNode::CTX_WRITE|CompoundNode::CTX_ALIAS_READ|CompoundNode::CTX_ALIAS_WRITE),
 
     (new NodeDef(MultiplyExpression::class))
-        ->withExtends(Expression::class)
-        ->withChild("left", Expression::class)
-        ->withToken("operator", TokenType::S_ASTERISK)
-        ->withChild("right", Expression::class)
-        ->withConstructor("left", "right"),
+        ->node("left", Expression::class, CompoundNode::CTX_READ)
+        ->token("operator", T::S_ASTERISK)
+        ->node("right", Expression::class, CompoundNode::CTX_READ)
+        ->constructor("left", "right")
+        ->invalidContexts(CompoundNode::CTX_WRITE|CompoundNode::CTX_ALIAS_READ|CompoundNode::CTX_ALIAS_WRITE),
 
     (new NodeDef(NewExpression::class))
-        ->withExtends(Expression::class)
-        ->withToken("keyword", TokenType::T_NEW)
-        ->withChild("class", Expression::class)
-        ->withOptToken("leftParenthesis", TokenType::S_LEFT_PAREN)
-        ->withSepList("arguments", Argument::class, TokenType::S_COMMA)
-        ->withOptToken("rightParenthesis", TokenType::S_RIGHT_PAREN)
-        ->withConstructor("class"),
+        ->token("keyword", T::T_NEW)
+        ->node("class", Expression::class, CompoundNode::CTX_READ)
+        ->optToken("leftParenthesis", T::S_LEFT_PAREN)
+        ->sepNodeList("arguments", Argument::class, T::S_COMMA)
+        ->optToken("rightParenthesis", T::S_RIGHT_PAREN)
+        ->constructor("class")
+        ->invalidContexts(CompoundNode::CTX_WRITE|CompoundNode::CTX_ALIAS_READ|CompoundNode::CTX_ALIAS_WRITE),
 
     (new NodeDef(ParenthesizedExpression::class))
-        ->withExtends(Expression::class)
-        ->withToken("leftParenthesis", TokenType::S_LEFT_PAREN)
-        ->withChild("expression", Expression::class)
-        ->withToken("rightParenthesis", TokenType::S_RIGHT_PAREN)
-        ->withConstructor("expression"),
+        ->token("leftParenthesis", T::S_LEFT_PAREN)
+        // note: this is one of the very few cases where flags are passed as they are
+        // instead of explicitely specifying a new context
+        /** @see CompoundNode::CTX_READ_IMPLICIT_BY_REF */
+        ->node("expression", Expression::class, "\$flags")
+        ->token("rightParenthesis", T::S_RIGHT_PAREN)
+        ->constructor("expression")
+        ->invalidContexts(CompoundNode::CTX_ALIAS_READ|CompoundNode::CTX_ALIAS_WRITE),//|CompoundNode::CTX_ALIAS_READ|CompoundNode::CTX_ALIAS_WRITE),
 
     (new NodeDef(PostDecrementExpression::class))
-        ->withExtends(CrementExpression::class)
-        ->withChild("expression", Expression::class)
-        ->withToken("operator", TokenType::T_DEC)
-        ->withConstructor("expression"),
+        ->node("expression", Expression::class, CompoundNode::CTX_READ|CompoundNode::CTX_WRITE)
+        ->token("operator", T::T_DEC)
+        ->constructor("expression")
+        ->invalidContexts(CompoundNode::CTX_WRITE|CompoundNode::CTX_ALIAS_READ|CompoundNode::CTX_ALIAS_WRITE),
     (new NodeDef(PostIncrementExpression::class))
-        ->withExtends(CrementExpression::class)
-        ->withChild("expression", Expression::class)
-        ->withToken("operator", TokenType::T_INC)
-        ->withConstructor("expression"),
+        ->node("expression", Expression::class, CompoundNode::CTX_READ|CompoundNode::CTX_WRITE)
+        ->token("operator", T::T_INC)
+        ->constructor("expression")
+        ->invalidContexts(CompoundNode::CTX_WRITE|CompoundNode::CTX_ALIAS_READ|CompoundNode::CTX_ALIAS_WRITE),
 
     (new NodeDef(PowerExpression::class))
-        ->withExtends(Expression::class)
-        ->withChild("left", Expression::class)
-        ->withToken("operator", TokenType::T_POW)
-        ->withChild("right", Expression::class)
-        ->withConstructor("left", "right"),
+        ->node("left", Expression::class, CompoundNode::CTX_READ)
+        ->token("operator", T::T_POW)
+        ->node("right", Expression::class, CompoundNode::CTX_READ)
+        ->constructor("left", "right")
+        ->invalidContexts(CompoundNode::CTX_WRITE|CompoundNode::CTX_ALIAS_READ|CompoundNode::CTX_ALIAS_WRITE),
 
     (new NodeDef(PreDecrementExpression::class))
-        ->withExtends(CrementExpression::class)
-        ->withToken("operator", TokenType::T_DEC)
-        ->withChild("expression", Expression::class)
-        ->withConstructor("expression"),
+        ->token("operator", T::T_DEC)
+        ->node("expression", Expression::class, CompoundNode::CTX_READ|CompoundNode::CTX_WRITE)
+        ->constructor("expression")
+        ->invalidContexts(CompoundNode::CTX_WRITE|CompoundNode::CTX_ALIAS_READ|CompoundNode::CTX_ALIAS_WRITE),
     (new NodeDef(PreIncrementExpression::class))
-        ->withExtends(CrementExpression::class)
-        ->withToken("operator", TokenType::T_INC)
-        ->withChild("expression", Expression::class)
-        ->withConstructor("expression"),
+        ->token("operator", T::T_INC)
+        ->node("expression", Expression::class, CompoundNode::CTX_READ|CompoundNode::CTX_WRITE)
+        ->constructor("expression")
+        ->invalidContexts(CompoundNode::CTX_WRITE|CompoundNode::CTX_ALIAS_READ|CompoundNode::CTX_ALIAS_WRITE),
 
     (new NodeDef(PrintExpression::class))
-        ->withExtends(Expression::class)
-        ->withToken("keyword", TokenType::T_PRINT)
-        ->withChild("expression", Expression::class)
-        ->withConstructor("expression"),
-
-    (new NodeDef(RegularAssignmentExpression::class))
-        ->withExtends(Expression::class)
-        ->withChild("lvalue", Expression::class)
-        ->withToken("operator", TokenType::S_EQUALS)
-        ->withChild("value", Expression::class)
-        ->withConstructor("lvalue", "value"),
+        ->token("keyword", T::T_PRINT)
+        ->node("expression", Expression::class, CompoundNode::CTX_READ)
+        ->constructor("expression")
+        ->invalidContexts(CompoundNode::CTX_WRITE|CompoundNode::CTX_ALIAS_READ|CompoundNode::CTX_ALIAS_WRITE),
 
     (new NodeDef(NameExpression::class))
-        ->withExtends(Expression::class)
-        ->withChild("name", Name::class)
-        ->withConstructor("name"),
-
-    (new NodeDef(RegularVariableExpression::class))
-        ->withExtends(Variable::class)
-        ->withToken("variable", TokenType::T_VARIABLE)
-        ->withConstructor("variable"),
+        ->node("name", Name::class)
+        ->constructor("name")
+        ->invalidContexts(CompoundNode::CTX_WRITE|CompoundNode::CTX_ALIAS_READ|CompoundNode::CTX_ALIAS_WRITE),
 
     (new NodeDef(ShiftLeftExpression::class))
-        ->withExtends(Expression::class)
-        ->withChild("left", Expression::class)
-        ->withToken("operator", TokenType::T_SL)
-        ->withChild("right", Expression::class)
-        ->withConstructor("left", "right"),
-
+        ->node("left", Expression::class, CompoundNode::CTX_READ)
+        ->token("operator", T::T_SL)
+        ->node("right", Expression::class, CompoundNode::CTX_READ)
+        ->constructor("left", "right")
+        ->invalidContexts(CompoundNode::CTX_WRITE|CompoundNode::CTX_ALIAS_READ|CompoundNode::CTX_ALIAS_WRITE),
     (new NodeDef(ShiftRightExpression::class))
-        ->withExtends(Expression::class)
-        ->withChild("left", Expression::class)
-        ->withToken("operator", TokenType::T_SL)
-        ->withChild("right", Expression::class)
-        ->withConstructor("left", "right"),
-
-    (new NodeDef(ShortArrayExpression::class))
-        ->withExtends(Expression::class)
-        ->withToken("leftBracket", TokenType::S_LEFT_SQUARE_BRACKET)
-        ->withSepList("items", ArrayItem::class, TokenType::S_COMMA)
-        ->withToken("rightBracket", TokenType::S_RIGHT_SQUARE_BRACKET)
-        ->withConstructor("item"),
+        ->node("left", Expression::class, CompoundNode::CTX_READ)
+        ->token("operator", T::T_SR)
+        ->node("right", Expression::class, CompoundNode::CTX_READ)
+        ->constructor("left", "right")
+        ->invalidContexts(CompoundNode::CTX_WRITE|CompoundNode::CTX_ALIAS_READ|CompoundNode::CTX_ALIAS_WRITE),
 
     (new NodeDef(SpaceshipExpression::class))
-        ->withExtends(Expression::class)
-        ->withChild("left", Expression::class)
-        ->withToken("operator", TokenType::T_SPACESHIP)
-        ->withChild("right", Expression::class)
-        ->withConstructor("left", "right"),
+        ->node("left", Expression::class, CompoundNode::CTX_READ)
+        ->token("operator", T::T_SPACESHIP)
+        ->node("right", Expression::class, CompoundNode::CTX_READ)
+        ->constructor("left", "right")
+        ->invalidContexts(CompoundNode::CTX_WRITE|CompoundNode::CTX_ALIAS_READ|CompoundNode::CTX_ALIAS_WRITE),
 
     (new NodeDef(StaticMethodCallExpression::class))
-        ->withExtends(Expression::class)
-        ->withChild("class", Expression::class)
-        ->withToken("operator", TokenType::T_DOUBLE_COLON)
-        ->withChild("name", MemberName::class)
-        ->withToken("leftParenthesis", TokenType::S_LEFT_PAREN)
-        ->withSepList("arguments", Argument::class, TokenType::S_COMMA)
-        ->withToken("rightParenthesis", TokenType::S_RIGHT_PAREN)
-        ->withConstructor("class", "name"),
+        ->node("class", Expression::class, CompoundNode::CTX_READ)
+        ->token("operator", T::T_DOUBLE_COLON)
+        ->node("name", MemberName::class)
+        ->token("leftParenthesis", T::S_LEFT_PAREN)
+        ->sepNodeList("arguments", Argument::class, T::S_COMMA)
+        ->token("rightParenthesis", T::S_RIGHT_PAREN)
+        ->constructor("class", "name")
+        ->invalidContexts(CompoundNode::CTX_WRITE|CompoundNode::CTX_ALIAS_WRITE),
 
     (new NodeDef(StaticPropertyAccessExpression::class))
-        ->withExtends(Expression::class)
-        ->withChild("accessee", Expression::class)
-        ->withToken("operator", TokenType::T_DOUBLE_COLON)
-        ->withChild("name", Variable::class)
-        ->withConstructor("accessee", "name"),
+        ->node("class", Expression::class, CompoundNode::CTX_READ)
+        ->token("operator", T::T_DOUBLE_COLON)
+        ->node("name", VariableExpression::class)
+        ->constructor("class", "name"),
+
+    /** @see StringLiteral */
+    (new NodeDef(SingleQuotedStringLiteral::class))
+        ->token("token", T::T_CONSTANT_ENCAPSED_STRING)
+        ->constructor("token")
+        ->invalidContexts(CompoundNode::CTX_WRITE|CompoundNode::CTX_ALIAS_READ|CompoundNode::CTX_ALIAS_WRITE),
+    (new NodeDef(DoubleQuotedStringLiteral::class))
+        ->token("leftDelimiter", T::S_DOUBLE_QUOTE)
+        ->nodeList("parts", InterpolatedStringPart::class)
+        ->token("rightDelimiter", T::S_DOUBLE_QUOTE)
+        ->invalidContexts(CompoundNode::CTX_WRITE|CompoundNode::CTX_ALIAS_READ|CompoundNode::CTX_ALIAS_WRITE),
+    (new NodeDef(HeredocStringLiteral::class))
+        ->token("leftDelimiter", T::T_START_HEREDOC)
+        ->nodeList("parts", InterpolatedStringPart::class)
+        ->token("rightDelimiter", T::T_END_HEREDOC)
+        ->invalidContexts(CompoundNode::CTX_WRITE|CompoundNode::CTX_ALIAS_READ|CompoundNode::CTX_ALIAS_WRITE),
+    (new NodeDef(NowdocStringLiteral::class))
+        ->token("leftDelimiter", T::T_START_HEREDOC)
+        ->optToken("content", T::T_ENCAPSED_AND_WHITESPACE)
+        ->token("rightDelimiter", T::T_END_HEREDOC)
+        ->constructor("content")
+        ->invalidContexts(CompoundNode::CTX_WRITE|CompoundNode::CTX_ALIAS_READ|CompoundNode::CTX_ALIAS_WRITE),
 
     (new NodeDef(SubtractExpression::class))
-        ->withExtends(Expression::class)
-        ->withChild("left", Expression::class)
-        ->withToken("operator", TokenType::S_MINUS)
-        ->withChild("right", Expression::class)
-        ->withConstructor("left", "right"),
+        ->node("left", Expression::class, CompoundNode::CTX_READ)
+        ->token("operator", T::S_MINUS)
+        ->node("right", Expression::class, CompoundNode::CTX_READ)
+        ->constructor("left", "right")
+        ->invalidContexts(CompoundNode::CTX_WRITE|CompoundNode::CTX_ALIAS_READ|CompoundNode::CTX_ALIAS_WRITE),
 
     (new NodeDef(SuppressErrorsExpression::class))
-        ->withExtends(Expression::class)
-        ->withToken("operator", TokenType::S_AT)
-        ->withChild("expression", Expression::class)
-        ->withConstructor("expression"),
+        ->token("operator", T::S_AT)
+        ->node("expression", Expression::class, CompoundNode::CTX_READ)
+        ->constructor("expression")
+        ->invalidContexts(CompoundNode::CTX_WRITE|CompoundNode::CTX_ALIAS_READ|CompoundNode::CTX_ALIAS_WRITE),
 
-    (new NodeDef(SymbolBooleanAndExpression::class))
-        ->withExtends(Expression::class)
-        ->withChild("left", Expression::class)
-        ->withToken("operator", TokenType::T_BOOLEAN_AND)
-        ->withChild("right", Expression::class)
-        ->withConstructor("left", "right"),
+    (new NodeDef(SymbolAndExpression::class))
+        ->node("left", Expression::class, CompoundNode::CTX_READ)
+        ->token("operator", T::T_BOOLEAN_AND)
+        ->node("right", Expression::class, CompoundNode::CTX_READ)
+        ->constructor("left", "right")
+        ->invalidContexts(CompoundNode::CTX_WRITE|CompoundNode::CTX_ALIAS_READ|CompoundNode::CTX_ALIAS_WRITE),
 
-    (new NodeDef(SymbolBooleanOrExpression::class))
-        ->withExtends(Expression::class)
-        ->withChild("left", Expression::class)
-        ->withToken("operator", TokenType::T_BOOLEAN_OR)
-        ->withChild("right", Expression::class)
-        ->withConstructor("left", "right"),
+    (new NodeDef(SymbolOrExpression::class))
+        ->node("left", Expression::class, CompoundNode::CTX_READ)
+        ->token("operator", T::T_BOOLEAN_OR)
+        ->node("right", Expression::class, CompoundNode::CTX_READ)
+        ->constructor("left", "right")
+        ->invalidContexts(CompoundNode::CTX_WRITE|CompoundNode::CTX_ALIAS_READ|CompoundNode::CTX_ALIAS_WRITE),
 
     (new NodeDef(TernaryExpression::class))
-        ->withExtends(Expression::class)
-        ->withChild("test", Expression::class)
-        ->withToken("questionMark", TokenType::S_QUESTION_MARK)
-        ->withOptChild("then", Expression::class)
-        ->withToken("colon", TokenType::S_COLON)
-        ->withChild("else", Expression::class)
-        ->withConstructor("test", "then", "else"),
+        ->node("condition", Expression::class, CompoundNode::CTX_READ)
+        ->token("operator1", T::S_QUESTION_MARK)
+        ->optNode("if", Expression::class, CompoundNode::CTX_READ)
+        ->token("operator2", T::S_COLON)
+        ->node("else", Expression::class, CompoundNode::CTX_READ)
+        ->constructor("condition", "if", "else")
+        ->invalidContexts(CompoundNode::CTX_WRITE|CompoundNode::CTX_ALIAS_READ|CompoundNode::CTX_ALIAS_WRITE),
 
     (new NodeDef(UnaryMinusExpression::class))
-        ->withExtends(Expression::class)
-        ->withToken("symbol", TokenType::S_MINUS)
-        ->withChild("expression", Expression::class)
-        ->withConstructor("expression"),
+        ->token("operator", T::S_MINUS)
+        ->node("expression", Expression::class, CompoundNode::CTX_READ)
+        ->constructor("expression")
+        ->invalidContexts(CompoundNode::CTX_WRITE|CompoundNode::CTX_ALIAS_READ|CompoundNode::CTX_ALIAS_WRITE),
 
     (new NodeDef(UnaryPlusExpression::class))
-        ->withExtends(Expression::class)
-        ->withToken("symbol", TokenType::S_PLUS)
-        ->withChild("expression", Expression::class)
-        ->withConstructor("expression"),
+        ->token("operator", T::S_PLUS)
+        ->node("expression", Expression::class, CompoundNode::CTX_READ)
+        ->constructor("expression")
+        ->invalidContexts(CompoundNode::CTX_WRITE|CompoundNode::CTX_ALIAS_READ|CompoundNode::CTX_ALIAS_WRITE),
 
+    /** @see VariableExpression */
+    (new NodeDef(NormalVariableExpression::class))
+        ->token("token", T::T_VARIABLE)
+        ->constructor("token"),
     (new NodeDef(VariableVariableExpression::class))
-        ->withExtends(Variable::class)
-        ->withToken("dollar", TokenType::S_DOLLAR)
-        ->withOptToken("leftBrace", TokenType::S_LEFT_CURLY_BRACE)
-        ->withChild("name", Expression::class)
-        ->withOptToken("rightBrace", TokenType::S_RIGHT_CURLY_BRACE)
-        ->withConstructor("name"),
+        ->token("dollar", T::S_DOLLAR)
+        ->optToken("leftBrace", T::S_LEFT_CURLY_BRACE)
+        ->node("name", Expression::class, CompoundNode::CTX_READ)
+        ->optToken("rightBrace", T::S_RIGHT_CURLY_BRACE)
+        ->constructor("name"),
 
-    (new NodeDef(YieldExpression::class)) // TODO by ref
-        ->withExtends(Expression::class)
-        ->withToken("keyword", TokenType::T_YIELD)
-        ->withOptChild("key", Key::class)
-        ->withChild("expression", Expression::class)
-        ->withConstructor("expression"),
+    (new NodeDef(YieldExpression::class))
+        ->token("keyword", T::T_YIELD)
+        ->optNode("key", Key::class, CompoundNode::CTX_READ)
+        ->optNode("expression", Expression::class, CompoundNode::CTX_READ)
+        ->constructor("expression")
+        ->invalidContexts(CompoundNode::CTX_WRITE|CompoundNode::CTX_ALIAS_READ|CompoundNode::CTX_ALIAS_WRITE),
 
     (new NodeDef(YieldFromExpression::class))
-        ->withExtends(Expression::class)
-        ->withToken("keyword", TokenType::T_YIELD_FROM)
-        ->withChild("expression", Expression::class)
-        ->withConstructor("expression"),
+        ->token("keyword", T::T_YIELD_FROM)
+        ->node("expression", Expression::class, CompoundNode::CTX_READ)
+        ->constructor("expression")
+        ->invalidContexts(CompoundNode::CTX_WRITE|CompoundNode::CTX_ALIAS_READ|CompoundNode::CTX_ALIAS_WRITE),
 ];

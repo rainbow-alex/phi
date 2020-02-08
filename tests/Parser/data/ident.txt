@@ -1,0 +1,12 @@
+{"algo": "cycle"}
+
+// every time you use ident a different identifier is substituted (from left to right)
+// e.g. ident::ident()->ident --> foo::bar()->baz
+// this reduces the chances of false positives in assertions
+
+foo
+bar
+baz
+qux
+quux
+corge

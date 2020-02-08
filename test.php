@@ -1,12 +1,16 @@
 <?php
 
 use Phi\Exception\SyntaxException;
-use Phi\Nodes\InterpolatedString;
+use Phi\Nodes\Expressions\InterpolatedStringLiteral;
 use Phi\Parser;
 use Phi\PhpVersion;
 use Phi\Specifications\IsInstanceOf;
 
 require __DIR__ . '/vendor/autoload.php';
+
+eval("echo Parser::class;");
+
+die();
 
 $parser = new Parser(PhpVersion::PHP_7_2);
 
@@ -22,10 +26,10 @@ foreach (array_slice($argv, 1) as $arg)
         continue;
     }
 
-    foreach ($ast->findNodes(new IsInstanceOf(InterpolatedString::class)) as $node)
+    foreach ($ast->findNodes(new IsInstanceOf(InterpolatedStringLiteral::class)) as $node)
     {
         echo $arg . "\n";
-        /** @var InterpolatedString $node */
+        /** @var InterpolatedStringLiteral $node */
         $node->debugDump();
     }
 

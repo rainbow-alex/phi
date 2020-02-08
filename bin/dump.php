@@ -2,6 +2,7 @@
 <?php
 
 use Phi\Exception\PhiException;
+use Phi\Exception\ValidationException;
 use Phi\Parser;
 use Phi\PhpVersion;
 use Phi\Util\Console;
@@ -39,16 +40,31 @@ function dump(string $path, bool $recursive = false): void
         }
         catch (PhiException $e)
         {
-            echo Console::bold(Console::red($e->getMessageWithContext())) . "\n";
+            echo Console::bold(">>> $path") . "\n";
+            echo Console::bold(Console::yellow($e->getMessageWithContext())) . "\n";
+            sleep(1);
             return;
         }
         catch (\Throwable $e)
         {
+            echo Console::bold(">>> $path") . "\n";
             echo Console::bold(Console::red(get_class($e) . ': ' . $e->getMessage())) . "\n";
+            sleep(1);
             return;
         }
 
-        $ast->debugDump();
-        $ast->validate();
+        try
+        {
+            $ast->validate();
+        }
+        catch (ValidationException $e)
+        {
+            echo Console::bold(">>> $path") . "\n";
+            echo Console::bold(Console::yellow($e->getMessageWithContext())) . "\n";
+            sleep(1);
+            return;
+        }
+
+//        $ast->debugDump();
     }
 }

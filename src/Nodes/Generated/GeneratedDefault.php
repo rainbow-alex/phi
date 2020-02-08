@@ -1,32 +1,34 @@
 <?php
 
+declare(strict_types=1);
+
+/**
+ * This code is generated.
+ * @see meta/
+ */
+
 namespace Phi\Nodes\Generated;
 
 use Phi\Node;
 use Phi\Token;
-use Phi\Nodes\Base\CompoundNode;
-use Phi\Nodes\Base\NodesList;
-use Phi\Nodes\Base\SeparatedNodesList;
-use Phi\Exception\MissingNodeException;
-use Phi\NodeConverter;
+use Phi\Exception\TreeException;
+use Phi\NodeCoercer;
 use Phi\Exception\ValidationException;
-use Phi\Nodes as Nodes;
 
-abstract class GeneratedDefault extends CompoundNode
+trait GeneratedDefault
 {
     /**
-     * @var Token|null
+     * @var \Phi\Token|null
      */
-    private $symbol;
+    private $equals;
 
     /**
-     * @var Nodes\Expression|null
+     * @var \Phi\Nodes\Expression|null
      */
     private $value;
 
-
     /**
-     * @param Nodes\Expression|Node|string|null $value
+     * @param \Phi\Nodes\Expression|\Phi\Node|string|null $value
      */
     public function __construct($value = null)
     {
@@ -37,69 +39,79 @@ abstract class GeneratedDefault extends CompoundNode
     }
 
     /**
-     * @param int $phpVersion
-     * @param Token $symbol
-     * @param Nodes\Expression $value
-     * @return static
+     * @param \Phi\Token $equals
+     * @param \Phi\Nodes\Expression $value
+     * @return self
      */
-    public static function __instantiateUnchecked($phpVersion, $symbol, $value)
+    public static function __instantiateUnchecked($equals, $value)
     {
-        $instance = new static;
-        $instance->phpVersion = $phpVersion;
-        $instance->symbol = $symbol;
-        $symbol->parent = $instance;
+        $instance = new self;
+        $instance->equals = $equals;
+        $equals->parent = $instance;
         $instance->value = $value;
         $value->parent = $instance;
         return $instance;
     }
 
-    protected function &_getNodeRefs(): array
+    public function getChildNodes(): array
     {
-        $refs = [
-            "symbol" => &$this->symbol,
-            "value" => &$this->value,
-        ];
-        return $refs;
+        return \array_values(\array_filter([
+            $this->equals,
+            $this->value,
+        ]));
     }
 
-    public function getSymbol(): Token
+    protected function &getChildRef(Node $childToDetach): Node
     {
-        if ($this->symbol === null)
+        if ($this->equals === $childToDetach)
         {
-            throw new MissingNodeException($this, __FUNCTION__);
+            return $this->equals;
         }
-        return $this->symbol;
+        if ($this->value === $childToDetach)
+        {
+            return $this->value;
+        }
+        throw new \LogicException();
     }
 
-    public function hasSymbol(): bool
+    public function getEquals(): \Phi\Token
     {
-        return $this->symbol !== null;
+        if ($this->equals === null)
+        {
+            throw TreeException::missingNode($this, "equals");
+        }
+        return $this->equals;
+    }
+
+    public function hasEquals(): bool
+    {
+        return $this->equals !== null;
     }
 
     /**
-     * @param Token|Node|string|null $symbol
+     * @param \Phi\Token|\Phi\Node|string|null $equals
      */
-    public function setSymbol($symbol): void
+    public function setEquals($equals): void
     {
-        if ($symbol !== null)
+        if ($equals !== null)
         {
-            /** @var Token $symbol */
-            $symbol = NodeConverter::convert($symbol, Token::class, $this->phpVersion);
-            $symbol->detach();
-            $symbol->parent = $this;
+            /** @var \Phi\Token $equals */
+            $equals = NodeCoercer::coerce($equals, \Phi\Token::class, $this->getPhpVersion());
+            $equals->detach();
+            $equals->parent = $this;
         }
-        if ($this->symbol !== null)
+        if ($this->equals !== null)
         {
-            $this->symbol->detach();
+            $this->equals->detach();
         }
-        $this->symbol = $symbol;
+        $this->equals = $equals;
     }
 
-    public function getValue(): Nodes\Expression
+    public function getValue(): \Phi\Nodes\Expression
     {
         if ($this->value === null)
         {
-            throw new MissingNodeException($this, __FUNCTION__);
+            throw TreeException::missingNode($this, "value");
         }
         return $this->value;
     }
@@ -110,14 +122,14 @@ abstract class GeneratedDefault extends CompoundNode
     }
 
     /**
-     * @param Nodes\Expression|Node|string|null $value
+     * @param \Phi\Nodes\Expression|\Phi\Node|string|null $value
      */
     public function setValue($value): void
     {
         if ($value !== null)
         {
-            /** @var Nodes\Expression $value */
-            $value = NodeConverter::convert($value, Nodes\Expression::class, $this->phpVersion);
+            /** @var \Phi\Nodes\Expression $value */
+            $value = NodeCoercer::coerce($value, \Phi\Nodes\Expression::class, $this->getPhpVersion());
             $value->detach();
             $value->parent = $this;
         }
@@ -128,19 +140,26 @@ abstract class GeneratedDefault extends CompoundNode
         $this->value = $value;
     }
 
-    protected function _validate(int $flags): void
+    public function _validate(int $flags): void
     {
-        if ($this->symbol === null) throw ValidationException::childRequired($this, "symbol");
-        if ($this->value === null) throw ValidationException::childRequired($this, "value");
-        if ($flags & self::VALIDATE_TYPES)
-        {
-        }
-        if ($flags & self::VALIDATE_EXPRESSION_CONTEXT)
-        {
-        }
-        if ($flags & self::VALIDATE_TOKENS)
-        {
-        }
-        $this->value->_validate($flags);
+        if ($this->equals === null)
+            throw ValidationException::missingChild($this, "equals");
+        if ($this->value === null)
+            throw ValidationException::missingChild($this, "value");
+        if ($this->equals->getType() !== 116)
+            throw ValidationException::invalidSyntax($this->equals, [116]);
+
+
+        $this->extraValidation($flags);
+
+        $this->value->_validate(1);
+    }
+
+    public function _autocorrect(): void
+    {
+        if ($this->value)
+            $this->value->_autocorrect();
+
+        $this->extraAutocorrect();
     }
 }

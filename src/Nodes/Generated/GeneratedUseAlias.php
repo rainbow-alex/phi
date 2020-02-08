@@ -1,29 +1,31 @@
 <?php
 
+declare(strict_types=1);
+
+/**
+ * This code is generated.
+ * @see meta/
+ */
+
 namespace Phi\Nodes\Generated;
 
 use Phi\Node;
 use Phi\Token;
-use Phi\Nodes\Base\CompoundNode;
-use Phi\Nodes\Base\NodesList;
-use Phi\Nodes\Base\SeparatedNodesList;
-use Phi\Exception\MissingNodeException;
-use Phi\NodeConverter;
+use Phi\Exception\TreeException;
+use Phi\NodeCoercer;
 use Phi\Exception\ValidationException;
-use Phi\Nodes as Nodes;
 
-abstract class GeneratedUseAlias extends CompoundNode
+trait GeneratedUseAlias
 {
     /**
-     * @var Token|null
+     * @var \Phi\Token|null
      */
     private $keyword;
 
     /**
-     * @var Token|null
+     * @var \Phi\Token|null
      */
     private $name;
-
 
     /**
      */
@@ -32,15 +34,13 @@ abstract class GeneratedUseAlias extends CompoundNode
     }
 
     /**
-     * @param int $phpVersion
-     * @param Token $keyword
-     * @param Token $name
-     * @return static
+     * @param \Phi\Token $keyword
+     * @param \Phi\Token $name
+     * @return self
      */
-    public static function __instantiateUnchecked($phpVersion, $keyword, $name)
+    public static function __instantiateUnchecked($keyword, $name)
     {
-        $instance = new static;
-        $instance->phpVersion = $phpVersion;
+        $instance = new self;
         $instance->keyword = $keyword;
         $keyword->parent = $instance;
         $instance->name = $name;
@@ -48,20 +48,32 @@ abstract class GeneratedUseAlias extends CompoundNode
         return $instance;
     }
 
-    protected function &_getNodeRefs(): array
+    public function getChildNodes(): array
     {
-        $refs = [
-            "keyword" => &$this->keyword,
-            "name" => &$this->name,
-        ];
-        return $refs;
+        return \array_values(\array_filter([
+            $this->keyword,
+            $this->name,
+        ]));
     }
 
-    public function getKeyword(): Token
+    protected function &getChildRef(Node $childToDetach): Node
+    {
+        if ($this->keyword === $childToDetach)
+        {
+            return $this->keyword;
+        }
+        if ($this->name === $childToDetach)
+        {
+            return $this->name;
+        }
+        throw new \LogicException();
+    }
+
+    public function getKeyword(): \Phi\Token
     {
         if ($this->keyword === null)
         {
-            throw new MissingNodeException($this, __FUNCTION__);
+            throw TreeException::missingNode($this, "keyword");
         }
         return $this->keyword;
     }
@@ -72,14 +84,14 @@ abstract class GeneratedUseAlias extends CompoundNode
     }
 
     /**
-     * @param Token|Node|string|null $keyword
+     * @param \Phi\Token|\Phi\Node|string|null $keyword
      */
     public function setKeyword($keyword): void
     {
         if ($keyword !== null)
         {
-            /** @var Token $keyword */
-            $keyword = NodeConverter::convert($keyword, Token::class, $this->phpVersion);
+            /** @var \Phi\Token $keyword */
+            $keyword = NodeCoercer::coerce($keyword, \Phi\Token::class, $this->getPhpVersion());
             $keyword->detach();
             $keyword->parent = $this;
         }
@@ -90,11 +102,11 @@ abstract class GeneratedUseAlias extends CompoundNode
         $this->keyword = $keyword;
     }
 
-    public function getName(): Token
+    public function getName(): \Phi\Token
     {
         if ($this->name === null)
         {
-            throw new MissingNodeException($this, __FUNCTION__);
+            throw TreeException::missingNode($this, "name");
         }
         return $this->name;
     }
@@ -105,14 +117,14 @@ abstract class GeneratedUseAlias extends CompoundNode
     }
 
     /**
-     * @param Token|Node|string|null $name
+     * @param \Phi\Token|\Phi\Node|string|null $name
      */
     public function setName($name): void
     {
         if ($name !== null)
         {
-            /** @var Token $name */
-            $name = NodeConverter::convert($name, Token::class, $this->phpVersion);
+            /** @var \Phi\Token $name */
+            $name = NodeCoercer::coerce($name, \Phi\Token::class, $this->getPhpVersion());
             $name->detach();
             $name->parent = $this;
         }
@@ -123,18 +135,25 @@ abstract class GeneratedUseAlias extends CompoundNode
         $this->name = $name;
     }
 
-    protected function _validate(int $flags): void
+    public function _validate(int $flags): void
     {
-        if ($this->keyword === null) throw ValidationException::childRequired($this, "keyword");
-        if ($this->name === null) throw ValidationException::childRequired($this, "name");
-        if ($flags & self::VALIDATE_TYPES)
-        {
-        }
-        if ($flags & self::VALIDATE_EXPRESSION_CONTEXT)
-        {
-        }
-        if ($flags & self::VALIDATE_TOKENS)
-        {
-        }
+        if ($this->keyword === null)
+            throw ValidationException::missingChild($this, "keyword");
+        if ($this->name === null)
+            throw ValidationException::missingChild($this, "name");
+        if ($this->keyword->getType() !== 132)
+            throw ValidationException::invalidSyntax($this->keyword, [132]);
+        if ($this->name->getType() !== 243)
+            throw ValidationException::invalidSyntax($this->name, [243]);
+
+
+        $this->extraValidation($flags);
+
+    }
+
+    public function _autocorrect(): void
+    {
+
+        $this->extraAutocorrect();
     }
 }

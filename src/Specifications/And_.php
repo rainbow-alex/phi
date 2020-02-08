@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Phi\Specifications;
 
 use Phi\Node;
@@ -26,23 +28,5 @@ class And_ extends Specification
         }
 
         return true;
-    }
-
-    public function validate(Node $node): void
-    {
-        foreach ($this->specifications as $specification)
-        {
-            $specification->validate($node);
-        }
-    }
-
-    public function autocorrect(?Node $node): ?Node
-    {
-        foreach ($this->specifications as $specification)
-        {
-            $node = $specification->autocorrect($node);
-        }
-
-        return $node;
     }
 }

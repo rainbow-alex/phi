@@ -6,24 +6,22 @@ parameters:
     paths:
         - ./src
     ignoreErrors:
-        - '{Only booleans are allowed in .+}'
-        - '{Call to function assert\(\) with .* will always evaluate to true.}'
-        -
-            # phpstan gets tons wrong here, mostly because read changes the return value of peek()
+        # i'm ok with non-booleans in conditions
+        - '{^Only booleans are allowed in .+}'
+        # assertions can be redundant
+        - '{^Call to function assert\(\) with .* will always evaluate to true\.$}'
+        # runtime checks of generics
+        - '{^Instanceof between T .+ will always evaluate to true\.$}'
+
+        - # phpstan gets tons wrong here, mostly because read changes the return value of peek()
             path: src/Parser.src.php
             message: '{is unreachable|will always evaluate|always terminates|is always (true|false)}'
-        -
-            # seems to be a phpstan bug
+        - # seems to be a phpstan bug
             path: src/Parser.src.php
             message: '{Switch condition type \(162\) does not match case condition .* \(int\).$}'
+        - # we know this null check is safe, phpstan can't
+            path: src/Nodes/Generated/
+            message: '{^Cannot call method _validate\(\) on .+\|null\.$}'
         -
             path: src/_optimized/
             message: '{}'
-        -
-             # TODO fix?
-            path: src/Nodes/Generated/
-            message: '{^Unsafe usage of new static\(\).$}'
-        -
-            # TODO figure out how to annotate this
-            message: '{does not accept .*NodesList}'
-            path: src/Nodes/Generated/

@@ -1,271 +1,237 @@
 <?php
 
+declare(strict_types=1);
+
+/**
+ * This code is generated.
+ * @see meta/
+ */
+
 namespace Phi\Nodes\Generated;
 
 use Phi\Node;
 use Phi\Token;
-use Phi\Nodes\Base\CompoundNode;
-use Phi\Nodes\Base\NodesList;
-use Phi\Nodes\Base\SeparatedNodesList;
-use Phi\Exception\MissingNodeException;
-use Phi\NodeConverter;
+use Phi\Exception\TreeException;
+use Phi\NodeCoercer;
 use Phi\Exception\ValidationException;
-use Phi\Nodes as Nodes;
 
-abstract class GeneratedTraitUseInsteadof extends Nodes\TraitUseModification
+trait GeneratedTraitUseInsteadof
 {
     /**
-     * @var Nodes\Name|null
+     * @var \Phi\Nodes\Oop\TraitMethodRef|null
      */
-    private $trait;
+    private $method;
 
     /**
-     * @var Token|null
+     * @var \Phi\Token|null
      */
-    private $doubleColon;
+    private $keyword;
 
     /**
-     * @var Token|null
-     */
-    private $member;
-
-    /**
-     * @var Token|null
-     */
-    private $insteadof;
-
-    /**
-     * @var Nodes\Name|null
+     * @var \Phi\Nodes\Base\SeparatedNodesList|\Phi\Nodes\Helpers\Name[]
+     * @phpstan-var \Phi\Nodes\Base\SeparatedNodesList<\Phi\Nodes\Helpers\Name>
      */
     private $excluded;
 
+    /**
+     * @var \Phi\Token|null
+     */
+    private $semiColon;
 
     /**
      */
     public function __construct()
     {
+        $this->excluded = new \Phi\Nodes\Base\SeparatedNodesList(\Phi\Nodes\Helpers\Name::class);
     }
 
     /**
-     * @param int $phpVersion
-     * @param Nodes\Name $trait
-     * @param Token $doubleColon
-     * @param Token $member
-     * @param Token $insteadof
-     * @param Nodes\Name $excluded
-     * @return static
+     * @param \Phi\Nodes\Oop\TraitMethodRef $method
+     * @param \Phi\Token $keyword
+     * @param mixed[] $excluded
+     * @param \Phi\Token $semiColon
+     * @return self
      */
-    public static function __instantiateUnchecked($phpVersion, $trait, $doubleColon, $member, $insteadof, $excluded)
+    public static function __instantiateUnchecked($method, $keyword, $excluded, $semiColon)
     {
-        $instance = new static;
-        $instance->phpVersion = $phpVersion;
-        $instance->trait = $trait;
-        $trait->parent = $instance;
-        $instance->doubleColon = $doubleColon;
-        $doubleColon->parent = $instance;
-        $instance->member = $member;
-        $member->parent = $instance;
-        $instance->insteadof = $insteadof;
-        $insteadof->parent = $instance;
-        $instance->excluded = $excluded;
-        $excluded->parent = $instance;
+        $instance = new self;
+        $instance->method = $method;
+        $method->parent = $instance;
+        $instance->keyword = $keyword;
+        $keyword->parent = $instance;
+        $instance->excluded->__initUnchecked($excluded);
+        $instance->excluded->parent = $instance;
+        $instance->semiColon = $semiColon;
+        $semiColon->parent = $instance;
         return $instance;
     }
 
-    protected function &_getNodeRefs(): array
+    public function getChildNodes(): array
     {
-        $refs = [
-            "trait" => &$this->trait,
-            "doubleColon" => &$this->doubleColon,
-            "member" => &$this->member,
-            "insteadof" => &$this->insteadof,
-            "excluded" => &$this->excluded,
-        ];
-        return $refs;
+        return \array_values(\array_filter([
+            $this->method,
+            $this->keyword,
+            $this->excluded,
+            $this->semiColon,
+        ]));
     }
 
-    public function getTrait(): Nodes\Name
+    protected function &getChildRef(Node $childToDetach): Node
     {
-        if ($this->trait === null)
+        if ($this->method === $childToDetach)
         {
-            throw new MissingNodeException($this, __FUNCTION__);
+            return $this->method;
         }
-        return $this->trait;
-    }
-
-    public function hasTrait(): bool
-    {
-        return $this->trait !== null;
-    }
-
-    /**
-     * @param Nodes\Name|Node|string|null $trait
-     */
-    public function setTrait($trait): void
-    {
-        if ($trait !== null)
+        if ($this->keyword === $childToDetach)
         {
-            /** @var Nodes\Name $trait */
-            $trait = NodeConverter::convert($trait, Nodes\Name::class, $this->phpVersion);
-            $trait->detach();
-            $trait->parent = $this;
+            return $this->keyword;
         }
-        if ($this->trait !== null)
+        if ($this->semiColon === $childToDetach)
         {
-            $this->trait->detach();
+            return $this->semiColon;
         }
-        $this->trait = $trait;
+        throw new \LogicException();
     }
 
-    public function getDoubleColon(): Token
+    public function getMethod(): \Phi\Nodes\Oop\TraitMethodRef
     {
-        if ($this->doubleColon === null)
+        if ($this->method === null)
         {
-            throw new MissingNodeException($this, __FUNCTION__);
+            throw TreeException::missingNode($this, "method");
         }
-        return $this->doubleColon;
+        return $this->method;
     }
 
-    public function hasDoubleColon(): bool
+    public function hasMethod(): bool
     {
-        return $this->doubleColon !== null;
+        return $this->method !== null;
     }
 
     /**
-     * @param Token|Node|string|null $doubleColon
+     * @param \Phi\Nodes\Oop\TraitMethodRef|\Phi\Node|string|null $method
      */
-    public function setDoubleColon($doubleColon): void
+    public function setMethod($method): void
     {
-        if ($doubleColon !== null)
+        if ($method !== null)
         {
-            /** @var Token $doubleColon */
-            $doubleColon = NodeConverter::convert($doubleColon, Token::class, $this->phpVersion);
-            $doubleColon->detach();
-            $doubleColon->parent = $this;
+            /** @var \Phi\Nodes\Oop\TraitMethodRef $method */
+            $method = NodeCoercer::coerce($method, \Phi\Nodes\Oop\TraitMethodRef::class, $this->getPhpVersion());
+            $method->detach();
+            $method->parent = $this;
         }
-        if ($this->doubleColon !== null)
+        if ($this->method !== null)
         {
-            $this->doubleColon->detach();
+            $this->method->detach();
         }
-        $this->doubleColon = $doubleColon;
+        $this->method = $method;
     }
 
-    public function getMember(): Token
+    public function getKeyword(): \Phi\Token
     {
-        if ($this->member === null)
+        if ($this->keyword === null)
         {
-            throw new MissingNodeException($this, __FUNCTION__);
+            throw TreeException::missingNode($this, "keyword");
         }
-        return $this->member;
+        return $this->keyword;
     }
 
-    public function hasMember(): bool
+    public function hasKeyword(): bool
     {
-        return $this->member !== null;
+        return $this->keyword !== null;
     }
 
     /**
-     * @param Token|Node|string|null $member
+     * @param \Phi\Token|\Phi\Node|string|null $keyword
      */
-    public function setMember($member): void
+    public function setKeyword($keyword): void
     {
-        if ($member !== null)
+        if ($keyword !== null)
         {
-            /** @var Token $member */
-            $member = NodeConverter::convert($member, Token::class, $this->phpVersion);
-            $member->detach();
-            $member->parent = $this;
+            /** @var \Phi\Token $keyword */
+            $keyword = NodeCoercer::coerce($keyword, \Phi\Token::class, $this->getPhpVersion());
+            $keyword->detach();
+            $keyword->parent = $this;
         }
-        if ($this->member !== null)
+        if ($this->keyword !== null)
         {
-            $this->member->detach();
+            $this->keyword->detach();
         }
-        $this->member = $member;
-    }
-
-    public function getInsteadof(): Token
-    {
-        if ($this->insteadof === null)
-        {
-            throw new MissingNodeException($this, __FUNCTION__);
-        }
-        return $this->insteadof;
-    }
-
-    public function hasInsteadof(): bool
-    {
-        return $this->insteadof !== null;
+        $this->keyword = $keyword;
     }
 
     /**
-     * @param Token|Node|string|null $insteadof
+     * @return \Phi\Nodes\Base\SeparatedNodesList|\Phi\Nodes\Helpers\Name[]
+     * @phpstan-return \Phi\Nodes\Base\SeparatedNodesList<\Phi\Nodes\Helpers\Name>
      */
-    public function setInsteadof($insteadof): void
+    public function getExcluded(): \Phi\Nodes\Base\SeparatedNodesList
     {
-        if ($insteadof !== null)
-        {
-            /** @var Token $insteadof */
-            $insteadof = NodeConverter::convert($insteadof, Token::class, $this->phpVersion);
-            $insteadof->detach();
-            $insteadof->parent = $this;
-        }
-        if ($this->insteadof !== null)
-        {
-            $this->insteadof->detach();
-        }
-        $this->insteadof = $insteadof;
-    }
-
-    public function getExcluded(): Nodes\Name
-    {
-        if ($this->excluded === null)
-        {
-            throw new MissingNodeException($this, __FUNCTION__);
-        }
         return $this->excluded;
     }
 
-    public function hasExcluded(): bool
+    public function getSemiColon(): \Phi\Token
     {
-        return $this->excluded !== null;
+        if ($this->semiColon === null)
+        {
+            throw TreeException::missingNode($this, "semiColon");
+        }
+        return $this->semiColon;
+    }
+
+    public function hasSemiColon(): bool
+    {
+        return $this->semiColon !== null;
     }
 
     /**
-     * @param Nodes\Name|Node|string|null $excluded
+     * @param \Phi\Token|\Phi\Node|string|null $semiColon
      */
-    public function setExcluded($excluded): void
+    public function setSemiColon($semiColon): void
     {
-        if ($excluded !== null)
+        if ($semiColon !== null)
         {
-            /** @var Nodes\Name $excluded */
-            $excluded = NodeConverter::convert($excluded, Nodes\Name::class, $this->phpVersion);
-            $excluded->detach();
-            $excluded->parent = $this;
+            /** @var \Phi\Token $semiColon */
+            $semiColon = NodeCoercer::coerce($semiColon, \Phi\Token::class, $this->getPhpVersion());
+            $semiColon->detach();
+            $semiColon->parent = $this;
         }
-        if ($this->excluded !== null)
+        if ($this->semiColon !== null)
         {
-            $this->excluded->detach();
+            $this->semiColon->detach();
         }
-        $this->excluded = $excluded;
+        $this->semiColon = $semiColon;
     }
 
-    protected function _validate(int $flags): void
+    public function _validate(int $flags): void
     {
-        if ($this->trait === null) throw ValidationException::childRequired($this, "trait");
-        if ($this->doubleColon === null) throw ValidationException::childRequired($this, "doubleColon");
-        if ($this->member === null) throw ValidationException::childRequired($this, "member");
-        if ($this->insteadof === null) throw ValidationException::childRequired($this, "insteadof");
-        if ($this->excluded === null) throw ValidationException::childRequired($this, "excluded");
-        if ($flags & self::VALIDATE_TYPES)
-        {
-        }
-        if ($flags & self::VALIDATE_EXPRESSION_CONTEXT)
-        {
-        }
-        if ($flags & self::VALIDATE_TOKENS)
-        {
-        }
-        $this->trait->_validate($flags);
-        $this->excluded->_validate($flags);
+        if ($this->method === null)
+            throw ValidationException::missingChild($this, "method");
+        if ($this->keyword === null)
+            throw ValidationException::missingChild($this, "keyword");
+        if ($this->semiColon === null)
+            throw ValidationException::missingChild($this, "semiColon");
+        if ($this->keyword->getType() !== 196)
+            throw ValidationException::invalidSyntax($this->keyword, [196]);
+        foreach ($this->excluded->getSeparators() as $t)
+            if ($t && $t->getType() !== 109)
+                throw ValidationException::invalidSyntax($t, [109]);
+        if ($this->semiColon->getType() !== 114)
+            throw ValidationException::invalidSyntax($this->semiColon, [114]);
+
+
+        $this->extraValidation($flags);
+
+        $this->method->_validate(0);
+        foreach ($this->excluded as $t)
+            $t->_validate(0);
+    }
+
+    public function _autocorrect(): void
+    {
+        if ($this->method)
+            $this->method->_autocorrect();
+        foreach ($this->excluded as $t)
+            $t->_autocorrect();
+
+        $this->extraAutocorrect();
     }
 }

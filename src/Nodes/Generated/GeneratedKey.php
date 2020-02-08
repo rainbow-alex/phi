@@ -1,105 +1,117 @@
 <?php
 
+declare(strict_types=1);
+
+/**
+ * This code is generated.
+ * @see meta/
+ */
+
 namespace Phi\Nodes\Generated;
 
 use Phi\Node;
 use Phi\Token;
-use Phi\Nodes\Base\CompoundNode;
-use Phi\Nodes\Base\NodesList;
-use Phi\Nodes\Base\SeparatedNodesList;
-use Phi\Exception\MissingNodeException;
-use Phi\NodeConverter;
+use Phi\Exception\TreeException;
+use Phi\NodeCoercer;
 use Phi\Exception\ValidationException;
-use Phi\Nodes as Nodes;
 
-abstract class GeneratedKey extends CompoundNode
+trait GeneratedKey
 {
     /**
-     * @var Nodes\Expression|null
+     * @var \Phi\Nodes\Expression|null
      */
-    private $value;
+    private $expression;
 
     /**
-     * @var Token|null
+     * @var \Phi\Token|null
      */
     private $arrow;
 
-
     /**
-     * @param Nodes\Expression|Node|string|null $value
+     * @param \Phi\Nodes\Expression|\Phi\Node|string|null $expression
      */
-    public function __construct($value = null)
+    public function __construct($expression = null)
     {
-        if ($value !== null)
+        if ($expression !== null)
         {
-            $this->setValue($value);
+            $this->setExpression($expression);
         }
     }
 
     /**
-     * @param int $phpVersion
-     * @param Nodes\Expression $value
-     * @param Token $arrow
-     * @return static
+     * @param \Phi\Nodes\Expression $expression
+     * @param \Phi\Token $arrow
+     * @return self
      */
-    public static function __instantiateUnchecked($phpVersion, $value, $arrow)
+    public static function __instantiateUnchecked($expression, $arrow)
     {
-        $instance = new static;
-        $instance->phpVersion = $phpVersion;
-        $instance->value = $value;
-        $value->parent = $instance;
+        $instance = new self;
+        $instance->expression = $expression;
+        $expression->parent = $instance;
         $instance->arrow = $arrow;
         $arrow->parent = $instance;
         return $instance;
     }
 
-    protected function &_getNodeRefs(): array
+    public function getChildNodes(): array
     {
-        $refs = [
-            "value" => &$this->value,
-            "arrow" => &$this->arrow,
-        ];
-        return $refs;
+        return \array_values(\array_filter([
+            $this->expression,
+            $this->arrow,
+        ]));
     }
 
-    public function getValue(): Nodes\Expression
+    protected function &getChildRef(Node $childToDetach): Node
     {
-        if ($this->value === null)
+        if ($this->expression === $childToDetach)
         {
-            throw new MissingNodeException($this, __FUNCTION__);
+            return $this->expression;
         }
-        return $this->value;
+        if ($this->arrow === $childToDetach)
+        {
+            return $this->arrow;
+        }
+        throw new \LogicException();
     }
 
-    public function hasValue(): bool
+    public function getExpression(): \Phi\Nodes\Expression
     {
-        return $this->value !== null;
+        if ($this->expression === null)
+        {
+            throw TreeException::missingNode($this, "expression");
+        }
+        return $this->expression;
+    }
+
+    public function hasExpression(): bool
+    {
+        return $this->expression !== null;
     }
 
     /**
-     * @param Nodes\Expression|Node|string|null $value
+     * @param \Phi\Nodes\Expression|\Phi\Node|string|null $expression
      */
-    public function setValue($value): void
+    public function setExpression($expression): void
     {
-        if ($value !== null)
+        if ($expression !== null)
         {
-            /** @var Nodes\Expression $value */
-            $value = NodeConverter::convert($value, Nodes\Expression::class, $this->phpVersion);
-            $value->detach();
-            $value->parent = $this;
+            /** @var \Phi\Nodes\Expression $expression */
+            $expression = NodeCoercer::coerce($expression, \Phi\Nodes\Expression::class, $this->getPhpVersion());
+            $expression->detach();
+            $expression->parent = $this;
         }
-        if ($this->value !== null)
+        if ($this->expression !== null)
         {
-            $this->value->detach();
+            $this->expression->detach();
         }
-        $this->value = $value;
+        $this->expression = $expression;
     }
 
-    public function getArrow(): Token
+    public function getArrow(): \Phi\Token
     {
         if ($this->arrow === null)
         {
-            throw new MissingNodeException($this, __FUNCTION__);
+            throw TreeException::missingNode($this, "arrow");
         }
         return $this->arrow;
     }
@@ -110,14 +122,14 @@ abstract class GeneratedKey extends CompoundNode
     }
 
     /**
-     * @param Token|Node|string|null $arrow
+     * @param \Phi\Token|\Phi\Node|string|null $arrow
      */
     public function setArrow($arrow): void
     {
         if ($arrow !== null)
         {
-            /** @var Token $arrow */
-            $arrow = NodeConverter::convert($arrow, Token::class, $this->phpVersion);
+            /** @var \Phi\Token $arrow */
+            $arrow = NodeCoercer::coerce($arrow, \Phi\Token::class, $this->getPhpVersion());
             $arrow->detach();
             $arrow->parent = $this;
         }
@@ -128,19 +140,26 @@ abstract class GeneratedKey extends CompoundNode
         $this->arrow = $arrow;
     }
 
-    protected function _validate(int $flags): void
+    public function _validate(int $flags): void
     {
-        if ($this->value === null) throw ValidationException::childRequired($this, "value");
-        if ($this->arrow === null) throw ValidationException::childRequired($this, "arrow");
-        if ($flags & self::VALIDATE_TYPES)
-        {
-        }
-        if ($flags & self::VALIDATE_EXPRESSION_CONTEXT)
-        {
-        }
-        if ($flags & self::VALIDATE_TOKENS)
-        {
-        }
-        $this->value->_validate($flags);
+        if ($this->expression === null)
+            throw ValidationException::missingChild($this, "expression");
+        if ($this->arrow === null)
+            throw ValidationException::missingChild($this, "arrow");
+        if ($this->arrow->getType() !== 160)
+            throw ValidationException::invalidSyntax($this->arrow, [160]);
+
+
+        $this->extraValidation($flags);
+
+        $this->expression->_validate($flags);
+    }
+
+    public function _autocorrect(): void
+    {
+        if ($this->expression)
+            $this->expression->_autocorrect();
+
+        $this->extraAutocorrect();
     }
 }

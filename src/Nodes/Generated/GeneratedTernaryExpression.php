@@ -1,59 +1,61 @@
 <?php
 
+declare(strict_types=1);
+
+/**
+ * This code is generated.
+ * @see meta/
+ */
+
 namespace Phi\Nodes\Generated;
 
 use Phi\Node;
 use Phi\Token;
-use Phi\Nodes\Base\CompoundNode;
-use Phi\Nodes\Base\NodesList;
-use Phi\Nodes\Base\SeparatedNodesList;
-use Phi\Exception\MissingNodeException;
-use Phi\NodeConverter;
+use Phi\Exception\TreeException;
+use Phi\NodeCoercer;
 use Phi\Exception\ValidationException;
-use Phi\Nodes as Nodes;
 
-abstract class GeneratedTernaryExpression extends Nodes\Expression
+trait GeneratedTernaryExpression
 {
     /**
-     * @var Nodes\Expression|null
+     * @var \Phi\Nodes\Expression|null
      */
-    private $test;
+    private $condition;
 
     /**
-     * @var Token|null
+     * @var \Phi\Token|null
      */
-    private $questionMark;
+    private $operator1;
 
     /**
-     * @var Nodes\Expression|null
+     * @var \Phi\Nodes\Expression|null
      */
-    private $then;
+    private $if;
 
     /**
-     * @var Token|null
+     * @var \Phi\Token|null
      */
-    private $colon;
+    private $operator2;
 
     /**
-     * @var Nodes\Expression|null
+     * @var \Phi\Nodes\Expression|null
      */
     private $else;
 
-
     /**
-     * @param Nodes\Expression|Node|string|null $test
-     * @param Nodes\Expression|Node|string|null $then
-     * @param Nodes\Expression|Node|string|null $else
+     * @param \Phi\Nodes\Expression|\Phi\Node|string|null $condition
+     * @param \Phi\Nodes\Expression|\Phi\Node|string|null $if
+     * @param \Phi\Nodes\Expression|\Phi\Node|string|null $else
      */
-    public function __construct($test = null, $then = null, $else = null)
+    public function __construct($condition = null, $if = null, $else = null)
     {
-        if ($test !== null)
+        if ($condition !== null)
         {
-            $this->setTest($test);
+            $this->setCondition($condition);
         }
-        if ($then !== null)
+        if ($if !== null)
         {
-            $this->setThen($then);
+            $this->setIf($if);
         }
         if ($else !== null)
         {
@@ -62,176 +64,198 @@ abstract class GeneratedTernaryExpression extends Nodes\Expression
     }
 
     /**
-     * @param int $phpVersion
-     * @param Nodes\Expression $test
-     * @param Token $questionMark
-     * @param Nodes\Expression|null $then
-     * @param Token $colon
-     * @param Nodes\Expression $else
-     * @return static
+     * @param \Phi\Nodes\Expression $condition
+     * @param \Phi\Token $operator1
+     * @param \Phi\Nodes\Expression|null $if
+     * @param \Phi\Token $operator2
+     * @param \Phi\Nodes\Expression $else
+     * @return self
      */
-    public static function __instantiateUnchecked($phpVersion, $test, $questionMark, $then, $colon, $else)
+    public static function __instantiateUnchecked($condition, $operator1, $if, $operator2, $else)
     {
-        $instance = new static;
-        $instance->phpVersion = $phpVersion;
-        $instance->test = $test;
-        $test->parent = $instance;
-        $instance->questionMark = $questionMark;
-        $questionMark->parent = $instance;
-        $instance->then = $then;
-        if ($then) $then->parent = $instance;
-        $instance->colon = $colon;
-        $colon->parent = $instance;
+        $instance = new self;
+        $instance->condition = $condition;
+        $condition->parent = $instance;
+        $instance->operator1 = $operator1;
+        $operator1->parent = $instance;
+        $instance->if = $if;
+        if ($if) $if->parent = $instance;
+        $instance->operator2 = $operator2;
+        $operator2->parent = $instance;
         $instance->else = $else;
         $else->parent = $instance;
         return $instance;
     }
 
-    protected function &_getNodeRefs(): array
+    public function getChildNodes(): array
     {
-        $refs = [
-            "test" => &$this->test,
-            "questionMark" => &$this->questionMark,
-            "then" => &$this->then,
-            "colon" => &$this->colon,
-            "else" => &$this->else,
-        ];
-        return $refs;
+        return \array_values(\array_filter([
+            $this->condition,
+            $this->operator1,
+            $this->if,
+            $this->operator2,
+            $this->else,
+        ]));
     }
 
-    public function getTest(): Nodes\Expression
+    protected function &getChildRef(Node $childToDetach): Node
     {
-        if ($this->test === null)
+        if ($this->condition === $childToDetach)
         {
-            throw new MissingNodeException($this, __FUNCTION__);
+            return $this->condition;
         }
-        return $this->test;
+        if ($this->operator1 === $childToDetach)
+        {
+            return $this->operator1;
+        }
+        if ($this->if === $childToDetach)
+        {
+            return $this->if;
+        }
+        if ($this->operator2 === $childToDetach)
+        {
+            return $this->operator2;
+        }
+        if ($this->else === $childToDetach)
+        {
+            return $this->else;
+        }
+        throw new \LogicException();
     }
 
-    public function hasTest(): bool
+    public function getCondition(): \Phi\Nodes\Expression
     {
-        return $this->test !== null;
+        if ($this->condition === null)
+        {
+            throw TreeException::missingNode($this, "condition");
+        }
+        return $this->condition;
+    }
+
+    public function hasCondition(): bool
+    {
+        return $this->condition !== null;
     }
 
     /**
-     * @param Nodes\Expression|Node|string|null $test
+     * @param \Phi\Nodes\Expression|\Phi\Node|string|null $condition
      */
-    public function setTest($test): void
+    public function setCondition($condition): void
     {
-        if ($test !== null)
+        if ($condition !== null)
         {
-            /** @var Nodes\Expression $test */
-            $test = NodeConverter::convert($test, Nodes\Expression::class, $this->phpVersion);
-            $test->detach();
-            $test->parent = $this;
+            /** @var \Phi\Nodes\Expression $condition */
+            $condition = NodeCoercer::coerce($condition, \Phi\Nodes\Expression::class, $this->getPhpVersion());
+            $condition->detach();
+            $condition->parent = $this;
         }
-        if ($this->test !== null)
+        if ($this->condition !== null)
         {
-            $this->test->detach();
+            $this->condition->detach();
         }
-        $this->test = $test;
+        $this->condition = $condition;
     }
 
-    public function getQuestionMark(): Token
+    public function getOperator1(): \Phi\Token
     {
-        if ($this->questionMark === null)
+        if ($this->operator1 === null)
         {
-            throw new MissingNodeException($this, __FUNCTION__);
+            throw TreeException::missingNode($this, "operator1");
         }
-        return $this->questionMark;
+        return $this->operator1;
     }
 
-    public function hasQuestionMark(): bool
+    public function hasOperator1(): bool
     {
-        return $this->questionMark !== null;
+        return $this->operator1 !== null;
     }
 
     /**
-     * @param Token|Node|string|null $questionMark
+     * @param \Phi\Token|\Phi\Node|string|null $operator1
      */
-    public function setQuestionMark($questionMark): void
+    public function setOperator1($operator1): void
     {
-        if ($questionMark !== null)
+        if ($operator1 !== null)
         {
-            /** @var Token $questionMark */
-            $questionMark = NodeConverter::convert($questionMark, Token::class, $this->phpVersion);
-            $questionMark->detach();
-            $questionMark->parent = $this;
+            /** @var \Phi\Token $operator1 */
+            $operator1 = NodeCoercer::coerce($operator1, \Phi\Token::class, $this->getPhpVersion());
+            $operator1->detach();
+            $operator1->parent = $this;
         }
-        if ($this->questionMark !== null)
+        if ($this->operator1 !== null)
         {
-            $this->questionMark->detach();
+            $this->operator1->detach();
         }
-        $this->questionMark = $questionMark;
+        $this->operator1 = $operator1;
     }
 
-    public function getThen(): ?Nodes\Expression
+    public function getIf(): ?\Phi\Nodes\Expression
     {
-        return $this->then;
+        return $this->if;
     }
 
-    public function hasThen(): bool
+    public function hasIf(): bool
     {
-        return $this->then !== null;
+        return $this->if !== null;
     }
 
     /**
-     * @param Nodes\Expression|Node|string|null $then
+     * @param \Phi\Nodes\Expression|\Phi\Node|string|null $if
      */
-    public function setThen($then): void
+    public function setIf($if): void
     {
-        if ($then !== null)
+        if ($if !== null)
         {
-            /** @var Nodes\Expression $then */
-            $then = NodeConverter::convert($then, Nodes\Expression::class, $this->phpVersion);
-            $then->detach();
-            $then->parent = $this;
+            /** @var \Phi\Nodes\Expression $if */
+            $if = NodeCoercer::coerce($if, \Phi\Nodes\Expression::class, $this->getPhpVersion());
+            $if->detach();
+            $if->parent = $this;
         }
-        if ($this->then !== null)
+        if ($this->if !== null)
         {
-            $this->then->detach();
+            $this->if->detach();
         }
-        $this->then = $then;
+        $this->if = $if;
     }
 
-    public function getColon(): Token
+    public function getOperator2(): \Phi\Token
     {
-        if ($this->colon === null)
+        if ($this->operator2 === null)
         {
-            throw new MissingNodeException($this, __FUNCTION__);
+            throw TreeException::missingNode($this, "operator2");
         }
-        return $this->colon;
+        return $this->operator2;
     }
 
-    public function hasColon(): bool
+    public function hasOperator2(): bool
     {
-        return $this->colon !== null;
+        return $this->operator2 !== null;
     }
 
     /**
-     * @param Token|Node|string|null $colon
+     * @param \Phi\Token|\Phi\Node|string|null $operator2
      */
-    public function setColon($colon): void
+    public function setOperator2($operator2): void
     {
-        if ($colon !== null)
+        if ($operator2 !== null)
         {
-            /** @var Token $colon */
-            $colon = NodeConverter::convert($colon, Token::class, $this->phpVersion);
-            $colon->detach();
-            $colon->parent = $this;
+            /** @var \Phi\Token $operator2 */
+            $operator2 = NodeCoercer::coerce($operator2, \Phi\Token::class, $this->getPhpVersion());
+            $operator2->detach();
+            $operator2->parent = $this;
         }
-        if ($this->colon !== null)
+        if ($this->operator2 !== null)
         {
-            $this->colon->detach();
+            $this->operator2->detach();
         }
-        $this->colon = $colon;
+        $this->operator2 = $operator2;
     }
 
-    public function getElse(): Nodes\Expression
+    public function getElse(): \Phi\Nodes\Expression
     {
         if ($this->else === null)
         {
-            throw new MissingNodeException($this, __FUNCTION__);
+            throw TreeException::missingNode($this, "else");
         }
         return $this->else;
     }
@@ -242,14 +266,14 @@ abstract class GeneratedTernaryExpression extends Nodes\Expression
     }
 
     /**
-     * @param Nodes\Expression|Node|string|null $else
+     * @param \Phi\Nodes\Expression|\Phi\Node|string|null $else
      */
     public function setElse($else): void
     {
         if ($else !== null)
         {
-            /** @var Nodes\Expression $else */
-            $else = NodeConverter::convert($else, Nodes\Expression::class, $this->phpVersion);
+            /** @var \Phi\Nodes\Expression $else */
+            $else = NodeCoercer::coerce($else, \Phi\Nodes\Expression::class, $this->getPhpVersion());
             $else->detach();
             $else->parent = $this;
         }
@@ -260,26 +284,41 @@ abstract class GeneratedTernaryExpression extends Nodes\Expression
         $this->else = $else;
     }
 
-    protected function _validate(int $flags): void
+    public function _validate(int $flags): void
     {
-        if ($this->test === null) throw ValidationException::childRequired($this, "test");
-        if ($this->questionMark === null) throw ValidationException::childRequired($this, "questionMark");
-        if ($this->colon === null) throw ValidationException::childRequired($this, "colon");
-        if ($this->else === null) throw ValidationException::childRequired($this, "else");
-        if ($flags & self::VALIDATE_TYPES)
-        {
-        }
-        if ($flags & self::VALIDATE_EXPRESSION_CONTEXT)
-        {
-        }
-        if ($flags & self::VALIDATE_TOKENS)
-        {
-        }
-        $this->test->_validate($flags);
-        if ($this->then)
-        {
-            $this->then->_validate($flags);
-        }
-        $this->else->_validate($flags);
+        if ($this->condition === null)
+            throw ValidationException::missingChild($this, "condition");
+        if ($this->operator1 === null)
+            throw ValidationException::missingChild($this, "operator1");
+        if ($this->operator2 === null)
+            throw ValidationException::missingChild($this, "operator2");
+        if ($this->else === null)
+            throw ValidationException::missingChild($this, "else");
+        if ($this->operator1->getType() !== 118)
+            throw ValidationException::invalidSyntax($this->operator1, [118]);
+        if ($this->operator2->getType() !== 113)
+            throw ValidationException::invalidSyntax($this->operator2, [113]);
+
+        if ($flags & 14)
+            throw ValidationException::invalidExpressionInContext($this);
+
+        $this->extraValidation($flags);
+
+        $this->condition->_validate(1);
+        if ($this->if)
+            $this->if->_validate(1);
+        $this->else->_validate(1);
+    }
+
+    public function _autocorrect(): void
+    {
+        if ($this->condition)
+            $this->condition->_autocorrect();
+        if ($this->if)
+            $this->if->_autocorrect();
+        if ($this->else)
+            $this->else->_autocorrect();
+
+        $this->extraAutocorrect();
     }
 }

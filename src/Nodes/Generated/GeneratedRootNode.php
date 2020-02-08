@@ -1,53 +1,53 @@
 <?php
 
+declare(strict_types=1);
+
+/**
+ * This code is generated.
+ * @see meta/
+ */
+
 namespace Phi\Nodes\Generated;
 
 use Phi\Node;
 use Phi\Token;
-use Phi\Nodes\Base\CompoundNode;
-use Phi\Nodes\Base\NodesList;
-use Phi\Nodes\Base\SeparatedNodesList;
-use Phi\Exception\MissingNodeException;
-use Phi\NodeConverter;
+use Phi\Exception\TreeException;
+use Phi\NodeCoercer;
 use Phi\Exception\ValidationException;
-use Phi\Nodes as Nodes;
 
-abstract class GeneratedRootNode extends CompoundNode
+trait GeneratedRootNode
 {
     /**
-     * @var NodesList|Nodes\Statement[]
-     * @phpstan-var NodesList<\Phi\Nodes\Statement>
+     * @var \Phi\Nodes\Base\NodesList|\Phi\Nodes\Statement[]
+     * @phpstan-var \Phi\Nodes\Base\NodesList<\Phi\Nodes\Statement>
      */
     private $statements;
 
     /**
-     * @var Token|null
+     * @var \Phi\Token|null
      */
     private $eof;
 
-
     /**
-     * @param Nodes\Statement $statement
+     * @param \Phi\Nodes\Statement $statement
      */
     public function __construct($statement = null)
     {
-        $this->statements = new NodesList();
+        $this->statements = new \Phi\Nodes\Base\NodesList(\Phi\Nodes\Statement::class);
         if ($statement !== null)
         {
-            $this->addStatement($statement);
+            $this->statements->add($statement);
         }
     }
 
     /**
-     * @param int $phpVersion
      * @param mixed[] $statements
-     * @param Token|null $eof
-     * @return static
+     * @param \Phi\Token|null $eof
+     * @return self
      */
-    public static function __instantiateUnchecked($phpVersion, $statements, $eof)
+    public static function __instantiateUnchecked($statements, $eof)
     {
-        $instance = new static;
-        $instance->phpVersion = $phpVersion;
+        $instance = new self;
         $instance->statements->__initUnchecked($statements);
         $instance->statements->parent = $instance;
         $instance->eof = $eof;
@@ -55,35 +55,33 @@ abstract class GeneratedRootNode extends CompoundNode
         return $instance;
     }
 
-    protected function &_getNodeRefs(): array
+    public function getChildNodes(): array
     {
-        $refs = [
-            "statements" => &$this->statements,
-            "eof" => &$this->eof,
-        ];
-        return $refs;
+        return \array_values(\array_filter([
+            $this->statements,
+            $this->eof,
+        ]));
+    }
+
+    protected function &getChildRef(Node $childToDetach): Node
+    {
+        if ($this->eof === $childToDetach)
+        {
+            return $this->eof;
+        }
+        throw new \LogicException();
     }
 
     /**
-     * @return NodesList|Nodes\Statement[]
-     * @phpstan-return NodesList<\Phi\Nodes\Statement>
+     * @return \Phi\Nodes\Base\NodesList|\Phi\Nodes\Statement[]
+     * @phpstan-return \Phi\Nodes\Base\NodesList<\Phi\Nodes\Statement>
      */
-    public function getStatements(): NodesList
+    public function getStatements(): \Phi\Nodes\Base\NodesList
     {
         return $this->statements;
     }
 
-    /**
-     * @param Nodes\Statement $statement
-     */
-    public function addStatement($statement): void
-    {
-        /** @var Nodes\Statement $statement */
-        $statement = NodeConverter::convert($statement, Nodes\Statement::class, $this->phpVersion);
-        $this->statements->add($statement);
-    }
-
-    public function getEof(): ?Token
+    public function getEof(): ?\Phi\Token
     {
         return $this->eof;
     }
@@ -94,14 +92,14 @@ abstract class GeneratedRootNode extends CompoundNode
     }
 
     /**
-     * @param Token|Node|string|null $eof
+     * @param \Phi\Token|\Phi\Node|string|null $eof
      */
     public function setEof($eof): void
     {
         if ($eof !== null)
         {
-            /** @var Token $eof */
-            $eof = NodeConverter::convert($eof, Token::class, $this->phpVersion);
+            /** @var \Phi\Token $eof */
+            $eof = NodeCoercer::coerce($eof, \Phi\Token::class, $this->getPhpVersion());
             $eof->detach();
             $eof->parent = $this;
         }
@@ -112,17 +110,24 @@ abstract class GeneratedRootNode extends CompoundNode
         $this->eof = $eof;
     }
 
-    protected function _validate(int $flags): void
+    public function _validate(int $flags): void
     {
-        if ($flags & self::VALIDATE_TYPES)
-        {
-        }
-        if ($flags & self::VALIDATE_EXPRESSION_CONTEXT)
-        {
-        }
-        if ($flags & self::VALIDATE_TOKENS)
-        {
-        }
-        $this->statements->_validate($flags);
+        if ($this->eof)
+        if ($this->eof->getType() !== 999)
+            throw ValidationException::invalidSyntax($this->eof, [999]);
+
+
+        $this->extraValidation($flags);
+
+        foreach ($this->statements as $t)
+            $t->_validate(0);
+    }
+
+    public function _autocorrect(): void
+    {
+        foreach ($this->statements as $t)
+            $t->_autocorrect();
+
+        $this->extraAutocorrect();
     }
 }
