@@ -2,26 +2,26 @@ includes:
 	- vendor/phpstan/phpstan-strict-rules/rules.neon
 
 parameters:
-    level: max
-    paths:
-        - ./src
-    ignoreErrors:
-        # i'm ok with non-booleans in conditions
-        - '{^Only booleans are allowed in .+}'
-        # assertions can be redundant
-        - '{^Call to function assert\(\) with .* will always evaluate to true\.$}'
-        # runtime checks of generics
-        - '{^Instanceof between T .+ will always evaluate to true\.$}'
+	level: max
+	paths:
+		- ./src
+	ignoreErrors:
+		# i'm ok with non-booleans in conditions
+		- '{^Only booleans are allowed in .+}'
+		# assertions can be redundant
+		- '{^Call to function assert\(\) with .* will always evaluate to true\.$}'
+		# runtime checks of generics
+		- '{^Instanceof between T .+ will always evaluate to true\.$}'
 
-        - # phpstan gets tons wrong here, mostly because read changes the return value of peek()
-            path: src/Parser.src.php
-            message: '{is unreachable|will always evaluate|always terminates|is always (true|false)}'
-        - # seems to be a phpstan bug
-            path: src/Parser.src.php
-            message: '{Switch condition type \(162\) does not match case condition .* \(int\).$}'
-        - # we know this null check is safe, phpstan can't
-            path: src/Nodes/Generated/
-            message: '{^Cannot call method _validate\(\) on .+\|null\.$}'
-        -
-            path: src/_optimized/
-            message: '{}'
+		- # phpstan gets tons wrong here, mostly because read changes the return value of peek()
+			path: src/Parser.src.php
+			message: '{is unreachable|will always evaluate|always terminates|is always (true|false)}'
+		- # we know this null check is safe, phpstan can't
+			path: src/Nodes/Generated/
+			message: '{^Cannot call method _validate\(\) on .+\|null\.$}'
+		- # in some contexts this check *is* needed (e.g. yield)
+			path: src/Nodes/ValidationTraits/UnaryOpExpression.php
+			message: '{^Left side of \&\& is always true\.$}'
+		-
+			path: src/_optimized/
+			message: '{}'

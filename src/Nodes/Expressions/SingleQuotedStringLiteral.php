@@ -9,10 +9,10 @@ use PhpParser\Node\Scalar\String_;
 
 class SingleQuotedStringLiteral extends ConstantStringLiteral
 {
-    use GeneratedSingleQuotedStringLiteral;
+	use GeneratedSingleQuotedStringLiteral;
 
-    public function convertToPhpParserNode()
-    {
-        return new String_(String_::parse($this->getToken()->getSource(), true));
-    }
+	public function convertToPhpParser()
+	{
+		return new String_(String_::parse($this->getToken()->getSource(), true));
+	}
 }

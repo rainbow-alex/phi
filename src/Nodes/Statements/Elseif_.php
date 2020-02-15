@@ -9,5 +9,5 @@ use Phi\Nodes\Generated\GeneratedElseif;
 
 class Elseif_ extends CompoundNode
 {
-    use GeneratedElseif;
+	use GeneratedElseif;
 }

@@ -8,5 +8,5 @@ use Phi\Nodes\Generated\GeneratedWhileStatement;
 
 class WhileStatement extends LoopStatement
 {
-    use GeneratedWhileStatement;
+	use GeneratedWhileStatement;
 }

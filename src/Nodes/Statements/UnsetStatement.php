@@ -9,5 +9,5 @@ use Phi\Nodes\Statement;
 
 class UnsetStatement extends Statement
 {
-    use GeneratedUnsetStatement;
+	use GeneratedUnsetStatement;
 }

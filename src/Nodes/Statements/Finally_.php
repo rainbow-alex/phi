@@ -9,6 +9,6 @@ use Phi\Nodes\Generated\GeneratedFinally;
 
 class Finally_ extends CompoundNode
 {
-    use GeneratedFinally;
+	use GeneratedFinally;
 
 }

@@ -1,16 +1,19 @@
-{"algo": "permute"}
+{"algo": "weightedPermute", "max": 1}
 
-aardvark
+\THIS
+\ident\THIS
+\THIS\ident
 
-abstract
+// regular identifier
+aardvark [[0]]
+
+// regular keywords
+abstract [[0]]
 and
-array
 as
 break
-callable
 case
 catch
-class
 clone
 const
 continue
@@ -33,6 +36,7 @@ exit
 extends
 final
 finally
+fn
 for
 foreach
 function
@@ -57,7 +61,6 @@ public
 require
 require_once
 return
-static
 switch
 throw
 trait
@@ -70,7 +73,14 @@ xor
 yield
 __halt_compiler
 
-__CLASS__
+// overloaded keywords
+array [[0]]
+callable [[0]]
+class [[0]]
+static [[0]]
+
+// magic constants
+__CLASS__ [[0]]
 __DIR__
 __FILE__
 __FUNCTION__
@@ -79,6 +89,26 @@ __METHOD__
 __NAMESPACE__
 __TRAIT__
 
-self
-parent
-assert
+// reserved words - usable as type
+int [[0]]
+float
+bool
+string
+void
+iterable
+object
+
+// reserved words - other
+null [[0]]
+true [[0]]
+false [[0]]
+
+// soft reserved words
+resource [[0]]
+mixed
+numeric
+
+// special class names
+static [[0]]
+self [[0]]
+parent [[0]]

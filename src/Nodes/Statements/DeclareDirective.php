@@ -9,5 +9,5 @@ use Phi\Nodes\Generated\GeneratedDeclareDirective;
 
 class DeclareDirective extends CompoundNode
 {
-    use GeneratedDeclareDirective;
+	use GeneratedDeclareDirective;
 }

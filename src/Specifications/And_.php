@@ -9,24 +9,24 @@ use Phi\Specification;
 
 class And_ extends Specification
 {
-    /** @var Specification[] */
-    private $specifications;
+	/** @var Specification[] */
+	private $specifications;
 
-    public function __construct(Specification ...$specifications)
-    {
-        $this->specifications = $specifications;
-    }
+	public function __construct(Specification ...$specifications)
+	{
+		$this->specifications = $specifications;
+	}
 
-    public function isSatisfiedBy(Node $node): bool
-    {
-        foreach ($this->specifications as $specification)
-        {
-            if (!$specification->isSatisfiedBy($node))
-            {
-                return false;
-            }
-        }
+	public function isSatisfiedBy(Node $node): bool
+	{
+		foreach ($this->specifications as $specification)
+		{
+			if (!$specification->isSatisfiedBy($node))
+			{
+				return false;
+			}
+		}
 
-        return true;
-    }
+		return true;
+	}
 }

@@ -8,5 +8,5 @@ use Phi\Nodes\Generated\GeneratedTraitDeclaration;
 
 class TraitDeclaration extends OopDeclaration
 {
-    use GeneratedTraitDeclaration;
+	use GeneratedTraitDeclaration;
 }

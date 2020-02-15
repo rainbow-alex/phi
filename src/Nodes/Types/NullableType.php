@@ -9,5 +9,10 @@ use Phi\Nodes\Type;
 
 class NullableType extends Type
 {
-    use GeneratedNullableType;
+	use GeneratedNullableType;
+
+	public function unwrapNullable(): Type
+	{
+		return $this->getType();
+	}
 }

@@ -8,5 +8,5 @@ use Phi\Nodes\Generated\GeneratedInterfaceDeclaration;
 
 class InterfaceDeclaration extends OopDeclaration
 {
-    use GeneratedInterfaceDeclaration;
+	use GeneratedInterfaceDeclaration;
 }

@@ -10,16 +10,16 @@ use PhpParser\Node\Expr\BinaryOp\Concat;
 
 class ConcatExpression extends BinopExpression
 {
-    use GeneratedConcatExpression;
-    use LeftAssocBinopExpression;
+	use GeneratedConcatExpression;
+	use LeftAssocBinopExpression;
 
-    public function convertToPhpParserNode()
-    {
-        return new Concat($this->getLeft()->convertToPhpParserNode(), $this->getRight()->convertToPhpParserNode());
-    }
+	public function convertToPhpParser()
+	{
+		return new Concat($this->getLeft()->convertToPhpParser(), $this->getRight()->convertToPhpParser());
+	}
 
-    public function getPrecedence(): int
-    {
-        return self::PRECEDENCE_ADD;
-    }
+	protected function getPrecedence(): int
+	{
+		return self::PRECEDENCE_ADD;
+	}
 }

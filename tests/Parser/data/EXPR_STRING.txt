@@ -1,34 +1,53 @@
-{"algo": "permute", "separator": "---"}
+{"algo": "permute"}
 
-'#EXPR_STRING_CONTENT#';
----
-"#EXPR_STRING_CONTENT#";
----
-<<<HEREDOC
-HEREDOC;
----
-<<<HEREDOC
-HEREDOC
-;
----
-<<<"HEREDOC"
-HEREDOC;
----
-<<<HEREDOC
-Heredoc;
----
-<<<HEREDOC
-#EXPR_STRING_CONTENT#
-HEREDOC;
----
-<<<'NOWDOC'
-NOWDOC;
----
-<<<'NOWDOC'
-NOWDOC
-;
----
-<<<'NOWDOC'
-#EXPR_STRING_CONTENT#
-NOWDOC
-;
+'EXPR_STRING_CONTENT';
+
+"EXPR_STRING_CONTENT";
+
+// normal heredocs
+<<<HEREDOC{*\n*}HEREDOC;{*\n*}
+<<<HEREDOC{*\n*}HEREDOC{*\n*};
+
+// flexible heredoc
+<<<HEREDOC{*\n*}    HEREDOC);
+
+// quoted opening tag
+<<<"HEREDOC"{*\n*}HEREDOC;{*\n*}
+
+// opening tag with whitespace
+<<< HEREDOC{*\n*}HEREDOC;{*\n*}
+// unicode whitespace interaction with delimiters
+<<<{*nbsp*}HEREDOC{*\n*}HEREDOC;{*\n*}
+<<<{*nbsp*}HEREDOC{*\n*}{*nbsp*}HEREDOC;{*\n*}
+<<<HEREDOC{*\n*}    {*nbsp*}HEREDOC{*\n*}HEREDOC;{*\n*}
+<<<{*nbsp*}HEREDOC{*\n*}    {*nbsp*}HEREDOC{*\n*}{*nbsp*}HEREDOC;{*\n*}
+
+// case sensitivity
+<<<HEREDOC{*\n*}Heredoc;{*\n*}
+
+// various content
+<<<HEREDOC{*\n*}EXPR_STRING_CONTENT{*\n*}HEREDOC;{*\n*}
+
+// normal nowdocs
+<<<NOWDOC{*\n*}NOWDOC;{*\n*}
+<<<NOWDOC{*\n*}NOWDOC{*\n*};
+
+// flexible nowdoc
+<<<NOWDOC{*\n*}    NOWDOC);
+
+// quoted opening tag
+<<<'NOWDOC'{*\n*}NOWDOC;{*\n*}
+
+// opening tag with whitespace
+<<< NOWDOC{*\n*}NOWDOC;{*\n*}
+// unicode whitespace interaction with delimiters
+<<<{*nbsp*}NOWDOC{*\n*}NOWDOC;{*\n*}
+<<<{*nbsp*}NOWDOC{*\n*}{*nbsp*}NOWDOC;{*\n*}
+<<<NOWDOC{*\n*}    {*nbsp*}NOWDOC{*\n*}NOWDOC;{*\n*}
+<<<{*nbsp*}NOWDOC{*\n*}    {*nbsp*}NOWDOC{*\n*}{*nbsp*}NOWDOC;{*\n*}
+
+// case sensitivity
+<<<NOWDOC{*\n*}Nowdoc;{*\n*}
+
+// various content
+<<<NOWDOC{*\n*}EXPR_STRING_CONTENT{*\n*}NOWDOC;{*\n*}

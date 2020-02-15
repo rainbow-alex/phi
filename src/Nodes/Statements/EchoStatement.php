@@ -10,10 +10,10 @@ use PhpParser\Node\Stmt\Echo_;
 
 class EchoStatement extends Statement
 {
-    use GeneratedEchoStatement;
+	use GeneratedEchoStatement;
 
-    public function convertToPhpParserNode()
-    {
-        return new Echo_($this->getExpressions()->convertToPhpParserNode());
-    }
+	public function convertToPhpParser()
+	{
+		return new Echo_($this->getExpressions()->convertToPhpParser());
+	}
 }

@@ -8,5 +8,5 @@ use Phi\Nodes\Generated\GeneratedTraitUseAs;
 
 class TraitUseAs extends TraitUseModification
 {
-    use GeneratedTraitUseAs;
+	use GeneratedTraitUseAs;
 }

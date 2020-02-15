@@ -8,10 +8,10 @@ use Phi\Nodes\Generated\GeneratedNormalMemberName;
 
 class NormalMemberName extends MemberName
 {
-    use GeneratedNormalMemberName;
+	use GeneratedNormalMemberName;
 
-    public function convertToPhpParserNode()
-    {
-        return $this->getToken()->getSource();
-    }
+	public function convertToPhpParser()
+	{
+		return $this->getToken()->getSource();
+	}
 }

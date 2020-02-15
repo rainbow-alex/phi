@@ -8,4 +8,3 @@ __CLASS__
 __METHOD__
 __TRAIT__
 __NAMESPACE__
-// TODO more?

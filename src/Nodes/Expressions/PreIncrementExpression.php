@@ -9,10 +9,10 @@ use PhpParser\Node\Expr\PreInc;
 
 class PreIncrementExpression extends CrementExpression
 {
-    use GeneratedPreIncrementExpression;
+	use GeneratedPreIncrementExpression;
 
-    public function convertToPhpParserNode()
-    {
-        return new PreInc($this->getExpression()->convertToPhpParserNode());
-    }
+	public function convertToPhpParser()
+	{
+		return new PreInc($this->getExpression()->convertToPhpParser());
+	}
 }

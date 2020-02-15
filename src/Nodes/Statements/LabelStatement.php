@@ -9,6 +9,6 @@ use Phi\Nodes\Statement;
 
 class LabelStatement extends Statement
 {
-    use GeneratedLabelStatement;
+	use GeneratedLabelStatement;
 
 }

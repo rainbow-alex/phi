@@ -8,5 +8,5 @@ use Phi\Nodes\Generated\GeneratedProperty;
 
 class Property extends OopMember
 {
-    use GeneratedProperty;
+	use GeneratedProperty;
 }

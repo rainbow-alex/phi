@@ -10,11 +10,11 @@ use PhpParser\Node\Expr\Exit_;
 
 class ExitExpression extends Expression
 {
-    use GeneratedExitExpression;
+	use GeneratedExitExpression;
 
-    public function convertToPhpParserNode()
-    {
-        $expr = $this->getExpression();
-        return new Exit_($expr ? $expr->convertToPhpParserNode() : null);
-    }
+	public function convertToPhpParser()
+	{
+		$expr = $this->getExpression();
+		return new Exit_($expr ? $expr->convertToPhpParser() : null);
+	}
 }

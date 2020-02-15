@@ -6,23 +6,23 @@ namespace Phi\Tests\Testing\Fuzz;
 
 class Permute extends FuzzRule
 {
-    /** @param string[] */
-    private $options;
+	/** @param string[] */
+	private $options;
 
-    /**
-     * @param string[] $options
-     */
-    public function __construct(array $options)
-    {
-        $this->options = $options;
-    }
+	/**
+	 * @param string[] $options
+	 */
+	public function __construct(array $options)
+	{
+		$this->options = $options;
+	}
 
-    public function initState(&$state): void
-    {
-    }
+	public function initState(&$state): void
+	{
+	}
 
-    public function generateRhs(&$state)
-    {
-        yield from $this->options;
-    }
+	public function generateRhs(&$state)
+	{
+		return $this->options;
+	}
 }

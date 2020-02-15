@@ -10,10 +10,10 @@ use PhpParser\Node\Expr\Print_;
 
 class PrintExpression extends Expression
 {
-    use GeneratedPrintExpression;
+	use GeneratedPrintExpression;
 
-    public function convertToPhpParserNode()
-    {
-        return new Print_($this->getExpression()->convertToPhpParserNode());
-    }
+	public function convertToPhpParser()
+	{
+		return new Print_($this->getExpression()->convertToPhpParser());
+	}
 }

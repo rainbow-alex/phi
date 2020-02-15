@@ -7,47 +7,45 @@ namespace Phi\Nodes\Expressions;
 use Phi\Exception\ValidationException;
 use Phi\Nodes\Expression;
 use Phi\Nodes\Generated\GeneratedConstantAccessExpression;
+use Phi\Nodes\ValidationTraits\IsStaticAccessibleHelper;
 use PhpParser\Node\Expr\ClassConstFetch;
 
 class ConstantAccessExpression extends Expression
 {
-    use GeneratedConstantAccessExpression;
+	use GeneratedConstantAccessExpression;
+	use IsStaticAccessibleHelper;
 
-    public function isConstant(): bool
-    {
-        return $this->getClass()->isConstant();
-    }
+	public function isConstant(): bool
+	{
+		return $this->getClass()->isConstant() && !($this->getClass() instanceof ArrayAccessExpression); // TODO ?
+	}
 
-    protected function extraValidation(int $flags): void
-    {
-        $class = $this->getClass();
-        if (
-            $class instanceof NewExpression
-            || ($class instanceof ArrayExpression && $class->isConstant())
-            || $class instanceof ClassNameResolutionExpression
-            || $class instanceof ConstantAccessExpression
-            || $class instanceof MagicConstant // check these in other contexts
-            || ($class instanceof ParenthesizedExpression && $class->isConstant())
-            || $class instanceof ExitExpression
-            || $class instanceof EmptyExpression
-            || $class instanceof EvalExpression
-            || $class instanceof ExecExpression
-            || $class instanceof IssetExpression
-            || $class instanceof AnonymousFunctionExpression
-            || $class instanceof NumberLiteral
-        )
-        {
-            throw ValidationException::invalidSyntax($class);
-        }
-    }
+	protected function extraValidation(int $flags): void
+	{
+		$class = $this->getClass();
 
-    public function convertToPhpParserNode()
-    {
-        $class = $this->getClass();
-        if ($class instanceof NameExpression)
-        {
-            $class = $class->getName();
-        }
-        return new ClassConstFetch($class->convertToPhpParserNode(), $this->getName()->convertToPhpParserNode());
-    }
+		if (!self::isStaticAccessible($class))
+		{
+			throw ValidationException::invalidSyntax($class);
+		}
+
+		// TODO (3)::foo, (3)::foo(), and probably a lot of others are also invalid, but not covered by tests
+		if (
+			($class instanceof ParenthesizedExpression && $class->isConstant())
+			|| $class instanceof NumberLiteral
+		)
+		{
+			throw ValidationException::invalidSyntax($class);
+		}
+	}
+
+	public function convertToPhpParser()
+	{
+		$class = $this->getClass();
+		if ($class instanceof NameExpression)
+		{
+			$class = $class->getName();
+		}
+		return new ClassConstFetch($class->convertToPhpParser(), $this->getName()->convertToPhpParser());
+	}
 }

@@ -10,18 +10,18 @@ use Phi\Nodes\Generated\GeneratedDefault;
 
 class Default_ extends CompoundNode
 {
-    use GeneratedDefault;
+	use GeneratedDefault;
 
-    protected function extraValidation(int $flags): void
-    {
-        if (!$this->getValue()->isConstant())
-        {
-            throw ValidationException::invalidExpressionInContext($this->getValue());
-        }
-    }
+	protected function extraValidation(int $flags): void
+	{
+		if (!$this->getValue()->isConstant())
+		{
+			throw ValidationException::invalidExpressionInContext($this->getValue());
+		}
+	}
 
-    public function convertToPhpParserNode()
-    {
-        return $this->getValue()->convertToPhpParserNode();
-    }
+	public function convertToPhpParser()
+	{
+		return $this->getValue()->convertToPhpParser();
+	}
 }

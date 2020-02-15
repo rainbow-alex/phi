@@ -10,14 +10,14 @@ use Phi\Token;
 
 abstract class CrementExpression extends Expression
 {
-    abstract public function getExpression(): Expression;
-    abstract public function getOperator(): Token;
+	abstract public function getExpression(): Expression;
+	abstract public function getOperator(): Token;
 
-    protected function extraValidation(int $flags): void
-    {
-        if ($this->getExpression()->isTemporary())
-        {
-            throw ValidationException::invalidExpressionInContext($this);
-        }
-    }
+	protected function extraValidation(int $flags): void
+	{
+		if ($this->getExpression()->isTemporary())
+		{
+			throw ValidationException::invalidExpressionInContext($this);
+		}
+	}
 }

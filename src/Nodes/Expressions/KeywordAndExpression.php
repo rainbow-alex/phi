@@ -10,16 +10,16 @@ use PhpParser\Node\Expr\BinaryOp\LogicalAnd;
 
 class KeywordAndExpression extends BinopExpression
 {
-    use GeneratedKeywordAndExpression;
-    use LeftAssocBinopExpression;
+	use GeneratedKeywordAndExpression;
+	use LeftAssocBinopExpression;
 
-    public function convertToPhpParserNode()
-    {
-        return new LogicalAnd($this->getLeft()->convertToPhpParserNode(), $this->getRight()->convertToPhpParserNode());
-    }
+	public function convertToPhpParser()
+	{
+		return new LogicalAnd($this->getLeft()->convertToPhpParser(), $this->getRight()->convertToPhpParser());
+	}
 
-    public function getPrecedence(): int
-    {
-        return self::PRECEDENCE_KEYWORD_AND;
-    }
+	protected function getPrecedence(): int
+	{
+		return self::PRECEDENCE_KEYWORD_AND;
+	}
 }

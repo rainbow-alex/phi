@@ -8,5 +8,5 @@ use Phi\Nodes\Generated\GeneratedTraitUseInsteadof;
 
 class TraitUseInsteadof extends TraitUseModification
 {
-    use GeneratedTraitUseInsteadof;
+	use GeneratedTraitUseInsteadof;
 }

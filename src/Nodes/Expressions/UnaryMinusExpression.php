@@ -7,28 +7,37 @@ namespace Phi\Nodes\Expressions;
 use Phi\Exception\ValidationException;
 use Phi\Nodes\Expression;
 use Phi\Nodes\Generated\GeneratedUnaryMinusExpression;
+use Phi\Nodes\ValidationTraits\UnaryOpExpression;
 use PhpParser\Node\Expr\UnaryMinus;
 
 class UnaryMinusExpression extends Expression
 {
-    use GeneratedUnaryMinusExpression;
+	use GeneratedUnaryMinusExpression;
+	use UnaryOpExpression;
 
-    public function isConstant(): bool
-    {
-        return $this->getExpression()->isConstant();
-    }
+	public function getRightPrecedence(): int
+	{
+		return self::PRECEDENCE_POW;
+	}
 
-    protected function extraValidation(int $flags): void
-    {
-        $expression = $this->getExpression();
-        if ($expression instanceof ArrayExpression && $expression->isConstant())
-        {
-            throw ValidationException::invalidSyntax($expression);
-        }
-    }
+	public function isConstant(): bool
+	{
+		return $this->getExpression()->isConstant();
+	}
 
-    public function convertToPhpParserNode()
-    {
-        return new UnaryMinus($this->getExpression()->convertToPhpParserNode());
-    }
+	protected function extraValidation(int $flags): void
+	{
+		$expression = $this->getExpression();
+		if ($expression instanceof ArrayExpression && $expression->isConstant())
+		{
+			throw ValidationException::invalidSyntax($expression);
+		}
+
+		$this->validatePrecedence();
+	}
+
+	public function convertToPhpParser()
+	{
+		return new UnaryMinus($this->getExpression()->convertToPhpParser());
+	}
 }

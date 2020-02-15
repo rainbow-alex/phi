@@ -9,6 +9,6 @@ use Phi\Nodes\Generated\GeneratedCatch;
 
 class Catch_ extends CompoundNode
 {
-    use GeneratedCatch;
+	use GeneratedCatch;
 
 }

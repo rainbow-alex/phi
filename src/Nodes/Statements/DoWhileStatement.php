@@ -8,5 +8,5 @@ use Phi\Nodes\Generated\GeneratedDoWhileStatement;
 
 class DoWhileStatement extends LoopStatement
 {
-    use GeneratedDoWhileStatement;
+	use GeneratedDoWhileStatement;
 }

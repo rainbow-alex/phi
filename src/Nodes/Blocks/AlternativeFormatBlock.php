@@ -9,5 +9,5 @@ use Phi\Nodes\Generated\GeneratedAlternativeFormatBlock;
 
 class AlternativeFormatBlock extends Block
 {
-    use GeneratedAlternativeFormatBlock;
+	use GeneratedAlternativeFormatBlock;
 }

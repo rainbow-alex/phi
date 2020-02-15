@@ -10,8 +10,14 @@
             "Phi\\Tests\\": "tests/"
         }
     },
+    "require": {
+        "ext-mbstring": "*"
+    },
     "require-dev": {
         "ext-json": "*",
+        "ext-pcntl": "*",
+        "ext-zlib": "*",
+        "brianium/paratest": "^4.0",
         "nikic/php-parser": "^4.3",
         "phpdocumentor/reflection-docblock": "^4.3",
         "phpstan/phpstan": "^0.12.8",
@@ -20,10 +26,8 @@
         "symfony/finder": "^5.0"
     },
     "scripts": {
-        "build": "composer phpunit && composer phpstan",
-        "generate": "php meta/bin/generate_nodes.php; php meta/bin/optimize_parser.php; php meta/bin/generate_parser_test_fuzz.php",
-        "test": "vendor/bin/phpunit --stop-on-error",
-        "phpstan": "vendor/bin/phpstan analyze"
+        "gen-src": "php meta/bin/generate_nodes.php; php meta/bin/optimize_parser.php",
+        "gen-tests": "php tests/Parser/data/generated/generate_syntax_checks.php"
     },
     "config": {
         "sort-packages": true

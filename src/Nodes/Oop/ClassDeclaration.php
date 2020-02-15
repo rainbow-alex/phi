@@ -6,17 +6,17 @@ namespace Phi\Nodes\Oop;
 
 use Phi\Exception\ValidationException;
 use Phi\Nodes\Generated\GeneratedClassDeclaration;
-use Phi\Nodes\Helpers\Name;
+use Phi\TokenType;
 
 class ClassDeclaration extends OopDeclaration
 {
-    use GeneratedClassDeclaration;
+	use GeneratedClassDeclaration;
 
-    protected function extraValidation(int $flags): void
-    {
-        if (Name::isTokenSpecialClass($this->getName()))
-        {
-            throw ValidationException::invalidNameInContext($this->getName());
-        }
-    }
+	protected function extraValidation(int $flags): void
+	{
+		if (TokenType::isReservedWord($this->getName()) || TokenType::isSpecialClass($this->getName()))
+		{
+			throw ValidationException::invalidNameInContext($this->getName());
+		}
+	}
 }

@@ -10,16 +10,16 @@ use PhpParser\Node\Expr\BinaryOp\LogicalXor;
 
 class KeywordXorExpression extends BinopExpression
 {
-    use GeneratedKeywordXorExpression;
-    use LeftAssocBinopExpression;
+	use GeneratedKeywordXorExpression;
+	use LeftAssocBinopExpression;
 
-    public function convertToPhpParserNode()
-    {
-        return new LogicalXor($this->getLeft()->convertToPhpParserNode(), $this->getRight()->convertToPhpParserNode());
-    }
+	public function convertToPhpParser()
+	{
+		return new LogicalXor($this->getLeft()->convertToPhpParser(), $this->getRight()->convertToPhpParser());
+	}
 
-    public function getPrecedence(): int
-    {
-        return self::PRECEDENCE_KEYWORD_XOR;
-    }
+	protected function getPrecedence(): int
+	{
+		return self::PRECEDENCE_KEYWORD_XOR;
+	}
 }

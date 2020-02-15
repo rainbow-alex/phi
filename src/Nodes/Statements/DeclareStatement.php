@@ -9,5 +9,5 @@ use Phi\Nodes\Statement;
 
 class DeclareStatement extends Statement
 {
-    use GeneratedDeclareStatement;
+	use GeneratedDeclareStatement;
 }

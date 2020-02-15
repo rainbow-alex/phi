@@ -8,5 +8,5 @@ use Phi\Nodes\Generated\GeneratedContinueStatement;
 
 class ContinueStatement extends LoopFlowStatement
 {
-    use GeneratedContinueStatement;
+	use GeneratedContinueStatement;
 }

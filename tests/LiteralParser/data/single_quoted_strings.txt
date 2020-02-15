@@ -1,0 +1,29 @@
+' === ERROR
+foo === ERROR
+"foo" === ERROR
+'' === EMPTY
+'foo' === foo
+'<0A>' === <0A>
+'\<0A>' === \<0A>
+
+'\' === ERROR
+'\\' === \
+'\\\' === ERROR
+'\\\\' === \\
+
+'foo\bar' === foo\bar
+'foo\\bar' === foo\bar
+'foo\\\bar' === foo\\bar
+'foo\\\\bar' === foo\\bar
+
+'foo'bar' === ERROR
+'foo\'bar' === foo'bar
+'foo\\'bar' === ERROR
+'foo\\\'bar' === foo\'bar
+
+'foo"bar' === foo"bar
+'foo\"bar' === foo\"bar
+'foo\\"bar' === foo\"bar
+'foo\nbar' === foo\nbar
+'foo\tbar' === foo\tbar
+'foo\x07bar' === foo\x07bar

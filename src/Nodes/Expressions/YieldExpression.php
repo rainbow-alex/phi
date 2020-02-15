@@ -7,47 +7,42 @@ namespace Phi\Nodes\Expressions;
 use Phi\Exception\ValidationException;
 use Phi\Nodes\Expression;
 use Phi\Nodes\Generated\GeneratedYieldExpression;
-use Phi\Nodes\Oop\Method;
-use Phi\Nodes\RootNode;
-use Phi\Nodes\Statements\FunctionStatement;
+use Phi\Nodes\ValidationTraits\UnaryOpExpression;
+use Phi\Nodes\ValidationTraits\ValidateYieldContext;
 
 class YieldExpression extends Expression
 {
-    use GeneratedYieldExpression;
+	use GeneratedYieldExpression;
+	use UnaryOpExpression;
+	use ValidateYieldContext;
 
-    protected function extraValidation(int $flags): void
-    {
-        $key = $this->getKey();
-        if ($key && $key->getExpression()->getPrecedence() <= $this->getPrecedence())
-        {
-            throw ValidationException::badPrecedence($key->getExpression());
-        }
+	protected function getPrecedence(): int
+	{
+		return self::PRECEDENCE_YIELD;
+	}
 
-        $expression = $this->getExpression();
-        if ($expression && $expression->getPrecedence() < $this->getPrecedence())
-        {
-            throw ValidationException::badPrecedence($expression);
-        }
+	protected function extraValidation(int $flags): void
+	{
+		$key = $this->getKey();
+		if ($key && $key->getExpression()->getPrecedence() <= $this->getPrecedence())
+		{
+			throw ValidationException::badPrecedence($key->getExpression());
+		}
 
-        for ($parent = $this->getParent(); $parent; $parent = $parent->getParent())
-        {
-            if (
-                $parent instanceof FunctionStatement
-                || $parent instanceof Method
-                || $parent instanceof AnonymousFunctionExpression
-            )
-            {
-                break;
-            }
-            else if ($parent instanceof RootNode)
-            {
-                throw ValidationException::invalidExpressionInContext($this);
-            }
-        }
-    }
+		$this->validatePrecedence();
 
-    public function getPrecedence(): int
-    {
-        return self::PRECEDENCE_YIELD;
-    }
+		$this->validateYieldContext();
+	}
+
+	protected function extraAutocorrect(): void
+	{
+		$key = $this->getKey();
+		if ($key && $key->getExpression()->getPrecedence() <= $this->getPrecedence())
+		{
+			$keyExpression = $key->getExpression()->wrapIn(new ParenthesizedExpression());
+			$keyExpression->autocorrect();
+		}
+
+		$this->autocorrectPrecedence();
+	}
 }

@@ -6,8 +6,8 @@ namespace Phi\Tests\Testing\Fuzz;
 
 abstract class FuzzRule
 {
-    abstract public function initState(&$state): void;
+	abstract public function initState(&$state): void;
 
-    /** @return iterable<string> */
-    abstract public function generateRhs(&$state);
+	/** @return iterable<string> */
+	abstract public function generateRhs(&$state);
 }

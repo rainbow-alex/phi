@@ -4,29 +4,43 @@ declare(strict_types=1);
 
 namespace Phi\Nodes\Expressions;
 
+use Phi\Exception\LiteralParsingException;
 use Phi\Exception\ValidationException;
+use Phi\LiteralParser;
 use Phi\Nodes\Generated\GeneratedIntegerLiteral;
 use PhpParser\Node\Scalar\LNumber;
 
 class IntegerLiteral extends NumberLiteral
 {
-    use GeneratedIntegerLiteral;
+	use GeneratedIntegerLiteral;
 
-    protected function extraValidation(int $flags): void
-    {
-        if (\preg_match('{^0.*9}', $this->getToken()->getSource()))
-        {
-            throw ValidationException::invalidSyntax($this);
-        }
-    }
+	protected function extraValidation(int $flags): void
+	{
+		try
+		{
+			(new LiteralParser($this->getPhpVersion()))->validateIntegerLiteral($this->getToken()->getSource());
+		}
+		catch (LiteralParsingException $e)
+		{
+			throw ValidationException::invalidSyntax($this);
+		}
+	}
 
-    public function getValue(): int
-    {
-        return eval("return " . $this->getToken()->getSource() . ";"); // TODO
-    }
+	/**
+	 * @return int|float
+	 */
+	public function getValue()
+	{
+		return (new LiteralParser($this->getPhpVersion()))->parseIntegerLiteral($this->getToken()->getSource());
+	}
 
-    public function convertToPhpParserNode()
-    {
-        return new LNumber($this->getValue());
-    }
+	public function convertToPhpParser()
+	{
+		$value = $this->getValue();
+		if (\is_float($value))
+		{
+			throw new \LogicException(); // tODO dedicated exception
+		}
+		return new LNumber($value);
+	}
 }

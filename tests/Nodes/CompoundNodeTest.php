@@ -11,19 +11,19 @@ use PHPUnit\Framework\TestCase;
 
 class CompoundNodeTest extends TestCase
 {
-    public function test_detach()
-    {
-        $node = new IssetExpression();
-        $keyword = new Token(TokenType::T_ISSET, "isset");
-        $node->setKeyword($keyword);
+	public function test_detach()
+	{
+		$node = new IssetExpression();
+		$keyword = new Token(TokenType::T_ISSET, "isset");
+		$node->setKeyword($keyword);
 
-        self::assertTrue($keyword->isAttached());
-        self::assertTrue($node->hasKeyword());
-        self::assertSame($keyword, $node->getKeyword());
+		self::assertTrue($keyword->isAttached());
+		self::assertTrue($node->hasKeyword());
+		self::assertSame($keyword, $node->getKeyword());
 
-        $keyword->detach();
+		$keyword->detach();
 
-        self::assertFalse($keyword->isAttached());
-        self::assertFalse($node->hasKeyword());
-    }
+		self::assertFalse($keyword->isAttached());
+		self::assertFalse($node->hasKeyword());
+	}
 }

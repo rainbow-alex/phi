@@ -10,10 +10,10 @@ use PhpParser\Node\Expr\ErrorSuppress;
 
 class SuppressErrorsExpression extends Expression
 {
-    use GeneratedSuppressErrorsExpression;
+	use GeneratedSuppressErrorsExpression;
 
-    public function convertToPhpParserNode()
-    {
-        return new ErrorSuppress($this->getExpression()->convertToPhpParserNode());
-    }
+	public function convertToPhpParser()
+	{
+		return new ErrorSuppress($this->getExpression()->convertToPhpParser());
+	}
 }

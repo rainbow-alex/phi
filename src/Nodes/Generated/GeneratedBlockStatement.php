@@ -17,99 +17,96 @@ use Phi\Exception\ValidationException;
 
 trait GeneratedBlockStatement
 {
-    /**
-     * @var \Phi\Nodes\Blocks\RegularBlock|null
-     */
-    private $block;
+	/**
+	 * @var \Phi\Nodes\Blocks\RegularBlock|null
+	 */
+	private $block;
 
-    /**
-     * @param \Phi\Nodes\Blocks\RegularBlock|\Phi\Node|string|null $block
-     */
-    public function __construct($block = null)
-    {
-        if ($block !== null)
-        {
-            $this->setBlock($block);
-        }
-    }
+	/**
+	 * @param \Phi\Nodes\Blocks\RegularBlock|\Phi\Node|string|null $block
+	 */
+	public function __construct($block = null)
+	{
+		if ($block !== null)
+		{
+			$this->setBlock($block);
+		}
+	}
 
-    /**
-     * @param \Phi\Nodes\Blocks\RegularBlock $block
-     * @return self
-     */
-    public static function __instantiateUnchecked($block)
-    {
-        $instance = new self;
-        $instance->block = $block;
-        $block->parent = $instance;
-        return $instance;
-    }
+	/**
+	 * @param \Phi\Nodes\Blocks\RegularBlock $block
+	 * @return self
+	 */
+	public static function __instantiateUnchecked($block)
+	{
+		$instance = new self;
+	$instance->setBlock($block);
+		return $instance;
+	}
 
-    public function getChildNodes(): array
-    {
-        return \array_values(\array_filter([
-            $this->block,
-        ]));
-    }
+	public function getChildNodes(): array
+	{
+		return \array_values(\array_filter([
+			$this->block,
+		]));
+	}
 
-    protected function &getChildRef(Node $childToDetach): Node
-    {
-        if ($this->block === $childToDetach)
-        {
-            return $this->block;
-        }
-        throw new \LogicException();
-    }
+	protected function &getChildRef(Node $childToDetach): Node
+	{
+		if ($this->block === $childToDetach)
+			return $this->block;
+		throw new \LogicException();
+	}
 
-    public function getBlock(): \Phi\Nodes\Blocks\RegularBlock
-    {
-        if ($this->block === null)
-        {
-            throw TreeException::missingNode($this, "block");
-        }
-        return $this->block;
-    }
+	public function getBlock(): \Phi\Nodes\Blocks\RegularBlock
+	{
+		if ($this->block === null)
+		{
+			throw TreeException::missingNode($this, "block");
+		}
+		return $this->block;
+	}
 
-    public function hasBlock(): bool
-    {
-        return $this->block !== null;
-    }
+	public function hasBlock(): bool
+	{
+		return $this->block !== null;
+	}
 
-    /**
-     * @param \Phi\Nodes\Blocks\RegularBlock|\Phi\Node|string|null $block
-     */
-    public function setBlock($block): void
-    {
-        if ($block !== null)
-        {
-            /** @var \Phi\Nodes\Blocks\RegularBlock $block */
-            $block = NodeCoercer::coerce($block, \Phi\Nodes\Blocks\RegularBlock::class, $this->getPhpVersion());
-            $block->detach();
-            $block->parent = $this;
-        }
-        if ($this->block !== null)
-        {
-            $this->block->detach();
-        }
-        $this->block = $block;
-    }
+	/**
+	 * @param \Phi\Nodes\Blocks\RegularBlock|\Phi\Node|string|null $block
+	 */
+	public function setBlock($block): void
+	{
+		if ($block !== null)
+		{
+			/** @var \Phi\Nodes\Blocks\RegularBlock $block */
+			$block = NodeCoercer::coerce($block, \Phi\Nodes\Blocks\RegularBlock::class, $this->getPhpVersion());
+			$block->detach();
+			$block->parent = $this;
+		}
+		if ($this->block !== null)
+		{
+			$this->block->detach();
+		}
+		$this->block = $block;
+	}
 
-    public function _validate(int $flags): void
-    {
-        if ($this->block === null)
-            throw ValidationException::missingChild($this, "block");
+	public function _validate(int $flags): void
+	{
+		if ($this->block === null)
+			throw ValidationException::missingChild($this, "block");
 
 
-        $this->extraValidation($flags);
+		$this->extraValidation($flags);
 
-        $this->block->_validate(0);
-    }
+		$this->block->_validate(0);
+	}
 
-    public function _autocorrect(): void
-    {
-        if ($this->block)
-            $this->block->_autocorrect();
+	public function _autocorrect(): void
+	{
+		if ($this->block)
+			$this->block->_autocorrect();
 
-        $this->extraAutocorrect();
-    }
+		$this->extraAutocorrect();
+	}
 }

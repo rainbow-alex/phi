@@ -9,6 +9,6 @@ use Phi\Nodes\Statement;
 
 class TryStatement extends Statement
 {
-    use GeneratedTryStatement;
+	use GeneratedTryStatement;
 
 }

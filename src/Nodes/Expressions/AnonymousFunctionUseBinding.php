@@ -11,13 +11,13 @@ use PhpParser\Node\Expr\Variable;
 
 class AnonymousFunctionUseBinding extends CompoundNode
 {
-    use GeneratedAnonymousFunctionUseBinding;
+	use GeneratedAnonymousFunctionUseBinding;
 
-    public function convertToPhpParserNode()
-    {
-        return new ClosureUse(
-            new Variable(\substr($this->getVariable()->getSource(), 1)),
-            $this->hasByReference()
-        );
-    }
+	public function convertToPhpParser()
+	{
+		return new ClosureUse(
+			new Variable(\substr($this->getVariable()->getSource(), 1)),
+			$this->hasByReference()
+		);
+	}
 }

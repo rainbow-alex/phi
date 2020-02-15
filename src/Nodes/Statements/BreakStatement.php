@@ -8,5 +8,5 @@ use Phi\Nodes\Generated\GeneratedBreakStatement;
 
 class BreakStatement extends LoopFlowStatement
 {
-    use GeneratedBreakStatement;
+	use GeneratedBreakStatement;
 }

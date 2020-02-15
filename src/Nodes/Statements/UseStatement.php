@@ -9,6 +9,5 @@ use Phi\Nodes\Statement;
 
 class UseStatement extends Statement
 {
-    use GeneratedUseStatement;
-
+	use GeneratedUseStatement;
 }

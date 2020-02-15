@@ -10,10 +10,10 @@ use PhpParser\Node\Expr\Eval_;
 
 class EvalExpression extends Expression
 {
-    use GeneratedEvalExpression;
+	use GeneratedEvalExpression;
 
-    public function convertToPhpParserNode()
-    {
-        return new Eval_($this->getExpression()->convertToPhpParserNode());
-    }
+	public function convertToPhpParser()
+	{
+		return new Eval_($this->getExpression()->convertToPhpParser());
+	}
 }

@@ -10,13 +10,13 @@ use Phi\TokenType;
 
 class ClassConstant extends OopMember
 {
-    use GeneratedClassConstant;
+	use GeneratedClassConstant;
 
-    protected function extraValidation(int $flags): void
-    {
-        if ($this->getName()->getSource() === "class")
-        {
-            throw ValidationException::invalidSyntax($this->getName(), [TokenType::T_STRING]);
-        }
-    }
+	protected function extraValidation(int $flags): void
+	{
+		if ($this->getName()->getSource() === 'class')
+		{
+			throw ValidationException::invalidSyntax($this->getName(), [TokenType::T_STRING]);
+		}
+	}
 }

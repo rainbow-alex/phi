@@ -9,5 +9,5 @@ use Phi\Nodes\Generated\GeneratedImplements;
 
 class Implements_ extends CompoundNode
 {
-    use GeneratedImplements;
+	use GeneratedImplements;
 }

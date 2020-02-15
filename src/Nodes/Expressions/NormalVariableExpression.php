@@ -9,10 +9,10 @@ use PhpParser\Node\Expr\Variable;
 
 class NormalVariableExpression extends VariableExpression
 {
-    use GeneratedNormalVariableExpression;
+	use GeneratedNormalVariableExpression;
 
-    public function convertToPhpParserNode()
-    {
-        return new Variable(substr($this->getToken()->getSource(), 1));
-    }
+	public function convertToPhpParser()
+	{
+		return new Variable(substr($this->getToken()->getSource(), 1));
+	}
 }

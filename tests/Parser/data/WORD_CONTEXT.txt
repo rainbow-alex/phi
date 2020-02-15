@@ -6,8 +6,10 @@ $v->WORD_TOKEN;
 $v->WORD_TOKEN();
 ident::WORD_TOKEN;
 ident::WORD_TOKEN();
+new WORD_TOKEN;
+new WORD_TOKEN();
 WORD_TOKEN::ident;
-\WORD_TOKEN;
+WORD_TOKEN::class;
 WORD_TOKEN;
 
 use WORD_TOKEN;
@@ -15,8 +17,19 @@ use ident as WORD_TOKEN;
 
 class WORD_TOKEN {}
 class ident { const WORD_TOKEN = 0; }
+class ident { function WORD_TOKEN() {}; }
+class ident { use WORD_TOKEN; }
+class ident { use ident { WORD_TOKEN as ident; }
+class ident { use ident { WORD_TOKEN::ident as ident; }
+class ident { use ident { ident::WORD_TOKEN as ident; }
+class ident { use ident { ident as WORD_TOKEN; }
+class ident { use ident { ident as public WORD_TOKEN; }
 
-// if (0) is a workaround for "Fatal error: cannot redeclare X" which is returned by php -l
+const WORD_TOKEN = 0;
+
+// if (0) works around redeclare errors
 if (0) { function WORD_TOKEN() {} }
+function ident(WORD_TOKEN $v) {}
+function ident(): WORD_TOKEN {}
 
 WORD_TOKEN:

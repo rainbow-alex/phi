@@ -10,16 +10,16 @@ use PhpParser\Node\Expr\BinaryOp\LogicalOr;
 
 class KeywordOrExpression extends BinopExpression
 {
-    use GeneratedKeywordOrExpression;
-    use LeftAssocBinopExpression;
+	use GeneratedKeywordOrExpression;
+	use LeftAssocBinopExpression;
 
-    public function convertToPhpParserNode()
-    {
-        return new LogicalOr($this->getLeft()->convertToPhpParserNode(), $this->getRight()->convertToPhpParserNode());
-    }
+	public function convertToPhpParser()
+	{
+		return new LogicalOr($this->getLeft()->convertToPhpParser(), $this->getRight()->convertToPhpParser());
+	}
 
-    public function getPrecedence(): int
-    {
-        return self::PRECEDENCE_KEYWORD_OR;
-    }
+	protected function getPrecedence(): int
+	{
+		return self::PRECEDENCE_KEYWORD_OR;
+	}
 }

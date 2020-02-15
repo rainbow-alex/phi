@@ -1,5 +1,6 @@
 /.idea/
-/meta/bin/.php-l-cache
+/cache/
+/tests/Parser/data/generated/syntax-checks.json
 /vendor/
 /composer.lock
 

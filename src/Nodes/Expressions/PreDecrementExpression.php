@@ -9,10 +9,10 @@ use PhpParser\Node\Expr\PreDec;
 
 class PreDecrementExpression extends CrementExpression
 {
-    use GeneratedPreDecrementExpression;
+	use GeneratedPreDecrementExpression;
 
-    public function convertToPhpParserNode()
-    {
-        return new PreDec($this->getExpression()->convertToPhpParserNode());
-    }
+	public function convertToPhpParser()
+	{
+		return new PreDec($this->getExpression()->convertToPhpParser());
+	}
 }

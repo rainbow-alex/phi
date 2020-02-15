@@ -30,20 +30,30 @@ isset($v, $v)
 
 []
 [$v]
-[EXPR => $v]
-[&$v]
-[$v => &$v]
 [$v,]
+[$v, $v]
+[EXPR => $v]
+[...$v]
 [$v, ...$v]
 [...$v, $v]
+[...$v] = $v
+[...]
+[&$v]
+[$v => &$v]
+[...&$v]
 array()
 array($v)
-array(EXPR => $v)
-array(&$v)
-array($v => &$v)
 array($v,)
+array($v, $v)
+array(EXPR => $v)
+array(...$v)
 array($v, ...$v)
 array(...$v, $v)
+array(...$v) = $v
+array(...)
+array(&$v)
+array($v => &$v)
+array(...&$v)
 
 function () {}
 static function () {}
@@ -60,10 +70,29 @@ function () use ($v,) {}
 -1234
 01234
 0999
-// TODO hex
 12_34
 1_2_3_4
 12__34
+_12
+12_
+0x
+0x0
+0xG
+0xBEEF
+0xD_E_A_F
+0x_D
+0xD__D
+0xD_
+0XD
+0123
+0_777
+06_75
+08
+012349
+0b0
+0b101010111
+0b1_0_1
+0B1
 
 12.34
 -12.34
@@ -81,3 +110,6 @@ function () use ($v,) {}
 12.3_4
 1_2.3_4
 1__2.34
+1_.23
+_1.23
+1e2_3_4

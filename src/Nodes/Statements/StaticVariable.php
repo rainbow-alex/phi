@@ -9,6 +9,6 @@ use Phi\Nodes\Statement;
 
 class StaticVariable extends Statement
 {
-    use GeneratedStaticVariable;
+	use GeneratedStaticVariable;
 
 }

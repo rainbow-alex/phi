@@ -4,34 +4,53 @@ declare(strict_types=1);
 
 namespace Phi\Nodes\Expressions;
 
-use Phi\Nodes\Expressions\StringInterpolation\ConstantInterpolatedStringPart;
 use Phi\Nodes\Generated\GeneratedHeredocStringLiteral;
+use Phi\Nodes\ValidationTraits\DocStringLiteral;
 use PhpParser\Node\Scalar\Encapsed;
+use PhpParser\Node\Scalar\EncapsedStringPart;
 use PhpParser\Node\Scalar\String_;
 
 class HeredocStringLiteral extends InterpolatedStringLiteral
 {
-    use GeneratedHeredocStringLiteral;
+	use GeneratedHeredocStringLiteral;
+	use DocStringLiteral;
 
-    public function convertToPhpParserNode()
-    {
-        $parts = $this->getParts()->getItems();
-        if (count($parts) === 0)
-        {
-            return new String_("");
-        }
-        else if (count($parts) === 1 && $parts[0] instanceof ConstantInterpolatedStringPart)
-        {
-            /** @var ConstantInterpolatedStringPart $part */
-            $part = $parts[0];
-            $content = \substr($part->getContent()->getSource(), 0, -1); // TODO verify: it seems php-parser trims a newline
-            // TODO this static method is internal, figure it out somehow?
-            // TODO fix quote type
-            return new String_(String_::parseEscapeSequences($content, '"', true));
-        }
-        else
-        {
-            return new Encapsed($this->parts->convertToPhpParserNode());
-        }
-    }
+	protected function extraValidation(int $flags): void
+	{
+		$this->validateEndDelimiter();
+	}
+
+	public function convertToPhpParser()
+	{
+		$parts = $this->getParts()->convertToPhpParser();
+
+		$parts = \array_values(\array_filter($parts, function ($part): bool
+		{
+			return !($part instanceof EncapsedStringPart) || $part->value !== "";
+		}));
+
+		// trim one newline, dropping the entire string part if it becomes empty
+		$lastPart = \end($parts);
+		if ($lastPart instanceof EncapsedStringPart)
+		{
+			$lastPart->value = \substr($lastPart->value, 0, -1);
+			if ($lastPart->value === "")
+			{
+				\array_pop($parts);
+			}
+		}
+
+		if (count($parts) === 0)
+		{
+			return new String_("");
+		}
+		else if (count($parts) === 1 && $parts[0] instanceof EncapsedStringPart)
+		{
+			return new String_($parts[0]->value);
+		}
+		else
+		{
+			return new Encapsed($parts);
+		}
+	}
 }

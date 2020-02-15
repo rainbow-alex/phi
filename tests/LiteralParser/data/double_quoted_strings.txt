@@ -1,0 +1,50 @@
+" === ERROR
+foo === ERROR
+'foo' === ERROR
+"" === EMPTY
+"foo" === foo
+"<0A>" === <0A>
+"\<0A>" === \<0A>
+
+"\" === ERROR
+"\\" === \
+"\\\" === ERROR
+"\\\\" === \\
+
+"foo\bar" === foo\bar
+"foo\\bar" === foo\bar
+"foo\\\bar" === foo\\bar
+"foo\\\\bar" === foo\\bar
+
+"foo'bar" === foo'bar
+"foo\'bar" === foo\'bar
+"foo\\'bar" === foo\'bar
+"foo\\\'bar" === foo\\'bar
+
+"foo"bar" === ERROR
+"foo\"bar" === foo"bar
+"foo\\"bar# === ERROR
+"foo\\\"bar" === foo\"bar
+
+"\n" === <0A>
+"\r" === <0D>
+"\t" === <09>
+
+"\0" === <00>
+"\101" === A
+"\102" === B
+"\1021" === B1
+"\8" === \8
+"\107" === <47>
+"\108" === <08 38>
+
+"\x41" === A
+"\X42" === B
+"\xGG" === \xGG
+
+"\u{0}" === <00>
+"\u{41}" === A
+"\u{42}" === B
+"\u{1F4A9}" === <F0 9F 92 A9>
+
+"\h" === \h

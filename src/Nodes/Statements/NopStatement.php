@@ -9,5 +9,5 @@ use Phi\Nodes\Statement;
 
 class NopStatement extends Statement
 {
-    use GeneratedNopStatement;
+	use GeneratedNopStatement;
 }

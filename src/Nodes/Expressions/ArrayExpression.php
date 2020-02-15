@@ -7,145 +7,174 @@ namespace Phi\Nodes\Expressions;
 use Phi\Exception\ValidationException;
 use Phi\Nodes\Base\SeparatedNodesList;
 use Phi\Nodes\Expression;
+use Phi\PhpVersion;
 use PhpParser\Node\Expr\Array_;
 
 abstract class ArrayExpression extends Expression
 {
-    /**
-     * @return SeparatedNodesList|ArrayItem[]
-     * @phpstan-return SeparatedNodesList<\Phi\Nodes\Expressions\ArrayItem>
-     */
-    abstract public function getItems(): SeparatedNodesList;
+	/**
+	 * @return SeparatedNodesList|ArrayItem[]
+	 * @phpstan-return SeparatedNodesList<\Phi\Nodes\Expressions\ArrayItem>
+	 */
+	abstract public function getItems(): SeparatedNodesList;
 
-    public function isConstant(): bool
-    {
-        foreach ($this->getItems() as $item)
-        {
-            if ($key = $item->getKey())
-            {
-                if (!$key->getExpression()->isConstant())
-                {
-                    return false;
-                }
-            }
+	public function isConstant(): bool
+	{
+		foreach ($this->getItems() as $item)
+		{
+			if ($key = $item->getKey())
+			{
+				if (!$key->getExpression()->isConstant())
+				{
+					return false;
+				}
+			}
 
-            if ($item->hasByReference())
-            {
-                return false;
-            }
+			if ($item->hasByReference())
+			{
+				return false;
+			}
 
-            $value = $item->getValue();
-            if (!$value || !$value->isConstant())
-            {
-                return false;
-            }
-        }
+			$value = $item->getValue();
+			if (!$value || !$value->isConstant())
+			{
+				return false;
+			}
+		}
 
-        return true;
-    }
+		return true;
+	}
 
-    protected function extraValidation(int $flags): void
-    {
-        if ($flags & self::CTX_READ)
-        {
-            // (only) in read we keep track of whether the array is constant
-            // if it is completely, we will run an additional check on the key types
-            $constant = true;
+	protected function extraValidation(int $flags): void
+	{
+		$phpVersion = $this->getPhpVersion();
 
-            foreach ($this->getItems() as $item)
-            {
-                if ($key = $item->getKey())
-                {
-                    $constant = $constant && $key->getExpression()->isConstant();
+		if ($flags & self::CTX_READ)
+		{
+			// (only) in read we keep track of whether the array is constant
+			// if it is completely, we will run an additional check on the key types
+			$constant = true;
 
-                    if (!$constant)
-                    {
-                        $key->getExpression()->_validate(self::CTX_READ);
-                    }
-                }
+			foreach ($this->getItems() as $item)
+			{
+				if ($key = $item->getKey())
+				{
+					$constant = $constant && $key->getExpression()->isConstant();
 
-                if ($value = $item->getValue())
-                {
-                    if ($item->hasByReference())
-                    {
-                        $constant = false;
+					$key->getExpression()->_validate(self::CTX_READ);
+				}
 
-                        $value->_validate(self::CTX_READ | self::CTX_ALIAS_WRITE);
-                    }
-                    else
-                    {
-                        $constant = $constant && $value->isConstant();
+				if ($unpack = $item->getUnpack())
+				{
+					if ($phpVersion < PhpVersion::PHP_7_4)
+					{
+						throw ValidationException::invalidSyntax($unpack);
+					}
 
-                        if (!$constant)
-                        {
-                            $value->_validate(self::CTX_READ);
-                        }
-                    }
-                }
-                else
-                {
-                    throw ValidationException::invalidExpressionInContext($this);
-                }
-            }
+					$value = $item->getValue();
+					if ($value instanceof NumberLiteral)
+					{
+						throw ValidationException::invalidExpressionInContext($value);
+					}
 
-            if ($constant)
-            {
-                foreach ($this->getItems() as $item)
-                {
-                    if ($key = $item->getKey())
-                    {
-                        if ($key->getExpression() instanceof ArrayExpression && $key->getExpression()->isConstant())
-                        {
-                            throw ValidationException::invalidExpressionInContext($key->getExpression());
-                        }
-                    }
-                }
-            }
-        }
-        else if ($flags & self::CTX_WRITE)
-        {
-            $empty = true;
+					if ($byRef = $item->getByReference())
+					{
+						throw ValidationException::invalidSyntax($byRef);
+					}
+				}
 
-            foreach ($this->getItems() as $item)
-            {
-                if ($key = $item->getKey())
-                {
-                    $key->getExpression()->_validate(self::CTX_READ);
-                    // note with write the key check isn't done
-                }
+				if ($value = $item->getValue())
+				{
+					if ($item->hasByReference())
+					{
+						$constant = false;
 
-                if ($byRef = $item->getByReference())
-                {
-                    throw ValidationException::invalidExpressionInContext($this);
-                }
+						$value->_validate(self::CTX_READ | self::CTX_ALIAS_WRITE);
+					}
+					else
+					{
+						$constant = $constant && $value->isConstant();
 
-                if ($value = $item->getValue())
-                {
-                    $empty = false;
-                    $value->_validate(self::CTX_WRITE);
+						$value->_validate(self::CTX_READ);
+					}
+				}
+				else
+				{
+					throw ValidationException::invalidExpressionInContext($this);
+				}
+			}
 
-                    if ($value instanceof ListExpression) // and vice versa for list
-                    {
-                        throw ValidationException::invalidExpressionInContext($value);
-                    }
-                }
-                // else: empty value is ok for write context
-            }
+			if ($constant)
+			{
+				foreach ($this->getItems() as $item)
+				{
+					if ($key = $item->getKey())
+					{
+						if ($key->getExpression() instanceof ArrayExpression && $key->getExpression()->isConstant())
+						{
+							throw ValidationException::invalidExpressionInContext($key->getExpression());
+						}
+					}
+				}
+			}
+		}
+		else if ($flags & self::CTX_WRITE)
+		{
+			$empty = true;
 
-            if ($empty)
-            {
-                throw ValidationException::invalidExpressionInContext($this);
-            }
-        }
-    }
+			foreach ($this->getItems() as $item)
+			{
+				if ($key = $item->getKey())
+				{
+					$key->getExpression()->_validate(self::CTX_READ);
+					// note with write the key check isn't done
+				}
 
-    public function convertToPhpParserNode()
-    {
-        $items = [];
-        foreach ($this->getItems() as $phiItem)
-        {
-            $items[] = $phiItem->convertToPhpParserNode();
-        }
-        return new Array_($items);
-    }
+				if ($unpack = $item->getUnpack())
+				{
+					throw ValidationException::invalidSyntax($unpack);
+				}
+
+				if ($phpVersion < PhpVersion::PHP_7_3 && $item->hasByReference())
+				{
+					throw ValidationException::invalidExpressionInContext($this);
+				}
+
+				if ($value = $item->getValue())
+				{
+					$empty = false;
+
+					if ($value instanceof ListExpression) // and vice versa for list
+					{
+						throw ValidationException::invalidExpressionInContext($value);
+					}
+
+					if ($item->hasByReference()) // 7.3 and up, already validated
+					{
+						$value->_validate(self::CTX_ALIAS_WRITE);
+					}
+					else
+					{
+						$value->_validate(self::CTX_WRITE);
+					}
+				}
+				// else: empty value is ok for write context
+			}
+
+			if ($empty)
+			{
+				throw ValidationException::invalidExpressionInContext($this);
+			}
+		}
+	}
+
+	public function convertToPhpParser()
+	{
+		$items = [];
+		foreach ($this->getItems() as $phiItem)
+		{
+			$items[] = $phiItem->convertToPhpParser();
+		}
+		return new Array_($items);
+	}
 }

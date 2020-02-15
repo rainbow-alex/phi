@@ -9,5 +9,5 @@ use Phi\Nodes\Generated\GeneratedAnonymousFunctionUse;
 
 class AnonymousFunctionUse extends CompoundNode
 {
-    use GeneratedAnonymousFunctionUse;
+	use GeneratedAnonymousFunctionUse;
 }

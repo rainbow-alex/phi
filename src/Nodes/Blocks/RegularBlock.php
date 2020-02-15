@@ -9,5 +9,5 @@ use Phi\Nodes\Generated\GeneratedRegularBlock;
 
 class RegularBlock extends Block
 {
-    use GeneratedRegularBlock;
+	use GeneratedRegularBlock;
 }

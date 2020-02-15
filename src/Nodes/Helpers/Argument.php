@@ -10,10 +10,15 @@ use PhpParser\Node\Arg;
 
 class Argument extends CompoundNode
 {
-    use GeneratedArgument;
+	use GeneratedArgument;
 
-    public function convertToPhpParserNode()
-    {
-        return new Arg($this->getExpression()->convertToPhpParserNode(), false, $this->hasUnpack());
-    }
+	protected function extraValidation(int $flags): void
+	{
+		$this->getExpression()->_validate($this->hasUnpack() ? self::CTX_READ : self::CTX_READ|self::CTX_LENIENT_READ);
+	}
+
+	public function convertToPhpParser()
+	{
+		return new Arg($this->getExpression()->convertToPhpParser(), false, $this->hasUnpack());
+	}
 }

@@ -6,5 +6,5 @@ namespace Phi;
 
 abstract class Specification
 {
-    abstract public function isSatisfiedBy(Node $node): bool;
+	abstract public function isSatisfiedBy(Node $node): bool;
 }

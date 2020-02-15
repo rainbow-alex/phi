@@ -10,11 +10,11 @@ use PhpParser\Node\Stmt\InlineHTML;
 
 class InlineHtmlStatement extends Statement
 {
-    use GeneratedInlineHtmlStatement;
+	use GeneratedInlineHtmlStatement;
 
-    public function convertToPhpParserNode()
-    {
-        $content = $this->getContent();
-        return new InlineHTML($content ? $content->getSource() : "");
-    }
+	public function convertToPhpParser()
+	{
+		$content = $this->getContent();
+		return new InlineHTML($content ? $content->getSource() : "");
+	}
 }

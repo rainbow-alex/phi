@@ -9,5 +9,5 @@ use Phi\Nodes\Statement;
 
 class ReturnStatement extends Statement
 {
-    use GeneratedReturnStatement;
+	use GeneratedReturnStatement;
 }

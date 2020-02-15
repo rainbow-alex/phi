@@ -11,16 +11,23 @@ use Phi\Nodes\Generated\GeneratedForeachStatement;
 
 class ForeachStatement extends LoopStatement
 {
-    use GeneratedForeachStatement;
+	use GeneratedForeachStatement;
 
-    protected function extraValidation(int $flags): void
-    {
-        if ($key = $this->getKey())
-        {
-            if ($key->getExpression() instanceof ListExpression || $key->getExpression() instanceof ShortArrayExpression)
-            {
-                throw ValidationException::invalidExpressionInContext($key->getExpression());
-            }
-        }
-    }
+	protected function extraValidation(int $flags): void
+	{
+		if ($key = $this->getKey())
+		{
+			if ($key->getExpression() instanceof ListExpression || $key->getExpression() instanceof ShortArrayExpression)
+			{
+				throw ValidationException::invalidExpressionInContext($key->getExpression());
+			}
+		}
+
+		// TODO do we test by ref + destruct?
+		$value = $this->getValue();
+		if ($this->hasByReference() && $value->isTemporary())
+		{
+			throw ValidationException::invalidExpressionInContext($value);
+		}
+	}
 }

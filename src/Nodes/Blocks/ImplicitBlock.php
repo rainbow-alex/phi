@@ -9,10 +9,10 @@ use Phi\Nodes\Generated\GeneratedImplicitBlock;
 
 class ImplicitBlock extends Block
 {
-    use GeneratedImplicitBlock;
+	use GeneratedImplicitBlock;
 
-    public function getStatements(): iterable
-    {
-        return [$this->getStatement()];
-    }
+	public function getStatements(): iterable
+	{
+		return [$this->getStatement()];
+	}
 }

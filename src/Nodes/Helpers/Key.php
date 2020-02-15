@@ -9,5 +9,5 @@ use Phi\Nodes\Generated\GeneratedKey;
 
 class Key extends CompoundNode
 {
-    use GeneratedKey;
+	use GeneratedKey;
 }

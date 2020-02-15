@@ -9,5 +9,5 @@ use Phi\Nodes\Statement;
 
 class IfStatement extends Statement
 {
-    use GeneratedIfStatement;
+	use GeneratedIfStatement;
 }

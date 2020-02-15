@@ -7,14 +7,13 @@ namespace Phi\Tests\Parser;
 use Phi\Exception\PhiException;
 use Phi\Nodes\Statements\ExpressionStatement;
 use Phi\Parser;
-use Phi\PhpVersion;
 use Phi\Tests\Nodes\NodesFuzzTest;
 use Phi\Tests\Testing\Fuzz\FuzzGenerator;
 use Phi\Tests\Testing\Fuzz\Permute;
 use Phi\Tests\Testing\Fuzz\WeightedPermute;
-use Phi\Tests\Testing\TestRepr;
-use PhpParser\Node as PPNodes;
+use Phi\Tests\Testing\NodeAssertions;
 use PhpParser\NodeDumper;
+use PhpParser\ParserFactory;
 use PHPUnit\Framework\TestCase;
 
 /**
@@ -35,126 +34,184 @@ use PHPUnit\Framework\TestCase;
  */
 class ParserFuzzTest extends TestCase
 {
-    // unfortunately overhead seems to be pretty big per test, running things in batches is a bit faster
-    private const BATCH = 25;
-    // case data passed via this static var so phpunit doesn't dump all of it when a test fails
-    private static $cases;
+	use NodeAssertions;
 
-    /** @dataProvider cases */
-    public function test(int $offset): void
-    {
-        foreach (\array_slice(self::$cases, $offset, self::BATCH) as $source => $case)
-        {
-            $parser = new Parser(PhpVersion::PHP_7_2);
+	// phpunit overhead seems to be pretty big per test, running things in batches is a lot faster
+	private const BATCH = 100;
+	/** @var string[] */
+	private static $cases;
 
-            try
-            {
-                $ast = $parser->parse(null, $source);
-                $ast->validate();
-            }
-            catch (PhiException $e)
-            {
-                if ($case["php"] === true)
-                {
-                    self::fail(
-                        "Failed to parse valid code!\n"
-                        . "Got: " . $e->getMessageWithContext() . "\n"
-                        . $source
-                    );
-                }
+	/** @var array<array<string|true>> result of php -l, per version (pre-generated) */
+	private static $phpLint;
 
-                self::assertTrue(true);
-                continue;
-            }
+	/** @var \PhpParser\Parser */
+	private static $ppParser;
+	/** @var NodeDumper */
+	private static $ppDumper;
 
-            if ($case["php"] !== true)
-            {
-                self::fail(
-                    "Accepted invalid code!\n"
-                    . "Expected: " . $case["php"] . "\n"
-                    . $source
-                );
-            }
+	public static function setUpBeforeClass(): void
+	{
+		parent::setUpBeforeClass();
 
-            // test for parsing regressions TODO remove this? what does it detect...?
-            self::assertSame($case["phi"], TestRepr::node($ast), $source);
+		// self::$cases gets initialized by the data provider
 
-            self::assertSame($source, (string) $ast);
+		self::$phpLint = \json_decode(\gzdecode(
+			\file_get_contents(__DIR__ . "/data/generated/syntax-checks.json.gz")
+		), true);
 
-            // TODO log these bugs with php-parser
-            if (
-                \strpos($source, "NOWDOC") !== false // TODO only broken on <7.3?
-                || $source === '<?php isset(($a));'
-                || $source === '<?php list(($a)) = $b;'
-                || $source === '<?php list(($a[])) = $b;'
-                || $source === '<?php list(($a[$b])) = $c;'
-            )
-            {
-                return;
-            }
+		self::$ppParser = (new ParserFactory())->create(ParserFactory::ONLY_PHP7);
+		self::$ppDumper = (new NodeDumper());
+	}
 
-            // TODO also check against php-parser for statements
-            $stmt = $ast->getStatements()->getItems()[1];
-            if ($stmt instanceof ExpressionStatement && count($ast->getStatements()) === 2)
-            {
-                $expr = $stmt->getExpression();
+	/** @dataProvider cases */
+	public function test_7_2(int $offset): void
+	{
+		$this->doTest($offset, "7.2", 70200);
+	}
 
-                $ppDumper = (new NodeDumper());
-                $ppParser = (new \PhpParser\ParserFactory())->create(\PhpParser\ParserFactory::ONLY_PHP7);
+	/** @dataProvider cases */
+	public function test_7_3(int $offset): void
+	{
+		$this->doTest($offset, "7.3", 70300);
+	}
 
-                try
-                {
-                    $ppAst = $ppParser->parse($source);
-                }
-                catch (\Throwable $t)
-                {
-                    var_dump($source); // TODO improve error reporting
-                    throw $t;
-                }
-                self::assertCount(1, $ppAst);
-                self::assertInstanceOf(PPNodes\Stmt\Expression::class, $ppAst[0]);
-                $expectedPpDump = $ppDumper->dump($ppAst[0]->expr);
+	/** @dataProvider cases */
+	public function test_7_4(int $offset): void
+	{
+		$this->doTest($offset, "7.4", 70400);
+	}
 
-                $actualPpDump = $ppDumper->dump($expr->convertToPhpParserNode());
+	private function doTest(int $offset, string $version, int $versionId): void
+	{
+		foreach (\array_slice(self::$cases, $offset, self::BATCH) as $source)
+		{
+			$parser = new Parser($versionId);
 
-                self::assertSame($expectedPpDump, $actualPpDump, $source);
-            }
-        }
-    }
+			if (!isset(self::$phpLint[$source][$version]))
+			{
+				self::addWarning("PHP syntax check result not available: " . $source);
+				continue;
+			}
 
-    public function cases(): iterable
-    {
-        self::$cases = \json_decode(\file_get_contents(__DIR__ . "/data/generated/fuzz.json"), true);
-        for ($i = 0; $i < count(self::$cases); $i += self::BATCH)
-        {
-            yield [$i];
-        }
-    }
+			try
+			{
+				$ast = $parser->parse(null, $source);
+				self::assertNodeTreeIsCorrect($ast);
+				$ast->validate();
+			}
+			catch (PhiException $e)
+			{
+				if (self::$phpLint[$source][$version] === true)
+				{
+					self::fail(
+						"Failed to parse valid code!\n"
+						. $version . ": " . $source
+						. "Got: " . $e->getMessage() . "\n"
+						. $e->getTraceAsString()
+					);
+				}
 
-    /**
-     * @return iterable<string>
-     */
-    public static function generate()
-    {
-        $generator = FuzzGenerator::parseDir(__DIR__ . "/data/");
+				self::assertTrue(true);
+				continue;
+			}
 
-        // helper rules for things we can't generate with the helper syntax
-        $generator->addRule("#BLANK#", new Permute(['']));
-        $generator->addRule("#SPACE#", new Permute([" "]));
-        $generator->addRule("#NEWLINE#", new Permute(["\n"]));
+			// TODO assert tokens when emulating?
 
-        $exprFull = $generator->getRule("EXPR_FULL");
-        \assert($exprFull instanceof WeightedPermute);
+			if (self::$phpLint[$source][$version] !== true)
+			{
+				self::fail(
+					"Accepted invalid code!\n"
+					. "Expected: " . self::$phpLint[$source][$version] . "\n"
+					. $version . ": " . $source
+				);
+			}
 
-        // reusable variant of EXPR_FULL which generates less combination, for testing in combination with other constructs
-        $generator->addRule("EXPR", $exprFull->withMax(6));
-        // generates some expressions more likely to work in a const context
-        $generator->addRule("EXPR_CONST", $exprFull->withMax(8)->map(function (string $rhs) {
-            return \str_replace('$v', 'ident', $rhs);
-        }));
-        // binops, but operators with same precedence emitted to reduce redundant test cases
-        $generator->addRule("BINOP_MIN", $generator->getRule("BINOP")->withMax(1));
+			self::assertSame($source, $ast->toPhp());
 
-        return $generator->generate("__ROOT__");
-    }
+			// TODO log these bugs with php-parser
+			if (
+				\strpos($source, '<<<') !== false // can't correctly parse some unflexible here/nowdocs
+				|| \strpos($source, 'isset((') !== false
+				|| \strpos($source, 'list((') !== false
+				|| $source === '<?php fn::class;'
+				|| $source === '<?php new fn();'
+			)
+			{
+				return;
+			}
+
+			// TODO also check statements
+			if (\count($ast->getStatements()) === 2)
+			{
+				$stmt = $ast->getStatements()->getItems()[1];
+				if ($stmt instanceof ExpressionStatement)
+				{
+					try
+					{
+						$expectedPpDump = self::$ppDumper->dump(self::$ppParser->parse($source));
+					}
+					catch (\Throwable $e)
+					{
+						var_dump($source);
+						throw $e;
+					}
+					try
+					{
+						$actualPpDump = self::$ppDumper->dump($ast->convertToPhpParser());
+					}
+					catch (PhiException $e)
+					{
+						// self::fail($e->getMessageWithContext());
+						return;
+					}
+
+					self::assertSame($expectedPpDump, $actualPpDump, $source);
+				}
+			}
+		}
+	}
+
+	public function cases(): iterable
+	{
+		if (!self::$cases)
+		{
+			self::$cases = \iterator_to_array(self::generate(), false);
+			self::$cases = \array_unique(self::$cases);
+			sort(self::$cases);
+
+			if ($filter = getenv('PHI_FUZZ_FILTER'))
+			{
+				self::$cases = \array_values(\array_filter(self::$cases, function ($src) use ($filter)
+				{
+					return strpos($src, $filter) !== false;
+				}));
+			}
+		}
+
+		// case data is passed via offset so phpunit doesn't dump all of it when a test fails
+		for ($i = 0; $i < count(self::$cases); $i += self::BATCH)
+		{
+			yield [$i];
+		}
+	}
+
+	public static function generate()
+	{
+		$generator = FuzzGenerator::parseDir(__DIR__ . "/data/");
+
+		$exprFull = $generator->getRule("EXPR_FULL");
+		\assert($exprFull instanceof WeightedPermute);
+
+		// reusable variant of EXPR_FULL which generates less combination, for testing in combination with other constructs
+		$generator->addRule("EXPR", $exprFull->withMax(6));
+		// generates some expressions more likely to work in a const context
+		$generator->addRule("EXPR_CONST", $exprFull->withMax(8)->map(function (string $rhs) {
+			return \str_replace('$v', 'ident', $rhs);
+		}));
+
+		// binops, but operators with same precedence emitted to reduce redundant test cases
+		$generator->addRule("BINOP_MIN", $generator->getRule("BINOP")->withMax(1));
+
+		return $generator->generate("__ROOT__");
+	}
 }

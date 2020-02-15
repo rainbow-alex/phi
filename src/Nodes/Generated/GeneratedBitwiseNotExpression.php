@@ -17,151 +17,147 @@ use Phi\Exception\ValidationException;
 
 trait GeneratedBitwiseNotExpression
 {
-    /**
-     * @var \Phi\Token|null
-     */
-    private $operator;
+	/**
+	 * @var \Phi\Token|null
+	 */
+	private $operator;
 
-    /**
-     * @var \Phi\Nodes\Expression|null
-     */
-    private $expression;
+	/**
+	 * @var \Phi\Nodes\Expression|null
+	 */
+	private $expression;
 
-    /**
-     * @param \Phi\Nodes\Expression|\Phi\Node|string|null $expression
-     */
-    public function __construct($expression = null)
-    {
-        if ($expression !== null)
-        {
-            $this->setExpression($expression);
-        }
-    }
+	/**
+	 * @param \Phi\Nodes\Expression|\Phi\Node|string|null $expression
+	 */
+	public function __construct($expression = null)
+	{
+		if ($expression !== null)
+		{
+			$this->setExpression($expression);
+		}
+	}
 
-    /**
-     * @param \Phi\Token $operator
-     * @param \Phi\Nodes\Expression $expression
-     * @return self
-     */
-    public static function __instantiateUnchecked($operator, $expression)
-    {
-        $instance = new self;
-        $instance->operator = $operator;
-        $operator->parent = $instance;
-        $instance->expression = $expression;
-        $expression->parent = $instance;
-        return $instance;
-    }
+	/**
+	 * @param \Phi\Token $operator
+	 * @param \Phi\Nodes\Expression $expression
+	 * @return self
+	 */
+	public static function __instantiateUnchecked($operator, $expression)
+	{
+		$instance = new self;
+	$instance->setOperator($operator);
+	$instance->setExpression($expression);
+		return $instance;
+	}
 
-    public function getChildNodes(): array
-    {
-        return \array_values(\array_filter([
-            $this->operator,
-            $this->expression,
-        ]));
-    }
+	public function getChildNodes(): array
+	{
+		return \array_values(\array_filter([
+			$this->operator,
+			$this->expression,
+		]));
+	}
 
-    protected function &getChildRef(Node $childToDetach): Node
-    {
-        if ($this->operator === $childToDetach)
-        {
-            return $this->operator;
-        }
-        if ($this->expression === $childToDetach)
-        {
-            return $this->expression;
-        }
-        throw new \LogicException();
-    }
+	protected function &getChildRef(Node $childToDetach): Node
+	{
+		if ($this->operator === $childToDetach)
+			return $this->operator;
+		if ($this->expression === $childToDetach)
+			return $this->expression;
+		throw new \LogicException();
+	}
 
-    public function getOperator(): \Phi\Token
-    {
-        if ($this->operator === null)
-        {
-            throw TreeException::missingNode($this, "operator");
-        }
-        return $this->operator;
-    }
+	public function getOperator(): \Phi\Token
+	{
+		if ($this->operator === null)
+		{
+			throw TreeException::missingNode($this, "operator");
+		}
+		return $this->operator;
+	}
 
-    public function hasOperator(): bool
-    {
-        return $this->operator !== null;
-    }
+	public function hasOperator(): bool
+	{
+		return $this->operator !== null;
+	}
 
-    /**
-     * @param \Phi\Token|\Phi\Node|string|null $operator
-     */
-    public function setOperator($operator): void
-    {
-        if ($operator !== null)
-        {
-            /** @var \Phi\Token $operator */
-            $operator = NodeCoercer::coerce($operator, \Phi\Token::class, $this->getPhpVersion());
-            $operator->detach();
-            $operator->parent = $this;
-        }
-        if ($this->operator !== null)
-        {
-            $this->operator->detach();
-        }
-        $this->operator = $operator;
-    }
+	/**
+	 * @param \Phi\Token|\Phi\Node|string|null $operator
+	 */
+	public function setOperator($operator): void
+	{
+		if ($operator !== null)
+		{
+			/** @var \Phi\Token $operator */
+			$operator = NodeCoercer::coerce($operator, \Phi\Token::class, $this->getPhpVersion());
+			$operator->detach();
+			$operator->parent = $this;
+		}
+		if ($this->operator !== null)
+		{
+			$this->operator->detach();
+		}
+		$this->operator = $operator;
+	}
 
-    public function getExpression(): \Phi\Nodes\Expression
-    {
-        if ($this->expression === null)
-        {
-            throw TreeException::missingNode($this, "expression");
-        }
-        return $this->expression;
-    }
+	public function getExpression(): \Phi\Nodes\Expression
+	{
+		if ($this->expression === null)
+		{
+			throw TreeException::missingNode($this, "expression");
+		}
+		return $this->expression;
+	}
 
-    public function hasExpression(): bool
-    {
-        return $this->expression !== null;
-    }
+	public function hasExpression(): bool
+	{
+		return $this->expression !== null;
+	}
 
-    /**
-     * @param \Phi\Nodes\Expression|\Phi\Node|string|null $expression
-     */
-    public function setExpression($expression): void
-    {
-        if ($expression !== null)
-        {
-            /** @var \Phi\Nodes\Expression $expression */
-            $expression = NodeCoercer::coerce($expression, \Phi\Nodes\Expression::class, $this->getPhpVersion());
-            $expression->detach();
-            $expression->parent = $this;
-        }
-        if ($this->expression !== null)
-        {
-            $this->expression->detach();
-        }
-        $this->expression = $expression;
-    }
+	/**
+	 * @param \Phi\Nodes\Expression|\Phi\Node|string|null $expression
+	 */
+	public function setExpression($expression): void
+	{
+		if ($expression !== null)
+		{
+			/** @var \Phi\Nodes\Expression $expression */
+			$expression = NodeCoercer::coerce($expression, \Phi\Nodes\Expression::class, $this->getPhpVersion());
+			$expression->detach();
+			$expression->parent = $this;
+		}
+		if ($this->expression !== null)
+		{
+			$this->expression->detach();
+		}
+		$this->expression = $expression;
+	}
 
-    public function _validate(int $flags): void
-    {
-        if ($this->operator === null)
-            throw ValidationException::missingChild($this, "operator");
-        if ($this->expression === null)
-            throw ValidationException::missingChild($this, "expression");
-        if ($this->operator->getType() !== 127)
-            throw ValidationException::invalidSyntax($this->operator, [127]);
+	public function _validate(int $flags): void
+	{
+		if ($this->operator === null)
+			throw ValidationException::missingChild($this, "operator");
+		if ($this->expression === null)
+			throw ValidationException::missingChild($this, "expression");
+		if ($this->operator->getType() !== 127)
+			throw ValidationException::invalidSyntax($this->operator, [127]);
 
-        if ($flags & 14)
-            throw ValidationException::invalidExpressionInContext($this);
+		if ($flags & 14)
+			throw ValidationException::invalidExpressionInContext($this);
 
-        $this->extraValidation($flags);
+		$this->extraValidation($flags);
 
-        $this->expression->_validate(1);
-    }
+		$this->expression->_validate(1);
+	}
 
-    public function _autocorrect(): void
-    {
-        if ($this->expression)
-            $this->expression->_autocorrect();
+	public function _autocorrect(): void
+	{
+		if (!$this->operator)
+			$this->setOperator(new Token(127, '~'));
+		if ($this->expression)
+			$this->expression->_autocorrect();
 
-        $this->extraAutocorrect();
-    }
+		$this->extraAutocorrect();
+	}
 }

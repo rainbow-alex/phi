@@ -9,22 +9,22 @@ use Phi\Nodes\Generated\GeneratedArrayItem;
 
 class ArrayItem extends CompoundNode
 {
-    use GeneratedArrayItem;
+	use GeneratedArrayItem;
 
-    public function convertToPhpParserNode()
-    {
-        $key = $this->getKey();
-        $value = $this->getValue();
-        if (!$value)
-        {
-            return null;
-        }
-        return new \PhpParser\Node\Expr\ArrayItem(
-            $value->convertToPhpParserNode(),
-            $key ? $key->getExpression()->convertToPhpParserNode() : null,
-            $this->hasByReference(),
-            [],
-            false
-        );
-    }
+	public function convertToPhpParser()
+	{
+		$key = $this->getKey();
+		$value = $this->getValue();
+		if (!$value)
+		{
+			return null;
+		}
+		return new \PhpParser\Node\Expr\ArrayItem(
+			$value->convertToPhpParser(),
+			$key ? $key->getExpression()->convertToPhpParser() : null,
+			$this->hasByReference(),
+			[],
+			$this->hasUnpack()
+		);
+	}
 }

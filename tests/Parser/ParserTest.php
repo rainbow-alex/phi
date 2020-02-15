@@ -12,15 +12,15 @@ use PHPUnit\Framework\TestCase;
 
 class ParserTest extends TestCase
 {
-    use AssertThrows;
+	use AssertThrows;
 
-    public function test_parse_expression()
-    {
-        $parser = new Parser(PhpVersion::PHP_7_2);
+	public function test_parse_expression()
+	{
+		$parser = new Parser(PhpVersion::PHP_7_2);
 
-        // can parse write expression in isolation
-        $parser->parseExpression('list($v)');
+		// can parse write expression in isolation
+		$parser->parseExpression('list($v)');
 
-        self::assertTrue(true);
-    }
+		self::assertTrue(true);
+	}
 }

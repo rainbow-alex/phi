@@ -9,5 +9,5 @@ use Phi\Nodes\Type;
 
 class NamedType extends Type
 {
-    use GeneratedNamedType;
+	use GeneratedNamedType;
 }

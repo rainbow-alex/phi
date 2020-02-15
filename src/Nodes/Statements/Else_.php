@@ -9,6 +9,6 @@ use Phi\Nodes\Generated\GeneratedElse;
 
 class Else_ extends CompoundNode
 {
-    use GeneratedElse;
+	use GeneratedElse;
 
 }

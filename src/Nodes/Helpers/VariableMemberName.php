@@ -13,24 +13,24 @@ use Phi\Nodes\Generated\GeneratedVariableMemberName;
 
 class VariableMemberName extends MemberName
 {
-    use GeneratedVariableMemberName;
+	use GeneratedVariableMemberName;
 
-    protected function extraValidation(int $flags): void
-    {
-        $expression = $this->getExpression();
-        if (
-            $expression instanceof NumberLiteral
-            || ($expression instanceof ArrayExpression && $expression->isConstant())
-            || $expression instanceof ExitExpression
-            || $expression instanceof PrintExpression
-        )
-        {
-            throw ValidationException::invalidExpressionInContext($expression);
-        }
-    }
+	protected function extraValidation(int $flags): void
+	{
+		$expression = $this->getExpression();
+		if (
+			$expression instanceof NumberLiteral
+			|| ($expression instanceof ArrayExpression && $expression->isConstant())
+			|| $expression instanceof ExitExpression
+			|| $expression instanceof PrintExpression
+		)
+		{
+			throw ValidationException::invalidExpressionInContext($expression);
+		}
+	}
 
-    public function convertToPhpParserNode()
-    {
-        return $this->getExpression()->convertToPhpParserNode();
-    }
+	public function convertToPhpParser()
+	{
+		return $this->getExpression()->convertToPhpParser();
+	}
 }

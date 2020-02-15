@@ -10,16 +10,16 @@ use PhpParser\Node\Expr\BinaryOp\Mod;
 
 class ModuloExpression extends BinopExpression
 {
-    use GeneratedModuloExpression;
-    use LeftAssocBinopExpression;
+	use GeneratedModuloExpression;
+	use LeftAssocBinopExpression;
 
-    public function convertToPhpParserNode()
-    {
-        return new Mod($this->getLeft()->convertToPhpParserNode(), $this->getRight()->convertToPhpParserNode());
-    }
+	public function convertToPhpParser()
+	{
+		return new Mod($this->getLeft()->convertToPhpParser(), $this->getRight()->convertToPhpParser());
+	}
 
-    public function getPrecedence(): int
-    {
-        return self::PRECEDENCE_MUL;
-    }
+	protected function getPrecedence(): int
+	{
+		return self::PRECEDENCE_MUL;
+	}
 }

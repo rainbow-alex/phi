@@ -11,64 +11,62 @@ use PhpParser\Node\Expr\ArrayDimFetch;
 
 class ArrayAccessExpression extends Expression
 {
-    use GeneratedArrayAccessExpression;
+	use GeneratedArrayAccessExpression;
 
-    public function isConstant(): bool
-    {
-        // TODO rename accessee
-        $index = $this->getIndex();
-        return $this->getAccessee()->isConstant() && $index && $index->isConstant();
-    }
+	public function isConstant(): bool
+	{
+		$index = $this->getIndex();
+		return $this->getExpression()->isConstant() && $index && $index->isConstant();
+	}
 
-    public function isTemporary(): bool
-    {
-        return false;
-    }
+	public function isTemporary(): bool
+	{
+		return $this->getExpression()->isTemporary();
+	}
 
-    protected function extraValidation(int $flags): void
-    {
-        if (
-            $this->getAccessee() instanceof NewExpression
-            || $this->getAccessee() instanceof ExitExpression
-            || $this->getAccessee() instanceof EmptyExpression
-            || $this->getAccessee() instanceof EvalExpression
-            || $this->getAccessee() instanceof ExecExpression
-            || $this->getAccessee() instanceof IssetExpression
-            || $this->getAccessee() instanceof MagicConstant
-            || $this->getAccessee() instanceof AnonymousFunctionExpression
-            || $this->getAccessee() instanceof NumberLiteral
-        )
-        {
-            throw ValidationException::invalidSyntax($this->getLeftBracket());
-        }
+	protected function extraValidation(int $flags): void
+	{
+		$expression = $this->getExpression();
+		if (
+			$expression instanceof NewExpression
+			|| $expression instanceof ExitExpression
+			|| $expression instanceof EmptyExpression
+			|| $expression instanceof EvalExpression
+			|| $expression instanceof ExececutionExpression
+			|| $expression instanceof IssetExpression
+			|| $expression instanceof MagicConstant
+			|| $expression instanceof AnonymousFunctionExpression
+			|| $expression instanceof NumberLiteral
+		)
+		{
+			throw ValidationException::invalidSyntax($this->getLeftBracket());
+		}
 
-        if ($flags & self::CTX_WRITE && $this->getAccessee()->isTemporary())
-        {
-            throw ValidationException::invalidExpression($this, $this->getLeftBracket());
-        }
+		if ($flags & self::CTX_WRITE && $expression->isTemporary())
+		{
+			throw ValidationException::invalidExpression($this, $this->getLeftBracket());
+		}
 
-        if (!$this->index)
-        {
-            if ($flags & self::CTX_READ)
-            {
-                // there are some exceptions where $a[] is allowed even though it isn't usually considered read
-                if (!(
-                    $flags & self::CTX_READ_IMPLICIT_BY_REF // foo($a[]) is allowed
-                    || $flags & self::CTX_WRITE // $a[]++ is allowed
-                ))
-                {
-                    throw ValidationException::invalidExpressionInContext($this, $this->leftBracket);
-                }
-            }
-        }
-    }
+		if (!$this->index)
+		{
+			if ($flags & self::CTX_READ)
+			{
+				// there are some exceptions where $a[] is allowed even though it isn't usually considered read
+				// e.g. foo($a[]), $a[]++
+				if (!($flags & self::CTX_LENIENT_READ))
+				{
+					throw ValidationException::invalidExpressionInContext($this, $this->leftBracket);
+				}
+			}
+		}
+	}
 
-    public function convertToPhpParserNode()
-    {
-        $index = $this->getIndex();
-        return new ArrayDimFetch(
-            $this->getAccessee()->convertToPhpParserNode(),
-            $index ? $index->convertToPhpParserNode() : null
-        );
-    }
+	public function convertToPhpParser()
+	{
+		$index = $this->getIndex();
+		return new ArrayDimFetch(
+			$this->getExpression()->convertToPhpParser(),
+			$index ? $index->convertToPhpParser() : null
+		);
+	}
 }

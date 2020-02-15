@@ -8,6 +8,5 @@ use Phi\Nodes\Generated\GeneratedShortArrayExpression;
 
 class ShortArrayExpression extends ArrayExpression
 {
-    use GeneratedShortArrayExpression;
-
+	use GeneratedShortArrayExpression;
 }

@@ -7,19 +7,19 @@ namespace Phi\Nodes\Statements;
 use Phi\Exception\ValidationException;
 use Phi\Nodes\Base\CompoundNode;
 use Phi\Nodes\Generated\GeneratedUseAlias;
-use Phi\Nodes\Helpers\Name;
+use Phi\TokenType;
 
 class UseAlias extends CompoundNode
 {
-    use GeneratedUseAlias;
+	use GeneratedUseAlias;
 
-    protected function extraValidation(int $flags): void
-    {
-        $name = $this->getName();
+	protected function extraValidation(int $flags): void
+	{
+		$name = $this->getName();
 
-        if (Name::isTokenSpecialClass($name))
-        {
-            throw ValidationException::invalidNameInContext($name);
-        }
-    }
+		if (TokenType::isReservedWord($name))
+		{
+			throw ValidationException::invalidNameInContext($name);
+		}
+	}
 }

@@ -10,12 +10,12 @@ use PhpParser\Node\Expr\Empty_;
 
 class EmptyExpression extends Expression
 {
-    use GeneratedEmptyExpression;
+	use GeneratedEmptyExpression;
 
-    public function convertToPhpParserNode()
-    {
-        return new Empty_(
-            $this->getExpression()->convertToPhpParserNode()
-        );
-    }
+	public function convertToPhpParser()
+	{
+		return new Empty_(
+			$this->getExpression()->convertToPhpParser()
+		);
+	}
 }

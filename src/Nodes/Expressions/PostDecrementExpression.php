@@ -9,10 +9,10 @@ use PhpParser\Node\Expr\PostDec;
 
 class PostDecrementExpression extends CrementExpression
 {
-    use GeneratedPostDecrementExpression;
+	use GeneratedPostDecrementExpression;
 
-    public function convertToPhpParserNode()
-    {
-        return new PostDec($this->getExpression()->convertToPhpParserNode());
-    }
+	public function convertToPhpParser()
+	{
+		return new PostDec($this->getExpression()->convertToPhpParser());
+	}
 }

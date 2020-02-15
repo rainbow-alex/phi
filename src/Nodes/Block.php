@@ -10,16 +10,16 @@ use Phi\Util\Util;
 
 abstract class Block extends CompoundNode
 {
-    /**
-     * @return iterable<Statement>
-     * @phpstan-return iterable<Statement>
-     */
-    abstract public function getStatements();
+	/**
+	 * @return iterable<Statement>
+	 * @phpstan-return iterable<Statement>
+	 */
+	abstract public function getStatements();
 
-    public function convertToPhpParserNode()
-    {
-        $statements = Util::iterableToArray($this->getStatements());
-        $statements = BlockStatement::flatten($statements);
-        return \array_map(function (Statement $s) { return $s->convertToPhpParserNode(); }, $statements);
-    }
+	public function convertToPhpParser()
+	{
+		$statements = Util::iterableToArray($this->getStatements());
+		$statements = BlockStatement::flatten($statements);
+		return \array_map(function (Statement $s) { return $s->convertToPhpParser(); }, $statements);
+	}
 }

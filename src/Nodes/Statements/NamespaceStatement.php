@@ -9,6 +9,6 @@ use Phi\Nodes\Statement;
 
 class NamespaceStatement extends Statement
 {
-    use GeneratedNamespaceStatement;
+	use GeneratedNamespaceStatement;
 
 }

@@ -5,14 +5,21 @@ declare(strict_types=1);
 namespace Phi\Nodes\Expressions;
 
 use Phi\Nodes\Generated\GeneratedBitwiseOrExpression;
+use Phi\Nodes\ValidationTraits\LeftAssocBinopExpression;
 use PhpParser\Node\Expr\BinaryOp\BitwiseOr;
 
 class BitwiseOrExpression extends BinopExpression
 {
-    use GeneratedBitwiseOrExpression;
+	use GeneratedBitwiseOrExpression;
+	use LeftAssocBinopExpression;
 
-    public function convertToPhpParserNode()
-    {
-        return new BitwiseOr($this->getLeft()->convertToPhpParserNode(), $this->getRight()->convertToPhpParserNode());
-    }
+	protected function getPrecedence(): int
+	{
+		return self::PRECEDENCE_BITWISE_OR;
+	}
+
+	public function convertToPhpParser()
+	{
+		return new BitwiseOr($this->getLeft()->convertToPhpParser(), $this->getRight()->convertToPhpParser());
+	}
 }

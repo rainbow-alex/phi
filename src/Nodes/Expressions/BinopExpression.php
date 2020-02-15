@@ -8,11 +8,11 @@ use Phi\Nodes\Expression;
 
 abstract class BinopExpression extends Expression
 {
-    abstract public function getLeft(): Expression;
-    abstract public function getRight(): Expression;
+	abstract public function getLeft(): Expression;
+	abstract public function getRight(): Expression;
 
-    public function isConstant(): bool
-    {
-        return $this->getLeft()->isConstant() && $this->getRight()->isConstant();
-    }
+	public function isConstant(): bool
+	{
+		return $this->getLeft()->isConstant() && $this->getRight()->isConstant();
+	}
 }

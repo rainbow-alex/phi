@@ -9,5 +9,5 @@ use Phi\Nodes\Generated\GeneratedExtends;
 
 class Extends_ extends CompoundNode
 {
-    use GeneratedExtends;
+	use GeneratedExtends;
 }

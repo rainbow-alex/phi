@@ -10,22 +10,22 @@ use Phi\Nodes\Expressions\StringInterpolation\InterpolatedStringVariable;
 
 abstract class InterpolatedStringLiteral extends StringLiteral
 {
-    /**
-     * @return NodesList|InterpolatedStringPart[]
-     * @phpstan-return NodesList<InterpolatedStringPart>
-     */
-    abstract public function getParts(): NodesList;
+	/**
+	 * @return NodesList|InterpolatedStringPart[]
+	 * @phpstan-return NodesList<InterpolatedStringPart>
+	 */
+	abstract public function getParts(): NodesList;
 
-    public function isConstant(): bool
-    {
-        foreach ($this->getParts() as $part)
-        {
-            if ($part instanceof InterpolatedStringVariable)
-            {
-                return false;
-            }
-        }
+	public function isConstant(): bool
+	{
+		foreach ($this->getParts() as $part)
+		{
+			if ($part instanceof InterpolatedStringVariable)
+			{
+				return false;
+			}
+		}
 
-        return true;
-    }
+		return true;
+	}
 }

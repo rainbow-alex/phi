@@ -8,5 +8,5 @@ use Phi\Nodes\Generated\GeneratedLongArrayExpression;
 
 class LongArrayExpression extends ArrayExpression
 {
-    use GeneratedLongArrayExpression;
+	use GeneratedLongArrayExpression;
 }

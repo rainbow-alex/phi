@@ -9,16 +9,16 @@ use Phi\Specification;
 
 class IsInstanceOf extends Specification
 {
-    /** @var string */
-    private $class;
+	/** @var string */
+	private $class;
 
-    public function __construct(string $class)
-    {
-        $this->class = $class;
-    }
+	public function __construct(string $class)
+	{
+		$this->class = $class;
+	}
 
-    public function isSatisfiedBy(Node $node): bool
-    {
-        return $node instanceof $this->class;
-    }
+	public function isSatisfiedBy(Node $node): bool
+	{
+		return $node instanceof $this->class;
+	}
 }

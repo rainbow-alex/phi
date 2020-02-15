@@ -7,24 +7,24 @@ use Phi\Specification;
 
 class HasParent extends Specification
 {
-    /** @var Specification */
-    private $parentSpecification;
+	/** @var Specification */
+	private $parentSpecification;
 
-    public function __construct(Specification $parentSpecification)
-    {
-        $this->parentSpecification = $parentSpecification;
-    }
+	public function __construct(Specification $parentSpecification)
+	{
+		$this->parentSpecification = $parentSpecification;
+	}
 
-    public function isSatisfiedBy(Node $node): bool
-    {
-        while ($node = $node->getParent())
-        {
-            if ($this->parentSpecification->isSatisfiedBy($node))
-            {
-                return true;
-            }
-        }
+	public function isSatisfiedBy(Node $node): bool
+	{
+		while ($node = $node->getParent())
+		{
+			if ($this->parentSpecification->isSatisfiedBy($node))
+			{
+				return true;
+			}
+		}
 
-        return false;
-    }
+		return false;
+	}
 }

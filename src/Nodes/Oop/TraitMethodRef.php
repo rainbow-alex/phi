@@ -7,5 +7,5 @@ use Phi\Nodes\Generated\GeneratedTraitMethodRef;
 
 class TraitMethodRef extends CompoundNode
 {
-    use GeneratedTraitMethodRef;
+	use GeneratedTraitMethodRef;
 }

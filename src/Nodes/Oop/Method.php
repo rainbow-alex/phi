@@ -8,5 +8,5 @@ use Phi\Nodes\Generated\GeneratedMethod;
 
 class Method extends OopMember
 {
-    use GeneratedMethod;
+	use GeneratedMethod;
 }

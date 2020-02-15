@@ -7,16 +7,22 @@ namespace Phi\Nodes\Statements;
 use Phi\Exception\ValidationException;
 use Phi\Nodes\Generated\GeneratedConstStatement;
 use Phi\Nodes\Statement;
+use Phi\TokenType;
 
 class ConstStatement extends Statement
 {
-    use GeneratedConstStatement;
+	use GeneratedConstStatement;
 
-    protected function extraValidation(int $flags): void
-    {
-        if (!$this->getValue()->isConstant())
-        {
-            throw ValidationException::invalidExpressionInContext($this->getValue());
-        }
-    }
+	protected function extraValidation(int $flags): void
+	{
+		if (TokenType::isSpecialConst($this->getName()))
+		{
+			throw ValidationException::invalidSyntax($this->getName());
+		}
+
+		if (!$this->getValue()->isConstant())
+		{
+			throw ValidationException::invalidExpressionInContext($this->getValue());
+		}
+	}
 }

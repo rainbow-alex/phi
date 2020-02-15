@@ -9,5 +9,5 @@ use Phi\Nodes\Statement;
 
 class ThrowStatement extends Statement
 {
-    use GeneratedThrowStatement;
+	use GeneratedThrowStatement;
 }

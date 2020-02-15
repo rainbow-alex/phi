@@ -7,41 +7,69 @@ namespace Phi\Nodes\Expressions;
 use Phi\Exception\ValidationException;
 use Phi\Nodes\Expression;
 use Phi\Nodes\Generated\GeneratedListExpression;
+use Phi\PhpVersion;
 use PhpParser\Node\Expr\List_;
 
 class ListExpression extends Expression
 {
-    use GeneratedListExpression;
+	use GeneratedListExpression;
 
-    protected function extraValidation(int $flags): void
-    {
-        foreach ($this->getItems() as $item)
-        {
-            if ($byRef = $item->getByReference())
-            {
-                throw ValidationException::invalidSyntax($byRef);
-            }
+	protected function extraValidation(int $flags): void
+	{
+		$phpVersion = $this->getPhpVersion();
 
-            if ($item->getValue() instanceof ArrayExpression) // and vice versa for array
-            {
-                throw ValidationException::invalidExpressionInContext($item->getValue());
-            }
-            // else: empty value is ok for write context
-        }
+		foreach ($this->getItems() as $item)
+		{
+			if ($key = $item->getKey())
+			{
+				$key->getExpression()->_validate(self::CTX_READ);
+			}
 
-        if (\count($this->items) === 0)
-        {
-            throw ValidationException::invalidExpressionInContext($this);
-        }
-    }
+			if ($phpVersion < PhpVersion::PHP_7_3 && $byRef = $item->getByReference())
+			{
+				throw ValidationException::invalidSyntax($byRef);
+			}
 
-    public function convertToPhpParserNode()
-    {
-        $items = $this->getItems()->convertToPhpParserNode();
-        if ($this->getItems()->hasTrailingSeparator())
-        {
-            $items[] = null;
-        }
-        return new List_($items);
-    }
+			if ($value = $item->getValue())
+			{
+				if ($value instanceof ArrayExpression) // and vice versa for array
+				{
+					throw ValidationException::invalidExpressionInContext($value);
+				}
+
+				if ($item->hasByReference()) // 7.3 and up, already validated
+				{
+					$value->_validate(self::CTX_ALIAS_WRITE);
+				}
+				else
+				{
+					$value->_validate(self::CTX_WRITE);
+				}
+			}
+			else
+			{
+				if ($byRef = $item->getByReference())
+				{
+					throw ValidationException::invalidSyntax($byRef->getNextToken() ?? $byRef);
+				}
+
+				// empty value is otherwise ok
+			}
+		}
+
+		if (\count($this->items) === 0)
+		{
+			throw ValidationException::invalidExpressionInContext($this);
+		}
+	}
+
+	public function convertToPhpParser()
+	{
+		$items = $this->getItems()->convertToPhpParser();
+		if ($this->getItems()->hasTrailingSeparator())
+		{
+			$items[] = null;
+		}
+		return new List_($items);
+	}
 }

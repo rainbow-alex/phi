@@ -9,27 +9,27 @@ use Phi\Nodes\Statement;
 
 class BlockStatement extends Statement
 {
-    use GeneratedBlockStatement;
+	use GeneratedBlockStatement;
 
-    /**
-     * @param Statement[] $statements
-     * @return Statement[]
-     */
-    public static function flatten(array $statements): array
-    {
-        for ($i = 0; $i < count($statements); $i++)
-        {
-            $stmt = $statements[$i];
+	/**
+	 * @param Statement[] $statements
+	 * @return Statement[]
+	 */
+	public static function flatten(array $statements): array
+	{
+		for ($i = 0; $i < count($statements); $i++)
+		{
+			$stmt = $statements[$i];
 
-            // flatten blocks
-            while ($stmt instanceof BlockStatement)
-            {
-                \array_splice($statements, $i, 1, \iterator_to_array($stmt->getBlock()->getStatements()));
-            }
+			// flatten blocks
+			while ($stmt instanceof BlockStatement)
+			{
+				\array_splice($statements, $i, 1, \iterator_to_array($stmt->getBlock()->getStatements()));
+			}
 
-            $statements[$i] = $stmt;
-        }
+			$statements[$i] = $stmt;
+		}
 
-        return $statements;
-    }
+		return $statements;
+	}
 }

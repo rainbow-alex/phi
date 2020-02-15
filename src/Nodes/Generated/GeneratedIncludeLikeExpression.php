@@ -17,151 +17,145 @@ use Phi\Exception\ValidationException;
 
 trait GeneratedIncludeLikeExpression
 {
-    /**
-     * @var \Phi\Token|null
-     */
-    private $keyword;
+	/**
+	 * @var \Phi\Token|null
+	 */
+	private $keyword;
 
-    /**
-     * @var \Phi\Nodes\Expression|null
-     */
-    private $expression;
+	/**
+	 * @var \Phi\Nodes\Expression|null
+	 */
+	private $expression;
 
-    /**
-     * @param \Phi\Nodes\Expression|\Phi\Node|string|null $expression
-     */
-    public function __construct($expression = null)
-    {
-        if ($expression !== null)
-        {
-            $this->setExpression($expression);
-        }
-    }
+	/**
+	 * @param \Phi\Nodes\Expression|\Phi\Node|string|null $expression
+	 */
+	public function __construct($expression = null)
+	{
+		if ($expression !== null)
+		{
+			$this->setExpression($expression);
+		}
+	}
 
-    /**
-     * @param \Phi\Token $keyword
-     * @param \Phi\Nodes\Expression $expression
-     * @return self
-     */
-    public static function __instantiateUnchecked($keyword, $expression)
-    {
-        $instance = new self;
-        $instance->keyword = $keyword;
-        $keyword->parent = $instance;
-        $instance->expression = $expression;
-        $expression->parent = $instance;
-        return $instance;
-    }
+	/**
+	 * @param \Phi\Token $keyword
+	 * @param \Phi\Nodes\Expression $expression
+	 * @return self
+	 */
+	public static function __instantiateUnchecked($keyword, $expression)
+	{
+		$instance = new self;
+	$instance->setKeyword($keyword);
+	$instance->setExpression($expression);
+		return $instance;
+	}
 
-    public function getChildNodes(): array
-    {
-        return \array_values(\array_filter([
-            $this->keyword,
-            $this->expression,
-        ]));
-    }
+	public function getChildNodes(): array
+	{
+		return \array_values(\array_filter([
+			$this->keyword,
+			$this->expression,
+		]));
+	}
 
-    protected function &getChildRef(Node $childToDetach): Node
-    {
-        if ($this->keyword === $childToDetach)
-        {
-            return $this->keyword;
-        }
-        if ($this->expression === $childToDetach)
-        {
-            return $this->expression;
-        }
-        throw new \LogicException();
-    }
+	protected function &getChildRef(Node $childToDetach): Node
+	{
+		if ($this->keyword === $childToDetach)
+			return $this->keyword;
+		if ($this->expression === $childToDetach)
+			return $this->expression;
+		throw new \LogicException();
+	}
 
-    public function getKeyword(): \Phi\Token
-    {
-        if ($this->keyword === null)
-        {
-            throw TreeException::missingNode($this, "keyword");
-        }
-        return $this->keyword;
-    }
+	public function getKeyword(): \Phi\Token
+	{
+		if ($this->keyword === null)
+		{
+			throw TreeException::missingNode($this, "keyword");
+		}
+		return $this->keyword;
+	}
 
-    public function hasKeyword(): bool
-    {
-        return $this->keyword !== null;
-    }
+	public function hasKeyword(): bool
+	{
+		return $this->keyword !== null;
+	}
 
-    /**
-     * @param \Phi\Token|\Phi\Node|string|null $keyword
-     */
-    public function setKeyword($keyword): void
-    {
-        if ($keyword !== null)
-        {
-            /** @var \Phi\Token $keyword */
-            $keyword = NodeCoercer::coerce($keyword, \Phi\Token::class, $this->getPhpVersion());
-            $keyword->detach();
-            $keyword->parent = $this;
-        }
-        if ($this->keyword !== null)
-        {
-            $this->keyword->detach();
-        }
-        $this->keyword = $keyword;
-    }
+	/**
+	 * @param \Phi\Token|\Phi\Node|string|null $keyword
+	 */
+	public function setKeyword($keyword): void
+	{
+		if ($keyword !== null)
+		{
+			/** @var \Phi\Token $keyword */
+			$keyword = NodeCoercer::coerce($keyword, \Phi\Token::class, $this->getPhpVersion());
+			$keyword->detach();
+			$keyword->parent = $this;
+		}
+		if ($this->keyword !== null)
+		{
+			$this->keyword->detach();
+		}
+		$this->keyword = $keyword;
+	}
 
-    public function getExpression(): \Phi\Nodes\Expression
-    {
-        if ($this->expression === null)
-        {
-            throw TreeException::missingNode($this, "expression");
-        }
-        return $this->expression;
-    }
+	public function getExpression(): \Phi\Nodes\Expression
+	{
+		if ($this->expression === null)
+		{
+			throw TreeException::missingNode($this, "expression");
+		}
+		return $this->expression;
+	}
 
-    public function hasExpression(): bool
-    {
-        return $this->expression !== null;
-    }
+	public function hasExpression(): bool
+	{
+		return $this->expression !== null;
+	}
 
-    /**
-     * @param \Phi\Nodes\Expression|\Phi\Node|string|null $expression
-     */
-    public function setExpression($expression): void
-    {
-        if ($expression !== null)
-        {
-            /** @var \Phi\Nodes\Expression $expression */
-            $expression = NodeCoercer::coerce($expression, \Phi\Nodes\Expression::class, $this->getPhpVersion());
-            $expression->detach();
-            $expression->parent = $this;
-        }
-        if ($this->expression !== null)
-        {
-            $this->expression->detach();
-        }
-        $this->expression = $expression;
-    }
+	/**
+	 * @param \Phi\Nodes\Expression|\Phi\Node|string|null $expression
+	 */
+	public function setExpression($expression): void
+	{
+		if ($expression !== null)
+		{
+			/** @var \Phi\Nodes\Expression $expression */
+			$expression = NodeCoercer::coerce($expression, \Phi\Nodes\Expression::class, $this->getPhpVersion());
+			$expression->detach();
+			$expression->parent = $this;
+		}
+		if ($this->expression !== null)
+		{
+			$this->expression->detach();
+		}
+		$this->expression = $expression;
+	}
 
-    public function _validate(int $flags): void
-    {
-        if ($this->keyword === null)
-            throw ValidationException::missingChild($this, "keyword");
-        if ($this->expression === null)
-            throw ValidationException::missingChild($this, "expression");
-        if (!\in_array($this->keyword->getType(), [192, 193, 233, 234], true))
-            throw ValidationException::invalidSyntax($this->keyword, [192, 193, 233, 234]);
+	public function _validate(int $flags): void
+	{
+		if ($this->keyword === null)
+			throw ValidationException::missingChild($this, "keyword");
+		if ($this->expression === null)
+			throw ValidationException::missingChild($this, "expression");
+		if (!\in_array($this->keyword->getType(), [194, 195, 235, 236], true))
+			throw ValidationException::invalidSyntax($this->keyword, [194, 195, 235, 236]);
 
-        if ($flags & 14)
-            throw ValidationException::invalidExpressionInContext($this);
+		if ($flags & 14)
+			throw ValidationException::invalidExpressionInContext($this);
 
-        $this->extraValidation($flags);
+		$this->extraValidation($flags);
 
-        $this->expression->_validate(1);
-    }
+		$this->expression->_validate(1);
+	}
 
-    public function _autocorrect(): void
-    {
-        if ($this->expression)
-            $this->expression->_autocorrect();
+	public function _autocorrect(): void
+	{
+		if ($this->expression)
+			$this->expression->_autocorrect();
 
-        $this->extraAutocorrect();
-    }
+		$this->extraAutocorrect();
+	}
 }

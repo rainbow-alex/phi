@@ -9,5 +9,5 @@ use Phi\Nodes\Statement;
 
 class SwitchStatement extends Statement
 {
-    use GeneratedSwitchStatement;
+	use GeneratedSwitchStatement;
 }

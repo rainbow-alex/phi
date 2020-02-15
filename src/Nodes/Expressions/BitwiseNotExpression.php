@@ -11,27 +11,29 @@ use PhpParser\Node\Expr\BitwiseNot;
 
 class BitwiseNotExpression extends Expression
 {
-    use GeneratedBitwiseNotExpression;
+	use GeneratedBitwiseNotExpression;
 
-    public function isConstant(): bool
-    {
-        return $this->getExpression()->isConstant();
-    }
+	public function isConstant(): bool
+	{
+		return $this->getExpression()->isConstant();
+	}
 
-    protected function extraValidation(int $flags): void
-    {
-        $expression = $this->getExpression();
-        if (
-            ($expression instanceof ArrayExpression && $expression->isConstant())
-            || $expression instanceof ExitExpression // not the case for unary - and + ...
-        )
-        {
-            throw ValidationException::invalidSyntax($expression);
-        }
-    }
+	protected function extraValidation(int $flags): void
+	{
+		$expression = $this->getExpression();
+		if (
+			($expression instanceof ArrayExpression && $expression->isConstant())
+			|| $expression instanceof ExitExpression
+			|| ($expression instanceof EmptyExpression && $expression->getExpression() instanceof NumberLiteral)
+			|| ($expression instanceof NotExpression && $expression->getExpression() instanceof NumberLiteral)
+		)
+		{
+			throw ValidationException::invalidSyntax($expression);
+		}
+	}
 
-    public function convertToPhpParserNode()
-    {
-        return new BitwiseNot($this->getExpression()->convertToPhpParserNode());
-    }
+	public function convertToPhpParser()
+	{
+		return new BitwiseNot($this->getExpression()->convertToPhpParser());
+	}
 }

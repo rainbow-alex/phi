@@ -17,98 +17,95 @@ use Phi\Exception\ValidationException;
 
 trait GeneratedConstantInterpolatedStringPart
 {
-    /**
-     * @var \Phi\Token|null
-     */
-    private $content;
+	/**
+	 * @var \Phi\Token|null
+	 */
+	private $content;
 
-    /**
-     * @param \Phi\Token|\Phi\Node|string|null $content
-     */
-    public function __construct($content = null)
-    {
-        if ($content !== null)
-        {
-            $this->setContent($content);
-        }
-    }
+	/**
+	 * @param \Phi\Token|\Phi\Node|string|null $content
+	 */
+	public function __construct($content = null)
+	{
+		if ($content !== null)
+		{
+			$this->setContent($content);
+		}
+	}
 
-    /**
-     * @param \Phi\Token $content
-     * @return self
-     */
-    public static function __instantiateUnchecked($content)
-    {
-        $instance = new self;
-        $instance->content = $content;
-        $content->parent = $instance;
-        return $instance;
-    }
+	/**
+	 * @param \Phi\Token $content
+	 * @return self
+	 */
+	public static function __instantiateUnchecked($content)
+	{
+		$instance = new self;
+	$instance->setContent($content);
+		return $instance;
+	}
 
-    public function getChildNodes(): array
-    {
-        return \array_values(\array_filter([
-            $this->content,
-        ]));
-    }
+	public function getChildNodes(): array
+	{
+		return \array_values(\array_filter([
+			$this->content,
+		]));
+	}
 
-    protected function &getChildRef(Node $childToDetach): Node
-    {
-        if ($this->content === $childToDetach)
-        {
-            return $this->content;
-        }
-        throw new \LogicException();
-    }
+	protected function &getChildRef(Node $childToDetach): Node
+	{
+		if ($this->content === $childToDetach)
+			return $this->content;
+		throw new \LogicException();
+	}
 
-    public function getContent(): \Phi\Token
-    {
-        if ($this->content === null)
-        {
-            throw TreeException::missingNode($this, "content");
-        }
-        return $this->content;
-    }
+	public function getContent(): \Phi\Token
+	{
+		if ($this->content === null)
+		{
+			throw TreeException::missingNode($this, "content");
+		}
+		return $this->content;
+	}
 
-    public function hasContent(): bool
-    {
-        return $this->content !== null;
-    }
+	public function hasContent(): bool
+	{
+		return $this->content !== null;
+	}
 
-    /**
-     * @param \Phi\Token|\Phi\Node|string|null $content
-     */
-    public function setContent($content): void
-    {
-        if ($content !== null)
-        {
-            /** @var \Phi\Token $content */
-            $content = NodeCoercer::coerce($content, \Phi\Token::class, $this->getPhpVersion());
-            $content->detach();
-            $content->parent = $this;
-        }
-        if ($this->content !== null)
-        {
-            $this->content->detach();
-        }
-        $this->content = $content;
-    }
+	/**
+	 * @param \Phi\Token|\Phi\Node|string|null $content
+	 */
+	public function setContent($content): void
+	{
+		if ($content !== null)
+		{
+			/** @var \Phi\Token $content */
+			$content = NodeCoercer::coerce($content, \Phi\Token::class, $this->getPhpVersion());
+			$content->detach();
+			$content->parent = $this;
+		}
+		if ($this->content !== null)
+		{
+			$this->content->detach();
+		}
+		$this->content = $content;
+	}
 
-    public function _validate(int $flags): void
-    {
-        if ($this->content === null)
-            throw ValidationException::missingChild($this, "content");
-        if ($this->content->getType() !== 168)
-            throw ValidationException::invalidSyntax($this->content, [168]);
+	public function _validate(int $flags): void
+	{
+		if ($this->content === null)
+			throw ValidationException::missingChild($this, "content");
+		if ($this->content->getType() !== 169)
+			throw ValidationException::invalidSyntax($this->content, [169]);
 
 
-        $this->extraValidation($flags);
+		$this->extraValidation($flags);
 
-    }
+	}
 
-    public function _autocorrect(): void
-    {
+	public function _autocorrect(): void
+	{
 
-        $this->extraAutocorrect();
-    }
+		$this->extraAutocorrect();
+	}
 }

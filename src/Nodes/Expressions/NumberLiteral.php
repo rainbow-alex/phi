@@ -8,8 +8,8 @@ use Phi\Nodes\Expression;
 
 abstract class NumberLiteral extends Expression
 {
-    public function isConstant(): bool
-    {
-        return true;
-    }
+	public function isConstant(): bool
+	{
+		return true;
+	}
 }

@@ -11,26 +11,26 @@ use Phi\Nodes\Statements\InlineHtmlStatement;
 
 class RootNode extends CompoundNode
 {
-    use GeneratedRootNode;
+	use GeneratedRootNode;
 
-    public function convertToPhpParserNode()
-    {
-        $statements = $this->getStatements()->getItems();
-        $statements = BlockStatement::flatten($statements);
+	public function convertToPhpParser()
+	{
+		$statements = $this->getStatements()->getItems();
+		$statements = BlockStatement::flatten($statements);
 
-        // drop the initial <?php node if it is empty
-        if ($statements)
-        {
-            if ($statements[0] instanceof InlineHtmlStatement)
-            {
-                $content = $statements[0]->getContent();
-                if (!$content || $content->getSource() === "")
-                {
-                    \array_shift($statements);
-                }
-            }
-        }
+		// drop the initial <?php node if it is empty
+		if ($statements)
+		{
+			if ($statements[0] instanceof InlineHtmlStatement)
+			{
+				$content = $statements[0]->getContent();
+				if (!$content || $content->getSource() === "")
+				{
+					\array_shift($statements);
+				}
+			}
+		}
 
-        return \array_map(function (Statement $s) { return $s->convertToPhpParserNode(); }, $statements);
-    }
+		return \array_map(function (Statement $s) { return $s->convertToPhpParser(); }, $statements);
+	}
 }

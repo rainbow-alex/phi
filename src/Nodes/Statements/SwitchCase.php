@@ -9,5 +9,5 @@ use Phi\Nodes\Generated\GeneratedSwitchCase;
 
 class SwitchCase extends CompoundNode
 {
-    use GeneratedSwitchCase;
+	use GeneratedSwitchCase;
 }

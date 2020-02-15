@@ -10,10 +10,10 @@ use PhpParser\Node\Stmt\Expression as PPExpressionStatement;
 
 class ExpressionStatement extends Statement
 {
-    use GeneratedExpressionStatement;
+	use GeneratedExpressionStatement;
 
-    public function convertToPhpParserNode()
-    {
-        return new PPExpressionStatement($this->getExpression()->convertToPhpParserNode());
-    }
+	public function convertToPhpParser()
+	{
+		return new PPExpressionStatement($this->getExpression()->convertToPhpParser());
+	}
 }
