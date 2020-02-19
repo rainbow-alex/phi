@@ -61,10 +61,8 @@ $x->autocorrect(); // wraps `4 + 5` in parentheses
 
 Not currently an exhaustive list :)
 
-- prepub
-	- submit to packagist
 - parsing
-	- halt compiler & __COMPILER_HALT_OFFSET__
+	- `__halt_compiler` & `__COMPILER_HALT_OFFSET__`
 	- short open tags, etc.
 	- expr{}
 	- multiple const
@@ -72,12 +70,13 @@ Not currently an exhaustive list :)
 	- statement levels
 	- string contents
 	- "foo$bar"->baz() should not be valid
+	- integer overflow
 	- ...
 - analysis
 	- phpunit code coverage
 	- pseudo-nodes for (doc-)comments, shebang, ...
 	- error-resistant parsing
-	- reverting php-parser trees back to phi
+	- losslessly reverting php-parser trees back to phi
 	- serialization
 
 ## Caveats
