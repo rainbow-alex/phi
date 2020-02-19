@@ -19,23 +19,57 @@ Ideas, design feedback, bug reports, etc. are welcome via github issues.
 
 ## Examples
 
-Finding method calls named `isFoo`:
+Quickly parsing some source code:
 
 ```
-$ast->find(new And_(new IsInstanceOf(MethodCall::class), new IsNamed('isFoo')));
+$ast = (new Parser(PHP_VERSION_ID))->parse(__FILE__);
 ```
 
-Automatic wrapping of nodes:
+Finding all method calls named `isFoo`:
+
+```
+$ast->findNodes(new And_(new IsInstanceOf(MethodCall::class), new IsNamed('isFoo')));
+```
+
+If you wanna know what's in a node, you can call `->debugDump()` to get a highlighted dump.
+For example, `$foo->bar();` looks like:
+
+```
+ExpressionStatement
+ ├─ expression: MethodCallExpression
+ │   ├─ object: NormalVariableExpression
+ │   │   └─ token: <T_VARIABLE> '$foo'
+ │   ├─ operator: <T_OBJECT_OPERATOR> '->'
+ │   ├─ name: NormalMemberName
+ │   │   └─ token: <T_STRING> 'bar'
+ │   ├─ leftParenthesis: <S_LEFT_PARENTHESIS> '('
+ │   ├─ arguments: SeparatedNodesList
+ │   └─ rightParenthesis: <S_RIGHT_PARENTHESIS> ')'
+ └─ semiColon: <S_SEMICOLON> ';'
+```
+
+All nodes have annotated getters and setters you can use to manipulate the tree.
+
+When you're done, you can call `->validate()` to verify that what you've done is syntactically correct.
+
+```
+$ast->validate();
+$moddedSubtree->validate();
+```
+
+Since Phi retains all whitespace and tokens, sometimes extra nodes are needed to house these tokens.
+Other times wrapper nodes are needed for the tree to be correctly typed.
+You don't have to worry about those:
 
 ```
 $if = new IfStatement();
 $if->setBlock(new MethodCall(...)); // automatically wraps in ExpressionStatement, Block
 
-$fn = new FunctionStatement();
-$fn->addParameter(new Variable(...)); // automatically wraps in Parameter
+$cc = new Property();
+$cc->setDefault(new NumberLiteral(...)); // automatically wraps in Default
 ```
 
-On-the-fly parsing of code strings:
+In fact, phi can just parse snippets of code on the fly:
 
 ```
 $function = new FunctionDeclaration();
@@ -44,17 +78,34 @@ $function->getBody()->addStatement("return 3;");
 $parameter->setDefault("null");
 ```
 
-Automatic correction of tree defects:
+If you're creating new nodes, you don't need to worry about adding every single token needed to convert it back to code.
+Phi can fix it for you:
 
 ```
 $p = new ParenthesizedExpression($expr);
 $p->autocorrect(); // creates `(` and `)` tokens
+```
 
+In some situations a little whitespace is needed to make the tree work.
+Phi can correct that too:
+
+```
 $m = new MinusExpression("2", "-2");
 $m->autocorrect(); // creates `-` token, adds whitespace before `-2`
+```
 
+It's also pretty easy to accidentally create impossible expressions.
+If possible, Phi will correct those as well:
+
+```
 $x = new MulExpression("2", new AddExpression("4", "5"));
 $x->autocorrect(); // wraps `4 + 5` in parentheses
+```
+
+Finally, we can convert it back to source code:
+
+```
+$ast->toPhp();
 ```
 
 ## To do
