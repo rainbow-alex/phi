@@ -1,9 +1,9 @@
 # Phi
 
-Phi is a userland parser for PHP code. Currently a work in progress, the intended features for the first release are:
+Phi is a parser for PHP code. Currently a work in progress, the intended features for the first release are:
 
 * Parsing PHP 5.6, 7.x code using any version of PHP >= 7.2.
-* Detailed syntax validation matching the behavior of the zend parser exactly, for each minor version.
+* Syntax validation matching the behavior of the zend parser exactly, for each minor version.
 * Validation of modified trees.
 * Expressive and concise methods to find and traverse nodes.
 * Easy node manipulation: automatic wrapping/unwrapping of nodes; on-the-fly parsing of code snippets.
@@ -62,44 +62,23 @@ $x->autocorrect(); // wraps `4 + 5` in parentheses
 Not currently an exhaustive list :)
 
 - prepub
-	- nowdoc/heredoc code
-	- short function parsing
-	- anonymous class parsing
-	- global variable declaration
-	- shebang
-	- flesh out readme
-	- TODO <15
-	- packagist
+	- submit to packagist
 - parsing
 	- halt compiler & __COMPILER_HALT_OFFSET__
 	- short open tags, etc.
+	- expr{}
+	- multiple const
 - validation
 	- statement levels
 	- string contents
 	- "foo$bar"->baz() should not be valid
 	- ...
-- features
-	- conversion to php-parser nodes of statements
-	- tree & list manipulation api
-	- tree searching
-	- automatic node coercion
-- test coverage
-	- more parser fuzz coverage
-	- more node fuzz coverage
-	- ...
-- documentation
-	- tutorial
-	- api reference
-- misc
-	- clean up binaries & scripts ***
-	- CI
-	- packagist
-- further analysis
+- analysis
 	- phpunit code coverage
-	- pseudo-nodes for (doc-)comments
+	- pseudo-nodes for (doc-)comments, shebang, ...
 	- error-resistant parsing
-	- serialization
 	- reverting php-parser trees back to phi
+	- serialization
 
 ## Caveats
 

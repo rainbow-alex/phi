@@ -6,16 +6,24 @@ use Phi\Nodes\Blocks\RegularBlock;
 use Phi\Nodes\Expression;
 use Phi\Nodes\Expressions\AddExpression;
 use Phi\Nodes\Expressions\AliasExpression;
-use Phi\Nodes\Expressions\AnonymousFunctionExpression;
+use Phi\Nodes\Expressions\AnonymousClassNewExpression;
 use Phi\Nodes\Expressions\AnonymousFunctionUse;
 use Phi\Nodes\Expressions\AnonymousFunctionUseBinding;
 use Phi\Nodes\Expressions\ArrayAccessExpression;
 use Phi\Nodes\Expressions\ArrayItem;
+use Phi\Nodes\Expressions\ArrowFunctionExpression;
 use Phi\Nodes\Expressions\AssignExpression;
 use Phi\Nodes\Expressions\BitwiseAndExpression;
 use Phi\Nodes\Expressions\BitwiseNotExpression;
 use Phi\Nodes\Expressions\BitwiseOrExpression;
 use Phi\Nodes\Expressions\BitwiseXorExpression;
+use Phi\Nodes\Expressions\Cast\ArrayCastExpression;
+use Phi\Nodes\Expressions\Cast\BooleanCastExpression;
+use Phi\Nodes\Expressions\Cast\FloatCastExpression;
+use Phi\Nodes\Expressions\Cast\IntegerCastExpression;
+use Phi\Nodes\Expressions\Cast\ObjectCastExpression;
+use Phi\Nodes\Expressions\Cast\StringCastExpression;
+use Phi\Nodes\Expressions\Cast\UnsetCastExpression;
 use Phi\Nodes\Expressions\CastExpression;
 use Phi\Nodes\Expressions\ClassNameResolutionExpression;
 use Phi\Nodes\Expressions\CloneExpression;
@@ -47,7 +55,9 @@ use Phi\Nodes\Expressions\FunctionCallExpression;
 use Phi\Nodes\Expressions\GreaterThanExpression;
 use Phi\Nodes\Expressions\GreaterThanOrEqualsExpression;
 use Phi\Nodes\Expressions\HeredocStringLiteral;
+use Phi\Nodes\Expressions\IncludeExpression;
 use Phi\Nodes\Expressions\IncludeLikeExpression;
+use Phi\Nodes\Expressions\IncludeOnceExpression;
 use Phi\Nodes\Expressions\InstanceofExpression;
 use Phi\Nodes\Expressions\IntegerLiteral;
 use Phi\Nodes\Expressions\IsEqualExpression;
@@ -63,11 +73,21 @@ use Phi\Nodes\Expressions\LessThanOrEqualsExpression;
 use Phi\Nodes\Expressions\ListExpression;
 use Phi\Nodes\Expressions\LongArrayExpression;
 use Phi\Nodes\Expressions\MagicConstant;
+use Phi\Nodes\Expressions\MagicConstant\ClassMagicConstant;
+use Phi\Nodes\Expressions\MagicConstant\DirMagicConstant;
+use Phi\Nodes\Expressions\MagicConstant\FileMagicConstant;
+use Phi\Nodes\Expressions\MagicConstant\FunctionMagicConstant;
+use Phi\Nodes\Expressions\MagicConstant\LineMagicConstant;
+use Phi\Nodes\Expressions\MagicConstant\MethodMagicConstant;
+use Phi\Nodes\Expressions\MagicConstant\NamespaceMagicConstant;
+use Phi\Nodes\Expressions\MagicConstant\TraitMagicConstant;
 use Phi\Nodes\Expressions\MethodCallExpression;
 use Phi\Nodes\Expressions\ModuloExpression;
 use Phi\Nodes\Expressions\MultiplyExpression;
 use Phi\Nodes\Expressions\NameExpression;
 use Phi\Nodes\Expressions\NewExpression;
+use Phi\Nodes\Expressions\NormalAnonymousFunctionExpression;
+use Phi\Nodes\Expressions\NormalNewExpression;
 use Phi\Nodes\Expressions\NormalVariableExpression;
 use Phi\Nodes\Expressions\NotExpression;
 use Phi\Nodes\Expressions\NowdocStringLiteral;
@@ -80,6 +100,8 @@ use Phi\Nodes\Expressions\PreDecrementExpression;
 use Phi\Nodes\Expressions\PreIncrementExpression;
 use Phi\Nodes\Expressions\PrintExpression;
 use Phi\Nodes\Expressions\PropertyAccessExpression;
+use Phi\Nodes\Expressions\RequireExpression;
+use Phi\Nodes\Expressions\RequireOnceExpression;
 use Phi\Nodes\Expressions\ShiftLeftExpression;
 use Phi\Nodes\Expressions\ShiftRightExpression;
 use Phi\Nodes\Expressions\ShortArrayExpression;
@@ -107,6 +129,9 @@ use Phi\Nodes\Helpers\MemberName;
 use Phi\Nodes\Helpers\Name;
 use Phi\Nodes\Helpers\Parameter;
 use Phi\Nodes\Helpers\ReturnType;
+use Phi\Nodes\Oop\Extends_;
+use Phi\Nodes\Oop\Implements_;
+use Phi\Nodes\Oop\OopMember;
 use Phi\TokenType as T;
 
 return [
@@ -126,12 +151,28 @@ return [
 		->constructor("left", "right")
 		->invalidContexts(C::CTX_WRITE | C::CTX_ALIAS_READ | C::CTX_ALIAS_WRITE),
 
+	(new NodeDef(NormalAnonymousFunctionExpression::class))
+		->optToken("staticModifier", T::T_STATIC)
+		->token("keyword", T::T_FUNCTION)
+		->optToken("byReference", T::S_AMPERSAND)
+		->token("leftParenthesis", T::S_LEFT_PARENTHESIS)
+		->sepNodeList("parameters", Parameter::class, T::S_COMMA)
+		->token("rightParenthesis", T::S_RIGHT_PARENTHESIS)
+		->optNode("use", AnonymousFunctionUse::class)
+		->optNode("returnType", ReturnType::class)
+		->node("body", RegularBlock::class)
+		->invalidContexts(C::CTX_WRITE | C::CTX_ALIAS_READ | C::CTX_ALIAS_WRITE),
+	(new NodeDef(AnonymousFunctionUse::class))
+		->token("keyword", T::T_USE)
+		->token("leftParenthesis", T::S_LEFT_PARENTHESIS)
+		->sepNodeList("bindings", AnonymousFunctionUseBinding::class, T::S_COMMA)
+		->token("rightParenthesis", T::S_RIGHT_PARENTHESIS),
+	(new NodeDef(AnonymousFunctionUseBinding::class))
+		->optToken("byReference", T::S_AMPERSAND)
+		->token("variable", T::T_VARIABLE),
+
 	(new NodeDef(ArrayAccessExpression::class))
-		// note: this is one of the very few cases where flags are passed as they are
-		// instead of explicitely specifying a new context
-		// this allows the by ref flag to propagate
-		/** @see CompoundNode::CTX_LENIENT_READ */
-		->node("expression", Expression::class, C::CTX_READ) // TODO ?? no '$flags'??
+		->node("expression", Expression::class, C::CTX_READ)
 		->token("leftBracket", T::S_LEFT_SQUARE_BRACKET)
 		->optNode("index", Expression::class, C::CTX_READ)
 		->token("rightBracket", T::S_RIGHT_SQUARE_BRACKET)
@@ -159,6 +200,18 @@ return [
 		->constructor("item")
 		->invalidContexts(C::CTX_ALIAS_READ | C::CTX_ALIAS_WRITE)
 		->validateChildren(false),
+
+	(new NodeDef(ArrowFunctionExpression::class))
+		->optToken("staticKeyword", T::T_STATIC)
+		->token("keyword", T::T_FN)
+		->optToken("byReference", T::S_AMPERSAND)
+		->token("leftParenthesis", T::S_LEFT_PARENTHESIS)
+		->sepNodeList("parameters", Parameter::class, T::S_COMMA)
+		->token("rightParenthesis", T::S_RIGHT_PARENTHESIS)
+		->optNode("returnType", ReturnType::class)
+		->token("arrow", T::T_DOUBLE_ARROW)
+		->node("body", Expression::class, C::CTX_READ)
+		->invalidContexts(C::CTX_WRITE | C::CTX_ALIAS_READ | C::CTX_ALIAS_WRITE),
 
 	(new NodeDef(BitwiseAndExpression::class))
 		->node("left", Expression::class, C::CTX_READ)
@@ -198,8 +251,39 @@ return [
 		->constructor("callable")
 		->invalidContexts(C::CTX_WRITE | C::CTX_ALIAS_WRITE),
 
-	(new NodeDef(CastExpression::class))
-		->token("operator", T::CASTS)
+	/** @see CastExpression */
+	(new NodeDef(ArrayCastExpression::class))
+		->token("operator", T::T_ARRAY_CAST)
+		->node("expression", Expression::class, C::CTX_READ)
+		->constructor("operator", "expression")
+		->invalidContexts(C::CTX_WRITE | C::CTX_ALIAS_READ | C::CTX_ALIAS_WRITE),
+	(new NodeDef(BooleanCastExpression::class))
+		->token("operator", T::T_BOOL_CAST)
+		->node("expression", Expression::class, C::CTX_READ)
+		->constructor("operator", "expression")
+		->invalidContexts(C::CTX_WRITE | C::CTX_ALIAS_READ | C::CTX_ALIAS_WRITE),
+	(new NodeDef(FloatCastExpression::class))
+		->token("operator", T::T_DOUBLE_CAST)
+		->node("expression", Expression::class, C::CTX_READ)
+		->constructor("operator", "expression")
+		->invalidContexts(C::CTX_WRITE | C::CTX_ALIAS_READ | C::CTX_ALIAS_WRITE),
+	(new NodeDef(IntegerCastExpression::class))
+		->token("operator", T::T_INT_CAST)
+		->node("expression", Expression::class, C::CTX_READ)
+		->constructor("operator", "expression")
+		->invalidContexts(C::CTX_WRITE | C::CTX_ALIAS_READ | C::CTX_ALIAS_WRITE),
+	(new NodeDef(ObjectCastExpression::class))
+		->token("operator", T::T_OBJECT_CAST)
+		->node("expression", Expression::class, C::CTX_READ)
+		->constructor("operator", "expression")
+		->invalidContexts(C::CTX_WRITE | C::CTX_ALIAS_READ | C::CTX_ALIAS_WRITE),
+	(new NodeDef(StringCastExpression::class))
+		->token("operator", T::T_STRING_CAST)
+		->node("expression", Expression::class, C::CTX_READ)
+		->constructor("operator", "expression")
+		->invalidContexts(C::CTX_WRITE | C::CTX_ALIAS_READ | C::CTX_ALIAS_WRITE),
+	(new NodeDef(UnsetCastExpression::class))
+		->token("operator", T::T_UNSET_CAST)
 		->node("expression", Expression::class, C::CTX_READ)
 		->constructor("operator", "expression")
 		->invalidContexts(C::CTX_WRITE | C::CTX_ALIAS_READ | C::CTX_ALIAS_WRITE),
@@ -343,9 +427,8 @@ return [
 
 	(new NodeDef(ExececutionExpression::class))
 		->token("leftDelimiter", T::S_BACKTICK)
-		->token("command", T::T_ENCAPSED_AND_WHITESPACE)
+		->nodeList("parts", InterpolatedStringPart::class)
 		->token("rightDelimiter", T::S_BACKTICK)
-		->constructor("command")
 		->invalidContexts(C::CTX_WRITE | C::CTX_ALIAS_READ | C::CTX_ALIAS_WRITE),
 
 	(new NodeDef(ExitExpression::class))
@@ -370,30 +453,24 @@ return [
 		->constructor("left", "right")
 		->invalidContexts(C::CTX_WRITE | C::CTX_ALIAS_READ | C::CTX_ALIAS_WRITE),
 
-	(new NodeDef(AnonymousFunctionExpression::class))
-		->optToken("staticModifier", T::T_STATIC)
-		->token("keyword", T::T_FUNCTION)
-		->optToken("byReference", T::S_AMPERSAND)
-		->token("leftParenthesis", T::S_LEFT_PARENTHESIS)
-		->sepNodeList("parameters", Parameter::class, T::S_COMMA)
-		->token("rightParenthesis", T::S_RIGHT_PARENTHESIS)
-		->optNode("use", AnonymousFunctionUse::class)
-		->optNode("returnType", ReturnType::class)
-		->node("body", RegularBlock::class)
+	/** @see IncludeLikeExpression */
+	(new NodeDef(IncludeExpression::class))
+		->token("keyword", T::T_INCLUDE)
+		->node("expression", Expression::class, C::CTX_READ)
+		->constructor("expression")
 		->invalidContexts(C::CTX_WRITE | C::CTX_ALIAS_READ | C::CTX_ALIAS_WRITE),
-
-	(new NodeDef(AnonymousFunctionUse::class))
-		->token("keyword", T::T_USE)
-		->token("leftParenthesis", T::S_LEFT_PARENTHESIS)
-		->sepNodeList("bindings", AnonymousFunctionUseBinding::class, T::S_COMMA)
-		->token("rightParenthesis", T::S_RIGHT_PARENTHESIS),
-
-	(new NodeDef(AnonymousFunctionUseBinding::class))
-		->optToken("byReference", T::S_AMPERSAND)
-		->token("variable", T::T_VARIABLE),
-
-	(new NodeDef(IncludeLikeExpression::class))
-		->token("keyword", [T::T_INCLUDE, T::T_INCLUDE_ONCE, T::T_REQUIRE, T::T_REQUIRE_ONCE])
+	(new NodeDef(IncludeOnceExpression::class))
+		->token("keyword", T::T_INCLUDE_ONCE)
+		->node("expression", Expression::class, C::CTX_READ)
+		->constructor("expression")
+		->invalidContexts(C::CTX_WRITE | C::CTX_ALIAS_READ | C::CTX_ALIAS_WRITE),
+	(new NodeDef(RequireExpression::class))
+		->token("keyword", T::T_REQUIRE)
+		->node("expression", Expression::class, C::CTX_READ)
+		->constructor("expression")
+		->invalidContexts(C::CTX_WRITE | C::CTX_ALIAS_READ | C::CTX_ALIAS_WRITE),
+	(new NodeDef(RequireOnceExpression::class))
+		->token("keyword", T::T_REQUIRE_ONCE)
 		->node("expression", Expression::class, C::CTX_READ)
 		->constructor("expression")
 		->invalidContexts(C::CTX_WRITE | C::CTX_ALIAS_READ | C::CTX_ALIAS_WRITE),
@@ -484,8 +561,37 @@ return [
 		->invalidContexts(C::CTX_READ | C::CTX_ALIAS_READ | C::CTX_ALIAS_WRITE)
 		->validateChildren(false),
 
-	(new NodeDef(MagicConstant::class))
-		->token("token", T::MAGIC_CONSTANTS)
+	/** @see MagicConstant */
+	(new NodeDef(ClassMagicConstant::class))
+		->token("token", T::T_CLASS_C)
+		->constructor("token")
+		->invalidContexts(C::CTX_WRITE | C::CTX_ALIAS_READ | C::CTX_ALIAS_WRITE),
+	(new NodeDef(DirMagicConstant::class))
+		->token("token", T::T_DIR)
+		->constructor("token")
+		->invalidContexts(C::CTX_WRITE | C::CTX_ALIAS_READ | C::CTX_ALIAS_WRITE),
+	(new NodeDef(FileMagicConstant::class))
+		->token("token", T::T_FILE)
+		->constructor("token")
+		->invalidContexts(C::CTX_WRITE | C::CTX_ALIAS_READ | C::CTX_ALIAS_WRITE),
+	(new NodeDef(FunctionMagicConstant::class))
+		->token("token", T::T_FUNC_C)
+		->constructor("token")
+		->invalidContexts(C::CTX_WRITE | C::CTX_ALIAS_READ | C::CTX_ALIAS_WRITE),
+	(new NodeDef(LineMagicConstant::class))
+		->token("token", T::T_LINE)
+		->constructor("token")
+		->invalidContexts(C::CTX_WRITE | C::CTX_ALIAS_READ | C::CTX_ALIAS_WRITE),
+	(new NodeDef(MethodMagicConstant::class))
+		->token("token", T::T_METHOD_C)
+		->constructor("token")
+		->invalidContexts(C::CTX_WRITE | C::CTX_ALIAS_READ | C::CTX_ALIAS_WRITE),
+	(new NodeDef(NamespaceMagicConstant::class))
+		->token("token", T::T_NS_C)
+		->constructor("token")
+		->invalidContexts(C::CTX_WRITE | C::CTX_ALIAS_READ | C::CTX_ALIAS_WRITE),
+	(new NodeDef(TraitMagicConstant::class))
+		->token("token", T::T_TRAIT_C)
 		->constructor("token")
 		->invalidContexts(C::CTX_WRITE | C::CTX_ALIAS_READ | C::CTX_ALIAS_WRITE),
 
@@ -498,22 +604,6 @@ return [
 		->token("rightParenthesis", T::S_RIGHT_PARENTHESIS)
 		->constructor("object", "name")
 		->invalidContexts(C::CTX_WRITE | C::CTX_ALIAS_WRITE),
-
-	/** @see NumberLiteral */
-	(new NodeDef(IntegerLiteral::class))
-		->token("token", T::T_LNUMBER)
-		->constructor("token")
-		->invalidContexts(C::CTX_WRITE | C::CTX_ALIAS_READ | C::CTX_ALIAS_WRITE),
-	(new NodeDef(FloatLiteral::class))
-		->token("token", T::T_DNUMBER)
-		->constructor("token")
-		->invalidContexts(C::CTX_WRITE | C::CTX_ALIAS_READ | C::CTX_ALIAS_WRITE),
-
-	(new NodeDef(PropertyAccessExpression::class))
-		->node("object", Expression::class, C::CTX_READ)
-		->token("operator", T::T_OBJECT_OPERATOR)
-		->node("name", MemberName::class)
-		->constructor("object", "name"),
 
 	(new NodeDef(ModuloExpression::class))
 		->node("left", Expression::class, C::CTX_READ)
@@ -529,7 +619,13 @@ return [
 		->constructor("left", "right")
 		->invalidContexts(C::CTX_WRITE | C::CTX_ALIAS_READ | C::CTX_ALIAS_WRITE),
 
-	(new NodeDef(NewExpression::class))
+	(new NodeDef(NameExpression::class))
+		->node("name", Name::class)
+		->constructor("name")
+		->invalidContexts(C::CTX_WRITE | C::CTX_ALIAS_READ | C::CTX_ALIAS_WRITE),
+
+	/** @see NewExpression */
+	(new NodeDef(NormalNewExpression::class))
 		->token("keyword", T::T_NEW)
 		->node("class", Expression::class, C::CTX_READ)
 		->optToken("leftParenthesis", T::S_LEFT_PARENTHESIS)
@@ -537,12 +633,31 @@ return [
 		->optToken("rightParenthesis", T::S_RIGHT_PARENTHESIS)
 		->constructor("class")
 		->invalidContexts(C::CTX_WRITE | C::CTX_ALIAS_READ | C::CTX_ALIAS_WRITE),
+	(new NodeDef(AnonymousClassNewExpression::class))
+		->token("keyword", T::T_NEW)
+		->token("classKeyword", T::T_CLASS)
+		->optToken("leftParenthesis", T::S_LEFT_PARENTHESIS)
+		->sepNodeList("arguments", Argument::class, T::S_COMMA)
+		->optToken("rightParenthesis", T::S_RIGHT_PARENTHESIS)
+		->optNode("extends", Extends_::class)
+		->optNode("implements", Implements_::class)
+		->token("leftBrace", T::S_LEFT_CURLY_BRACE)
+		->nodeList("members", OopMember::class)
+		->token("rightBrace", T::S_RIGHT_CURLY_BRACE)
+		->invalidContexts(C::CTX_WRITE | C::CTX_ALIAS_READ | C::CTX_ALIAS_WRITE),
+
+	/** @see NumberLiteral */
+	(new NodeDef(FloatLiteral::class))
+		->token("token", T::T_DNUMBER)
+		->constructor("token")
+		->invalidContexts(C::CTX_WRITE | C::CTX_ALIAS_READ | C::CTX_ALIAS_WRITE),
+	(new NodeDef(IntegerLiteral::class))
+		->token("token", T::T_LNUMBER)
+		->constructor("token")
+		->invalidContexts(C::CTX_WRITE | C::CTX_ALIAS_READ | C::CTX_ALIAS_WRITE),
 
 	(new NodeDef(ParenthesizedExpression::class))
 		->token("leftParenthesis", T::S_LEFT_PARENTHESIS)
-		// note: this is one of the very few cases where flags are passed as they are
-		// instead of explicitely specifying a new context
-		/** @see CompoundNode::CTX_LENIENT_READ */
 		->node("expression", Expression::class, '$flags')
 		->token("rightParenthesis", T::S_RIGHT_PARENTHESIS)
 		->constructor("expression")
@@ -583,10 +698,11 @@ return [
 		->constructor("expression")
 		->invalidContexts(C::CTX_WRITE | C::CTX_ALIAS_READ | C::CTX_ALIAS_WRITE),
 
-	(new NodeDef(NameExpression::class))
-		->node("name", Name::class)
-		->constructor("name")
-		->invalidContexts(C::CTX_WRITE | C::CTX_ALIAS_READ | C::CTX_ALIAS_WRITE),
+	(new NodeDef(PropertyAccessExpression::class))
+		->node("object", Expression::class, C::CTX_READ)
+		->token("operator", T::T_OBJECT_OPERATOR)
+		->node("name", MemberName::class)
+		->constructor("object", "name"),
 
 	(new NodeDef(ShiftLeftExpression::class))
 		->node("left", Expression::class, C::CTX_READ)

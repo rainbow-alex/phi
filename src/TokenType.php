@@ -195,183 +195,6 @@ abstract class TokenType
 		return $map;
 	}
 
-	// TODO move to lexer
-	/** @return array<string|int, int> */
-	public static function getPhpTypeMap(): array
-	{
-		static $map;
-		if (!$map)
-		{
-			$map = [
-				"!" => self::S_EXCLAMATION_MARK,
-				"\"" => self::S_DOUBLE_QUOTE,
-				"\$" => self::S_DOLLAR,
-				"%" => self::S_MODULO,
-				"&" => self::S_AMPERSAND,
-				"(" => self::S_LEFT_PARENTHESIS,
-				")" => self::S_RIGHT_PARENTHESIS,
-				"*" => self::S_ASTERISK,
-				"+" => self::S_PLUS,
-				"," => self::S_COMMA,
-				"-" => self::S_MINUS,
-				"." => self::S_DOT,
-				"/" => self::S_FORWARD_SLASH,
-				":" => self::S_COLON,
-				";" => self::S_SEMICOLON,
-				"<" => self::S_LT,
-				"=" => self::S_EQUALS,
-				">" => self::S_GT,
-				"?" => self::S_QUESTION_MARK,
-				"@" => self::S_AT,
-				"[" => self::S_LEFT_SQUARE_BRACKET,
-				"]" => self::S_RIGHT_SQUARE_BRACKET,
-				"^" => self::S_CARET,
-				"`" => self::S_BACKTICK,
-				"{" => self::S_LEFT_CURLY_BRACE,
-				"|" => self::S_VERTICAL_BAR,
-				"}" => self::S_RIGHT_CURLY_BRACE,
-				"~" => self::S_TILDE,
-				\T_ABSTRACT => self::T_ABSTRACT,
-				\T_AND_EQUAL => self::T_AND_EQUAL,
-				\T_ARRAY => self::T_ARRAY,
-				\T_ARRAY_CAST => self::T_ARRAY_CAST,
-				\T_AS => self::T_AS,
-				\T_BOOLEAN_AND => self::T_BOOLEAN_AND,
-				\T_BOOLEAN_OR => self::T_BOOLEAN_OR,
-				\T_BOOL_CAST => self::T_BOOL_CAST,
-				\T_BREAK => self::T_BREAK,
-				\T_CALLABLE => self::T_CALLABLE,
-				\T_CASE => self::T_CASE,
-				\T_CATCH => self::T_CATCH,
-				\T_CLASS => self::T_CLASS,
-				\T_CLASS_C => self::T_CLASS_C,
-				\T_CLONE => self::T_CLONE,
-				\T_CLOSE_TAG => self::T_CLOSE_TAG,
-				\T_COALESCE => self::T_COALESCE,
-				\defined('T_COALESCE_EQUAL') ? \constant('T_COALESCE_EQUAL') : -1 => self::T_COALESCE_EQUAL,
-				\T_COMMENT => self::T_COMMENT,
-				\T_CONCAT_EQUAL => self::T_CONCAT_EQUAL,
-				\T_CONST => self::T_CONST,
-				\T_CONSTANT_ENCAPSED_STRING => self::T_CONSTANT_ENCAPSED_STRING,
-				\T_CONTINUE => self::T_CONTINUE,
-				\T_CURLY_OPEN => self::T_CURLY_OPEN,
-				\T_DEC => self::T_DEC,
-				\T_DECLARE => self::T_DECLARE,
-				\T_DEFAULT => self::T_DEFAULT,
-				\T_DIR => self::T_DIR,
-				\T_DIV_EQUAL => self::T_DIV_EQUAL,
-				\T_DNUMBER => self::T_DNUMBER,
-				\T_DO => self::T_DO,
-				\T_DOC_COMMENT => self::T_DOC_COMMENT,
-				\T_DOLLAR_OPEN_CURLY_BRACES => self::T_DOLLAR_OPEN_CURLY_BRACES,
-				\T_DOUBLE_ARROW => self::T_DOUBLE_ARROW,
-				\T_DOUBLE_CAST => self::T_DOUBLE_CAST,
-				\T_DOUBLE_COLON => self::T_DOUBLE_COLON,
-				\T_ECHO => self::T_ECHO,
-				\T_ELLIPSIS => self::T_ELLIPSIS,
-				\T_ELSE => self::T_ELSE,
-				\T_ELSEIF => self::T_ELSEIF,
-				\T_EMPTY => self::T_EMPTY,
-				\T_ENCAPSED_AND_WHITESPACE => self::T_ENCAPSED_AND_WHITESPACE,
-				\T_ENDDECLARE => self::T_ENDDECLARE,
-				\T_ENDFOR => self::T_ENDFOR,
-				\T_ENDFOREACH => self::T_ENDFOREACH,
-				\T_ENDIF => self::T_ENDIF,
-				\T_ENDSWITCH => self::T_ENDSWITCH,
-				\T_ENDWHILE => self::T_ENDWHILE,
-				\T_END_HEREDOC => self::T_END_HEREDOC,
-				\T_EVAL => self::T_EVAL,
-				\T_EXIT => self::T_EXIT,
-				\T_EXTENDS => self::T_EXTENDS,
-				\T_FILE => self::T_FILE,
-				\T_FINAL => self::T_FINAL,
-				\T_FINALLY => self::T_FINALLY,
-				\defined('T_FN') ? \constant('T_FN') : -1 => self::T_FN,
-				\T_FOR => self::T_FOR,
-				\T_FOREACH => self::T_FOREACH,
-				\T_FUNCTION => self::T_FUNCTION,
-				\T_FUNC_C => self::T_FUNC_C,
-				\T_GLOBAL => self::T_GLOBAL,
-				\T_GOTO => self::T_GOTO,
-				\T_HALT_COMPILER => self::T_HALT_COMPILER,
-				\T_IF => self::T_IF,
-				\T_IMPLEMENTS => self::T_IMPLEMENTS,
-				\T_INC => self::T_INC,
-				\T_INCLUDE => self::T_INCLUDE,
-				\T_INCLUDE_ONCE => self::T_INCLUDE_ONCE,
-				\T_INLINE_HTML => self::T_INLINE_HTML,
-				\T_INSTANCEOF => self::T_INSTANCEOF,
-				\T_INSTEADOF => self::T_INSTEADOF,
-				\T_INTERFACE => self::T_INTERFACE,
-				\T_INT_CAST => self::T_INT_CAST,
-				\T_ISSET => self::T_ISSET,
-				\T_IS_EQUAL => self::T_IS_EQUAL,
-				\T_IS_GREATER_OR_EQUAL => self::T_IS_GREATER_OR_EQUAL,
-				\T_IS_IDENTICAL => self::T_IS_IDENTICAL,
-				\T_IS_NOT_EQUAL => self::T_IS_NOT_EQUAL,
-				\T_IS_NOT_IDENTICAL => self::T_IS_NOT_IDENTICAL,
-				\T_IS_SMALLER_OR_EQUAL => self::T_IS_SMALLER_OR_EQUAL,
-				\T_LINE => self::T_LINE,
-				\T_LIST => self::T_LIST,
-				\T_LNUMBER => self::T_LNUMBER,
-				\T_LOGICAL_AND => self::T_LOGICAL_AND,
-				\T_LOGICAL_OR => self::T_LOGICAL_OR,
-				\T_LOGICAL_XOR => self::T_LOGICAL_XOR,
-				\T_METHOD_C => self::T_METHOD_C,
-				\T_MINUS_EQUAL => self::T_MINUS_EQUAL,
-				\T_MOD_EQUAL => self::T_MOD_EQUAL,
-				\T_MUL_EQUAL => self::T_MUL_EQUAL,
-				\T_NAMESPACE => self::T_NAMESPACE,
-				\T_NEW => self::T_NEW,
-				\T_NS_C => self::T_NS_C,
-				\T_NS_SEPARATOR => self::T_NS_SEPARATOR,
-				\T_NUM_STRING => self::T_NUM_STRING,
-				\T_OBJECT_CAST => self::T_OBJECT_CAST,
-				\T_OBJECT_OPERATOR => self::T_OBJECT_OPERATOR,
-				\T_OPEN_TAG => self::T_OPEN_TAG,
-				\T_OPEN_TAG_WITH_ECHO => self::T_OPEN_TAG_WITH_ECHO,
-				\T_OR_EQUAL => self::T_OR_EQUAL,
-				\T_PLUS_EQUAL => self::T_PLUS_EQUAL,
-				\T_POW => self::T_POW,
-				\T_POW_EQUAL => self::T_POW_EQUAL,
-				\T_PRINT => self::T_PRINT,
-				\T_PRIVATE => self::T_PRIVATE,
-				\T_PROTECTED => self::T_PROTECTED,
-				\T_PUBLIC => self::T_PUBLIC,
-				\T_REQUIRE => self::T_REQUIRE,
-				\T_REQUIRE_ONCE => self::T_REQUIRE_ONCE,
-				\T_RETURN => self::T_RETURN,
-				\T_SL => self::T_SL,
-				\T_SL_EQUAL => self::T_SL_EQUAL,
-				\T_SPACESHIP => self::T_SPACESHIP,
-				\T_SR => self::T_SR,
-				\T_SR_EQUAL => self::T_SR_EQUAL,
-				\T_START_HEREDOC => self::T_START_HEREDOC,
-				\T_STATIC => self::T_STATIC,
-				\T_STRING => self::T_STRING,
-				\T_STRING_CAST => self::T_STRING_CAST,
-				\T_STRING_VARNAME => self::T_STRING_VARNAME,
-				\T_SWITCH => self::T_SWITCH,
-				\T_THROW => self::T_THROW,
-				\T_TRAIT => self::T_TRAIT,
-				\T_TRAIT_C => self::T_TRAIT_C,
-				\T_TRY => self::T_TRY,
-				\T_UNSET => self::T_UNSET,
-				\T_UNSET_CAST => self::T_UNSET_CAST,
-				\T_USE => self::T_USE,
-				\T_VAR => self::T_VAR,
-				\T_VARIABLE => self::T_VARIABLE,
-				\T_WHILE => self::T_WHILE,
-				\T_WHITESPACE => self::T_WHITESPACE,
-				\T_XOR_EQUAL => self::T_XOR_EQUAL,
-				\T_YIELD => self::T_YIELD,
-				\T_YIELD_FROM => self::T_YIELD_FROM,
-			];
-			unset($map[-1]);
-		}
-		return $map;
-	}
-
 	public static function typeToString(int $type): string
 	{
 		$name = \array_search($type, self::getMap(), true);
@@ -395,8 +218,6 @@ abstract class TokenType
 		[self::S_LT, self::T_SR_EQUAL],
 		[self::T_DNUMBER, self::T_DNUMBER],
 		[self::T_DNUMBER, self::T_LNUMBER],
-		[self::T_LNUMBER, self::S_DOT],
-		[self::T_LNUMBER, self::T_CONCAT_EQUAL],
 		[self::T_LNUMBER, self::T_DNUMBER],
 		[self::T_LNUMBER, self::T_ELLIPSIS],
 		[self::T_LNUMBER, self::T_LNUMBER],
@@ -411,37 +232,38 @@ abstract class TokenType
 	/**
 	 * Determines if two tokens need some whitespace in between them in order to be parsed correctly.
 	 * E.g. in `function foo() {}` whitespace is required between `function` and `foo`.
-	 *
-	 * Within interpolated strings any whitespace becomes part of a T_ENCAPSED_AND_WHITESPACE token or is invalid,
-	 * for those tokens `false` is returned.
 	 */
-	public static function requireSeparatingWhitespace(int $type1, int $type2): bool
+	public static function requireSeparatingWhitespace(Token $t1, Token $t2): bool
 	{
-		// very special case, ${ is only lexed inside interpolated strings
+		$type1 = $t1->getType();
+		$src1 = $t1->getSource();
+		$type2 = $t2->getType();
+		$src2 = $t2->getSource();
+
+		// edge case: `${` is only lexed inside interpolated strings, no whitespace needed
 		if ($type1 === self::S_DOLLAR && $type2 === self::S_LEFT_CURLY_BRACE)
 		{
 			return false;
 		}
 
-		$src1 = self::AUTOCORRECT[$type1] ?? null;
-		$src2 = self::AUTOCORRECT[$type2] ?? null;
-
-		// check if part of the next token changes the first one
-		if (isset($src1, $src2))
+		// check if part of the second token can turn the first one into a different token
+		for ($i = 1; $i <= \strlen($src2); $i++)
 		{
-			$src = $src1 . $src2;
-			for ($i = \strlen($src1) + 1; $i <= \strlen($src1 . $src2); $i++)
+			if (\in_array($src1 . \substr($src2, 0, $i), self::AUTOCORRECT, true))
 			{
-				if (\in_array(\substr($src, 0, $i), self::AUTOCORRECT, true))
-				{
-					return true;
-				}
+				return true;
 			}
 		}
 
-		// TODO check performance
-		// treat keywords like regular strings
-		if ($src1 && \preg_match('{[A-Za-z_]$}', $src1))
+		// 0x0.0 (i.e. `0x0` `.0`) does not require whitespace
+		if ($type1 === self::T_LNUMBER && ($type2 === self::S_DOT || $type2 === self::T_CONCAT_EQUAL))
+		{
+			return !\preg_match('{^0[xb]}i', $src1);
+		}
+
+		// treat wordlike tokens as if they were T_STRING
+		// TODO extend regex with unicode?
+		if ($src1 && \preg_match('{[A-Za-z_]$}D', $src1))
 		{
 			$type1 = self::T_STRING;
 		}
@@ -452,16 +274,6 @@ abstract class TokenType
 
 		return \in_array([$type1, $type2], self::NEEDS_WHITESPACE, true);
 	}
-
-	public const CASTS = [
-		self::T_ARRAY_CAST,
-		self::T_BOOL_CAST,
-		self::T_DOUBLE_CAST,
-		self::T_INT_CAST,
-		self::T_OBJECT_CAST,
-		self::T_STRING_CAST,
-		self::T_UNSET_CAST,
-	];
 
 	public const MAGIC_CONSTANTS = [
 		self::T_DIR, self::T_FILE, self::T_LINE,
@@ -548,52 +360,51 @@ abstract class TokenType
 	];
 
 	private const SPECIAL_CLASSES = [
-		'parent',
-		'self',
+		'parent' => true,
+		'self' => true,
 	];
 
 	public static function isSpecialClass(Token $token): bool
 	{
 		return $token->getType() === self::T_STRING
-			&& \in_array(\strtolower($token->getSource()), self::SPECIAL_CLASSES, true);
+			&& isset(self::SPECIAL_CLASSES[\strtolower($token->getSource())]);
 	}
 
 	private const SPECIAL_TYPES = [
-		'bool',
-		'float',
-		'int',
-		'iterable',
-		'object',
-		'string',
-		'void',
+		'bool' => true,
+		'float' => true,
+		'int' => true,
+		'iterable' => true,
+		'object' => true,
+		'string' => true,
+		'void' => true,
 	];
 
 	public static function isSpecialType(Token $token): bool
 	{
 		return $token->getType() === self::T_ARRAY
 			|| $token->getType() === self::T_CALLABLE
-			|| (
-				$token->getType() === self::T_STRING
-				&& \in_array(\strtolower($token->getSource()), self::SPECIAL_TYPES, true)
-			);
+			|| ($token->getType() === self::T_STRING && isset(self::SPECIAL_TYPES[\strtolower($token->getSource())]));
 	}
 
 	private const SPECIAL_CONST = [
-		'false',
-		'null',
-		'true',
+		'false' => true,
+		'null' => true,
+		'true' => true,
 	];
 
 	public static function isSpecialConst(Token $token): bool
 	{
 		return $token->getType() === self::T_STRING
-			&& \in_array(\strtolower($token->getSource()), self::SPECIAL_CONST, true);
+			&& isset(self::SPECIAL_CONST[\strtolower($token->getSource())]);
 	}
 
 	public static function isReservedWord(Token $token): bool
 	{
-		// TODO optimize isset, +, don't check callable/array here
-		return self::isSpecialClass($token) || self::isSpecialType($token) || self::isSpecialConst($token);
+		$token = \strtolower($token->getSource());
+		return isset(self::SPECIAL_CLASSES[$token])
+			|| isset(self::SPECIAL_TYPES[$token])
+			|| isset(self::SPECIAL_CONST[$token]);
 	}
 
 	public const AUTOCORRECT = [

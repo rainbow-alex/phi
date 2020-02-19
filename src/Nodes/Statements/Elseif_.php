@@ -10,4 +10,12 @@ use Phi\Nodes\Generated\GeneratedElseif;
 class Elseif_ extends CompoundNode
 {
 	use GeneratedElseif;
+
+	public function convertToPhpParser()
+	{
+		return new \PhpParser\Node\Stmt\ElseIf_(
+			$this->getCondition()->convertToPhpParser(),
+			$this->getBlock()->convertToPhpParser()
+		);
+	}
 }

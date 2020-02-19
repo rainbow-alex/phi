@@ -4,8 +4,6 @@ declare(strict_types=1);
 
 namespace Phi\Nodes\Expressions\StringInterpolation;
 
-use Phi\Exception\ValidationException;
-use Phi\Nodes\Expressions\BinopExpression;
 use Phi\Nodes\Generated\GeneratedVariableInterpolatedStringVariable;
 use PhpParser\Node\Expr\Variable;
 

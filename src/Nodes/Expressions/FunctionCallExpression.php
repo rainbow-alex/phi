@@ -23,7 +23,7 @@ class FunctionCallExpression extends Expression
 	protected function extraValidation(int $flags): void
 	{
 		if (
-			$this->getCallable() instanceof AnonymousFunctionExpression
+			$this->getCallable() instanceof NormalAnonymousFunctionExpression
 			|| $this->getCallable() instanceof EmptyExpression
 			|| $this->getCallable() instanceof EvalExpression
 			|| $this->getCallable() instanceof ExececutionExpression
@@ -38,6 +38,7 @@ class FunctionCallExpression extends Expression
 			|| $this->getCallable() instanceof StaticPropertyAccessExpression
 			|| $this->getCallable() instanceof ConstantAccessExpression
 			|| $this->getCallable() instanceof ClassNameResolutionExpression
+			|| $this->getCallable() instanceof CloneExpression
 		)
 		{
 			throw ValidationException::invalidSyntax($this->getLeftParenthesis());

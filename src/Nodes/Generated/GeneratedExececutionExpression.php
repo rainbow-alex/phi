@@ -23,9 +23,10 @@ trait GeneratedExececutionExpression
 	private $leftDelimiter;
 
 	/**
-	 * @var \Phi\Token|null
+	 * @var \Phi\Nodes\Base\NodesList|\Phi\Nodes\Expressions\StringInterpolation\InterpolatedStringPart[]
+	 * @phpstan-var \Phi\Nodes\Base\NodesList<\Phi\Nodes\Expressions\StringInterpolation\InterpolatedStringPart>
 	 */
-	private $command;
+	private $parts;
 
 	/**
 	 * @var \Phi\Token|null
@@ -33,27 +34,24 @@ trait GeneratedExececutionExpression
 	private $rightDelimiter;
 
 	/**
-	 * @param \Phi\Token|\Phi\Node|string|null $command
 	 */
-	public function __construct($command = null)
+	public function __construct()
 	{
-		if ($command !== null)
-		{
-			$this->setCommand($command);
-		}
+		$this->parts = new \Phi\Nodes\Base\NodesList(\Phi\Nodes\Expressions\StringInterpolation\InterpolatedStringPart::class);
 	}
 
 	/**
 	 * @param \Phi\Token $leftDelimiter
-	 * @param \Phi\Token $command
+	 * @param mixed[] $parts
 	 * @param \Phi\Token $rightDelimiter
 	 * @return self
 	 */
-	public static function __instantiateUnchecked($leftDelimiter, $command, $rightDelimiter)
+	public static function __instantiateUnchecked($leftDelimiter, $parts, $rightDelimiter)
 	{
 		$instance = new self;
 	$instance->setLeftDelimiter($leftDelimiter);
-	$instance->setCommand($command);
+	$instance->parts->__initUnchecked($parts);
+	$instance->parts->parent = $instance;
 	$instance->setRightDelimiter($rightDelimiter);
 		return $instance;
 	}
@@ -62,7 +60,7 @@ trait GeneratedExececutionExpression
 	{
 		return \array_values(\array_filter([
 			$this->leftDelimiter,
-			$this->command,
+			$this->parts,
 			$this->rightDelimiter,
 		]));
 	}
@@ -71,8 +69,8 @@ trait GeneratedExececutionExpression
 	{
 		if ($this->leftDelimiter === $childToDetach)
 			return $this->leftDelimiter;
-		if ($this->command === $childToDetach)
-			return $this->command;
+		if ($this->parts === $childToDetach)
+			return $this->parts;
 		if ($this->rightDelimiter === $childToDetach)
 			return $this->rightDelimiter;
 		throw new \LogicException();
@@ -111,37 +109,13 @@ trait GeneratedExececutionExpression
 		$this->leftDelimiter = $leftDelimiter;
 	}
 
-	public function getCommand(): \Phi\Token
-	{
-		if ($this->command === null)
-		{
-			throw TreeException::missingNode($this, "command");
-		}
-		return $this->command;
-	}
-
-	public function hasCommand(): bool
-	{
-		return $this->command !== null;
-	}
-
 	/**
-	 * @param \Phi\Token|\Phi\Node|string|null $command
+	 * @return \Phi\Nodes\Base\NodesList|\Phi\Nodes\Expressions\StringInterpolation\InterpolatedStringPart[]
+	 * @phpstan-return \Phi\Nodes\Base\NodesList<\Phi\Nodes\Expressions\StringInterpolation\InterpolatedStringPart>
 	 */
-	public function setCommand($command): void
+	public function getParts(): \Phi\Nodes\Base\NodesList
 	{
-		if ($command !== null)
-		{
-			/** @var \Phi\Token $command */
-			$command = NodeCoercer::coerce($command, \Phi\Token::class, $this->getPhpVersion());
-			$command->detach();
-			$command->parent = $this;
-		}
-		if ($this->command !== null)
-		{
-			$this->command->detach();
-		}
-		$this->command = $command;
+		return $this->parts;
 	}
 
 	public function getRightDelimiter(): \Phi\Token
@@ -181,14 +155,10 @@ trait GeneratedExececutionExpression
 	{
 		if ($this->leftDelimiter === null)
 			throw ValidationException::missingChild($this, "leftDelimiter");
-		if ($this->command === null)
-			throw ValidationException::missingChild($this, "command");
 		if ($this->rightDelimiter === null)
 			throw ValidationException::missingChild($this, "rightDelimiter");
 		if ($this->leftDelimiter->getType() !== 123)
 			throw ValidationException::invalidSyntax($this->leftDelimiter, [123]);
-		if ($this->command->getType() !== 169)
-			throw ValidationException::invalidSyntax($this->command, [169]);
 		if ($this->rightDelimiter->getType() !== 123)
 			throw ValidationException::invalidSyntax($this->rightDelimiter, [123]);
 
@@ -197,12 +167,16 @@ trait GeneratedExececutionExpression
 
 		$this->extraValidation($flags);
 
+		foreach ($this->parts as $t)
+			$t->_validate(0);
 	}
 
 	public function _autocorrect(): void
 	{
 		if (!$this->leftDelimiter)
 			$this->setLeftDelimiter(new Token(123, '`'));
+		foreach ($this->parts as $t)
+			$t->_autocorrect();
 		if (!$this->rightDelimiter)
 			$this->setRightDelimiter(new Token(123, '`'));
 

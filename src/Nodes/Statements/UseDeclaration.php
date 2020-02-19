@@ -7,7 +7,7 @@ namespace Phi\Nodes\Statements;
 use Phi\Exception\ValidationException;
 use Phi\Nodes\Base\CompoundNode;
 use Phi\Nodes\Generated\GeneratedUseDeclaration;
-use Phi\TokenType;
+use PhpParser\Node\Stmt\UseUse;
 
 class UseDeclaration extends CompoundNode
 {
@@ -20,5 +20,14 @@ class UseDeclaration extends CompoundNode
 		{
 			throw ValidationException::invalidNameInContext($name);
 		}
+	}
+
+	public function convertToPhpParser()
+	{
+		$alias = $this->getAlias();
+		return new UseUse(
+			$this->getName()->convertToPhpParser(true),
+			$alias ? $alias->getName()->getSource() : null
+		);
 	}
 }

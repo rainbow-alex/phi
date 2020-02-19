@@ -27,4 +27,9 @@ class ReturnType extends CompoundNode
 			throw ValidationException::invalidSyntax($type);
 		}
 	}
+
+	public function convertToPhpParser()
+	{
+		return $this->getType()->convertToPhpParser();
+	}
 }

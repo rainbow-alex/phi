@@ -23,7 +23,7 @@ trait GeneratedBreakStatement
 	private $keyword;
 
 	/**
-	 * @var \Phi\Nodes\Expressions\IntegerLiteral|null
+	 * @var \Phi\Nodes\Expressions\NumberLiteral|null
 	 */
 	private $levels;
 
@@ -40,7 +40,7 @@ trait GeneratedBreakStatement
 
 	/**
 	 * @param \Phi\Token $keyword
-	 * @param \Phi\Nodes\Expressions\IntegerLiteral|null $levels
+	 * @param \Phi\Nodes\Expressions\NumberLiteral|null $levels
 	 * @param \Phi\Token $delimiter
 	 * @return self
 	 */
@@ -106,7 +106,7 @@ trait GeneratedBreakStatement
 		$this->keyword = $keyword;
 	}
 
-	public function getLevels(): ?\Phi\Nodes\Expressions\IntegerLiteral
+	public function getLevels(): ?\Phi\Nodes\Expressions\NumberLiteral
 	{
 		return $this->levels;
 	}
@@ -117,14 +117,14 @@ trait GeneratedBreakStatement
 	}
 
 	/**
-	 * @param \Phi\Nodes\Expressions\IntegerLiteral|\Phi\Node|string|null $levels
+	 * @param \Phi\Nodes\Expressions\NumberLiteral|\Phi\Node|string|null $levels
 	 */
 	public function setLevels($levels): void
 	{
 		if ($levels !== null)
 		{
-			/** @var \Phi\Nodes\Expressions\IntegerLiteral $levels */
-			$levels = NodeCoercer::coerce($levels, \Phi\Nodes\Expressions\IntegerLiteral::class, $this->getPhpVersion());
+			/** @var \Phi\Nodes\Expressions\NumberLiteral $levels */
+			$levels = NodeCoercer::coerce($levels, \Phi\Nodes\Expressions\NumberLiteral::class, $this->getPhpVersion());
 			$levels->detach();
 			$levels->parent = $this;
 		}

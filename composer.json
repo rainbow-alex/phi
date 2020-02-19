@@ -1,35 +1,47 @@
 {
-    "autoload": {
-        "psr-4": {
-            "Phi\\": "src/"
-        }
-    },
-    "autoload-dev": {
-        "psr-4": {
-            "Phi\\Meta\\": "meta/",
-            "Phi\\Tests\\": "tests/"
-        }
-    },
-    "require": {
-        "ext-mbstring": "*"
-    },
-    "require-dev": {
-        "ext-json": "*",
-        "ext-pcntl": "*",
-        "ext-zlib": "*",
-        "brianium/paratest": "^4.0",
-        "nikic/php-parser": "^4.3",
-        "phpdocumentor/reflection-docblock": "^4.3",
-        "phpstan/phpstan": "^0.12.8",
-        "phpstan/phpstan-strict-rules": "^0.12.2",
-        "phpunit/phpunit": "^8.0",
-        "symfony/finder": "^5.0"
-    },
-    "scripts": {
-        "gen-src": "php meta/bin/generate_nodes.php; php meta/bin/optimize_parser.php",
-        "gen-tests": "php tests/Parser/data/generated/generate_syntax_checks.php"
-    },
-    "config": {
-        "sort-packages": true
-    }
+	"name": "rainbow-alex/phi",
+	"description": "Parse PHP code; analyse it, modify it, format it, validate it; safely convert it back to source.",
+	"license": "GPL-3.0-only",
+	"authors": [
+		{
+			"name": "Alex Deleyn",
+			"email": "alex.deleyn@gmail.com"
+		}
+	],
+	"autoload": {
+		"psr-4": {
+			"Phi\\": "src/"
+		}
+	},
+	"autoload-dev": {
+		"psr-4": {
+			"Phi\\Meta\\": "meta/",
+			"Phi\\Tests\\": "tests/"
+		}
+	},
+	"require": {
+		"php": "^7.2",
+		"ext-mbstring": "*"
+	},
+	"suggest": {
+		"nikic/php-parser": "Convert phi ASTs to and from php-parser ASTs"
+	},
+	"require-dev": {
+		"ext-json": "*",
+		"ext-pcntl": "*",
+		"ext-posix": "*",
+		"ext-zlib": "^7.2",
+		"nikic/php-parser": "^4.3",
+		"phpdocumentor/reflection-docblock": "^4.3",
+		"phpstan/phpstan": "^0.12.8",
+		"phpstan/phpstan-strict-rules": "^0.12.2",
+		"phpunit/phpunit": "^8.0",
+		"symfony/finder": "^5.0"
+	},
+	"scripts": {
+		"gen": "php meta/bin/generate_nodes.php; php meta/bin/optimize_parser.php"
+	},
+	"config": {
+		"sort-packages": true
+	}
 }

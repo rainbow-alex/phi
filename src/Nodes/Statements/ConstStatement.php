@@ -8,6 +8,7 @@ use Phi\Exception\ValidationException;
 use Phi\Nodes\Generated\GeneratedConstStatement;
 use Phi\Nodes\Statement;
 use Phi\TokenType;
+use PhpParser\Node\Stmt\Const_;
 
 class ConstStatement extends Statement
 {
@@ -24,5 +25,15 @@ class ConstStatement extends Statement
 		{
 			throw ValidationException::invalidExpressionInContext($this->getValue());
 		}
+	}
+
+	public function convertToPhpParser()
+	{
+		// TODO multi
+		return new Const_(
+			[
+				new \PhpParser\Node\Const_($this->getName()->getSource(), $this->getValue()->convertToPhpParser()),
+			]
+		);
 	}
 }

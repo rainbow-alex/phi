@@ -1,10 +1,16 @@
 {"algo": "permute"}
 
+global $v;
+global $v, $v;
+global $v,;
+global EXPR4;
+
 while (0) break;
 while (0) break -1;
 while (0) break 0;
 while (0) break 1;
 while (0) break EXPR;
+while (0) break 123456789123456789123456789;
 while (0) { function ident() { break; } }
 
 while (0) continue;

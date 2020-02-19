@@ -1,8 +1,10 @@
 {"algo": "permute"}
 
-'EXPR_STRING_CONTENT';
+'EXPR_STRING_PART';
 
-"EXPR_STRING_CONTENT";
+"EXPR_STRING_PART";
+
+`EXPR_STRING_PART`;
 
 // normal heredocs
 <<<HEREDOC{*\n*}HEREDOC;{*\n*}
@@ -26,7 +28,7 @@
 <<<HEREDOC{*\n*}Heredoc;{*\n*}
 
 // various content
-<<<HEREDOC{*\n*}EXPR_STRING_CONTENT{*\n*}HEREDOC;{*\n*}
+<<<HEREDOC{*\n*}EXPR_STRING_PART{*\n*}HEREDOC;{*\n*}
 
 // normal nowdocs
 <<<NOWDOC{*\n*}NOWDOC;{*\n*}
@@ -50,4 +52,4 @@
 <<<NOWDOC{*\n*}Nowdoc;{*\n*}
 
 // various content
-<<<NOWDOC{*\n*}EXPR_STRING_CONTENT{*\n*}NOWDOC;{*\n*}
+<<<NOWDOC{*\n*}EXPR_STRING_PART{*\n*}NOWDOC;{*\n*}

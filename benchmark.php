@@ -1,7 +1,6 @@
 #!/usr/bin/env php
 <?php
 
-use Phi\PhpVersion;
 use Symfony\Component\Finder\Finder;
 
 require __DIR__ . '/vendor/autoload.php';
@@ -29,8 +28,8 @@ gc_collect_cycles();
 
 //*
 echo "phi (without validation)... ";
-$lexer = new \Phi\Lexer(PhpVersion::PHP_7_2);
-$parser = new \Phi\Parser(PhpVersion::PHP_7_2);
+$lexer = new \Phi\Lexer(PHP_VERSION_ID);
+$parser = new \Phi\Parser(PHP_VERSION_ID);
 $maxMemory = 0;
 
 $start = microtime(true);
@@ -51,8 +50,8 @@ gc_collect_cycles();
 
 //*
 echo "phi (with validation)... ";
-$lexer = new \Phi\Lexer(PhpVersion::PHP_7_2);
-$parser = new \Phi\Parser(PhpVersion::PHP_7_2);
+$lexer = new \Phi\Lexer(PHP_VERSION_ID);
+$parser = new \Phi\Parser(PHP_VERSION_ID);
 $maxMemory = 0;
 $start = microtime(true);
 for ($i = 0; $i < $reps; $i++)
@@ -83,23 +82,6 @@ for ($i = 0; $i < $reps; $i++)
         $ast = $parser->parse($contents);
         $maxMemory = max($maxMemory, memory_get_usage());
         unset($ast);
-    }
-}
-$time = microtime(true) - $start;
-echo number_format($time, 3) . "s, " . number_format($maxMemory / 1e6, 2) . "MB\n";
-//*/
-
-/*
-echo "microsoft/tolerant-php-parser... ";
-$parser = new \Microsoft\PhpParser\Parser();
-$maxMemory = 0;
-$start = microtime(true);
-for ($i = 0; $i < $reps; $i++)
-{
-    foreach ($files as $fileName => $contents)
-    {
-        $parser->parseSourceFile($contents);
-        $maxMemory = max($maxMemory, memory_get_usage());
     }
 }
 $time = microtime(true) - $start;

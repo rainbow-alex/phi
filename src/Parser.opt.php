@@ -212,30 +212,8 @@ class Parser
 				}
 				$keyword = $this->read(140);
 				$name = $this->read(245);
-				if ($extendsKeyword = ($this->types[$this->i] === 179 ? $this->tokens[$this->i++] : null))
-				{
-					$extendsNames = [];
-					$extendsNames[] = $this->name();
-					$extends = Nodes\Oop\Extends_::__instantiateUnchecked($extendsKeyword, $extendsNames);
-				}
-				else
-				{
-					$extends = null;
-				}
-				if ($implementsKeyword = ($this->types[$this->i] === 192 ? $this->tokens[$this->i++] : null))
-				{
-					$implementsNames = [];
-					do
-					{
-						$implementsNames[] = $this->name();
-					}
-					while ($implementsNames[] = ($this->types[$this->i] === 109 ? $this->tokens[$this->i++] : null));
-					$implements = Nodes\Oop\Implements_::__instantiateUnchecked($implementsKeyword, $implementsNames);
-				}
-				else
-				{
-					$implements = null;
-				}
+				$extends = $this->extends();
+				$implements = $this->implements();
 				$leftBrace = $this->read(124);
 				$members = [];
 				while ($this->types[$this->i] !== 126)
@@ -255,26 +233,16 @@ class Parser
 				);
 
 			case 199:
-				$keyword = $this->read(199);
+				$keyword = $this->tokens[$this->i++];
 				$name = $this->read(245);
-				$extends = null;
-				if ($extendsKeyword = ($this->types[$this->i] === 179 ? $this->tokens[$this->i++] : null))
-				{
-					$extendsNames = [];
-					do
-					{
-						$extendsNames[] = $this->name();
-					}
-					while ($extendsNames[] = ($this->types[$this->i] === 109 ? $this->tokens[$this->i++] : null));
-					$extends = Nodes\Oop\Extends_::__instantiateUnchecked($extendsKeyword, $extendsNames);
-				}
+				$extends = $this->extends();
 				$leftBrace = $this->read(124);
 				$members = [];
 				while ($this->types[$this->i] !== 126)
 				{
 					$members[] = $this->oopMember();
 				}
-				$rightBrace = $this->read(126);
+				$rightBrace = $this->tokens[$this->i++];
 				return Nodes\Oop\InterfaceDeclaration::__instantiateUnchecked(
 					$keyword,
 					$name,
@@ -285,7 +253,7 @@ class Parser
 				);
 
 			case 250:
-				$keyword = $this->read(250);
+				$keyword = $this->tokens[$this->i++];
 				$name = $this->read(245);
 				$leftBrace = $this->read(124);
 				$members = [];
@@ -508,15 +476,28 @@ class Parser
 					$body
 				);
 
+			case 188:
+				$keyword = $this->tokens[$this->i++];
+				$variables = [];
+				do
+				{
+					$peek = $this->tokens[$this->i];
+					$variable = $this->simpleExpression();
+					if (!$variable instanceof Nodes\Expressions\VariableExpression)
+					{
+						throw ParseException::unexpected($peek);
+					}
+					$variables[] = $variable;
+				}
+				while ($variables[] = ($this->types[$this->i] === 109 ? $this->tokens[$this->i++] : null));
+				$semiColon = $this->statementDelimiter();
+				return Nodes\Statements\GlobalStatement::__instantiateUnchecked($keyword, $variables, $semiColon);
+
 			case 189:
 				$keyword = $this->tokens[$this->i++];
 				$label = $this->read(245);
 				$semiColon = $this->statementDelimiter();
-				return Nodes\Statements\GotoStatement::__instantiateUnchecked(
-					$keyword,
-					$label,
-					$semiColon
-				);
+				return Nodes\Statements\GotoStatement::__instantiateUnchecked($keyword, $label, $semiColon);
 
 			case 191:
 				$keyword = $this->tokens[$this->i++];
@@ -713,6 +694,47 @@ class Parser
 		}
 	}
 
+	private function extends(): ?Nodes\Oop\Extends_
+	{
+		if ($this->types[$this->i] === 179)
+		{
+			$keyword = $this->tokens[$this->i++];
+			$names = [];
+			$names[] = $this->name();
+			while ($this->types[$this->i] === 109)
+			{
+				$names[] = $this->tokens[$this->i++];
+				$names[] = $this->name();
+			}
+			return Nodes\Oop\Extends_::__instantiateUnchecked($keyword, $names);
+		}
+		else
+		{
+			return null;
+		}
+	}
+
+	private function implements(): ?Nodes\Oop\Implements_
+	{
+		if ($this->types[$this->i] === 192)
+		{
+			$keyword = $this->tokens[$this->i++];
+			$names = [];
+			$names[] = $this->name();
+			while ($this->types[$this->i] === 109)
+			{
+				$names[] = $this->tokens[$this->i++];
+				$names[] = $this->name();
+			}
+			return Nodes\Oop\Implements_::__instantiateUnchecked($keyword, $names);
+		}
+		else
+		{
+			return null;
+		}
+	}
+
+	// TODO inline
 	private function use_(): Nodes\Statements\UseStatement
 	{
 		$keyword = $this->read(255);
@@ -793,20 +815,7 @@ class Parser
 		if ($keyword = ($this->types[$this->i] === 186 ? $this->tokens[$this->i++] : null))
 		{
 			$byReference = ($this->types[$this->i] === 104 ? $this->tokens[$this->i++] : null);
-			// TODO dedup
-			if ($this->types[$this->i] === 245)
-			{
-				$name = $this->tokens[$this->i++];
-			}
-			else if (\in_array($this->types[$this->i], T::STRINGY_KEYWORDS, true))
-			{
-				$this->tokens[$this->i]->_fudgeType(245);
-				$name = $this->tokens[$this->i++];
-			}
-			else
-			{
-				throw ParseException::unexpected($this->tokens[$this->i]);
-			}
+			$name = $this->identifierOrKeywordAsIdentifier();
 			$leftParenthesis = $this->read(105);
 			$parameters = $this->parameters();
 			$rightParenthesis = $this->read(106);
@@ -828,19 +837,7 @@ class Parser
 		}
 		else if ($keyword = ($this->types[$this->i] === 148 ? $this->tokens[$this->i++] : null))
 		{
-			if ($this->types[$this->i] === 245)
-			{
-				$name = $this->tokens[$this->i++];
-			}
-			else if (\in_array($this->types[$this->i], T::STRINGY_KEYWORDS, true))
-			{
-				$this->tokens[$this->i]->_fudgeType(245);
-				$name = $this->tokens[$this->i++];
-			}
-			else
-			{
-				throw ParseException::unexpected($this->tokens[$this->i]);
-			}
+			$name = $this->identifierOrKeywordAsIdentifier();
 			$equals = $this->read(116);
 			$value = $this->expression();
 			$semiColon = $this->read(114);
@@ -1241,18 +1238,56 @@ class Parser
 
 			case 219:
 				$keyword = $this->tokens[$this->i++];
-				$class = $this->simpleExpression(true);
-				if ($leftParenthesis = ($this->types[$this->i] === 105 ? $this->tokens[$this->i++] : null))
+				if ($this->types[$this->i] !== 140)
 				{
-					$arguments = $this->arguments();
-					$rightParenthesis = $this->read(106);
+					$class = $this->simpleExpression(true);
+					if ($leftParenthesis = ($this->types[$this->i] === 105 ? $this->tokens[$this->i++] : null))
+					{
+						$arguments = $this->arguments();
+						$rightParenthesis = $this->read(106);
+					}
+					else
+					{
+						$arguments = [];
+						$rightParenthesis = null;
+					}
+					$node = Nodes\Expressions\NormalNewExpression::__instantiateUnchecked($keyword, $class, $leftParenthesis, $arguments, $rightParenthesis);
 				}
 				else
 				{
-					$arguments = [];
-					$rightParenthesis = null;
+					$classKeyword = $this->tokens[$this->i++];
+					if ($leftParenthesis = ($this->types[$this->i] === 105 ? $this->tokens[$this->i++] : null))
+					{
+						$arguments = $this->arguments();
+						$rightParenthesis = $this->read(106);
+					}
+					else
+					{
+						$arguments = [];
+						$rightParenthesis = null;
+					}
+					$extends = $this->extends();
+					$implements = $this->implements();
+					$leftBrace = $this->read(124);
+					$members = [];
+					while ($this->types[$this->i] !== 126)
+					{
+						$members[] = $this->oopMember();
+					}
+					$rightBrace = $this->tokens[$this->i++];
+					$node = Nodes\Expressions\AnonymousClassNewExpression::__instantiateUnchecked(
+						$keyword,
+						$classKeyword,
+						$leftParenthesis,
+						$arguments,
+						$rightParenthesis,
+						$extends,
+						$implements,
+						$leftBrace,
+						$members,
+						$rightBrace
+					);
 				}
-				$node = Nodes\Expressions\NewExpression::__instantiateUnchecked($keyword, $class, $leftParenthesis, $arguments, $rightParenthesis);
 				break;
 
 			case 120:
@@ -1314,14 +1349,28 @@ class Parser
 				break;
 
 			case 155:
+				$node = Nodes\Expressions\MagicConstant\DirMagicConstant::__instantiateUnchecked($this->tokens[$this->i++]);
+				break;
 			case 180:
+				$node = Nodes\Expressions\MagicConstant\FileMagicConstant::__instantiateUnchecked($this->tokens[$this->i++]);
+				break;
 			case 208:
+				$node = Nodes\Expressions\MagicConstant\LineMagicConstant::__instantiateUnchecked($this->tokens[$this->i++]);
+				break;
 			case 187:
+				$node = Nodes\Expressions\MagicConstant\FunctionMagicConstant::__instantiateUnchecked($this->tokens[$this->i++]);
+				break;
 			case 141:
+				$node = Nodes\Expressions\MagicConstant\ClassMagicConstant::__instantiateUnchecked($this->tokens[$this->i++]);
+				break;
 			case 214:
+				$node = Nodes\Expressions\MagicConstant\MethodMagicConstant::__instantiateUnchecked($this->tokens[$this->i++]);
+				break;
 			case 251:
+				$node = Nodes\Expressions\MagicConstant\TraitMagicConstant::__instantiateUnchecked($this->tokens[$this->i++]);
+				break;
 			case 220:
-				$node = Nodes\Expressions\MagicConstant::__instantiateUnchecked($this->tokens[$this->i++]);
+				$node = Nodes\Expressions\MagicConstant\NamespaceMagicConstant::__instantiateUnchecked($this->tokens[$this->i++]);
 				break;
 
 			case 142:
@@ -1367,12 +1416,24 @@ class Parser
 				break;
 
 			case 194:
+				$keyword = $this->tokens[$this->i++];
+				$expression = $this->expression();
+				$node = Nodes\Expressions\IncludeExpression::__instantiateUnchecked($keyword, $expression);
+				break;
 			case 195:
+				$keyword = $this->tokens[$this->i++];
+				$expression = $this->expression();
+				$node = Nodes\Expressions\IncludeOnceExpression::__instantiateUnchecked($keyword, $expression);
+				break;
 			case 235:
+				$keyword = $this->tokens[$this->i++];
+				$expression = $this->expression();
+				$node = Nodes\Expressions\RequireExpression::__instantiateUnchecked($keyword, $expression);
+				break;
 			case 236:
 				$keyword = $this->tokens[$this->i++];
 				$expression = $this->expression();
-				$node = Nodes\Expressions\IncludeLikeExpression::__instantiateUnchecked($keyword, $expression);
+				$node = Nodes\Expressions\RequireOnceExpression::__instantiateUnchecked($keyword, $expression);
 				break;
 
 			case 127:
@@ -1394,15 +1455,45 @@ class Parser
 				break;
 
 			case 131:
+				$cast = $this->tokens[$this->i++];
+				$expression = $this->expression(70);
+				$node = Nodes\Expressions\Cast\ArrayCastExpression::__instantiateUnchecked($cast, $expression);
+				break;
+
 			case 135:
+				$cast = $this->tokens[$this->i++];
+				$expression = $this->expression(70);
+				$node = Nodes\Expressions\Cast\BooleanCastExpression::__instantiateUnchecked($cast, $expression);
+				break;
+
 			case 162:
+				$cast = $this->tokens[$this->i++];
+				$expression = $this->expression(70);
+				$node = Nodes\Expressions\Cast\FloatCastExpression::__instantiateUnchecked($cast, $expression);
+				break;
+
 			case 200:
+				$cast = $this->tokens[$this->i++];
+				$expression = $this->expression(70);
+				$node = Nodes\Expressions\Cast\IntegerCastExpression::__instantiateUnchecked($cast, $expression);
+				break;
+
 			case 223:
+				$cast = $this->tokens[$this->i++];
+				$expression = $this->expression(70);
+				$node = Nodes\Expressions\Cast\ObjectCastExpression::__instantiateUnchecked($cast, $expression);
+				break;
+
 			case 246:
+				$cast = $this->tokens[$this->i++];
+				$expression = $this->expression(70);
+				$node = Nodes\Expressions\Cast\StringCastExpression::__instantiateUnchecked($cast, $expression);
+				break;
+
 			case 254:
 				$cast = $this->tokens[$this->i++];
 				$expression = $this->expression(70);
-				$node = Nodes\Expressions\CastExpression::__instantiateUnchecked($cast, $expression);
+				$node = Nodes\Expressions\Cast\UnsetCastExpression::__instantiateUnchecked($cast, $expression);
 				break;
 
 			case 119:
@@ -1450,9 +1541,9 @@ class Parser
 
 			case 123:
 				$leftDelimiter = $this->tokens[$this->i++];
-				$command = $this->read(169);
+				$parts = $this->stringParts(123);
 				$rightDelimiter = $this->read(123);
-				$node = Nodes\Expressions\ExececutionExpression::__instantiateUnchecked($leftDelimiter, $command, $rightDelimiter);
+				$node = Nodes\Expressions\ExececutionExpression::__instantiateUnchecked($leftDelimiter, $parts, $rightDelimiter);
 				break;
 
 			/** @noinspection PhpMissingBreakStatementInspection */
@@ -1461,7 +1552,14 @@ class Parser
 				{
 					goto anonymousFunction;
 				}
-				$node = Nodes\Expressions\StaticExpression::__instantiateUnchecked($this->tokens[$this->i++]);
+				else if ($this->types[$this->i + 1] === 183)
+				{
+					goto arrowFunction;
+				}
+				else
+				{
+					$node = Nodes\Expressions\StaticExpression::__instantiateUnchecked($this->tokens[$this->i++]);
+				}
 				break;
 
 			case 186:
@@ -1494,7 +1592,7 @@ class Parser
 
 				$body = $this->regularBlock();
 
-				$node = Nodes\Expressions\AnonymousFunctionExpression::__instantiateUnchecked(
+				$node = Nodes\Expressions\NormalAnonymousFunctionExpression::__instantiateUnchecked(
 					$static,
 					$keyword,
 					$byReference,
@@ -1506,6 +1604,31 @@ class Parser
 					$body
 				);
 				break;
+
+			case 183:
+				arrowFunction:
+				$static = ($this->types[$this->i] === 244 ? $this->tokens[$this->i++] : null);
+				$keyword = $this->tokens[$this->i++];
+				$byReference = ($this->types[$this->i] === 104 ? $this->tokens[$this->i++] : null);
+				$leftParenthesis = $this->read(105);
+				$parameters = $this->parameters();
+				$rightParenthesis = $this->read(106);
+				$returnType = $this->returnType();
+				$arrow = $this->read(161);
+				$expression = $this->expression(25);
+				$node = Nodes\Expressions\ArrowFunctionExpression::__instantiateUnchecked(
+					$static,
+					$keyword,
+					$byReference,
+					$leftParenthesis,
+					$parameters,
+					$rightParenthesis,
+					$returnType,
+					$arrow,
+					$expression
+				);
+				break;
+
 
 			default:
 				throw ParseException::unexpected($this->tokens[$this->i]);
@@ -1641,12 +1764,8 @@ class Parser
 							$name = $this->tokens[$this->i++];
 							// new expr::a -> parse error
 							// new expr::a() -> parse error
-							if ($newable)
-							{
-								throw ParseException::unexpected($this->tokens[$this->i]);
-							}
 							// expr::a -> access constant 'a'
-							else if ($this->types[$this->i] !== 105)
+							if ($newable || $this->types[$this->i] !== 105)
 							{
 								$node = Nodes\Expressions\ConstantAccessExpression::__instantiateUnchecked($node, $operator, $name);
 								break;
@@ -1710,7 +1829,7 @@ class Parser
 							$node = Nodes\Expressions\ClassNameResolutionExpression::__instantiateUnchecked($node, $operator, $keyword);
 							break;
 
-							staticCall:
+						staticCall:
 							// we jump here when we positively decide on a static call, and have set up $memberName
 							/** @var Nodes\Helpers\MemberName $memberName */
 							$leftParenthesis = $this->read(105);
@@ -1720,9 +1839,9 @@ class Parser
 							break;
 
 						default:
-							fudgeSpecialNameToString:
 							if (\in_array($this->types[$this->i], T::STRINGY_KEYWORDS, true))
 							{
+								fudgeSpecialNameToString:
 								$this->tokens[$this->i]->_fudgeType(245);
 								goto doubleColonString;
 							}
@@ -1747,6 +1866,24 @@ class Parser
 		}
 
 		return $node;
+	}
+
+	private function identifierOrKeywordAsIdentifier(): Token
+	{
+		if ($this->types[$this->i] === 245)
+		{
+			return $this->tokens[$this->i++];
+		}
+		else if (\in_array($this->types[$this->i], T::STRINGY_KEYWORDS, true))
+		{
+			$token = $this->tokens[$this->i++];
+			$token->_fudgeType(245);
+			return $token;
+		}
+		else
+		{
+			throw ParseException::unexpected($this->tokens[$this->i]);
+		}
 	}
 
 	private function block(): Nodes\Block
@@ -1776,7 +1913,7 @@ class Parser
 	/**
 	 * @param array<int> $implicitEndKeywords
 	 *
-	 * TODO all blocks should accept all keywords as end and validation should handle the rest
+	 * TODO all blocks should accept all keywords as end and validation should handle the rest (?)
 	 */
 	private function altBlock(int $endKeywordType, array $implicitEndKeywords = []): Nodes\Blocks\AlternativeFormatBlock
 	{
@@ -1876,23 +2013,15 @@ class Parser
 	private function name(): Nodes\Helpers\Name
 	{
 		$parts = [];
-		// TODO simplify loop?
-		switch ($this->types[$this->i])
+		if ($this->types[$this->i] === 221)
 		{
-			/** @noinspection PhpMissingBreakStatementInspection */
-			case 221:
-				$parts[] = $this->tokens[$this->i++];
-			default:
-				$parts[] = $this->read(245);
-				while ($this->types[$this->i] === 221)
-				{
-					$parts[] = $this->tokens[$this->i++];
-					$parts[] = $this->read(245);
-				}
+			$parts[] = $this->tokens[$this->i++];
 		}
-		if (!$parts)
+		$parts[] = $this->read(245);
+		while ($this->types[$this->i] === 221)
 		{
-			throw ParseException::unexpected($this->tokens[$this->i]);
+			$parts[] = $this->tokens[$this->i++];
+			$parts[] = $this->read(245);
 		}
 		return Nodes\Helpers\Name::__instantiateUnchecked($parts);
 	}
@@ -2011,33 +2140,39 @@ class Parser
 				$var = Nodes\Expressions\NormalVariableExpression::__instantiateUnchecked($this->tokens[$this->i++]);
 				if ($leftBracket = ($this->types[$this->i] === 120 ? $this->tokens[$this->i++] : null))
 				{
-					// TODO fix in lexer
-					if ($this->types[$this->i] === 222)
+					$minus = ($this->types[$this->i] === 110 ? $this->tokens[$this->i++] : null);
+					if ($this->types[$this->i] === 245 || $this->types[$this->i] === 257)
 					{
-						$this->tokens[$this->i]->_fudgeType(210);
-						$this->types[$this->i] = 210;
+						$index = $this->tokens[$this->i++];
 					}
-					else if ($this->types[$this->i + 1] === 222)
+					else
 					{
-						$this->tokens[$this->i + 1]->_fudgeType(210);
-						$this->types[$this->i + 1] = 210;
+						$index = $this->read(222);
 					}
-					$index = $this->simpleExpression();
 					$rightBracket = $this->read(121);
-					$var = Nodes\Expressions\ArrayAccessExpression::__instantiateUnchecked($var, $leftBracket, $index, $rightBracket);
+					$parts[] = Nodes\Expressions\StringInterpolation\NormalInterpolatedStringVariableArrayAccess::__instantiateUnchecked(
+						$var,
+						$leftBracket,
+						$minus,
+						$index,
+						$rightBracket
+					);
 				}
 				else if ($operator = ($this->types[$this->i] === 224 ? $this->tokens[$this->i++] : null))
 				{
 					$name = Nodes\Helpers\NormalMemberName::__instantiateUnchecked($this->read(245));
-					$var = Nodes\Expressions\PropertyAccessExpression::__instantiateUnchecked($var, $operator, $name);
+					$parts[] = Nodes\Expressions\PropertyAccessExpression::__instantiateUnchecked($var, $operator, $name);
 				}
-				$parts[] = Nodes\Expressions\StringInterpolation\NormalInterpolatedStringVariable::__instantiateUnchecked(null, $var, null);
+				else
+				{
+					$parts[] = $var;
+				}
 			}
 			else if ($leftBrace = ($this->types[$this->i] === 124 ? $this->tokens[$this->i++] : null))
 			{
 				$expression = $this->simpleExpression();
 				$rightBrace = $this->read(126);
-				$parts[] = Nodes\Expressions\StringInterpolation\NormalInterpolatedStringVariable::__instantiateUnchecked($leftBrace, $expression, $rightBrace);
+				$parts[] = Nodes\Expressions\StringInterpolation\BracedInterpolatedStringVariable::__instantiateUnchecked($leftBrace, $expression, $rightBrace);
 			}
 			else if ($leftDelimiter = ($this->types[$this->i] === 160 ? $this->tokens[$this->i++] : null))
 			{

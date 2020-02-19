@@ -11,4 +11,10 @@ class Else_ extends CompoundNode
 {
 	use GeneratedElse;
 
+	public function convertToPhpParser()
+	{
+		return new \PhpParser\Node\Stmt\Else_(
+			$this->getBlock()->convertToPhpParser()
+		);
+	}
 }

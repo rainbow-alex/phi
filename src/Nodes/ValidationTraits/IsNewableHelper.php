@@ -9,25 +9,39 @@ use Phi\Nodes\Expression;
 
 trait IsNewableHelper
 {
-	private static function isNewable(Expression $expression, bool $nested = false): bool
+	private static function isNewable(Expression $expression): bool
 	{
-		// TODO use a loop
-		if ($expression instanceof Nodes\Expressions\ArrayAccessExpression)
+		// unwrap [], ->, ::
+		while (true)
 		{
-			return self::isNewable($expression->getExpression(), true);
+			if ($expression instanceof Nodes\Expressions\ArrayAccessExpression)
+			{
+				$expression = $expression->getExpression();
+
+				// weird, but `new foo[expr]` is not allowed
+				if ($expression instanceof Nodes\Expressions\NameExpression)
+				{
+					return false;
+				}
+			}
+			else if ($expression instanceof Nodes\Expressions\PropertyAccessExpression)
+			{
+				$expression = $expression->getObject();
+			}
+			else if ($expression instanceof Nodes\Expressions\StaticPropertyAccessExpression)
+			{
+				$expression = $expression->getClass();
+			}
+			else
+			{
+				break;
+			}
 		}
-		else if ($expression instanceof Nodes\Expressions\PropertyAccessExpression)
-		{
-			return self::isNewable($expression->getObject(), true);
-		}
-		else
-		{
-			return (
-				$expression instanceof Nodes\Expressions\StaticPropertyAccessExpression
-				|| $expression instanceof Nodes\Expressions\StaticExpression
-				|| (!$nested && $expression instanceof Nodes\Expressions\NameExpression && $expression->getName()->isNewable())
-				|| $expression instanceof Nodes\Expressions\VariableExpression
-			);
-		}
+
+		return (
+			($expression instanceof Nodes\Expressions\NameExpression && $expression->getName()->isNewable())
+			|| $expression instanceof Nodes\Expressions\StaticExpression
+			|| $expression instanceof Nodes\Expressions\VariableExpression
+		);
 	}
 }

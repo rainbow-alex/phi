@@ -17,18 +17,19 @@ class BlockStatement extends Statement
 	 */
 	public static function flatten(array $statements): array
 	{
-		for ($i = 0; $i < count($statements); $i++)
+		for ($i = 0; $i < \count($statements); $i++)
 		{
-			$stmt = $statements[$i];
-
 			// flatten blocks
-			while ($stmt instanceof BlockStatement)
+			while ($i < \count($statements) && $statements[$i] instanceof BlockStatement)
 			{
-				\array_splice($statements, $i, 1, \iterator_to_array($stmt->getBlock()->getStatements()));
+				\array_splice($statements, $i, 1, \iterator_to_array($statements[$i]->getBlock()->getStatements()));
 			}
-
-			$statements[$i] = $stmt;
 		}
+
+		$statements = \array_values(\array_filter($statements, function (Statement $statement)
+		{
+			return !($statement instanceof NopStatement);
+		}));
 
 		return $statements;
 	}

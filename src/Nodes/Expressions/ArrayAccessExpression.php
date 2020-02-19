@@ -28,14 +28,16 @@ class ArrayAccessExpression extends Expression
 	{
 		$expression = $this->getExpression();
 		if (
-			$expression instanceof NewExpression
+			$expression instanceof NormalNewExpression
 			|| $expression instanceof ExitExpression
 			|| $expression instanceof EmptyExpression
 			|| $expression instanceof EvalExpression
 			|| $expression instanceof ExececutionExpression
 			|| $expression instanceof IssetExpression
+			|| $expression instanceof CloneExpression
 			|| $expression instanceof MagicConstant
-			|| $expression instanceof AnonymousFunctionExpression
+			|| $expression instanceof NormalAnonymousFunctionExpression
+			|| $expression instanceof NewExpression
 			|| $expression instanceof NumberLiteral
 		)
 		{

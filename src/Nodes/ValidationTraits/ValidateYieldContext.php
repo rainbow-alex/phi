@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Phi\Nodes\ValidationTraits;
 
 use Phi\Exception\ValidationException;
-use Phi\Nodes\Expressions\AnonymousFunctionExpression;
+use Phi\Nodes\Expressions\NormalAnonymousFunctionExpression;
 use Phi\Nodes\Oop\Method;
 use Phi\Nodes\RootNode;
 use Phi\Nodes\Statements\FunctionStatement;
@@ -19,7 +19,7 @@ trait ValidateYieldContext
 			if (
 				$parent instanceof FunctionStatement
 				|| $parent instanceof Method
-				|| $parent instanceof AnonymousFunctionExpression
+				|| $parent instanceof NormalAnonymousFunctionExpression
 			)
 			{
 				break;

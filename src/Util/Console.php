@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Phi\Util;
 
+// TODO use symfony/console?
 class Console
 {
 	public static function bold(string $s): string

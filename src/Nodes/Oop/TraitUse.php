@@ -21,4 +21,12 @@ class TraitUse extends OopMember
 			}
 		}
 	}
+
+	public function convertToPhpParser()
+	{
+		return new \PhpParser\Node\Stmt\TraitUse(
+			$this->getTraits()->convertToPhpParser()
+		);
+		// TODO more
+	}
 }

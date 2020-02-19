@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Phi;
 
-use Phi\Exception\TreeException;
 use Phi\Util\Console;
 
 class Token extends Node
@@ -43,12 +42,7 @@ class Token extends Node
 		$this->leftWhitespace = $leftWhitespace;
 	}
 
-	protected function detachChild(Node $child): void
-	{
-		throw new \LogicException($child->repr() . " is not attached to " . $this->repr());
-	}
-
-	protected function replaceChild(Node $child, Node $replacement): void
+	protected function detachChild(Node $child, Node $replacement = null): void
 	{
 		throw new \LogicException($child->repr() . " is not attached to " . $this->repr());
 	}

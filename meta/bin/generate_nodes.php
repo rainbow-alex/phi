@@ -1,22 +1,9 @@
 #!/usr/bin/env php
 <?php
 
-use Phi\Exception\TreeException;
-use Phi\Exception\ValidationException;
 use Phi\Meta\NodeDef;
-use Phi\Node;
-use Phi\NodeCoercer;
-use Phi\Token;
 
 require_once __DIR__ . "/../../vendor/autoload.php";
-
-const IMPORTS = [
-	Node::class,
-	Token::class,
-	TreeException::class,
-	NodeCoercer::class,
-	ValidationException::class,
-];
 
 foreach (glob(__DIR__ . "/../../src/Nodes/Generated/*.php") as $f)
 {

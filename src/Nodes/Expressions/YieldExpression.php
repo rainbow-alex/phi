@@ -9,6 +9,7 @@ use Phi\Nodes\Expression;
 use Phi\Nodes\Generated\GeneratedYieldExpression;
 use Phi\Nodes\ValidationTraits\UnaryOpExpression;
 use Phi\Nodes\ValidationTraits\ValidateYieldContext;
+use PhpParser\Node\Expr\Yield_;
 
 class YieldExpression extends Expression
 {
@@ -44,5 +45,15 @@ class YieldExpression extends Expression
 		}
 
 		$this->autocorrectPrecedence();
+	}
+
+	public function convertToPhpParser()
+	{
+		$key = $this->getKey();
+		$value = $this->getExpression();
+		return new Yield_(
+			$value ? $value->convertToPhpParser() : null,
+			$key ? $key->getExpression()->convertToPhpParser() : null
+		);
 	}
 }

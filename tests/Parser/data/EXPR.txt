@@ -1,9 +1,4 @@
-{"algo": "weightedPermute", "max": 11}
-
-// 'full' set of expressions
-// the aim here is to have enough variants to hit all possible paths, without generating too many redundant tests
-// unfortunately there are a lot of permutations...
-// $v is used as a neutral expression since it is fine in all contexts
+{"algo": "weightedPermute", "max": 6}
 
 THIS BINOP THIS [[4]]
 THIS ? THIS : THIS [[3]]
@@ -23,9 +18,10 @@ THIS->{THIS}() [[4]]
 THIS::ident() [[3]]
 THIS::$v() [[8]]
 THIS::{THIS}() [[8]]
-new THIS [[4]]
+new THIS [[3]]
 new THIS() [[4]]
-clone THIS [[4]]
+new class {} [[4]]
+clone THIS [[3]]
 print THIS [[4]]
 include THIS [[4]]
 include_once THIS [[8]]
@@ -54,14 +50,18 @@ isset(THIS) [[4]]
 [THIS] [[8]]
 [THIS, THIS] [[4]]
 list(THIS) [[8]]
+(THIS) [[4]]
 function () {} [[4]]
-static function () {} [[4]]
+static function () {} [[8]]
+fn () => THIS [[4]]
+static fn () => THIS [[8]]
 __FILE__ [[4]]
 MAGIC_CONSTANT [[8]]
-ident [[3]]
+ident [[2]]
 \ident [[8]]
 ident\ident [[8]]
 \ident\ident [[8]]
+static [[4]]
 $v
 $$v [[8]]
 ${THIS} [[8]]

@@ -55,8 +55,17 @@ array(&$v)
 array($v => &$v)
 array(...&$v)
 
+fn () => null
+static fn () => null
+fn & () => null
+fn (EXPR_SYNTAX_PARAM) => null
+fn (EXPR_SYNTAX_PARAM, EXPR_SYNTAX_PARAM) => null
+fn (): TYPE => null
+fn () => {}
+
 function () {}
 static function () {}
+function & () {}
 function (EXPR_SYNTAX_PARAM) {}
 function (EXPR_SYNTAX_PARAM, EXPR_SYNTAX_PARAM) {}
 function () use () {}
@@ -64,52 +73,13 @@ function () use ($v) {}
 function () use (&$v) {}
 function () use ($v, $v) {}
 function () use ($v,) {}
+function (): TYPE {}
 
-0
-1234
--1234
-01234
-0999
-12_34
-1_2_3_4
-12__34
-_12
-12_
-0x
-0x0
-0xG
-0xBEEF
-0xD_E_A_F
-0x_D
-0xD__D
-0xD_
-0XD
-0123
-0_777
-06_75
-08
-012349
-0b0
-0b101010111
-0b1_0_1
-0B1
+EXPR_SYNTAX_NUM_PREFIX{*empty*}EXPR_SYNTAX_NUM_PART
+EXPR_SYNTAX_NUM_PREFIX{*empty*}EXPR_SYNTAX_NUM_PART{*empty*}EXPR_SYNTAX_NUM_PART
+EXPR_SYNTAX_NUM_PREFIX{*empty*}EXPR_SYNTAX_NUM_PART{*empty*}EXPR_SYNTAX_NUM_PART{*empty*}EXPR_SYNTAX_NUM_PART
+EXPR_SYNTAX_NUM_PREFIX{*empty*}EXPR_SYNTAX_NUM_PART{*empty*}EXPR_SYNTAX_NUM_PART{*empty*}EXPR_SYNTAX_NUM_PART{*empty*}EXPR_SYNTAX_NUM_PART
+EXPR_SYNTAX_NUM_PREFIX{*empty*}EXPR_SYNTAX_NUM_PART{*empty*}EXPR_SYNTAX_NUM_PART{*empty*}EXPR_SYNTAX_NUM_PART{*empty*}EXPR_SYNTAX_NUM_PART{*empty*}EXPR_SYNTAX_NUM_PART
 
-12.34
--12.34
-.1234
-1234.
-001.234
-09.1234
-1e234
-1.2e34
-1.2e-34
-1E234
-1.2E34
-1.2E-34
-1_2.34
-12.3_4
-1_2.3_4
-1__2.34
-1_.23
-_1.23
-1e2_3_4
+// integer overflow
+// TODO 9431597651654654687651616546512616546546218794564645434

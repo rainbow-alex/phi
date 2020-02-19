@@ -7,9 +7,9 @@ namespace Phi\Tests\Parser;
 use Phi\Exception\PhiException;
 use Phi\Nodes\Statements\ExpressionStatement;
 use Phi\Parser;
+use Phi\PhpVersion;
 use Phi\Tests\Nodes\NodesFuzzTest;
 use Phi\Tests\Testing\Fuzz\FuzzGenerator;
-use Phi\Tests\Testing\Fuzz\Permute;
 use Phi\Tests\Testing\Fuzz\WeightedPermute;
 use Phi\Tests\Testing\NodeAssertions;
 use PhpParser\NodeDumper;
@@ -37,7 +37,7 @@ class ParserFuzzTest extends TestCase
 	use NodeAssertions;
 
 	// phpunit overhead seems to be pretty big per test, running things in batches is a lot faster
-	private const BATCH = 100;
+	private const BATCH = 250;
 	/** @var string[] */
 	private static $cases;
 
@@ -105,7 +105,8 @@ class ParserFuzzTest extends TestCase
 				{
 					self::fail(
 						"Failed to parse valid code!\n"
-						. $version . ": " . $source
+						. $version . ": " . $source . "\n"
+						. "\n"
 						. "Got: " . $e->getMessage() . "\n"
 						. $e->getTraceAsString()
 					);
@@ -133,41 +134,25 @@ class ParserFuzzTest extends TestCase
 				\strpos($source, '<<<') !== false // can't correctly parse some unflexible here/nowdocs
 				|| \strpos($source, 'isset((') !== false
 				|| \strpos($source, 'list((') !== false
-				|| $source === '<?php fn::class;'
-				|| $source === '<?php new fn();'
+				|| (\strpos($source, 'fn') !== false && $version < PhpVersion::PHP_7_4)
 			)
 			{
 				return;
 			}
 
-			// TODO also check statements
-			if (\count($ast->getStatements()) === 2)
-			{
-				$stmt = $ast->getStatements()->getItems()[1];
-				if ($stmt instanceof ExpressionStatement)
-				{
-					try
-					{
-						$expectedPpDump = self::$ppDumper->dump(self::$ppParser->parse($source));
-					}
-					catch (\Throwable $e)
-					{
-						var_dump($source);
-						throw $e;
-					}
-					try
-					{
-						$actualPpDump = self::$ppDumper->dump($ast->convertToPhpParser());
-					}
-					catch (PhiException $e)
-					{
-						// self::fail($e->getMessageWithContext());
-						return;
-					}
+			$expectedPpDump = self::$ppDumper->dump(self::$ppParser->parse($source));
 
-					self::assertSame($expectedPpDump, $actualPpDump, $source);
-				}
+			try
+			{
+				$actualPpDump = self::$ppDumper->dump($ast->convertToPhpParser());
 			}
+			catch (PhiException $e)
+			{
+				self::fail($e->getMessage());
+				continue;
+			}
+
+			self::assertSame($expectedPpDump, $actualPpDump, $source);
 		}
 	}
 
@@ -199,13 +184,17 @@ class ParserFuzzTest extends TestCase
 	{
 		$generator = FuzzGenerator::parseDir(__DIR__ . "/data/");
 
-		$exprFull = $generator->getRule("EXPR_FULL");
-		\assert($exprFull instanceof WeightedPermute);
+		$expr = $generator->getRule("EXPR");
+		\assert($expr instanceof WeightedPermute);
 
-		// reusable variant of EXPR_FULL which generates less combination, for testing in combination with other constructs
-		$generator->addRule("EXPR", $exprFull->withMax(6));
+		for ($i = 3; $i <= 11; $i++)
+		{
+			$generator->addRule("EXPR" . $i, $expr->withMax($i));
+		}
+
 		// generates some expressions more likely to work in a const context
-		$generator->addRule("EXPR_CONST", $exprFull->withMax(8)->map(function (string $rhs) {
+		// todo remove? check everything?
+		$generator->addRule("EXPR_CONST", $expr->withMax(8)->map(function (string $rhs) {
 			return \str_replace('$v', 'ident', $rhs);
 		}));
 

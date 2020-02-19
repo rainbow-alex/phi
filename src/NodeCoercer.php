@@ -8,7 +8,7 @@ use Phi\Exception\CoercionException;
 use Phi\Exception\TodoException;
 use Phi\Nodes\Blocks\RegularBlock;
 use Phi\Nodes\Expression;
-use Phi\Nodes\Expressions\IntegerLiteral;
+use Phi\Nodes\Expressions\NumberLiteral;
 use Phi\Nodes\Statement;
 use Phi\Nodes\Statements\ExpressionStatement;
 
@@ -81,7 +81,7 @@ class NodeCoercer
 			{
 				if ($value->getType() === TokenType::T_LNUMBER)
 				{
-					return new IntegerLiteral($value);
+					return new NumberLiteral($value);
 				}
 			}
 		}

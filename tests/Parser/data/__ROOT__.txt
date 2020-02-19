@@ -1,6 +1,6 @@
 {"algo": "permute"}
 
-<?php EXPR_FULL;
+<?php EXPR11;
 <?php EXPR_SYNTAX;
 <?php EXPR_STRING
 <?php EXPR_CTX_CONTEXT

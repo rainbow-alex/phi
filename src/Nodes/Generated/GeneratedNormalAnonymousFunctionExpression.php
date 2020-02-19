@@ -15,7 +15,7 @@ use Phi\Exception\TreeException;
 use Phi\NodeCoercer;
 use Phi\Exception\ValidationException;
 
-trait GeneratedAnonymousFunctionExpression
+trait GeneratedNormalAnonymousFunctionExpression
 {
 	/**
 	 * @var \Phi\Token|null

@@ -36,7 +36,7 @@ trait NodeAssertions
 
 	public static function reprNode(Node $node): string
 	{
-		if ($node instanceof Nodes\Expressions\IntegerLiteral)
+		if ($node instanceof Nodes\Expressions\NumberLiteral)
 		{
 			return $node->getToken()->getSource();
 		}

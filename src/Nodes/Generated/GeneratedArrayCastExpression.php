@@ -15,7 +15,7 @@ use Phi\Exception\TreeException;
 use Phi\NodeCoercer;
 use Phi\Exception\ValidationException;
 
-trait GeneratedCastExpression
+trait GeneratedArrayCastExpression
 {
 	/**
 	 * @var \Phi\Token|null
@@ -145,8 +145,8 @@ trait GeneratedCastExpression
 			throw ValidationException::missingChild($this, "operator");
 		if ($this->expression === null)
 			throw ValidationException::missingChild($this, "expression");
-		if (!\in_array($this->operator->getType(), [131, 135, 162, 200, 223, 246, 254], true))
-			throw ValidationException::invalidSyntax($this->operator, [131, 135, 162, 200, 223, 246, 254]);
+		if ($this->operator->getType() !== 131)
+			throw ValidationException::invalidSyntax($this->operator, [131]);
 
 		if ($flags & 14)
 			throw ValidationException::invalidExpressionInContext($this);
@@ -158,6 +158,8 @@ trait GeneratedCastExpression
 
 	public function _autocorrect(): void
 	{
+		if (!$this->operator)
+			$this->setOperator(new Token(131, '(array)'));
 		if ($this->expression)
 			$this->expression->_autocorrect();
 

@@ -3,15 +3,15 @@
 namespace Phi\Nodes\Statements;
 
 use Phi\Exception\ValidationException;
-use Phi\Nodes\Expressions\AnonymousFunctionExpression;
-use Phi\Nodes\Expressions\IntegerLiteral;
+use Phi\Nodes\Expressions\NormalAnonymousFunctionExpression;
+use Phi\Nodes\Expressions\NumberLiteral;
 use Phi\Nodes\Oop\Method;
 use Phi\Nodes\RootNode;
 use Phi\Nodes\Statement;
 
 abstract class LoopFlowStatement extends Statement
 {
-	abstract public function getLevels(): ?IntegerLiteral;
+	abstract public function getLevels(): ?NumberLiteral;
 
 	protected function extraValidation(int $flags): void
 	{
@@ -27,7 +27,7 @@ abstract class LoopFlowStatement extends Statement
 			else if (
 				$parent instanceof FunctionStatement
 				|| $parent instanceof Method
-				|| $parent instanceof AnonymousFunctionExpression
+				|| $parent instanceof NormalAnonymousFunctionExpression
 				|| $parent instanceof RootNode
 			)
 			{

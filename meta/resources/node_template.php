@@ -2,8 +2,12 @@
 
 declare(strict_types=1);
 
+use Phi\Exception\TreeException;
+use Phi\Exception\ValidationException;
 use Phi\Meta\NodeChildDef;
 use Phi\Meta\NodeDef;
+use Phi\Node;
+use Phi\NodeCoercer;
 use Phi\Token;
 use Phi\TokenType;
 
@@ -22,13 +26,11 @@ declare(strict_types=1);
 
 namespace Phi\Nodes\Generated;
 
-<?php foreach (IMPORTS as $k => $v): ?>
-<?php if (is_int($k)): ?>
-use <?= $v ?>;
-<?php else: ?>
-use <?= $k ?> as <?= $v ?>;
-<?php endif ?>
-<?php endforeach ?>
+use <?= Node::class ?>;
+use <?= Token::class ?>;
+use <?= TreeException::class ?>;
+use <?= NodeCoercer::class ?>;
+use <?= ValidationException::class ?>;
 
 trait <?= $node->shortGeneratedClassName() ?><?= "\n" ?>
 {

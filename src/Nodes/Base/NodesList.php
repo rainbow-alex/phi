@@ -55,22 +55,16 @@ class NodesList extends Node implements Countable, IteratorAggregate
 		throw TreeException::cantDetachList($this);
 	}
 
-	protected function detachChild(Node $child): void
+	protected function detachChild(Node $child, Node $replacement = null): void
 	{
 		$i = \array_search($child, $this->nodes, true);
 
 		if ($i === false)
 		{
-			throw new \RuntimeException($child . " is not attached to " . $this);
+			throw new \LogicException($child->repr() . " is not attached to " . $this->repr());
 		}
 
-		\array_splice($this->nodes, $i, 1);
-		// TODO fix parent refs
-	}
-
-	protected function replaceChild(Node $child, Node $replacement): void
-	{
-		throw new TodoException();
+		\array_splice($this->nodes, $i, 1, $replacement ? [$replacement] : []);
 	}
 
 	/**

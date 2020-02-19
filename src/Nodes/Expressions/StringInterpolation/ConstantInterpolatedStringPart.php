@@ -8,7 +8,7 @@ use Phi\Exception\LiteralParsingException;
 use Phi\Exception\ValidationException;
 use Phi\LiteralParser;
 use Phi\Nodes\Expressions\DoubleQuotedStringLiteral;
-use Phi\Nodes\Expressions\StringLiteral;
+use Phi\Nodes\Expressions\ExececutionExpression;
 use Phi\Nodes\Generated\GeneratedConstantInterpolatedStringPart;
 use PhpParser\Node\Scalar\EncapsedStringPart;
 use PhpParser\Node\Scalar\String_;
@@ -17,20 +17,31 @@ class ConstantInterpolatedStringPart extends InterpolatedStringPart
 {
 	use GeneratedConstantInterpolatedStringPart;
 
-	private function getStringLiteral(): ?StringLiteral
+	private function getQuoteType(): ?string
 	{
-		$parent = $this->getParent();
-		$parent = $parent ? $parent->getParent() : null;
-		return $parent instanceof StringLiteral ? $parent : null;
+		$grandParent = $this->getGrandParent();
+		if ($grandParent instanceof DoubleQuotedStringLiteral)
+		{
+			return '"';
+		}
+		else if ($grandParent instanceof ExececutionExpression)
+		{
+			return '`';
+		}
+		else
+		{
+			return null;
+		}
 	}
 
 	protected function extraValidation(int $flags): void
 	{
+
 		try
 		{
 			(new LiteralParser($this->getPhpVersion()))->parseStringContentEscapes(
 				$this->getContent()->getSource(),
-				$this->getStringLiteral() instanceof DoubleQuotedStringLiteral
+				$this->getQuoteType()
 			);
 		}
 		catch (LiteralParsingException $e)
@@ -43,7 +54,7 @@ class ConstantInterpolatedStringPart extends InterpolatedStringPart
 	{
 		return new EncapsedStringPart(String_::parseEscapeSequences(
 			$this->getContent()->getSource(),
-			$this->getStringLiteral() instanceof DoubleQuotedStringLiteral ? '"' : null,
+			$this->getQuoteType(),
 			true
 		));
 	}

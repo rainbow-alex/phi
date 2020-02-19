@@ -1,0 +1,21 @@
+{"algo": "weightedPermute", "max": 3}
+
+// TODO better generation? something with blank and PART_PART
+
+0
+1
+2 [[3]]
+7
+8 [[3]]
+A
+a [[3]]
+B [[2]]
+F [[2]]
+f [[3]]
+G [[2]]
+_
+.
+e
+e- [[2]]
+e+ [[2]]
+E [[3]]

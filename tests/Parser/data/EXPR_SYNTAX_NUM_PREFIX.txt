@@ -1,0 +1,7 @@
+{"algo": "permute"}
+
+{*empty*}
+0
+1
+0x
+0b

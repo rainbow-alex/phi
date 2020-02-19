@@ -16,7 +16,7 @@ class PhpVersion
 	{
 		if ($phpVersion < self::PHP_7_2 || $phpVersion >= self::PHP_NEXT)
 		{
-			throw new \InvalidArgumentException(''); // TODO
+			throw new \InvalidArgumentException('Unsupported PHP version: ' . $phpVersion);
 		}
 	}
 }

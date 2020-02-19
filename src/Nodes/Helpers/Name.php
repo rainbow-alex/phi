@@ -11,6 +11,7 @@ use Phi\TokenType;
 use PhpParser\Node\Name as PPName;
 use PhpParser\Node\Name\FullyQualified;
 
+// TODO clean up
 class Name extends CompoundNode
 {
 	use GeneratedName;
@@ -34,14 +35,14 @@ class Name extends CompoundNode
 	public function isUsableAsReturnType(): bool
 	{
 		return ($this->isNonNsSpecialClass() && $this->hasClassScope())
-			|| $this->isNonNsSpecialType()
+			|| $this->isSpecialType()
 			|| (!$this->endsInSpecialClass() && !$this->endsInReservedWord());
 	}
 
 	public function isUsableAsParameterType(): bool
 	{
 		return ($this->isNonNsSpecialClass() && $this->hasClassScope())
-			|| ($this->isNonNsSpecialType() && !$this->isVoid())
+			|| ($this->isSpecialType() && !$this->isVoid())
 			|| (!$this->endsInSpecialClass() && !$this->endsInReservedWord());
 	}
 
@@ -85,7 +86,7 @@ class Name extends CompoundNode
 		return false;
 	}
 
-	private function isNonNsSpecialType(): bool
+	public function isSpecialType(): bool
 	{
 		$parts = $this->getParts()->getItems();
 		return \count($parts) === 1 && TokenType::isSpecialType($parts[0]);
@@ -109,7 +110,8 @@ class Name extends CompoundNode
 		return TokenType::isReservedWord(\end($parts));
 	}
 
-	public function convertToPhpParser()
+	// TODO param wtf
+	public function convertToPhpParser(bool $forceNotAbsolute = false)
 	{
 		$parts = [];
 		foreach ($this->getParts() as $part)
@@ -120,7 +122,7 @@ class Name extends CompoundNode
 			}
 		}
 
-		if ($this->isAbsolute())
+		if (!$forceNotAbsolute && $this->isAbsolute())
 		{
 			return new FullyQualified($parts);
 		}

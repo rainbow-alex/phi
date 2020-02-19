@@ -8,6 +8,7 @@ use Phi\Exception\ValidationException;
 use Phi\Nodes\Expressions\ListExpression;
 use Phi\Nodes\Expressions\ShortArrayExpression;
 use Phi\Nodes\Generated\GeneratedForeachStatement;
+use PhpParser\Node\Stmt\Foreach_;
 
 class ForeachStatement extends LoopStatement
 {
@@ -23,11 +24,24 @@ class ForeachStatement extends LoopStatement
 			}
 		}
 
-		// TODO do we test by ref + destruct?
 		$value = $this->getValue();
 		if ($this->hasByReference() && $value->isTemporary())
 		{
 			throw ValidationException::invalidExpressionInContext($value);
 		}
+	}
+
+	public function convertToPhpParser()
+	{
+		$key = $this->getKey();
+		return new Foreach_(
+			$this->getIterable()->convertToPhpParser(),
+			$this->getValue()->convertToPhpParser(),
+			[
+				'keyVar' => $key ? $key->getExpression()->convertToPhpParser() : null,
+				'byRef' => $this->hasByReference(),
+				'stmts' => $this->getBlock()->convertToPhpParser(),
+			]
+		);
 	}
 }

@@ -38,4 +38,4 @@ $src = preg_replace_callback('{Expr::(PRECEDENCE_[A-Z0-9_]+)}', function ($m)
 	return constant(Expression::class . "::" . $m[1]);
 }, $src);
 
-file_put_contents(__DIR__ . "/../../src/_optimized/Parser.php", $src);
+file_put_contents(__DIR__ . "/../../src/Parser.opt.php", $src);

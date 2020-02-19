@@ -43,6 +43,11 @@ abstract class Node
 		return $this->parent;
 	}
 
+	public function getGrandParent(): ?Node
+	{
+		return $this->parent ? $this->parent->parent : null;
+	}
+
 	public function getRoot(): Node
 	{
 		$node = $this;
@@ -68,9 +73,7 @@ abstract class Node
 		}
 	}
 
-	abstract protected function detachChild(Node $child): void;
-
-	abstract protected function replaceChild(Node $child, Node $replacement): void;
+	abstract protected function detachChild(Node $child, Node $replacement = null): void;
 
 	/** @return Node[] */
 	abstract public function getChildNodes(): array;
@@ -97,10 +100,19 @@ abstract class Node
 	 */
 	public function wrapIn(WrapperNode $wrapper): Node
 	{
-		if ($parent = $this->getParent())
+		if ($wrapper->getParent())
 		{
-			$parent->replaceChild($this, $wrapper);
+			throw new \LogicException(); // TODO
 		}
+
+		if ($this->parent)
+		{
+			$this->parent->detachChild($this, $wrapper);
+			$wrapper->parent = $this->parent;
+			$wrapper->_phpVersion = null;
+			$this->parent = null;
+		}
+
 		$wrapper->wrapNode($this);
 		return $wrapper;
 	}
@@ -146,6 +158,7 @@ abstract class Node
 	{
 		$clone = clone $this;
 		$clone->parent = null;
+		$clone->_phpVersion = $this->getPhpVersion();
 		return $clone;
 	}
 
@@ -159,12 +172,11 @@ abstract class Node
 				$previous
 				&& $previous->getRightWhitespace() === ""
 				&& $token->getLeftWhitespace() === ""
-				&& TokenType::requireSeparatingWhitespace($previous->getType(), $token->getType())
+				&& TokenType::requireSeparatingWhitespace($previous, $token)
 			)
 			{
 				throw ValidationException::missingWhitespace($token);
 			}
-
 			$previous = $token;
 		}
 	}
@@ -179,7 +191,7 @@ abstract class Node
 				$previous
 				&& $previous->getRightWhitespace() === ""
 				&& $token->getLeftWhitespace() === ""
-				&& TokenType::requireSeparatingWhitespace($previous->getType(), $token->getType())
+				&& TokenType::requireSeparatingWhitespace($previous, $token)
 			)
 			{
 				$previous->setRightWhitespace(" ");

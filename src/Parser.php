@@ -10,5 +10,6 @@ if (getenv('PHI_DISABLE_PARSER_OPT') || defined('__PHPSTAN_RUNNING__'))
 }
 else
 {
-	require __DIR__ . "/_optimized/Parser.php";
+	// note: mark this file as plain text in phpstorm
+	require __DIR__ . "/Parser.opt.php";
 }

@@ -78,12 +78,7 @@ class SeparatedNodesList extends Node implements Countable, IteratorAggregate
 		throw TreeException::cantDetachList($this);
 	}
 
-	protected function detachChild(Node $child): void
-	{
-		throw new TodoException();
-	}
-
-	protected function replaceChild(Node $child, Node $replacement): void
+	protected function detachChild(Node $child, Node $replacement = null): void
 	{
 		throw new TodoException();
 	}

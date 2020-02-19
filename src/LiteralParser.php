@@ -46,23 +46,24 @@ class LiteralParser
 
 	public function parseConstantDoubleQuotedString(string $source): string
 	{
-		return $this->parseStringContentEscapes($this->trimStringDelimiters($source, '"'), true);
+		return $this->parseStringContentEscapes($this->trimStringDelimiters($source, '"'), '"');
 	}
 
-	public function parseStringContentEscapes(string $source, bool $doubleQuote): string
+	public function parseStringContentEscapes(string $source, ?string $quote): string
 	{
 		return \preg_replace_callback('{
-			(?: \\\\ [\\\\nrtvef$"] )
+			(?: \\\\ [\\\\nrtvef$"`] )
 			| (?: \\\\ ([0-7]{1,3}) )
 			| (?: \\\\ [Xx] ([0-9A-Fa-f]{1,2}) )
 			| (?: \\\\ [Uu] \{ ([0-9A-Fa-f]+) \} )
-			| (?<E> ' . ($doubleQuote ? ' " | ' : '') . ' \\\\ $ )
+			| (?<E> ' . ($quote ? $quote . ' | ' : '') . ' \\\\ $ )
 		}xD', function ($m): string
 		{
 			switch ($m[0][1] ?? null)
 			{
 				case '\\': return '\\';
 				case '"': return '"';
+				case '`': return '`';
 				case '$': return '$';
 				case 'n': return "\n";
 				case 'r': return "\r";
@@ -178,13 +179,12 @@ class LiteralParser
 		// any invalid separators will remain and cause the regex to fail
 
 		if (!\preg_match('{^(
-			(
-				[0-9]+ \. [0-9]* # 4. or 4.5
-				| \. [0-9]+ # .4
-			)
-			(
-				e [+-]? [0-9]+
-			)?
+			# e.g. 4., 4.5, 4.e5, 4.5e6
+			[0-9]+ \. [0-9]* ( e [+-]? [0-9]+ )?
+			# e.g. .4, .4e5
+			| \. [0-9]+ ( e [+-]? [0-9]+ )?
+			# e.g. 4e5
+			| [0-9]+ e [+-]? [0-9]+
 		)$}ixD', $source))
 		{
 			throw new LiteralParsingException();

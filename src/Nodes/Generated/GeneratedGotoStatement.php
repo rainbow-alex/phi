@@ -30,7 +30,7 @@ trait GeneratedGotoStatement
 	/**
 	 * @var \Phi\Token|null
 	 */
-	private $semiColon;
+	private $delimiter;
 
 	/**
 	 * @param \Phi\Token|\Phi\Node|string|null $label
@@ -46,15 +46,15 @@ trait GeneratedGotoStatement
 	/**
 	 * @param \Phi\Token $keyword
 	 * @param \Phi\Token $label
-	 * @param \Phi\Token|null $semiColon
+	 * @param \Phi\Token $delimiter
 	 * @return self
 	 */
-	public static function __instantiateUnchecked($keyword, $label, $semiColon)
+	public static function __instantiateUnchecked($keyword, $label, $delimiter)
 	{
 		$instance = new self;
 	$instance->setKeyword($keyword);
 	$instance->setLabel($label);
-	$instance->setSemiColon($semiColon);
+	$instance->setDelimiter($delimiter);
 		return $instance;
 	}
 
@@ -63,7 +63,7 @@ trait GeneratedGotoStatement
 		return \array_values(\array_filter([
 			$this->keyword,
 			$this->label,
-			$this->semiColon,
+			$this->delimiter,
 		]));
 	}
 
@@ -73,8 +73,8 @@ trait GeneratedGotoStatement
 			return $this->keyword;
 		if ($this->label === $childToDetach)
 			return $this->label;
-		if ($this->semiColon === $childToDetach)
-			return $this->semiColon;
+		if ($this->delimiter === $childToDetach)
+			return $this->delimiter;
 		throw new \LogicException();
 	}
 
@@ -144,33 +144,37 @@ trait GeneratedGotoStatement
 		$this->label = $label;
 	}
 
-	public function getSemiColon(): ?\Phi\Token
+	public function getDelimiter(): \Phi\Token
 	{
-		return $this->semiColon;
+		if ($this->delimiter === null)
+		{
+			throw TreeException::missingNode($this, "delimiter");
+		}
+		return $this->delimiter;
 	}
 
-	public function hasSemiColon(): bool
+	public function hasDelimiter(): bool
 	{
-		return $this->semiColon !== null;
+		return $this->delimiter !== null;
 	}
 
 	/**
-	 * @param \Phi\Token|\Phi\Node|string|null $semiColon
+	 * @param \Phi\Token|\Phi\Node|string|null $delimiter
 	 */
-	public function setSemiColon($semiColon): void
+	public function setDelimiter($delimiter): void
 	{
-		if ($semiColon !== null)
+		if ($delimiter !== null)
 		{
-			/** @var \Phi\Token $semiColon */
-			$semiColon = NodeCoercer::coerce($semiColon, \Phi\Token::class, $this->getPhpVersion());
-			$semiColon->detach();
-			$semiColon->parent = $this;
+			/** @var \Phi\Token $delimiter */
+			$delimiter = NodeCoercer::coerce($delimiter, \Phi\Token::class, $this->getPhpVersion());
+			$delimiter->detach();
+			$delimiter->parent = $this;
 		}
-		if ($this->semiColon !== null)
+		if ($this->delimiter !== null)
 		{
-			$this->semiColon->detach();
+			$this->delimiter->detach();
 		}
-		$this->semiColon = $semiColon;
+		$this->delimiter = $delimiter;
 	}
 
 	public function _validate(int $flags): void
@@ -179,13 +183,14 @@ trait GeneratedGotoStatement
 			throw ValidationException::missingChild($this, "keyword");
 		if ($this->label === null)
 			throw ValidationException::missingChild($this, "label");
+		if ($this->delimiter === null)
+			throw ValidationException::missingChild($this, "delimiter");
 		if ($this->keyword->getType() !== 189)
 			throw ValidationException::invalidSyntax($this->keyword, [189]);
 		if ($this->label->getType() !== 245)
 			throw ValidationException::invalidSyntax($this->label, [245]);
-		if ($this->semiColon)
-		if ($this->semiColon->getType() !== 114)
-			throw ValidationException::invalidSyntax($this->semiColon, [114]);
+		if (!\in_array($this->delimiter->getType(), [114, 143], true))
+			throw ValidationException::invalidSyntax($this->delimiter, [114, 143]);
 
 
 		$this->extraValidation($flags);
@@ -196,8 +201,6 @@ trait GeneratedGotoStatement
 	{
 		if (!$this->keyword)
 			$this->setKeyword(new Token(189, 'goto'));
-		if (!$this->semiColon)
-			$this->setSemiColon(new Token(114, ';'));
 
 		$this->extraAutocorrect();
 	}

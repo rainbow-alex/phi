@@ -5,7 +5,8 @@ use Phi\Nodes\Base\CompoundNode;
 use Phi\Nodes\Block;
 use Phi\Nodes\Blocks\RegularBlock;
 use Phi\Nodes\Expression;
-use Phi\Nodes\Expressions\IntegerLiteral;
+use Phi\Nodes\Expressions\NumberLiteral;
+use Phi\Nodes\Expressions\VariableExpression;
 use Phi\Nodes\Helpers\Default_;
 use Phi\Nodes\Helpers\Key;
 use Phi\Nodes\Helpers\Name;
@@ -34,6 +35,7 @@ use Phi\Nodes\Statements\Finally_;
 use Phi\Nodes\Statements\ForeachStatement;
 use Phi\Nodes\Statements\ForStatement;
 use Phi\Nodes\Statements\FunctionStatement;
+use Phi\Nodes\Statements\GlobalStatement;
 use Phi\Nodes\Statements\GotoStatement;
 use Phi\Nodes\Statements\IfStatement;
 use Phi\Nodes\Statements\InlineHtmlStatement;
@@ -62,7 +64,7 @@ return [
 
 	(new NodeDef(BreakStatement::class))
 		->token("keyword", T::T_BREAK)
-		->optNode("levels", IntegerLiteral::class)
+		->optNode("levels", NumberLiteral::class)
 		->token("delimiter", [T::S_SEMICOLON, T::T_CLOSE_TAG]),
 
 	(new NodeDef(ClassDeclaration::class))
@@ -86,7 +88,7 @@ return [
 
 	(new NodeDef(ContinueStatement::class))
 		->token("keyword", T::T_CONTINUE)
-		->optNode("levels", IntegerLiteral::class)
+		->optNode("levels", NumberLiteral::class)
 		->token("delimiter", [T::S_SEMICOLON, T::T_CLOSE_TAG]),
 
 	(new NodeDef(DeclareStatement::class))
@@ -155,10 +157,16 @@ return [
 		->optNode("returnType", ReturnType::class)
 		->node("body", RegularBlock::class),
 
+	(new NodeDef(GlobalStatement::class))
+		->token("keyword", T::T_GLOBAL)
+		->sepNodeList("variables", VariableExpression::class, T::S_COMMA)
+		->token("delimiter", [T::S_SEMICOLON, T::T_CLOSE_TAG])
+		->constructor("variable"),
+
 	(new NodeDef(GotoStatement::class))
 		->token("keyword", T::T_GOTO)
 		->token("label", T::T_STRING)
-		->optToken("semiColon", T::S_SEMICOLON)
+		->token("delimiter", [T::S_SEMICOLON, T::T_CLOSE_TAG])
 		->constructor("label"),
 
 	(new NodeDef(IfStatement::class))

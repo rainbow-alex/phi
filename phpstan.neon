@@ -23,5 +23,5 @@ parameters:
 			path: src/Nodes/ValidationTraits/UnaryOpExpression.php
 			message: '{^Left side of \&\& is always true\.$}'
 		-
-			path: src/_optimized/
+			path: src/Parser.opt.php
 			message: '{}'

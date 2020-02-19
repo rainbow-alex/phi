@@ -10,5 +10,4 @@ use Phi\Nodes\Statement;
 class GotoStatement extends Statement
 {
 	use GeneratedGotoStatement;
-
 }

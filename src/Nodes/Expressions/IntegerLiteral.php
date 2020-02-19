@@ -8,6 +8,7 @@ use Phi\Exception\LiteralParsingException;
 use Phi\Exception\ValidationException;
 use Phi\LiteralParser;
 use Phi\Nodes\Generated\GeneratedIntegerLiteral;
+use PhpParser\Node\Scalar\DNumber;
 use PhpParser\Node\Scalar\LNumber;
 
 class IntegerLiteral extends NumberLiteral
@@ -39,8 +40,12 @@ class IntegerLiteral extends NumberLiteral
 		$value = $this->getValue();
 		if (\is_float($value))
 		{
-			throw new \LogicException(); // tODO dedicated exception
+			// overflow occurred
+			return new DNumber($value);
 		}
-		return new LNumber($value);
+		else
+		{
+			return new LNumber($value);
+		}
 	}
 }

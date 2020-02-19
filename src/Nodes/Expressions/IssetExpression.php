@@ -20,7 +20,11 @@ class IssetExpression extends Expression
 	{
 		foreach ($this->getExpressions() as $expression)
 		{
-			// TODO I think this just isn't a "temporary" check at all
+			while ($expression instanceof ParenthesizedExpression)
+			{
+				$expression = $expression->getExpression();
+			}
+
 			if (
 				(
 					$expression->isTemporary()

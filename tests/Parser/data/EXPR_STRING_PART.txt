@@ -1,6 +1,6 @@
 {"algo": "weightedPermute", "max": 3}
 
-EXPR_STRING_CONTENT{*empty*}EXPR_STRING_CONTENT
+EXPR_STRING_PART{*empty*}EXPR_STRING_PART
 
 {*empty*}
 {*space*}{*space*}{*space*}{*space*}
@@ -13,10 +13,12 @@ ident{*\n*}ident
 
 "
 '
+`
 \
 \\
 \"
 \'
+\`
 \n
 \t
 
@@ -41,8 +43,8 @@ $
 \$
 $v
 ${ident}
-${EXPR} [[3]]
-{EXPR} [[3]]
+${EXPR4} [[3]]
+{EXPR4} [[3]]
 
 $v->ident
 $v->ident->ident [[3]]
@@ -55,6 +57,7 @@ $v[0 ] [[3]]
 $v[ [[3]]
 $v[] [[3]]
 $v[ident] [[3]]
+$v[EXPR5] [[3]]
 
 HEREDOC
 NOWDOC

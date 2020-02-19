@@ -23,8 +23,6 @@ class NodesFuzzTest extends TestCase
 		'{.*instanceof.*}', // making the rhs newable is not always possible
 	];
 
-	private static $autocorrectFailureIgnored = 0;
-
 	/** @dataProvider cases */
 	public function test_nodes(string $nodeSrc)
 	{
@@ -56,9 +54,10 @@ class NodesFuzzTest extends TestCase
 				{
 					if (\preg_match($ignorePattern, $src))
 					{
-						self::$autocorrectFailureIgnored++;
+						static $ignored = 0;
+						$ignored++;
 						// make sure there are no regressions in the situations we can autocorrect
-						self::assertLessThan(41, self::$autocorrectFailureIgnored);
+						self::assertLessThan(41, $ignored);
 						return;
 					}
 				}

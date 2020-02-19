@@ -136,17 +136,10 @@ class NodeChildDef
 	{
 		switch ($s)
 		{
-			case "names":
-				return "name";
-
 			default:
 				if (substr($s, -3) === "ies")
 				{
 					return substr($s, 0, -3) . "y";
-				}
-				else if (substr($s, -2) === "es")
-				{
-					return substr($s, 0, -2);
 				}
 				else if (substr($s, -1) === "s")
 				{

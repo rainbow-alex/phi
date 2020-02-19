@@ -15,4 +15,9 @@ class NullableType extends Type
 	{
 		return $this->getType();
 	}
+
+	public function convertToPhpParser()
+	{
+		return new \PhpParser\Node\NullableType($this->getType()->convertToPhpParser());
+	}
 }

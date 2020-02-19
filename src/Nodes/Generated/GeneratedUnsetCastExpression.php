@@ -15,12 +15,12 @@ use Phi\Exception\TreeException;
 use Phi\NodeCoercer;
 use Phi\Exception\ValidationException;
 
-trait GeneratedIncludeLikeExpression
+trait GeneratedUnsetCastExpression
 {
 	/**
 	 * @var \Phi\Token|null
 	 */
-	private $keyword;
+	private $operator;
 
 	/**
 	 * @var \Phi\Nodes\Expression|null
@@ -28,10 +28,15 @@ trait GeneratedIncludeLikeExpression
 	private $expression;
 
 	/**
+	 * @param \Phi\Token|\Phi\Node|string|null $operator
 	 * @param \Phi\Nodes\Expression|\Phi\Node|string|null $expression
 	 */
-	public function __construct($expression = null)
+	public function __construct($operator = null, $expression = null)
 	{
+		if ($operator !== null)
+		{
+			$this->setOperator($operator);
+		}
 		if ($expression !== null)
 		{
 			$this->setExpression($expression);
@@ -39,14 +44,14 @@ trait GeneratedIncludeLikeExpression
 	}
 
 	/**
-	 * @param \Phi\Token $keyword
+	 * @param \Phi\Token $operator
 	 * @param \Phi\Nodes\Expression $expression
 	 * @return self
 	 */
-	public static function __instantiateUnchecked($keyword, $expression)
+	public static function __instantiateUnchecked($operator, $expression)
 	{
 		$instance = new self;
-	$instance->setKeyword($keyword);
+	$instance->setOperator($operator);
 	$instance->setExpression($expression);
 		return $instance;
 	}
@@ -54,51 +59,51 @@ trait GeneratedIncludeLikeExpression
 	public function getChildNodes(): array
 	{
 		return \array_values(\array_filter([
-			$this->keyword,
+			$this->operator,
 			$this->expression,
 		]));
 	}
 
 	protected function &getChildRef(Node $childToDetach): Node
 	{
-		if ($this->keyword === $childToDetach)
-			return $this->keyword;
+		if ($this->operator === $childToDetach)
+			return $this->operator;
 		if ($this->expression === $childToDetach)
 			return $this->expression;
 		throw new \LogicException();
 	}
 
-	public function getKeyword(): \Phi\Token
+	public function getOperator(): \Phi\Token
 	{
-		if ($this->keyword === null)
+		if ($this->operator === null)
 		{
-			throw TreeException::missingNode($this, "keyword");
+			throw TreeException::missingNode($this, "operator");
 		}
-		return $this->keyword;
+		return $this->operator;
 	}
 
-	public function hasKeyword(): bool
+	public function hasOperator(): bool
 	{
-		return $this->keyword !== null;
+		return $this->operator !== null;
 	}
 
 	/**
-	 * @param \Phi\Token|\Phi\Node|string|null $keyword
+	 * @param \Phi\Token|\Phi\Node|string|null $operator
 	 */
-	public function setKeyword($keyword): void
+	public function setOperator($operator): void
 	{
-		if ($keyword !== null)
+		if ($operator !== null)
 		{
-			/** @var \Phi\Token $keyword */
-			$keyword = NodeCoercer::coerce($keyword, \Phi\Token::class, $this->getPhpVersion());
-			$keyword->detach();
-			$keyword->parent = $this;
+			/** @var \Phi\Token $operator */
+			$operator = NodeCoercer::coerce($operator, \Phi\Token::class, $this->getPhpVersion());
+			$operator->detach();
+			$operator->parent = $this;
 		}
-		if ($this->keyword !== null)
+		if ($this->operator !== null)
 		{
-			$this->keyword->detach();
+			$this->operator->detach();
 		}
-		$this->keyword = $keyword;
+		$this->operator = $operator;
 	}
 
 	public function getExpression(): \Phi\Nodes\Expression
@@ -136,12 +141,12 @@ trait GeneratedIncludeLikeExpression
 
 	public function _validate(int $flags): void
 	{
-		if ($this->keyword === null)
-			throw ValidationException::missingChild($this, "keyword");
+		if ($this->operator === null)
+			throw ValidationException::missingChild($this, "operator");
 		if ($this->expression === null)
 			throw ValidationException::missingChild($this, "expression");
-		if (!\in_array($this->keyword->getType(), [194, 195, 235, 236], true))
-			throw ValidationException::invalidSyntax($this->keyword, [194, 195, 235, 236]);
+		if ($this->operator->getType() !== 254)
+			throw ValidationException::invalidSyntax($this->operator, [254]);
 
 		if ($flags & 14)
 			throw ValidationException::invalidExpressionInContext($this);
@@ -153,6 +158,8 @@ trait GeneratedIncludeLikeExpression
 
 	public function _autocorrect(): void
 	{
+		if (!$this->operator)
+			$this->setOperator(new Token(254, '(unset)'));
 		if ($this->expression)
 			$this->expression->_autocorrect();
 

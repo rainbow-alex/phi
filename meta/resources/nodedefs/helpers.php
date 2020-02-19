@@ -7,13 +7,17 @@ use Phi\Nodes\Blocks\ImplicitBlock;
 use Phi\Nodes\Blocks\RegularBlock;
 use Phi\Nodes\Expression;
 use Phi\Nodes\Expressions\ArrayItem;
+use Phi\Nodes\Expressions\NormalVariableExpression;
 use Phi\Nodes\Expressions\StringInterpolation\ConfusingInterpolatedStringVariable;
 use Phi\Nodes\Expressions\StringInterpolation\ConfusingInterpolatedStringVariableName;
 use Phi\Nodes\Expressions\StringInterpolation\ConstantInterpolatedStringPart;
 use Phi\Nodes\Expressions\StringInterpolation\InterpolatedStringPart;
 use Phi\Nodes\Expressions\StringInterpolation\InterpolatedStringVariable;
+use Phi\Nodes\Expressions\StringInterpolation\BracedInterpolatedStringVariable;
 use Phi\Nodes\Expressions\StringInterpolation\NormalInterpolatedStringVariable;
+use Phi\Nodes\Expressions\StringInterpolation\NormalInterpolatedStringVariableArrayAccess;
 use Phi\Nodes\Expressions\StringInterpolation\VariableInterpolatedStringVariable;
+use Phi\Nodes\Expressions\VariableExpression;
 use Phi\Nodes\Helpers\Argument;
 use Phi\Nodes\Helpers\Default_;
 use Phi\Nodes\Helpers\Key;
@@ -29,6 +33,7 @@ use Phi\Nodes\RootNode;
 use Phi\Nodes\Statement;
 use Phi\Nodes\Type;
 use Phi\TokenType as T;
+use PhpParser\Node\Expr\Variable;
 
 return [
 	(new NodeDef(Argument::class))
@@ -41,7 +46,7 @@ return [
 		->optNode("key", Key::class, CompoundNode::CTX_READ)
 		->optToken("unpack", T::T_ELLIPSIS)
 		->optToken("byReference", T::S_AMPERSAND)
-		->optNode("value", Expression::class, '$flags')
+		->optNode("value", Expression::class)
 		->constructor("value"),
 
 	/** @see Block */
@@ -77,9 +82,19 @@ return [
 		->constructor("content"),
 	/** @see InterpolatedStringVariable */
 	(new NodeDef(NormalInterpolatedStringVariable::class))
-		->optToken("leftBrace", T::S_LEFT_CURLY_BRACE)
 		->node("variable", Expression::class, CompoundNode::CTX_READ)
-		->optToken("rightBrace", T::S_RIGHT_CURLY_BRACE)
+		->constructor("variable"),
+	(new NodeDef(NormalInterpolatedStringVariableArrayAccess::class))
+		->node("variable", NormalVariableExpression::class)
+		->token("leftBracket", T::S_LEFT_SQUARE_BRACKET)
+		->optToken("minus", T::S_MINUS)
+		->token("index", [T::T_NUM_STRING, T::T_STRING, T::T_VARIABLE])
+		->token("rightBracket", T::S_RIGHT_SQUARE_BRACKET)
+		->constructor("variable", "index"),
+	(new NodeDef(BracedInterpolatedStringVariable::class))
+		->token("leftBrace", T::S_LEFT_CURLY_BRACE)
+		->node("variable", Expression::class, CompoundNode::CTX_READ)
+		->token("rightBrace", T::S_RIGHT_CURLY_BRACE)
 		->constructor("variable"),
 	(new Nodedef(ConfusingInterpolatedStringVariable::class))
 		->token("leftDelimiter", T::T_DOLLAR_OPEN_CURLY_BRACES)

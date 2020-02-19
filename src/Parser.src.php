@@ -212,30 +212,8 @@ class Parser
 				}
 				$keyword = $this->read(T::T_CLASS);
 				$name = $this->read(T::T_STRING);
-				if ($extendsKeyword = $this->opt(T::T_EXTENDS))
-				{
-					$extendsNames = [];
-					$extendsNames[] = $this->name();
-					$extends = Nodes\Oop\Extends_::__instantiateUnchecked($extendsKeyword, $extendsNames);
-				}
-				else
-				{
-					$extends = null;
-				}
-				if ($implementsKeyword = $this->opt(T::T_IMPLEMENTS))
-				{
-					$implementsNames = [];
-					do
-					{
-						$implementsNames[] = $this->name();
-					}
-					while ($implementsNames[] = $this->opt(T::S_COMMA));
-					$implements = Nodes\Oop\Implements_::__instantiateUnchecked($implementsKeyword, $implementsNames);
-				}
-				else
-				{
-					$implements = null;
-				}
+				$extends = $this->extends();
+				$implements = $this->implements();
 				$leftBrace = $this->read(T::S_LEFT_CURLY_BRACE);
 				$members = [];
 				while ($this->peek()->getType() !== T::S_RIGHT_CURLY_BRACE)
@@ -255,26 +233,16 @@ class Parser
 				);
 
 			case T::T_INTERFACE:
-				$keyword = $this->read(T::T_INTERFACE);
+				$keyword = $this->read();
 				$name = $this->read(T::T_STRING);
-				$extends = null;
-				if ($extendsKeyword = $this->opt(T::T_EXTENDS))
-				{
-					$extendsNames = [];
-					do
-					{
-						$extendsNames[] = $this->name();
-					}
-					while ($extendsNames[] = $this->opt(T::S_COMMA));
-					$extends = Nodes\Oop\Extends_::__instantiateUnchecked($extendsKeyword, $extendsNames);
-				}
+				$extends = $this->extends();
 				$leftBrace = $this->read(T::S_LEFT_CURLY_BRACE);
 				$members = [];
 				while ($this->peek()->getType() !== T::S_RIGHT_CURLY_BRACE)
 				{
 					$members[] = $this->oopMember();
 				}
-				$rightBrace = $this->read(T::S_RIGHT_CURLY_BRACE);
+				$rightBrace = $this->read();
 				return Nodes\Oop\InterfaceDeclaration::__instantiateUnchecked(
 					$keyword,
 					$name,
@@ -285,7 +253,7 @@ class Parser
 				);
 
 			case T::T_TRAIT:
-				$keyword = $this->read(T::T_TRAIT);
+				$keyword = $this->read();
 				$name = $this->read(T::T_STRING);
 				$leftBrace = $this->read(T::S_LEFT_CURLY_BRACE);
 				$members = [];
@@ -508,15 +476,28 @@ class Parser
 					$body
 				);
 
+			case T::T_GLOBAL:
+				$keyword = $this->read();
+				$variables = [];
+				do
+				{
+					$peek = $this->peek();
+					$variable = $this->simpleExpression();
+					if (!$variable instanceof Nodes\Expressions\VariableExpression)
+					{
+						throw ParseException::unexpected($peek);
+					}
+					$variables[] = $variable;
+				}
+				while ($variables[] = $this->opt(T::S_COMMA));
+				$semiColon = $this->statementDelimiter();
+				return Nodes\Statements\GlobalStatement::__instantiateUnchecked($keyword, $variables, $semiColon);
+
 			case T::T_GOTO:
 				$keyword = $this->read();
 				$label = $this->read(T::T_STRING);
 				$semiColon = $this->statementDelimiter();
-				return Nodes\Statements\GotoStatement::__instantiateUnchecked(
-					$keyword,
-					$label,
-					$semiColon
-				);
+				return Nodes\Statements\GotoStatement::__instantiateUnchecked($keyword, $label, $semiColon);
 
 			case T::T_IF:
 				$keyword = $this->read();
@@ -713,6 +694,47 @@ class Parser
 		}
 	}
 
+	private function extends(): ?Nodes\Oop\Extends_
+	{
+		if ($this->peek()->getType() === T::T_EXTENDS)
+		{
+			$keyword = $this->read();
+			$names = [];
+			$names[] = $this->name();
+			while ($this->peek()->getType() === T::S_COMMA)
+			{
+				$names[] = $this->read();
+				$names[] = $this->name();
+			}
+			return Nodes\Oop\Extends_::__instantiateUnchecked($keyword, $names);
+		}
+		else
+		{
+			return null;
+		}
+	}
+
+	private function implements(): ?Nodes\Oop\Implements_
+	{
+		if ($this->peek()->getType() === T::T_IMPLEMENTS)
+		{
+			$keyword = $this->read();
+			$names = [];
+			$names[] = $this->name();
+			while ($this->peek()->getType() === T::S_COMMA)
+			{
+				$names[] = $this->read();
+				$names[] = $this->name();
+			}
+			return Nodes\Oop\Implements_::__instantiateUnchecked($keyword, $names);
+		}
+		else
+		{
+			return null;
+		}
+	}
+
+	// TODO inline
 	private function use_(): Nodes\Statements\UseStatement
 	{
 		$keyword = $this->read(T::T_USE);
@@ -793,20 +815,7 @@ class Parser
 		if ($keyword = $this->opt(T::T_FUNCTION))
 		{
 			$byReference = $this->opt(T::S_AMPERSAND);
-			// TODO dedup
-			if ($this->peek()->getType() === T::T_STRING)
-			{
-				$name = $this->read();
-			}
-			else if (\in_array($this->peek()->getType(), T::STRINGY_KEYWORDS, true))
-			{
-				$this->peek()->_fudgeType(T::T_STRING);
-				$name = $this->read();
-			}
-			else
-			{
-				throw ParseException::unexpected($this->peek());
-			}
+			$name = $this->identifierOrKeywordAsIdentifier();
 			$leftParenthesis = $this->read(T::S_LEFT_PARENTHESIS);
 			$parameters = $this->parameters();
 			$rightParenthesis = $this->read(T::S_RIGHT_PARENTHESIS);
@@ -828,19 +837,7 @@ class Parser
 		}
 		else if ($keyword = $this->opt(T::T_CONST))
 		{
-			if ($this->peek()->getType() === T::T_STRING)
-			{
-				$name = $this->read();
-			}
-			else if (\in_array($this->peek()->getType(), T::STRINGY_KEYWORDS, true))
-			{
-				$this->peek()->_fudgeType(T::T_STRING);
-				$name = $this->read();
-			}
-			else
-			{
-				throw ParseException::unexpected($this->peek());
-			}
+			$name = $this->identifierOrKeywordAsIdentifier();
 			$equals = $this->read(T::S_EQUALS);
 			$value = $this->expression();
 			$semiColon = $this->read(T::S_SEMICOLON);
@@ -1241,18 +1238,56 @@ class Parser
 
 			case T::T_NEW:
 				$keyword = $this->read();
-				$class = $this->simpleExpression(true);
-				if ($leftParenthesis = $this->opt(T::S_LEFT_PARENTHESIS))
+				if ($this->peek()->getType() !== T::T_CLASS)
 				{
-					$arguments = $this->arguments();
-					$rightParenthesis = $this->read(T::S_RIGHT_PARENTHESIS);
+					$class = $this->simpleExpression(true);
+					if ($leftParenthesis = $this->opt(T::S_LEFT_PARENTHESIS))
+					{
+						$arguments = $this->arguments();
+						$rightParenthesis = $this->read(T::S_RIGHT_PARENTHESIS);
+					}
+					else
+					{
+						$arguments = [];
+						$rightParenthesis = null;
+					}
+					$node = Nodes\Expressions\NormalNewExpression::__instantiateUnchecked($keyword, $class, $leftParenthesis, $arguments, $rightParenthesis);
 				}
 				else
 				{
-					$arguments = [];
-					$rightParenthesis = null;
+					$classKeyword = $this->read();
+					if ($leftParenthesis = $this->opt(T::S_LEFT_PARENTHESIS))
+					{
+						$arguments = $this->arguments();
+						$rightParenthesis = $this->read(T::S_RIGHT_PARENTHESIS);
+					}
+					else
+					{
+						$arguments = [];
+						$rightParenthesis = null;
+					}
+					$extends = $this->extends();
+					$implements = $this->implements();
+					$leftBrace = $this->read(T::S_LEFT_CURLY_BRACE);
+					$members = [];
+					while ($this->peek()->getType() !== T::S_RIGHT_CURLY_BRACE)
+					{
+						$members[] = $this->oopMember();
+					}
+					$rightBrace = $this->read();
+					$node = Nodes\Expressions\AnonymousClassNewExpression::__instantiateUnchecked(
+						$keyword,
+						$classKeyword,
+						$leftParenthesis,
+						$arguments,
+						$rightParenthesis,
+						$extends,
+						$implements,
+						$leftBrace,
+						$members,
+						$rightBrace
+					);
 				}
-				$node = Nodes\Expressions\NewExpression::__instantiateUnchecked($keyword, $class, $leftParenthesis, $arguments, $rightParenthesis);
 				break;
 
 			case T::S_LEFT_SQUARE_BRACKET:
@@ -1314,14 +1349,28 @@ class Parser
 				break;
 
 			case T::T_DIR:
+				$node = Nodes\Expressions\MagicConstant\DirMagicConstant::__instantiateUnchecked($this->read());
+				break;
 			case T::T_FILE:
+				$node = Nodes\Expressions\MagicConstant\FileMagicConstant::__instantiateUnchecked($this->read());
+				break;
 			case T::T_LINE:
+				$node = Nodes\Expressions\MagicConstant\LineMagicConstant::__instantiateUnchecked($this->read());
+				break;
 			case T::T_FUNC_C:
+				$node = Nodes\Expressions\MagicConstant\FunctionMagicConstant::__instantiateUnchecked($this->read());
+				break;
 			case T::T_CLASS_C:
+				$node = Nodes\Expressions\MagicConstant\ClassMagicConstant::__instantiateUnchecked($this->read());
+				break;
 			case T::T_METHOD_C:
+				$node = Nodes\Expressions\MagicConstant\MethodMagicConstant::__instantiateUnchecked($this->read());
+				break;
 			case T::T_TRAIT_C:
+				$node = Nodes\Expressions\MagicConstant\TraitMagicConstant::__instantiateUnchecked($this->read());
+				break;
 			case T::T_NS_C:
-				$node = Nodes\Expressions\MagicConstant::__instantiateUnchecked($this->read());
+				$node = Nodes\Expressions\MagicConstant\NamespaceMagicConstant::__instantiateUnchecked($this->read());
 				break;
 
 			case T::T_CLONE:
@@ -1367,12 +1416,24 @@ class Parser
 				break;
 
 			case T::T_INCLUDE:
+				$keyword = $this->read();
+				$expression = $this->expression();
+				$node = Nodes\Expressions\IncludeExpression::__instantiateUnchecked($keyword, $expression);
+				break;
 			case T::T_INCLUDE_ONCE:
+				$keyword = $this->read();
+				$expression = $this->expression();
+				$node = Nodes\Expressions\IncludeOnceExpression::__instantiateUnchecked($keyword, $expression);
+				break;
 			case T::T_REQUIRE:
+				$keyword = $this->read();
+				$expression = $this->expression();
+				$node = Nodes\Expressions\RequireExpression::__instantiateUnchecked($keyword, $expression);
+				break;
 			case T::T_REQUIRE_ONCE:
 				$keyword = $this->read();
 				$expression = $this->expression();
-				$node = Nodes\Expressions\IncludeLikeExpression::__instantiateUnchecked($keyword, $expression);
+				$node = Nodes\Expressions\RequireOnceExpression::__instantiateUnchecked($keyword, $expression);
 				break;
 
 			case T::S_TILDE:
@@ -1394,15 +1455,45 @@ class Parser
 				break;
 
 			case T::T_ARRAY_CAST:
+				$cast = $this->read();
+				$expression = $this->expression(Expr::PRECEDENCE_POW);
+				$node = Nodes\Expressions\Cast\ArrayCastExpression::__instantiateUnchecked($cast, $expression);
+				break;
+
 			case T::T_BOOL_CAST:
+				$cast = $this->read();
+				$expression = $this->expression(Expr::PRECEDENCE_POW);
+				$node = Nodes\Expressions\Cast\BooleanCastExpression::__instantiateUnchecked($cast, $expression);
+				break;
+
 			case T::T_DOUBLE_CAST:
+				$cast = $this->read();
+				$expression = $this->expression(Expr::PRECEDENCE_POW);
+				$node = Nodes\Expressions\Cast\FloatCastExpression::__instantiateUnchecked($cast, $expression);
+				break;
+
 			case T::T_INT_CAST:
+				$cast = $this->read();
+				$expression = $this->expression(Expr::PRECEDENCE_POW);
+				$node = Nodes\Expressions\Cast\IntegerCastExpression::__instantiateUnchecked($cast, $expression);
+				break;
+
 			case T::T_OBJECT_CAST:
+				$cast = $this->read();
+				$expression = $this->expression(Expr::PRECEDENCE_POW);
+				$node = Nodes\Expressions\Cast\ObjectCastExpression::__instantiateUnchecked($cast, $expression);
+				break;
+
 			case T::T_STRING_CAST:
+				$cast = $this->read();
+				$expression = $this->expression(Expr::PRECEDENCE_POW);
+				$node = Nodes\Expressions\Cast\StringCastExpression::__instantiateUnchecked($cast, $expression);
+				break;
+
 			case T::T_UNSET_CAST:
 				$cast = $this->read();
 				$expression = $this->expression(Expr::PRECEDENCE_POW);
-				$node = Nodes\Expressions\CastExpression::__instantiateUnchecked($cast, $expression);
+				$node = Nodes\Expressions\Cast\UnsetCastExpression::__instantiateUnchecked($cast, $expression);
 				break;
 
 			case T::S_AT:
@@ -1450,9 +1541,9 @@ class Parser
 
 			case T::S_BACKTICK:
 				$leftDelimiter = $this->read();
-				$command = $this->read(T::T_ENCAPSED_AND_WHITESPACE);
+				$parts = $this->stringParts(T::S_BACKTICK);
 				$rightDelimiter = $this->read(T::S_BACKTICK);
-				$node = Nodes\Expressions\ExececutionExpression::__instantiateUnchecked($leftDelimiter, $command, $rightDelimiter);
+				$node = Nodes\Expressions\ExececutionExpression::__instantiateUnchecked($leftDelimiter, $parts, $rightDelimiter);
 				break;
 
 			/** @noinspection PhpMissingBreakStatementInspection */
@@ -1461,7 +1552,14 @@ class Parser
 				{
 					goto anonymousFunction;
 				}
-				$node = Nodes\Expressions\StaticExpression::__instantiateUnchecked($this->read());
+				else if ($this->peek(1)->getType() === T::T_FN)
+				{
+					goto arrowFunction;
+				}
+				else
+				{
+					$node = Nodes\Expressions\StaticExpression::__instantiateUnchecked($this->read());
+				}
 				break;
 
 			case T::T_FUNCTION:
@@ -1494,7 +1592,7 @@ class Parser
 
 				$body = $this->regularBlock();
 
-				$node = Nodes\Expressions\AnonymousFunctionExpression::__instantiateUnchecked(
+				$node = Nodes\Expressions\NormalAnonymousFunctionExpression::__instantiateUnchecked(
 					$static,
 					$keyword,
 					$byReference,
@@ -1506,6 +1604,31 @@ class Parser
 					$body
 				);
 				break;
+
+			case T::T_FN:
+				arrowFunction:
+				$static = $this->opt(T::T_STATIC);
+				$keyword = $this->read();
+				$byReference = $this->opt(T::S_AMPERSAND);
+				$leftParenthesis = $this->read(T::S_LEFT_PARENTHESIS);
+				$parameters = $this->parameters();
+				$rightParenthesis = $this->read(T::S_RIGHT_PARENTHESIS);
+				$returnType = $this->returnType();
+				$arrow = $this->read(T::T_DOUBLE_ARROW);
+				$expression = $this->expression(Expr::PRECEDENCE_TERNARY);
+				$node = Nodes\Expressions\ArrowFunctionExpression::__instantiateUnchecked(
+					$static,
+					$keyword,
+					$byReference,
+					$leftParenthesis,
+					$parameters,
+					$rightParenthesis,
+					$returnType,
+					$arrow,
+					$expression
+				);
+				break;
+
 
 			default:
 				throw ParseException::unexpected($this->peek());
@@ -1641,12 +1764,8 @@ class Parser
 							$name = $this->read();
 							// new expr::a -> parse error
 							// new expr::a() -> parse error
-							if ($newable)
-							{
-								throw ParseException::unexpected($this->peek());
-							}
 							// expr::a -> access constant 'a'
-							else if ($this->peek()->getType() !== T::S_LEFT_PARENTHESIS)
+							if ($newable || $this->peek()->getType() !== T::S_LEFT_PARENTHESIS)
 							{
 								$node = Nodes\Expressions\ConstantAccessExpression::__instantiateUnchecked($node, $operator, $name);
 								break;
@@ -1710,7 +1829,7 @@ class Parser
 							$node = Nodes\Expressions\ClassNameResolutionExpression::__instantiateUnchecked($node, $operator, $keyword);
 							break;
 
-							staticCall:
+						staticCall:
 							// we jump here when we positively decide on a static call, and have set up $memberName
 							/** @var Nodes\Helpers\MemberName $memberName */
 							$leftParenthesis = $this->read(T::S_LEFT_PARENTHESIS);
@@ -1720,9 +1839,9 @@ class Parser
 							break;
 
 						default:
-							fudgeSpecialNameToString:
 							if (\in_array($this->peek()->getType(), T::STRINGY_KEYWORDS, true))
 							{
+								fudgeSpecialNameToString:
 								$this->peek()->_fudgeType(T::T_STRING);
 								goto doubleColonString;
 							}
@@ -1747,6 +1866,24 @@ class Parser
 		}
 
 		return $node;
+	}
+
+	private function identifierOrKeywordAsIdentifier(): Token
+	{
+		if ($this->peek()->getType() === T::T_STRING)
+		{
+			return $this->read();
+		}
+		else if (\in_array($this->peek()->getType(), T::STRINGY_KEYWORDS, true))
+		{
+			$token = $this->read();
+			$token->_fudgeType(T::T_STRING);
+			return $token;
+		}
+		else
+		{
+			throw ParseException::unexpected($this->peek());
+		}
 	}
 
 	private function block(): Nodes\Block
@@ -1776,7 +1913,7 @@ class Parser
 	/**
 	 * @param array<int> $implicitEndKeywords
 	 *
-	 * TODO all blocks should accept all keywords as end and validation should handle the rest
+	 * TODO all blocks should accept all keywords as end and validation should handle the rest (?)
 	 */
 	private function altBlock(int $endKeywordType, array $implicitEndKeywords = []): Nodes\Blocks\AlternativeFormatBlock
 	{
@@ -1876,23 +2013,15 @@ class Parser
 	private function name(): Nodes\Helpers\Name
 	{
 		$parts = [];
-		// TODO simplify loop?
-		switch ($this->peek()->getType())
+		if ($this->peek()->getType() === T::T_NS_SEPARATOR)
 		{
-			/** @noinspection PhpMissingBreakStatementInspection */
-			case T::T_NS_SEPARATOR:
-				$parts[] = $this->read();
-			default:
-				$parts[] = $this->read(T::T_STRING);
-				while ($this->peek()->getType() === T::T_NS_SEPARATOR)
-				{
-					$parts[] = $this->read();
-					$parts[] = $this->read(T::T_STRING);
-				}
+			$parts[] = $this->read();
 		}
-		if (!$parts)
+		$parts[] = $this->read(T::T_STRING);
+		while ($this->peek()->getType() === T::T_NS_SEPARATOR)
 		{
-			throw ParseException::unexpected($this->peek());
+			$parts[] = $this->read();
+			$parts[] = $this->read(T::T_STRING);
 		}
 		return Nodes\Helpers\Name::__instantiateUnchecked($parts);
 	}
@@ -2011,33 +2140,39 @@ class Parser
 				$var = Nodes\Expressions\NormalVariableExpression::__instantiateUnchecked($this->read());
 				if ($leftBracket = $this->opt(T::S_LEFT_SQUARE_BRACKET))
 				{
-					// TODO fix in lexer
-					if ($this->peek()->getType() === T::T_NUM_STRING)
+					$minus = $this->opt(T::S_MINUS);
+					if ($this->peek()->getType() === T::T_STRING || $this->peek()->getType() === T::T_VARIABLE)
 					{
-						$this->peek()->_fudgeType(T::T_LNUMBER);
-						$this->types[$this->i] = T::T_LNUMBER;
+						$index = $this->read();
 					}
-					else if ($this->peek(1)->getType() === T::T_NUM_STRING)
+					else
 					{
-						$this->peek(1)->_fudgeType(T::T_LNUMBER);
-						$this->types[$this->i + 1] = T::T_LNUMBER;
+						$index = $this->read(T::T_NUM_STRING);
 					}
-					$index = $this->simpleExpression();
 					$rightBracket = $this->read(T::S_RIGHT_SQUARE_BRACKET);
-					$var = Nodes\Expressions\ArrayAccessExpression::__instantiateUnchecked($var, $leftBracket, $index, $rightBracket);
+					$parts[] = Nodes\Expressions\StringInterpolation\NormalInterpolatedStringVariableArrayAccess::__instantiateUnchecked(
+						$var,
+						$leftBracket,
+						$minus,
+						$index,
+						$rightBracket
+					);
 				}
 				else if ($operator = $this->opt(T::T_OBJECT_OPERATOR))
 				{
 					$name = Nodes\Helpers\NormalMemberName::__instantiateUnchecked($this->read(T::T_STRING));
-					$var = Nodes\Expressions\PropertyAccessExpression::__instantiateUnchecked($var, $operator, $name);
+					$parts[] = Nodes\Expressions\PropertyAccessExpression::__instantiateUnchecked($var, $operator, $name);
 				}
-				$parts[] = Nodes\Expressions\StringInterpolation\NormalInterpolatedStringVariable::__instantiateUnchecked(null, $var, null);
+				else
+				{
+					$parts[] = $var;
+				}
 			}
 			else if ($leftBrace = $this->opt(T::S_LEFT_CURLY_BRACE))
 			{
 				$expression = $this->simpleExpression();
 				$rightBrace = $this->read(T::S_RIGHT_CURLY_BRACE);
-				$parts[] = Nodes\Expressions\StringInterpolation\NormalInterpolatedStringVariable::__instantiateUnchecked($leftBrace, $expression, $rightBrace);
+				$parts[] = Nodes\Expressions\StringInterpolation\BracedInterpolatedStringVariable::__instantiateUnchecked($leftBrace, $expression, $rightBrace);
 			}
 			else if ($leftDelimiter = $this->opt(T::T_DOLLAR_OPEN_CURLY_BRACES))
 			{

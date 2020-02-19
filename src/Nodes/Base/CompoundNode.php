@@ -13,29 +13,17 @@ use Phi\Nodes\Oop\OopMember;
 use Phi\Nodes\RootNode;
 use Phi\Nodes\Statement;
 use Phi\Util\Console;
-use Phi\WrapperNode;
 
 abstract class CompoundNode extends Node
 {
 	abstract protected function &getChildRef(Node $child): Node;
 
-	protected function detachChild(Node $child): void
+	protected function detachChild(Node $child, Node $replacement = null): void
 	{
 		assert(!($child instanceof NodesList));
 		assert(!($child instanceof SeparatedNodesList));
 		$ref =& $this->getChildRef($child);
-		$ref = null;
-	}
-
-	protected function replaceChild(Node $child, Node $replacement): void
-	{
-		assert(!($child instanceof NodesList));
-		assert(!($child instanceof SeparatedNodesList));
-		$ref =& $this->getChildRef($child);
-		$replacement->detach();
 		$ref = $replacement;
-		$ref->parent = $this;
-		$child->parent = null;
 	}
 
 	public function iterTokens(): iterable
@@ -83,7 +71,9 @@ abstract class CompoundNode extends Node
 
 	/**
 	 * this is *added* to CTX_READ in a few rare cases,
-	 * e.g. foo($a[]), $a[]++
+	 * used to allow [] in 'read' context
+	 * e.g. foo($a[]), $a[] += 4
+	 * @see ArrayAccessExpression::extraValidation()
 	 * @internal
 	 */
 	public const CTX_LENIENT_READ = 0x10;

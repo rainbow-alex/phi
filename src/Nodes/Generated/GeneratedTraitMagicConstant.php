@@ -15,7 +15,7 @@ use Phi\Exception\TreeException;
 use Phi\NodeCoercer;
 use Phi\Exception\ValidationException;
 
-trait GeneratedMagicConstant
+trait GeneratedTraitMagicConstant
 {
 	/**
 	 * @var \Phi\Token|null
@@ -95,8 +95,8 @@ trait GeneratedMagicConstant
 	{
 		if ($this->token === null)
 			throw ValidationException::missingChild($this, "token");
-		if (!\in_array($this->token->getType(), [155, 180, 208, 187, 141, 214, 251, 220], true))
-			throw ValidationException::invalidSyntax($this->token, [155, 180, 208, 187, 141, 214, 251, 220]);
+		if ($this->token->getType() !== 251)
+			throw ValidationException::invalidSyntax($this->token, [251]);
 
 		if ($flags & 14)
 			throw ValidationException::invalidExpressionInContext($this);
@@ -107,6 +107,8 @@ trait GeneratedMagicConstant
 
 	public function _autocorrect(): void
 	{
+		if (!$this->token)
+			$this->setToken(new Token(251, '__TRAIT__'));
 
 		$this->extraAutocorrect();
 	}

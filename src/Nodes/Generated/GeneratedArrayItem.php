@@ -219,7 +219,7 @@ trait GeneratedArrayItem
 		if ($this->key)
 			$this->key->_validate(1);
 		if ($this->value)
-			$this->value->_validate($flags);
+			$this->value->_validate(0);
 	}
 
 	public function _autocorrect(): void
